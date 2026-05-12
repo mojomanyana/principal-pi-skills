@@ -1,0 +1,30 @@
+{
+    "name": "principal-pi-skills",
+    "version": "0.1.0",
+    "description": "Six-skill framework for principal-level software engineering: brainstorming, software-architect, implementation-planner, tech-lead, coder, project-git.",
+    "license": "MIT",
+    "author": "Nemanja Alavanja",
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/mojomanyana/principal-pi-skills.git"
+    },
+    "homepage": "https://github.com/mojomanyana/principal-pi-skills#readme",
+    "bugs": {
+        "url": "https://github.com/mojomanyana/principal-pi-skills/issues"
+    },
+    "keywords": [
+        "pi-package",
+        "skills",
+        "agent-skills"
+    ],
+    "pi": {
+        "skills": [
+            "./brainstorming",
+            "./coder",
+            "./implementation-planner",
+            "./project-git",
+            "./software-architect",
+            "./tech-lead"
+        ]
+    }
+}
