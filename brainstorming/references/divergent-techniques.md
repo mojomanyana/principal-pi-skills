@@ -194,7 +194,7 @@ The technique that fixes the central failure of group brainstorming (one loud vo
 
 **Method (1-on-1 with AI):** before discussing options together, the user writes their own list silently, in their own context, for ~5 minutes. Then the AI generates its own list independently. Then both lists are merged. The point: prevent the AI from anchoring the user (and vice versa) before either has done independent thinking.
 
-**Why it matters here specifically:** Claude's outputs anchor users hard. If you start generating options the moment the user finishes describing the problem, the user's own thinking gets cut short. The user's tacit knowledge about their domain matters — and that knowledge surfaces only when they're forced to write before reading.
+**Why it matters here specifically:** AI-generated outputs anchor users hard. If you start generating options the moment the user finishes describing the problem, the user's own thinking gets cut short. The user's tacit knowledge about their domain matters — and that knowledge surfaces only when they're forced to write before reading.
 
 **Script for the AI side:**
 

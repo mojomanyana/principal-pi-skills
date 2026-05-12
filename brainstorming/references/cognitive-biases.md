@@ -26,7 +26,7 @@ This reference catalogs the biases that most commonly distort brainstorming sess
 
 ## Sycophancy — the LLM bias
 
-The most important bias to defend against, because Claude is biased toward it by default. Sycophancy is **the tendency to agree, validate, and produce supportive responses rather than honest ones.**
+The most important bias to defend against, because LLMs are biased toward it by default. Sycophancy is **the tendency to agree, validate, and produce supportive responses rather than honest ones.**
 
 ### How it shows up
 

@@ -19,7 +19,7 @@ A **System Landscape** is a Level-1 diagram with several related systems shown t
 
 ## Mermaid status note
 
-Mermaid's C4 diagram support is officially flagged "experimental" and has been since 2021. In practice the syntax is stable and widely rendered (GitHub, GitLab, Notion, VS Code preview, mermaid.live, Claude artifacts). But occasionally a renderer will choke on a specific element. Two coping strategies:
+Mermaid's C4 diagram support is officially flagged "experimental" and has been since 2021. In practice the syntax is stable and widely rendered (GitHub, GitLab, Notion, VS Code preview, mermaid.live). But occasionally a renderer will choke on a specific element. Two coping strategies:
 
 1. **Prefer the experimental C4 types** (`C4Context`, `C4Container`, etc.) — they produce the right semantics with the least syntax.
 2. **Fall back to mermaid `flowchart`** when the C4 renderer fails (see "Fallback rendering" below). The semantics are imposed by naming and styling conventions rather than the diagram type.

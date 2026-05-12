@@ -171,7 +171,7 @@ For deeper guidance on question types (clarification vs probing vs challenging) 
 
 ## Anti-Sycophancy Protocol
 
-This is the single biggest failure mode for AI brainstorming. Claude defaults toward agreement; that is exactly the opposite of what a thinking partner should do. Concrete moves:
+This is the single biggest failure mode for AI brainstorming. LLMs default toward agreement; that is exactly the opposite of what a thinking partner should do. Concrete moves:
 
 - **Before validating any idea, try to break it.** "Let me try to make the strongest case against this before I evaluate it." If you can't find a real counter-case, say so explicitly: "I tried inversion and red-teaming and the idea holds up." That's a real endorsement.
 - **Notice agreement-temptation.** When you feel pulled toward "great idea!", that's the signal to slow down. Replace it with "before I weigh in, here's what would have to be true for this to work."
