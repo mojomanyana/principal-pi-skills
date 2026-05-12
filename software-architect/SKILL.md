@@ -158,3 +158,16 @@ A few conventions worth holding:
 - **One-way-door warnings front-and-center.** If a decision is irreversible, say so before the recommendation, not as a footnote.
 - **No fake consensus.** If a question has a genuinely contested answer in the field, say so. Don't pretend there's an obvious choice when there isn't.
 - **Brevity in the recommendation, depth in the appendix.** The conclusion should fit in a few paragraphs. The supporting analysis can be as long as it needs to be — and the C4 diagrams carry weight prose doesn't have to.
+
+## Handoff cues — what comes next
+
+When the design or ADR is done, **point** to the appropriate next step. Do not invoke it.
+
+| If the output is... | Point to | What to include in handoff |
+|----|----------|---------------------------|
+| A design doc or ADR for a multi-step build | `implementation-planner` skill | Design summary, QA scenarios, constraints, C4 diagrams |
+| A small, single-slice design (one change, clear scope) | `tech-lead` skill | Design summary, affected files, QA target |
+| An ADR that needs to land in git | `project-git` skill | ADR file, commit message, branch, PR target |
+| A review finding that needs a brainstorm | `brainstorming` skill | Finding summary, the question to explore |
+
+This skill never invokes another skill. It points; the user or orchestrator routes.

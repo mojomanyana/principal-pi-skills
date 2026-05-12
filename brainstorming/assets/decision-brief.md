@@ -120,8 +120,11 @@ Things we deliberately did NOT decide in this session, and what would need to be
 **If software architecture:**
 > Hand off to `software-architect` skill. Key inputs: [decision summary, quality attributes, constraints].
 
-**If implementation:**
-> Hand off to coding agent / next agent. Key inputs: [decision, acceptance criteria, files of interest].
+**If implementation (non-trivial, multi-step):**
+> Hand off to `implementation-planner` skill. Key inputs: [decision summary, acceptance criteria, constraints].
+
+**If implementation (small, single-slice):**
+> Hand off to `tech-lead` skill. Key inputs: [decision, acceptance criteria, files of interest].
 
 **If further brainstorming on a sub-question:**
 > Open a new session focused on [sub-question]. Carry forward: [the parts of this brief that should remain stable].

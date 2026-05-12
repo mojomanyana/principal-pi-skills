@@ -93,7 +93,7 @@ The skill auto-detects which mode the request fits. Each mode has a step-sequenc
 
 ## Delegation contract — how other skills call this
 
-This skill is designed to be invoked by `software-architect`, `brainstorming`, and any other upstream agent that produces work needing to land in git or GitHub. The contract is **adaptive**: the skill detects whether the caller is a human (chat) or a delegate (structured handoff) and adjusts output.
+This skill is designed to be invoked by `coder`, `software-architect`, `brainstorming`, and any other upstream agent that produces work needing to land in git or GitHub. The most common upstream path is `coder` → `project-git` (the coder hands off a branch with an implementation report and baton). The contract is **adaptive**: the skill detects whether the caller is a human (chat) or a delegate (structured handoff) and adjusts output.
 
 ### Detecting a delegated call
 

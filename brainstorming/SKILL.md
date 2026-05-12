@@ -224,8 +224,9 @@ When the brief is done, **point** to the appropriate next step. Do not invoke it
 | If the decision is about... | Point to | What to include in handoff |
 |-----------------------------|----------|---------------------------|
 | System or feature architecture | `software-architect` skill | Decision summary, key quality attributes, constraints |
-| Implementation work | Coding skill / agent | Decision summary, acceptance criteria, files of interest |
-| Git/GitHub workflow setup | `gh-workflow` skill | Issues to create, branch strategy, labels |
+| Implementation work (non-trivial) | `implementation-planner` skill | Decision summary, acceptance criteria, constraints |
+| Implementation work (small / single-slice) | `tech-lead` skill | Decision summary, acceptance criteria, files of interest |
+| Git/GitHub workflow setup | `project-git` skill | Issues to create, branch strategy, labels |
 | Writing or content production | Writing/content skill | Decision summary, audience, tone, format |
 | Further sub-brainstorms | This skill again, on a sub-question | What's been decided vs what's still open |
 | Non-software (business, personal, etc.) | The user themselves | Plain decision brief, no skill chain |

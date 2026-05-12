@@ -45,7 +45,7 @@ When one skill hands work to another, three things go wrong without a contract:
 
 Batons are how you fix all three. They are deliberate **context engineering**: select what the receiving skill needs, compress it to its essentials, frame it as a contract, and define the return.
 
-This is closely related to the Anthropic 2025 context-engineering practice for agentic systems: an agent's effective intelligence is bounded by how well its context is curated, not by how much context is available. The same principle applies to chained skills — the baton is the curation step.
+This is closely related to the context-engineering principle for agentic systems: an agent's effective intelligence is bounded by how well its context is curated, not by how much context is available. The same principle applies to chained skills — the baton is the curation step.
 
 ---
 
