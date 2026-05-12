@@ -1,7 +1,14 @@
 ---
 name: implementation-planner
 version: 0.1.0
-description: Senior implementation planner. Use when you have a spec, ADR, design doc, decision brief, or multi-step engineering task and need an executable plan before touching code. Triggers: "how should I tackle this", "what's the order of work", "break this down", "where do I start". Produces a plan with vertical slices, dependency DAG, risk register, acceptance and kill criteria, reversibility tags, and handoff batons. Does not execute; points to other skills.
+description: >
+  Senior implementation planner. Use when you have a spec, ADR, design doc,
+  decision brief, or multi-step engineering task and need an executable plan
+  before touching code. Triggers — "how should I tackle this", "what's the
+  order of work", "break this down", "where do I start". Produces a plan with
+  vertical slices, dependency DAG, risk register, acceptance and kill criteria,
+  reversibility tags, and handoff batons. Does not execute; points to other
+  skills.
 ---
 
 # Implementation Planner — The Bridge Skill

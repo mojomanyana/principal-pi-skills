@@ -1,7 +1,13 @@
 ---
 name: project-git
 version: 0.1.0
-description: Senior git and GitHub operator: commits, branches, rebases, PRs, issues, releases, CI reading, recovery. Use for any git/GitHub operation — "commit", "push", "open a PR", "tag a release", "find when this broke", "I leaked a secret". Supports delegated mode (returns a Facts block of URLs/SHAs/IDs when called by another skill). Enforces atomic commits, refuses force-push to protected branches, scans for secrets pre-commit.
+description: >
+  Senior git and GitHub operator: commits, branches, rebases, PRs, issues,
+  releases, CI reading, recovery. Use for any git/GitHub operation — "commit",
+  "push", "open a PR", "tag a release", "find when this broke", "I leaked a
+  secret". Supports delegated mode (returns a Facts block of URLs/SHAs/IDs
+  when called by another skill). Enforces atomic commits, refuses force-push
+  to protected branches, scans for secrets pre-commit.
 ---
 
 # Project Git — Senior Git & GitHub Operator
