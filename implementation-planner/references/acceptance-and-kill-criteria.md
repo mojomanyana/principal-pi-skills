@@ -237,7 +237,7 @@ That's the observability contract. After this slice ships, an on-call engineer h
 
 ### Observability is not optional for one-way doors
 
-A 🚪 one-way-door slice without observability is a slice you can't tell has gone wrong until users tell you. Don't ship.
+A *one-way-door* slice without observability is a slice you can't tell has gone wrong until users tell you. Don't ship.
 
 ---
 

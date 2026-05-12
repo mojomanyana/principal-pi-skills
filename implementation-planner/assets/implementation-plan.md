@@ -98,7 +98,7 @@
   - Endpoint/service is reachable from the production environment via the real deploy pipeline
   - Logs appear in the real observability stack
   - <Other seam-specific signals>
-- **Reversibility:** 🚪🚪 two-way
+- **Reversibility:** *two-way*
 - **Size:** XS / S
 - **Depends on:** —
 - **Handoff:** <skill executing this slice, e.g., coding>
@@ -125,8 +125,8 @@
   - Measurable: <metric>
   - Alertable: <threshold or "none, with reason">
   - Debuggable: <context>
-- **Kill criteria:** <when to abandon or pivot; required for 🚪 one-way and for spikes>
-- **Reversibility:** 🚪🚪 two-way / 🚪 one-way
+- **Kill criteria:** <when to abandon or pivot; required for *one-way* and for spikes>
+- **Reversibility:** *two-way* / *one-way*
 - **Size:** XS / S / M
 - **Depends on:** <slice IDs>
 - **Enables:** <slice IDs>
@@ -172,7 +172,7 @@ S3 (<title>)          → DONE
 
 ---
 
-## 8. One-way-door Review [required if any 🚪 slices]
+## 8. One-way-door Review [required if any *one-way* slices]
 
 <!-- Each one-way-door slice gets a row. -->
 

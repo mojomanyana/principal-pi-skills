@@ -1,0 +1,50 @@
+# ─── macOS ──────────────────────────────────────────────
+.DS_Store
+.AppleDouble
+.LSOverride
+._*                       # AppleDouble resource forks
+.Spotlight-V100
+.Trashes
+
+# ─── Windows ────────────────────────────────────────────
+Thumbs.db
+Thumbs.db:encryptable
+ehthumbs.db
+ehthumbs_vista.db
+desktop.ini
+*:Zone.Identifier         # the artifact we just removed
+$RECYCLE.BIN/
+
+# ─── Linux ──────────────────────────────────────────────
+*~                        # backup files from many editors
+.fuse_hidden*
+.directory
+.Trash-*
+.nfs*
+
+# ─── Editor / IDE ───────────────────────────────────────
+.vscode/
+.idea/
+*.swp                     # vim
+*.swo
+*.swn
+.*.swp
+*~
+.netrwhist                # vim
+.project                  # Eclipse
+.classpath
+.settings/
+*.sublime-project
+*.sublime-workspace
+.vs/                      # Visual Studio
+*.code-workspace
+
+# ─── Agent / skill harness scratch ──────────────────────
+# Most harnesses keep local state under these
+.claude/
+.codex/
+.pi/
+.factory/
+.agents/
+# Note: do NOT add the above if you ever check
+# project-level skill installs into the repo

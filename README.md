@@ -1,6 +1,6 @@
 # principal-pi-skills
 
-**A six-skill framework for principal-level software engineering with an AI coding agent.** Walks a non-trivial change end-to-end — from fuzzy idea to merged PR — by routing the work through six purpose-built skills that hand off to each other with structured "batons." Compatible with any agent that supports the [Agent Skills](https://hochej.github.io/pi-mono/coding-agent/skills/) standard: Claude Code, the Pi coding agent, OpenAI Codex CLI, Amp, Droid, and others.
+**A six-skill framework for principal-level software engineering with an AI coding agent.** Walks a non-trivial change end-to-end — from fuzzy idea to merged PR — by routing the work through six purpose-built skills that hand off to each other with structured "batons." Compatible with any agent that supports the [Agent Skills](https://hochej.github.io/pi-mono/coding-agent/skills/) standard: Claude Code, the Pi coding agent, OpenAI Codex CLI, Amp, Droid, and others. (The "pi" in the name nods to the Pi coding agent — where the `SKILL.md` convention originated — but the framework targets any compliant agent.)
 
 The skills are deliberately opinionated. They enforce postures most agents drop on their own — diverge-before-converge, walking-skeleton-first, anti-sycophancy, read-before-write, scope discipline, honest reporting — and refuse to do work that violates them. The goal is decisions you won't regret in eighteen months, with the artifacts to defend them later.
 
@@ -136,7 +136,7 @@ For smaller decisions ("should we cache here?"), the architect's *Advisory* mode
 
 `implementation-planner` takes the design (or the brief, for smaller efforts) and turns it into an **executable plan**. The plan opens with a measurable outcome statement, surfaces the top risks before listing any tasks, designs the **walking skeleton** (the thinnest end-to-end slice that exercises every architectural seam with stub logic), then decomposes the rest into **vertical slices** that each pass INVEST — Independent, Negotiable, Valuable, Estimable, Small, Testable.
 
-Every slice has both **acceptance criteria** (done-when) and **kill criteria** (stop-when), plus a reversibility tag — 🚪🚪 two-way door (cheap to undo) or 🚪 one-way door (expensive: schema migrations, public API contracts, vendor commits). One-way doors require explicit kill criteria and a decision review. The plan ships as a dependency DAG, not a sequential checklist, with the critical path called out and parallel work made explicit.
+Every slice has both **acceptance criteria** (done-when) and **kill criteria** (stop-when), plus a reversibility tag — *two-way door* (cheap to undo) or *one-way door* (expensive: schema migrations, public API contracts, vendor commits). One-way doors require explicit kill criteria and a decision review. The plan ships as a dependency DAG, not a sequential checklist, with the critical path called out and parallel work made explicit.
 
 The plan is a living artifact: status updates per slice, dated revision notes, and a handoff baton per skill transition.
 
@@ -190,7 +190,7 @@ A baton is a **delegation contract** for a single transition between skills. Not
 
 ### Reversibility tags
 
-Three skills tag decisions explicitly: 🟢 two-way door (cheap to undo), 🟡 costly (rework but no migration), 🔴 one-way door (data migration, version coordination, downstream breakage, public API change). One-way doors require an explicit **kill criterion** in advance — *"we revert before further commit if X is observed."* Mid-flight, you can't think clearly about kill criteria; sunk cost has you. Pre-commitment is the whole point.
+Reversibility is tagged on every significant decision. Decision/design altitude uses two tiers in prose: *two-way door* (cheap to undo) or *one-way door* (data migration, version coordination, downstream breakage, public API change). Code altitude (tech-lead) adds a middle tier — 🟡 *costly* (rework but no migration) — alongside 🟢 *two-way* and 🔴 *one-way* for finer per-decision tagging. One-way doors require an explicit **kill criterion** in advance — *"we revert before further commit if X is observed."* Mid-flight, you can't think clearly about kill criteria; sunk cost has you. Pre-commitment is the whole point.
 
 ### Anti-sycophancy as a core posture
 
@@ -211,6 +211,8 @@ A `SKILL.md` carries the posture, the working modes, and the output contract. De
 ### Point, don't invoke
 
 Every skill ends with a *Handoff Cues* section that names the next skill but doesn't call it. The text is explicit: *"this skill never invokes another skill."* You — or your harness — route between skills. This keeps each skill independently testable and prevents runaway chains.
+
+*(For the routing question — who actually moves the work between skills — see AGENTS.md §1. In short: the user driving a chat, the agent reading its own previous output, or a programmatic harness all work. The framework targets the first two today; the baton structure is extensible to the third.)*
 
 ---
 
@@ -309,6 +311,8 @@ principal-pi-skills/
                       rebase-and-merge, recovery, release-workflow, repo-admin,
                       safety-and-secrets)
 ```
+
+---
 
 ## License
 

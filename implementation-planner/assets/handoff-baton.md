@@ -1,3 +1,56 @@
+---
+id: baton-YYYY-MM-DD-<plan-slug>-<slice-id>
+from: implementation-planner
+to: tech-lead
+created: YYYY-MM-DDTHH:MM:SSZ
+revision: 1
+references:
+  - path: <path to plan, e.g., docs/plans/payment-flow.md>
+    section: <"§4 — Slice S2" or similar>
+  - path: <design doc or ADR, if any>
+objective: |
+  <One to three sentences. What the tech-lead is being asked to do for
+  this slice. Bad: "Spec slice S2." Good: "Produce a coding spec for
+  slice S2 (token validation) per its acceptance criteria. The spec
+  must allow the coder to implement without inventing scope.">
+
+kill_criteria:
+  - <Slice scope expands beyond what the plan sized for>
+  - <Spec attempts to reintroduce something already tried/ruled-out>
+  - <Add slice-specific stop conditions>
+
+return_contract:
+  artifacts:
+    - filled coding spec (tech-lead/assets/coding-spec.md)
+    - handoff baton to coder (tech-lead/assets/handoff-baton.md)
+  status: complete | needs-replan | blocked
+
+# Transition-specific:
+slice_id: <e.g., S2>
+acceptance_criteria:
+  - <Concrete done-when condition 1>
+  - <Concrete done-when condition 2>
+
+tried_ruled_out:
+  - approach: <approach name>
+    reason: <why it didn't work or was ruled out upstream>
+  # Surface what's been explored upstream so tech-lead doesn't repeat.
+
+flagged_assumptions:
+  - assumption: <statement>
+    how_to_verify: <concrete check>
+    if_false: <what to do>
+
+reversibility: two-way | one-way
+
+dag_dependencies:
+  - <slice ID that must complete first>
+
+observability_criteria:
+  # For production-bound slices only
+  - <log/metric/alert criterion>
+---
+
 # Handoff Baton: <SHORT TITLE>
 
 <!--
@@ -6,6 +59,10 @@
 
   Save to: /docs/batons/baton-YYYY-MM-DD-<plan-slug>-<slice-id>.md
   (or wherever your project's convention places batons)
+
+  The YAML frontmatter above carries the machine-parseable spine + transition fields.
+  The markdown sections below carry the human-readable context.
+  See BATON.md at the repo root for the full schema.
 
   The seven sections below are REQUIRED. Do not omit. See handoff-contracts.md §3.
 -->
