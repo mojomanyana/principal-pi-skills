@@ -159,7 +159,7 @@ If the work blends feature implementation with operational concerns (migrations,
 - **Before:** "Build new feature with migrations and monitoring"
 - **After:** S1: Migration (schema change, ship empty). S2: Feature implementation against the migrated schema. S3: Monitoring and alerts.
 
-This pattern is *especially* valuable when the migration is a 🚪 one-way door — separating it lets you review and time-gate it independently.
+This pattern is *especially* valuable when the migration is a *one-way door* — separating it lets you review and time-gate it independently.
 
 ### 4.8 Split spike from implementation
 

@@ -1,17 +1,7 @@
 ---
 name: project-git
-description: >
-  Senior git and GitHub operator: commits, branches, rebases, PRs, issues, releases, CI reading,
-  recovery. Use when the user wants to commit, push, branch, rebase, merge, stash, sync,
-  open/close/update an issue or PR, tag a release, write a changelog, configure CODEOWNERS or
-  branch protections, read GitHub Actions failures, manage repo secrets/environments, or recover
-  from a botched commit, leaked secret, or wrong-branch push. Also use when delegated from
-  another skill (software-architect handing off an ADR commit, brainstorming handing off issues
-  to file) — in delegated mode, suppress narration and return a Facts block (URLs, IDs, SHAs,
-  branch names). Trigger even without git words: "save my work", "push it up", "open a PR",
-  "track this as a task", "ship a release", "find when this broke", "I leaked a secret",
-  "who wrote this line" all qualify. Teaches atomic narrating commits, refuses force-push on
-  protected branches, scans for secrets pre-commit, walks the reflog before destructive ops.
+version: 0.1.0
+description: Senior git and GitHub operator: commits, branches, rebases, PRs, issues, releases, CI reading, recovery. Use for any git/GitHub operation — "commit", "push", "open a PR", "tag a release", "find when this broke", "I leaked a secret". Supports delegated mode (returns a Facts block of URLs/SHAs/IDs when called by another skill). Enforces atomic commits, refuses force-push to protected branches, scans for secrets pre-commit.
 ---
 
 # Project Git — Senior Git & GitHub Operator
@@ -19,6 +9,10 @@ description: >
 You are working as a senior git and GitHub operator. The job is the *craft* of version control and collaboration, not the command syntax — the model already knows the commands. What separates good from bad is judgment: when to rebase vs merge, when force-push is fine vs a red flag, what makes a commit atomic, what makes an issue searchable, what to do *first* when a secret leaks (rotate, then rewrite — not the other way around).
 
 This skill is also a **delegate**. Other skills (notably `software-architect` and `brainstorming`) hand off git/GitHub work to it. When that happens, narration goes away and structured facts come back.
+
+## Triggers
+
+Load for any git or GitHub operation: commit, push, branch, rebase, merge, stash, sync, open/close/update an issue or PR, tag a release, write a changelog, configure CODEOWNERS or branch protections, read GitHub Actions failures, manage repo secrets/environments, or recover from a botched commit, leaked secret, or wrong-branch push. Also load when delegated from another skill (software-architect handing off an ADR commit, brainstorming handing off issues to file) — in delegated mode, narration is suppressed and a Facts block is returned (URLs, IDs, SHAs, branch names). Triggers even without git words: "save my work", "push it up", "open a PR", "track this as a task", "ship a release", "find when this broke", "I leaked a secret", "who wrote this line".
 
 ---
 
@@ -164,7 +158,7 @@ When the operation completes, name the calling skill in the `next_step_hint` so 
 - After filing discovery issues: `next_step_hint: "Hand control back to brainstorming or the user; issues #143, #144, #145 are ready for spike work."`
 - After a release: `next_step_hint: "Notify deploy owner; release v1.2.0 is published."`
 
-This skill never invokes another skill. It points; the orchestrator routes.
+This skill never invokes another skill. It points; the user, agent, or orchestrator routes.
 
 ---
 
@@ -237,4 +231,4 @@ Load the relevant reference *before* executing a non-trivial operation in that m
 6. **Secrets: rotate first, then rewrite.** Order matters.
 7. **Delegated mode returns facts.** Suppress narration; emit the Facts block.
 8. **Confirmation gates** on protected-branch writes and history rewrites — never assumed.
-9. **Point, don't invoke.** This skill names the next step in `next_step_hint`; the orchestrator routes.
+9. **Point, don't invoke.** This skill names the next step in `next_step_hint`; the user or orchestrator routes.

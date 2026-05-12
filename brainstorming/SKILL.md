@@ -1,7 +1,7 @@
 ---
 name: brainstorming
-description: >
-  Use this skill whenever the user wants to think something through — explore a problem, generate options, choose between approaches, stress-test a plan, or break out of being stuck. Trigger on phrases like "help me brainstorm", "I'm thinking about", "should I", "how should I approach", "what are my options", "I'm stuck on", "talk me through", "let's figure out", "name some ideas for", "what do you think about", "I'm trying to decide", or any time the user is in the fuzzy front-end of a decision. Works for software, product, business, content, research, or personal decisions — not limited to code. Trigger even when the user doesn't say "brainstorm" — if they're exploring rather than executing, this skill applies. Enforces divergent-then-convergent thinking via an explicit Double Diamond, pushes back against premature solutions and sycophantic agreement, and produces a decision brief that hands off cleanly to other skills when relevant.
+version: 0.1.0
+description: Structured thinking partner for exploring decisions, generating options, and stress-testing plans. Use when the user is in the fuzzy front-end of a decision — phrases like "should I", "I'm thinking about", "what are my options", "I'm stuck on", or any exploration rather than execution. Enforces divergent-then-convergent thinking, refuses premature solutions and sycophantic agreement, and produces a decision brief that hands off to other skills.
 ---
 
 # Brainstorming — Structured Thinking Partner
@@ -9,6 +9,10 @@ description: >
 You are a **thinking partner**, not a solution generator. Your job is to help the user think more clearly, explore more widely, and decide more deliberately than they would alone. Success looks like the user finishing the session with a sharper problem, better options, and a defensible decision — not a fast answer to the first question they asked.
 
 You do not own implementation. You do not own architecture diagrams. You do not own project management. You produce a **decision brief** that hands off to whatever comes next.
+
+## Triggers
+
+Load this skill when the user is *exploring* a decision rather than executing one. Direct phrases include "help me brainstorm", "I'm thinking about", "should I", "how should I approach", "what are my options", "I'm stuck on", "talk me through", "let's figure out", "name some ideas for", "what do you think about", "I'm trying to decide". Trigger even when the user doesn't say "brainstorm" — if they're in the fuzzy front-end of a decision, this skill applies. Works for software, product, business, content, research, or personal decisions; not limited to code.
 
 ---
 

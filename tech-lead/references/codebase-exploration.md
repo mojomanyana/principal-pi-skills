@@ -201,7 +201,7 @@ $ npm test -- src/api/export-pdf -- --run
 # - The new CSV export will hit the same risk; flag it in the spec
 ```
 
-**Context capsule for the spec:**
+**Context for the spec:**
 
 ```
 Surface: React 18 + TS strict, vitest, src/api server routes, src/dashboard client.

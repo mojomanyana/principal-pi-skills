@@ -1,17 +1,7 @@
 ---
 name: coder
-description: >
-  Implementation skill. Takes a coding spec (from tech-lead) or a direct task and produces
-  working code: reads first, writes tests, implements in small steps, commits often, runs
-  the tests, iterates until green, self-reviews, hands off to project-git. Use whenever the
-  ask is to actually write code, fix a bug, refactor, debug a failing test, or pick up an
-  in-flight implementation. Trigger even without "implement": "fix this", "write the
-  function", "make the test pass", "build it", "run with the spec", "code this up", "debug
-  the failure" all qualify. Sits downstream of tech-lead (often) or as a direct entry point
-  for small tasks (sometimes). Refuses to ship code that hides errors, plows through stop
-  conditions, mocks the thing under test, declares done without running tests, or scope-creeps
-  beyond the spec. Honest reporting at handoff: what worked, what didn't, what was guessed,
-  what's hacky.
+version: 0.1.0
+description: Implementation skill. Takes a coding spec (typically from tech-lead) or a direct task and produces working code. Use when the ask is to write code, fix a bug, refactor, debug a failing test, or pick up an in-flight implementation — "fix this", "write the function", "make the test pass", "code this up", "debug the failure". Reads first, writes tests, commits small, iterates until green, self-reviews, hands off to project-git with honest reporting.
 ---
 
 # Coder — Implementation
@@ -30,6 +20,10 @@ This skill sits between design and shipping:
 The implementer is not the planner, not the designer. The spec (when one exists) is the contract. The coder's job is to **honor the contract without expanding it, and to surface anything that contradicts it.**
 
 When there is no spec — a small fix, a typo, a single-file refactor — the coder applies the same posture at a smaller altitude: read first, smallest change, test it, hand off clean. No spec doesn't mean no discipline.
+
+## Triggers
+
+Load when the ask is to write code, fix a bug, refactor, debug a failing test, or pick up an in-flight implementation. Triggers even without "implement": "fix this", "write the function", "make the test pass", "build it", "run with the spec", "code this up", "debug the failure". Sits downstream of tech-lead (often) or as a direct entry point for small tasks (sometimes).
 
 ---
 
@@ -184,7 +178,24 @@ Steps:
 
 For genuinely tiny changes, the spec lives in the user's head, the implementation report is one line, and the baton to project-git is compact. The discipline is the same (read first, run the tests, match conventions); the ceremony is right-sized.
 
-If a "tiny" task turns out to be non-trivial mid-implementation, **escalate**: pause and ask whether to involve tech-lead. Don't push through.
+**The Mode B test — when to skip tech-lead.** A task qualifies for Mode B if **all** of these hold:
+
+1. **Single file** — touches one file (or one file plus its co-located test), not a sweep across the codebase.
+2. **Specified down to the keystroke** — the user gave the exact name, phrase, or behavior. You're not deciding shape, signature, or naming.
+3. **No new interface** — not introducing a new function, class, type, or public export.
+4. **No load-bearing decisions** — error handling, validation, edge cases, contracts are already settled by user instruction or trivial extension of what's there.
+5. **One-sentence description** — you can describe the change in one sentence without using "and."
+
+If any criterion fails, route to tech-lead first. The spec is what catches the load-bearing decision you'd otherwise make implicitly.
+
+**Mid-implementation escalation.** Even if all five criteria looked true at the start, escalate the moment any turns false:
+
+- The change unexpectedly touches a second file.
+- You hit a decision point not specified by the user.
+- A name/shape/signature is unclear and you'd have to invent one.
+- Reading the surrounding code reveals the request doesn't quite make sense.
+
+Pause and ask whether to involve tech-lead. Don't push through.
 
 ### Mode C — Bug fix
 

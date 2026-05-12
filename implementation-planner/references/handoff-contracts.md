@@ -51,62 +51,64 @@ This is closely related to the context-engineering principle for agentic systems
 
 ## 3. The seven required sections
 
-Every baton has these, in this order. The template lives at [`../assets/handoff-baton.md`](../assets/handoff-baton.md).
+Every baton has these, in this order. The canonical schema lives at [`../../baton-schema.md`](../../baton-schema.md); the drop-in template lives at [`../assets/handoff-baton.md`](../assets/handoff-baton.md).
 
-### 1. Header
+The baton's **metadata** (ID, from/to skills, type, timestamps, plan/slice references) lives in **YAML frontmatter** — parseable by any orchestrator without regex extraction.
 
-- **Baton ID** — short, plan-scoped (`baton-2026-05-12-S1`)
-- **Plan ID** — the plan this baton belongs to
-- **From skill / To skill** — explicit. "From: implementation-planner. To: coding."
-- **Created** — date and time
-- **Slice ID** — the slice in the plan this baton covers (could be one slice, or a slice subtree)
-
-### 2. Objective
+### 1. Objective
 
 One to three sentences. **What the receiving skill is being asked to do.** Not the broader plan — the specific work for this baton.
 
 Bad: "Implement password reset."
 Good: "Implement slice S2 (token store) per its acceptance criteria. Output: a working token issuance and validation service with the persistence layer wired."
 
-### 3. Inputs
+### 2. Inputs
 
 What the receiving skill is given to work with. Concrete, enumerable.
 
 - **Documents** — paths or links to the plan, relevant ADRs, design docs, prior batons
-- **Artifacts** — code paths, branch names, ticket IDs, the walking-skeleton PR
+- **Code / artifacts** — code paths, branch names, ticket IDs, the walking-skeleton PR
 - **Constraints** — what's fixed and not subject to negotiation by the receiving skill
-- **Acceptance criteria** — copied (or linked) from the plan; the receiving skill executes against these
 - **Conventions** — naming, style, structure that must be followed (point to the existing codebase if relevant)
 
-### 4. Context capsule
+### 3. Context
 
 The **compressed state** the receiving skill needs to do its job. See §4 for principles. This is the section where context engineering happens; it deserves the most thought.
 
-### 5. Return contract
+Sub-fields: current state (facts, not history), load-bearing assumptions, seams (upstream/downstream), settled decisions, and optionally a first concrete action.
+
+### 4. Acceptance
+
+The **falsifiable definition of done**. Inline from plan when criteria are spread across sections — save the receiver from doc-hopping during execution.
+
+- **Acceptance criteria** — copied (or linked) from the plan; the receiving skill executes against these
+- **Verification commands** — specific, runnable, ordered cheapest-first
+
+### 5. Kill criteria
+
+When the receiving skill should **stop and hand back without completing**. At minimum:
+
+- Time-box: if work exceeds N hours/days without completion, hand back
+- Discovery triggers: if a specific finding emerges (a violated assumption, a blocked dependency, an unsafe operation), stop and hand back (3+ triggers required)
+
+The kill criteria here are scoped to the *receiving skill's work on this baton*, not the plan-level kill criteria.
+
+### 6. Return contract
 
 What the sending side expects back. Concrete:
 
 - **Artifacts** — files committed, PR opened, branch name, ADR drafted, ticket closed
 - **Status** — slice DONE, BLOCKED, PARTIAL, ABANDONED (with reason)
-- **Reverse handoff** — what to put in the return baton (or update in the plan's status section)
+- **Next handoff** — next baton expected (to which skill, what scope) or "none"
 
-### 6. Kill criteria for this baton
-
-When the receiving skill should **stop and hand back without completing**. At minimum:
-
-- Time-box: if work exceeds N hours/days without completion, hand back
-- Discovery triggers: if a specific finding emerges (a violated assumption, a blocked dependency, an unsafe operation), stop and hand back
-
-The kill criteria here are scoped to the *receiving skill's work on this baton*, not the plan-level kill criteria.
-
-### 7. What's been tried / what's been ruled out
+### 7. Prior art
 
 Often the most valuable section. Spares the receiving skill from re-discovering known dead ends.
 
-- Approaches that were considered and rejected in earlier work, with reasons
+- Rejected approaches, with reasons
 - Spike findings, if relevant
-- Decisions that are settled and not to be revisited (with pointers to where they were settled — ADR, decision brief, plan section)
-- Known bugs, gotchas, sharp edges in the area being worked on
+- Known gotchas and sharp edges in the area being worked on
+- Out-of-scope items — explicit "don't do these even if tempted"
 
 The receiving skill reads this and *avoids burning cycles* on closed questions.
 

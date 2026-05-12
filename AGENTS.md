@@ -10,6 +10,16 @@ This file complements the individual `SKILL.md` files. It is the **routing layer
 
 There are six skills. They form a pipeline from fuzzy idea to merged PR: `brainstorming → software-architect → implementation-planner → tech-lead → coder → project-git`. Each skill is purpose-built for one phase of work. Each produces a tangible artifact (decision brief, design doc/ADR, implementation plan, coding spec, code + report, commits/PRs). Each ends with a **handoff baton** that compresses state for the next skill. No skill ever invokes another — you, the orchestrator, route based on the baton's `next_step_hint` or `Handoff Cues`.
 
+**Orchestrator** — the actor responsible for routing between skills. When a skill says *"point, don't invoke"* it means *this skill produces a handoff but does not itself trigger the next skill*. The orchestrator is whoever consumes that handoff and decides what runs next. The framework recognizes three orchestrator models, all valid:
+
+1. **Human-in-chat.** The user reads the handoff, then types a new message that loads the next skill (or asks for it explicitly). The "baton" is whatever the user mentally carries forward. This is the default mode in any interactive agent today.
+
+2. **Agent-on-next-turn.** The agent finishes its turn with a baton or `## Facts` block; on the next user turn (which may just be "continue" or empty), the agent reads its own previous output and proceeds with the next skill. Functionally the same as (1), with less user typing.
+
+3. **Programmatic harness.** A script, CI step, or multi-agent system parses the baton, invokes the next skill via API, persists artifacts, and chains skills automatically. No human-in-the-loop required for the routing decision.
+
+**The framework targets modes (1) and (2) today.** The skills are written to be useful when a human or agent is doing the routing turn by turn. The baton structure — the typed inputs, postconditions, kill criteria, return contracts described in §4 — is *deliberately compatible* with mode (3), so a programmatic harness could be built on top without rewriting the skills. But that harness doesn't exist yet; until it does, "orchestrator" in practice means "the human or agent reading the handoff." The "never invoke another skill" rule is meaningful in all three modes: it keeps each skill independently testable and prevents runaway chains.
+
 ---
 
 ## 2. Skill selection — pick by what the input looks like
@@ -38,7 +48,7 @@ You will see these flows repeatedly. Recognize them so you can route ahead.
 - **Full lifecycle** (large new feature): `brainstorming → software-architect → implementation-planner → tech-lead → coder → project-git`. One baton per transition. Often the planner emits multiple batons — one per slice — and each slice walks `tech-lead → coder → project-git` independently.
 - **Mid-size** (decision already clear, but design is non-trivial): `software-architect → implementation-planner → tech-lead → coder → project-git`. Skip brainstorming.
 - **Small slice** (design clear, one change): `tech-lead → coder → project-git`. Skip planning.
-- **Tiny change** (typo, one-line fix, rename): `coder` (Mode B) → `project-git`. Skip the spec.
+- **Tiny change** (typo, one-line fix, rename): `coder` (Mode B) → `project-git`. Skip the spec. See coder/SKILL.md Mode B for the five-part Mode B test that decides whether a task qualifies.
 - **Bug fix**: `tech-lead` (Mode C, bug-fix spec) → `coder` (Mode C, regression-test-first) → `project-git`. Or, for trivial bugs, `coder` (Mode E, debug) → `project-git`.
 - **Refactor**: `tech-lead` (Mode D, refactor spec with proof-of-equivalence) → `coder` (Mode D, behavior unchanged, existing tests pass unmodified) → `project-git`.
 - **ADR landing**: `software-architect` (Mode D, write ADR) → `project-git` (commit + PR in delegated mode).
@@ -53,23 +63,35 @@ You will see these flows repeatedly. Recognize them so you can route ahead.
 
 A baton is a typed structure handed from one skill to the next. It is the unit of cross-skill state. When a skill finishes, it emits one. When the next skill starts, it reads one.
 
-A well-formed baton carries:
+**The full schema lives in `BATON.md` at the repo root.** That document defines the common spine, the per-transition shapes (six forward transitions plus the project-git return baton), the YAML frontmatter convention, and validation rules. Read it once; this section is the executive summary.
 
-- **Target skill** — the receiving skill's name.
-- **Reference to upstream artifact** — path or section to the spec, plan, ADR, or brief.
-- **Inputs** — the specific context the receiver needs (files of interest, QA scenarios, acceptance criteria, base branch, etc.).
-- **Postconditions** — what counts as the receiver's work being done.
+A well-formed baton carries (the **spine**):
+
+- **Target skill (`to`)** — the receiving skill's name.
+- **References** — paths/links to upstream artifacts (the spec, plan, ADR, or brief).
+- **Inputs / transition-specific fields** — the specific context the receiver needs (files of interest, QA scenarios, acceptance criteria, base branch, etc.). What's required depends on the transition; see `BATON.md` §3.
+- **Postconditions / return contract** — what counts as the receiver's work being done; what artifacts the receiver returns.
 - **Tried / ruled out** — what the sender already explored so the receiver doesn't repeat it.
 - **Flagged assumptions** — items the receiver must reconfirm before acting.
 - **Kill criteria** — under what condition the receiver should stop and hand back rather than push through.
-- **Return contract** — what artifacts the receiver returns, in what shape.
+- **Provenance** (`from`, `id`, `created`, `revision`) — for traceability across revisions and multi-session work.
 
-Templates live in `implementation-planner/assets/handoff-baton.md` and `coder/assets/handoff-baton-to-git.md`. Use them. Free-form prose handoffs lose state.
+Plus a **YAML frontmatter header** carrying the machine-parseable form of all the above, so the same baton works for both human and programmatic consumption.
+
+**Templates** (one per source skill):
+- `brainstorming/assets/handoff-baton.md` — brainstorming → any
+- `software-architect/assets/handoff-baton.md` — architect → any
+- `implementation-planner/assets/handoff-baton.md` — planner → tech-lead
+- `tech-lead/assets/handoff-baton.md` — tech-lead → coder
+- `coder/assets/handoff-baton-to-git.md` — coder → project-git
+- `project-git/references/delegation-contract.md` — project-git → caller (return baton / Facts block)
+
+Use them. Free-form prose handoffs lose state.
 
 **The bad baton:** *"implement step 3."*
-**The good baton:** receiving skill named, plan section linked, the first concrete action specified, assumptions to reconfirm listed, acceptance signal defined, return artifact named, kill criteria stated.
+**The good baton:** receiving skill named, plan section linked, the first concrete action specified, assumptions to reconfirm listed, acceptance signal defined, return artifact named, kill criteria stated. Plus a valid YAML frontmatter so a harness could parse it.
 
-**Project-git's delegated mode** is the inverse end of the baton protocol. When called from another skill, it suppresses prose and returns a `## Facts` block — branch name, commit SHAs, PR URL/number, CI status, `next_step_hint`. This is what makes the pipeline composable end-to-end without losing IDs in chat.
+**Project-git's delegated mode** is the inverse end of the baton protocol. When called from another skill, it suppresses prose and returns a `## Facts` block — branch name, commit SHAs, PR URL/number, CI status, `next_step_hint`. The Facts block is the project-git return baton; see `BATON.md` §3f.
 
 ---
 
@@ -79,9 +101,11 @@ The skills use a consistent vocabulary across the framework. Use the same terms 
 
 **Reversibility tags** — every significant decision is one of:
 
-- 🟢 / 🚪🚪 **two-way door** — easy to undo; ship freely.
-- 🟡 **costly** — undoing requires rework but not a migration.
-- 🔴 / 🚪 **one-way door** — undoing requires migration, downtime, version coordination, or downstream breakage. Requires an explicit **kill criterion** stated in advance.
+- **two-way door** (🟢 in code-level contexts) — easy to undo; ship freely.
+- **costly** (🟡, code-level only) — undoing requires rework but not a migration.
+- **one-way door** (🔴 in code-level contexts) — undoing requires migration, downtime, version coordination, or downstream breakage. Requires an explicit **kill criterion** stated in advance.
+
+The framework uses **two tiers at decision/design altitude** (brainstorming, software-architect, implementation-planner) — just *two-way door* and *one-way door*, in prose. It uses **three tiers at code altitude** (tech-lead, with the middle "costly" tier and 🟢/🟡/🔴 emoji for scannability), because real code-level decisions come in three grades. This is intentional, not an inconsistency: the door metaphor reads cleanly at architectural scale, and the middle "costly" tier (a public-but-internal helper rename, a non-migration dependency bump) is meaningful only when you're looking at specific files.
 
 **Quality Attribute Scenario (QAS)** — concrete, measurable requirement from the architecture skill. Format: source / stimulus / environment / artifact / response / measure. *"During Black Friday peak (env), the order service (artifact) must respond to a place-order request (stimulus) from the mobile app (source) with a confirmation (response) in under 500ms p95 (measure)."* Replace adjectives like "scalable" with QAS.
 

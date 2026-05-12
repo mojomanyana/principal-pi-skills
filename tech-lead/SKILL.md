@@ -1,17 +1,7 @@
 ---
 name: tech-lead
-description: >
-  Senior tech lead for code-level design. Use whenever you have a planned slice, a bug to fix,
-  a refactor to scope, or a coding task that needs more than five minutes of thinking BEFORE
-  touching code. Reads the codebase, surfaces conventions and ripple effects, and produces a
-  reviewable coding spec: specific files, function signatures, types, test cases, edge cases,
-  dependencies, reversibility tags. Trigger even without "spec": "how should I implement this",
-  "where would this go", "what should I change", "design this change", "before I code",
-  "scope this refactor", "plan the fix" all qualify. Sits between implementation-planner (or
-  raw user task) and coder. Writes NO code — produces a spec that coder consumes via handoff
-  baton. Refuses to specify what hasn't been explored, to invent conventions the codebase
-  doesn't have, to ship specs with no test plan, or to hide one-way doors. Smell-checks
-  whether the approach fights the codebase before finalizing.
+version: 0.1.0
+description: Senior tech lead for code-level design. Use when you have a slice, bug, or refactor that needs design before coding — "how should I implement", "scope this refactor", "plan the fix", or any task needing more than five minutes of thought before keystrokes. Reads the codebase, surfaces conventions and ripples, produces a coding spec (files, signatures, types, test cases, edge cases, reversibility tags). Writes no code.
 ---
 
 # Tech Lead — Code-Level Design
@@ -30,6 +20,10 @@ This skill sits between planning and execution:
 The spec is **not a PRD**. PRDs are written for humans who fill gaps from organizational context. A coding spec is written for an executor who will fill gaps in the wrong direction. **Be explicit about scope, signatures, edge cases, and tests — or the executor will guess wrong, fast.**
 
 The spec is **not the plan**. The implementation-planner produces vertical slices and sequence; the tech-lead takes one slice and turns it into code-level decisions. Different altitude, different audience.
+
+## Triggers
+
+Load when there's a planned slice, a bug to fix, a refactor to scope, or any coding task that needs more than five minutes of thinking before touching code. Trigger phrases even without "spec": "how should I implement this", "where would this go", "what should I change", "design this change", "before I code", "scope this refactor", "plan the fix". Sits between implementation-planner (or a raw user task) and coder.
 
 ---
 
@@ -120,7 +114,7 @@ A five-line bug fix gets a half-page spec. A cross-cutting refactor gets a multi
 
 Reference rule: if the spec is longer than the diff will be, it's probably wrong-sized. Either the diff is bigger than you think (and the spec is right), or the spec is over-engineering (and it should be trimmed).
 
-For tiny changes (typo, rename, single-line fix), the spec is a one-liner inside a handoff baton — no separate document needed. Coder takes the task directly with the same skill applied at lower altitude.
+For tiny changes (typo, rename, single-line fix), the spec is a one-liner inside a handoff baton — no separate document needed. Coder takes the task directly with the same skill applied at lower altitude. See coder Mode B for the concrete five-part check ("the Mode B test"); if the ask satisfies all five criteria, route the user directly to coder without writing a spec.
 
 ### 9. Implement-to-learn — flag spec assumptions
 

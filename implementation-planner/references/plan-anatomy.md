@@ -149,7 +149,7 @@ For each slice, the plan records:
 - **Acceptance criteria** — checklist; see [`acceptance-and-kill-criteria.md`](acceptance-and-kill-criteria.md)
 - **Kill criteria** — when to abandon or pivot this slice; required for one-way doors
 - **Observability criteria** — for slices that touch production
-- **Reversibility tag** — 🚪🚪 two-way or 🚪 one-way
+- **Reversibility tag** — *two-way* or *one-way*
 - **Depends on** — slice IDs that must complete first
 - **Enables** — slice IDs unblocked by this one (cross-reference; redundant with the DAG but useful inline)
 - **Sized** — t-shirt size (XS / S / M / L), or a rough hour/day band. If "L" or above, the slice is too big — decompose.
@@ -201,7 +201,7 @@ The DAG must be acyclic. If a cycle appears, the decomposition is wrong — spli
 
 ## 9. Reversibility and one-way-door review
 
-A subsection that surfaces every 🚪 one-way-door slice and what guards it. For each:
+A subsection that surfaces every *one-way-door* slice and what guards it. For each:
 
 - The slice ID
 - Why it's one-way (schema change in shared table; public API; vendor commit; etc.)

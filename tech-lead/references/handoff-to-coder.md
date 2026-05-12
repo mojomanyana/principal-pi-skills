@@ -24,17 +24,19 @@ Free-form handoffs ("just implement the spec") fail predictably: the coder loses
 
 ## 2. The seven baton sections
 
-| # | Section | Required? | Purpose |
-|---|---|---|---|
-| 1 | Spec reference | ✅ | Where to find the full spec |
-| 2 | Outcome (one-liner) | ✅ | Coder's north star without re-reading |
-| 3 | First concrete action | ✅ | Where to start; eliminates the warm-up |
-| 4 | Reconfirm assumptions | ✅ | Known unknowns to verify |
-| 5 | Acceptance signal | ✅ | What proves done |
-| 6 | Stop conditions | ✅ | When to pause and route back |
-| 7 | Commit / hygiene notes | ✅ | Conventions for commits & PR |
+This baton follows the canonical schema defined in [`../../baton-schema.md`](../../baton-schema.md). The table below maps tech-lead's baton sections to the schema's seven canonical names:
 
-Every baton has all seven. A missing section is a failure mode, not an optimization.
+| # | Canonical section | Tech-lead content | Purpose |
+|---|---|---|---|
+| 1 | **Objective** | Outcome (one-liner) | Coder's north star without re-reading |
+| 2 | **Inputs** | Spec reference + commit/hygiene notes | Where to find the spec; conventions for commits & PR |
+| 3 | **Context** | First concrete action + reconfirm assumptions | Where to start; known unknowns to verify |
+| 4 | **Acceptance** | Acceptance signal | What proves done |
+| 5 | **Kill criteria** | Stop conditions | When to pause and route back |
+| 6 | **Return contract** | *(implicit: branch + report + baton to project-git)* | What the coder hands back |
+| 7 | **Prior art** | *(from spec: rejected approaches, gotchas)* | What's been tried or ruled out |
+
+Every baton has all seven. A missing section is a failure mode, not an optimization. The YAML frontmatter envelope (`baton_id`, `from`, `to`, `type`, `created`, `plan`, `slice`, `revision`) is also required — see the schema for field definitions.
 
 ---
 

@@ -1,17 +1,7 @@
 ---
 name: implementation-planner
-description: >
-  Senior implementation planner. Use whenever you have a spec, requirements doc, ADR, design
-  doc, brainstorming decision brief, or any multi-step engineering task and need to turn it
-  into an executable plan BEFORE touching code. Produces (1) an implementation plan with
-  vertical slices, risk register, dependency DAG, acceptance + kill criteria, reversibility
-  tags; and (2) handoff batons — delegation contracts at every skill-boundary transition that
-  compress state and carry forward what the next skill needs. Trigger even without "plan":
-  "how should I tackle this", "what's the order of work", "break this down", "I have an ADR,
-  what now", "where do I start", "decompose this task" all qualify. Sits between design skills
-  (software-architect, brainstorming) and execution skills (project-git, coding). Does NOT
-  execute — points to the next skill via baton. Refuses flat task lists, monster steps, plans
-  without a walking skeleton, and one-way-door steps without kill criteria.
+version: 0.1.0
+description: Senior implementation planner. Use when you have a spec, ADR, design doc, decision brief, or multi-step engineering task and need an executable plan before touching code. Triggers: "how should I tackle this", "what's the order of work", "break this down", "where do I start". Produces a plan with vertical slices, dependency DAG, risk register, acceptance and kill criteria, reversibility tags, and handoff batons. Does not execute; points to other skills.
 ---
 
 # Implementation Planner — The Bridge Skill
@@ -31,6 +21,10 @@ This skill sits between design and execution. It does **not** invoke other skill
 The plan is **not a checklist**. It is a **context-engineering artifact**. Downstream skills will consume sections of it; mid-flight skills will update its status; future-you will pick it up when work resumes after an interruption. Write it for that audience.
 
 The handoff baton is **not a status update**. It is a **delegation contract**: typed inputs, expected outputs, compressed context capsule, and the kill criteria for the receiving skill's work. No skill transition happens without one.
+
+## Triggers
+
+Load when there's a spec, requirements doc, ADR, design doc, brainstorming decision brief, or any multi-step engineering task that needs to become an executable plan before code is written. Triggers even without "plan": "how should I tackle this", "what's the order of work", "break this down", "I have an ADR, what now", "where do I start", "decompose this task". Sits between design skills (software-architect, brainstorming) and execution skills (tech-lead, coder, project-git).
 
 ---
 
@@ -91,7 +85,7 @@ If two slices are mutually dependent, decompose them or merge them; do not ship 
 
 ### 7. Reversibility tags per step
 
-Every slice gets a **reversibility tag**: 🚪🚪 two-way door (cheap to undo) or 🚪 one-way door (expensive or impossible to undo — schema migrations, data deletions, public API contracts, vendor commitments, rolled-out features users now depend on).
+Every slice gets a **reversibility tag**: *two-way door* (cheap to undo) or *one-way door* (expensive or impossible to undo — schema migrations, data deletions, public API contracts, vendor commitments, rolled-out features users now depend on).
 
 Two-way doors: bias toward action, ship-and-learn, smallest viable test.
 
@@ -269,4 +263,4 @@ These are non-negotiable. Refuse cleanly; offer to redo.
 5. **INVEST per slice. Acceptance + kill criteria, both.**
 6. **DAG over list. One-way doors get explicit guardrails.**
 7. **The plan is alive. Handoff batons are the unit of cross-skill work.**
-8. **Pure planner. Point to the next skill; never invoke it.**
+8. **Pure planner. Point to the next skill; the user, agent, or orchestrator runs it.**

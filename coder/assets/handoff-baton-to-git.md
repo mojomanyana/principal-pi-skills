@@ -1,3 +1,56 @@
+---
+id: baton-YYYY-MM-DD-<slice-slug>
+from: coder
+to: project-git
+created: YYYY-MM-DDTHH:MM:SSZ
+revision: 1
+references:
+  - path: <path to coding spec, or "(no spec — direct task)">
+  - path: <path to implementation report, e.g., docs/reports/payment-flow-S2.md>
+  - path: <upstream baton from tech-lead, if any>
+objective: |
+  <One to three sentences. What project-git should do. Bad: "Open a PR."
+  Good: "Open a PR for the payment-flow-S2 branch (clean acceptance,
+  no migrations), request review from <reviewer>, link issue #142.
+  Don't auto-merge — needs manual review of the timeout-handling change.">
+
+kill_criteria:
+  - <The branch isn't clean (working tree dirty, untracked files matter)>
+  - <Secrets detected in staged diff>
+  - <Acceptance is partial — see §3 and §5 of the body>
+  - <Force-push to a protected branch is requested but not pre-authorized>
+
+return_contract:
+  artifacts:
+    - "## Facts block" — see project-git/references/delegation-contract.md
+  status: complete | partial | failed
+  facts_block_required: true
+
+# Transition-specific:
+branch: <branch-name>
+base_commit: <base SHA where branch was cut>
+commits:
+  - sha: <sha>
+    message: <conventional-commits message>
+  # List all commits on the branch, oldest first.
+
+acceptance_status: all-pass | partial | failed
+acceptance_details:
+  spec_tests: <count passing / count total>
+  typecheck: green | yellow | red
+  lint: green | yellow | red
+  existing_tests: green | yellow | red
+  manual_verification: yes | no | n/a
+
+implementation_report:
+  path: <path>
+
+flags_for_git:
+  - <Special instruction 1, e.g., "don't auto-merge — needs manual review">
+  - <Special instruction 2, e.g., "this PR closes issue #142">
+  # Empty array if no special instructions
+---
+
 # Handoff Baton → project-git
 
 <!--
@@ -9,6 +62,10 @@
 
   Keep this BATON compact. The implementation report is the long form;
   the baton is operational.
+
+  The YAML frontmatter above carries the machine-parseable spine + transition fields.
+  The markdown sections below carry the human-readable context.
+  See BATON.md at the repo root for the full schema.
 -->
 
 ## 1. Slice summary
