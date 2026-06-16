@@ -17,9 +17,5 @@
         "skills",
         "agent-skills"
     ],
-    "pi": {
-        "skills": [
-            "./playground"
-        ]
-    }
+    "pi": {}
 }
