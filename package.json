@@ -19,12 +19,7 @@
     ],
     "pi": {
         "skills": [
-            "./brainstorming",
-            "./coder",
-            "./implementation-planner",
-            "./project-git",
-            "./software-architect",
-            "./tech-lead"
+            "./playground"
         ]
     }
 }
