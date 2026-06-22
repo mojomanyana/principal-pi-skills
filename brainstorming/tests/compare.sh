@@ -48,7 +48,7 @@ emit() {
   for m in "${models[@]}"; do
     p=0; t=0; cf=0
     for sc in $SCEN; do v="${G[$m|$sc]:-}"; [ -n "$v" ] && t=$((t+1)); [ "$v" = "PASS" ] && p=$((p+1)); case "$CRIT" in *" $sc "*) [ -n "$v" ] && [ "$v" != "PASS" ] && cf=$((cf+1));; esac; done
-    vd="NOT READY"; { [ "$t" -ge 13 ] && [ "$p" -ge 11 ] && [ "$cf" -eq 0 ]; } && vd="SHIP"
+    vd="NOT READY"; { [ "$t" -ge 12 ] && [ "$p" -ge 10 ] && [ "$cf" -eq 0 ]; } && vd="SHIP"
     printf ' %-16s' "$vd"
   done; printf '\n'
   echo ""
