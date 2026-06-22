@@ -48,3 +48,5 @@ $RECYCLE.BIN/
 .agents/
 # Note: do NOT add the above if you ever check
 # project-level skill installs into the repo
+# brainstorming test transcripts (playground embeds what it needs)
+brainstorming/tests/results/
