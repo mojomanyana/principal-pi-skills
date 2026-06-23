@@ -1,0 +1,8 @@
+# Models the debugging bench runs. ONE PER LINE — <provider>:<model>.
+#   fireworks:<full-model-id>   → via Pi (Fireworks credits)
+#   claude:opus|sonnet|haiku    → via the claude CLI on your Max plan (no API charge)
+# Judge = opus via the claude CLI on your Max plan (the grade.sh default; no env override needed).
+
+fireworks:accounts/fireworks/models/deepseek-v4-pro
+claude:opus
+claude:sonnet
