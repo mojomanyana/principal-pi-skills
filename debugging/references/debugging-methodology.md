@@ -122,8 +122,8 @@ You have the hypothesis confirmed. Now fix.
 **Discipline:**
 
 1. The fix is **minimal**. The smallest change that addresses the root cause. Not a refactor; not a related cleanup.
-2. The fix is **at the root cause**, not the symptom. If you're wrapping a try/catch around the error rather than fixing what caused it, you're papering. (See [`error-handling.md`](error-handling.md) for the rare cases where wrapping is correct.)
-3. The regression test is added (if not already there from TDD Mode C). It must fail before the fix and pass after. See [`tdd-loop.md`](tdd-loop.md) §3.
+2. The fix is **at the root cause**, not the symptom. If you're wrapping a try/catch around the error rather than fixing what caused it, you're papering. (See [`error-handling.md`](../../coder/references/error-handling.md) for the rare cases where wrapping is correct.)
+3. The regression test is added (if not already there from TDD Mode C). It must fail before the fix and pass after. See [`tdd-loop.md`](../../coder/references/tdd-loop.md) §3.
 4. Re-run the surrounding tests. Confirm no regressions.
 5. Re-run the original repro. Confirm the bug is gone.
 
@@ -159,7 +159,7 @@ Stack traces point at the **symptom location**; the **cause location** is usuall
 When the bug crosses process boundaries (frontend ↔ backend, service ↔ service, app ↔ DB), the techniques scale up:
 
 - **Wire-level probes:** browser DevTools network panel, `tcpdump`, application logs at the boundary.
-- **Correlation IDs:** if the codebase threads a correlation ID, use it to follow the request through logs. If it doesn't, add one as part of the debug — and consider proposing it as a follow-up enhancement (see [`scope-discipline.md`](scope-discipline.md)).
+- **Correlation IDs:** if the codebase threads a correlation ID, use it to follow the request through logs. If it doesn't, add one as part of the debug — and consider proposing it as a follow-up enhancement (see [`scope-discipline.md`](../../coder/references/scope-discipline.md)).
 - **Replay:** capture a real request from the failing path; replay against a controlled local version of the receiving side.
 
 Cross-process debugging often takes hours. Each phase still applies; expect to spend more time in phase 2 (isolate) than for single-process bugs.
