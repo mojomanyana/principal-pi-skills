@@ -1,16 +1,16 @@
 #!/usr/bin/env bash
 #
-# bench-seeded.sh [prov:model ...] — coder bench via the SEEDED harness: file-shaped scenarios
-# run in a real scratch repo with tools (run-seeded.sh, no fabrication); B1 (conversational)
+# bench-seeded.sh [prov:model ...] — debugging bench via the SEEDED harness: file-shaped scenarios
+# run in a real scratch repo with tools (run-seeded.sh, no fabrication); B1 (3-turn flaky-CI)
 # runs inline (run-claude/run-pi). Grades each model with Opus and writes a comparison.
 #
-# Env: BENCHMODE=green(default)|red ; judge = grade.sh default (opus) ; DRYRUN unsupported here
-# (seeded runs are inherently live).
+# Env: BENCHMODE=green(default)|red ; judge = grade.sh default (opus).
+# No args → reads models.txt (same as brainstorming bench).
 #
 set -uo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-SEEDED="A1 A2 A3 A4 A5 C1 C2"   # file-shaped → seeded scratch repo + tools
-INLINE="B1"                      # conversational → inline runner
+SEEDED="A1 A2 A3 A4 C1"   # file-shaped → seeded scratch repo + tools
+INLINE="B1"               # 3-turn conversational → inline runner
 mode="${BENCHMODE:-green}"
 
 if [ "$#" -gt 0 ]; then

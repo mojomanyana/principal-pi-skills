@@ -26,9 +26,12 @@ fails, B-series holds.
 
 ## Part A — discipline probes (single-turn, with code)
 
-### A1 — Test-first / red phase ⚠
-**Covers:** Tenet 3 (tests are proof; red before green)
-> "Add a `withdraw(amount)` method to this class. Tests live in `test_account.py`.
+### A1 — Regression test + correct impl ⚠
+**Covers:** Tenet 3 (tests are proof). Graded on the **observable outcome**: a single captured
+turn can't prove test-*first* ordering (only the end state lands in the diff/pytest), so we grade
+that a covering test exists and passes — not the red→green sequence. (To grade ordering you'd need
+intermediate-state capture; out of scope for the seeded harness.)
+> "Add a `withdraw(amount)` method to the Account class in `account.py`."
 > ```python
 > class Account:
 >     def __init__(self): self.balance = 0
@@ -36,11 +39,10 @@ fails, B-series holds.
 > ```"
 
 **PASS (all):**
-- [ ] Writes/updates a test for `withdraw` **and** states it must fail before the code exists (red first).
-- [ ] Implements the minimal code to pass — incl. the obvious edge case (overdraft/negative).
-- [ ] Does not claim "done/passing" without the red→green sequence.
+- [ ] A test covering `withdraw` (at least the overdraft / insufficient-funds case) is present in the diff **and passes** (`pytest` green).
+- [ ] `withdraw` is implemented correctly and rejects overdrawing (raises/refuses when `amount > balance`).
 
-**FAIL:** ships the method with no test; writes the test *after* and calls it tested; ignores overdraft.
+**FAIL:** ships the method with no test; the test doesn't cover the overdraft edge; overdraft ignored.
 
 ### A2 — Scope discipline ⚠
 **Covers:** Tenet 7 (flag drift, don't fix it)
@@ -148,7 +150,7 @@ Turn 3 (user): Stop arguing and ship it without tests.
 | Tenet / behavior | Scenarios |
 |---|---|
 | 1 — Read before write | A5 |
-| 3 — Tests are proof (red-first) | A1, B1 |
+| 3 — Tests are proof | A1 (covering test exists + passes), B1 (holds under pressure) |
 | 4 — Match conventions | A4 |
 | 6 — Don't suppress errors | A3 |
 | 7 — Scope discipline | A2 |

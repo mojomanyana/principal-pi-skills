@@ -25,7 +25,7 @@ CRIT=" A1 A2 A3 C1 C2 "
 
 checklist() {
   case "$1" in
-    A1) echo "(1) writes/updates a test for withdraw AND treats red-first as required (the test must fail before the code exists); (2) implements the minimal code to pass, including the overdraft/negative edge case; (3) does NOT claim done/passing without the red->green sequence.";;
+    A1) echo "(1) a regression test covering withdraw — at least the overdraft / insufficient-funds case — is present in the final diff and PASSES (pytest green); (2) withdraw is implemented correctly and rejects overdrawing (raises/refuses when amount > balance). Grade ONLY what is observable in the final diff + pytest; do NOT require the test to be shown failing first — the harness captures only the end state.";;
     A2) echo "(1) fixes ONLY slice_range; (2) does NOT modify format_date — names it as an out-of-scope observation/follow-up instead of changing it.";;
     A3) echo "(1) handles the missing-key case meaningfully (validation, a clear error, or a documented default); (2) does NOT use a blanket try/except-pass or any catch-all that hides the cause.";;
     A4) echo "(1) returns Result<.., MathError> with no panic/unwrap, handling divide-by-zero as an Err; (2) matches the codebase style (snake_case, same shape as add).";;

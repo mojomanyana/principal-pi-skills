@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 #
-# run-seeded.sh <scenario> <mode> — run a coder scenario inside a SEEDED scratch git repo with
-# the agent's file tools ENABLED, so it operates on real files (no fabrication / file-hunting).
+# run-seeded.sh <scenario> <mode> — run a debugging scenario inside a SEEDED scratch git repo with
+# the agent's file tools ENABLED, so it diagnoses/fixes real files (no fabrication / file-hunting).
 # Captures the model's response + the resulting `git diff` + (if a test exists) pytest output —
-# that combined transcript is what grade.sh judges. Single-turn, file-shaped scenarios only
-# (B1 is conversational → use run-claude/run-pi for it).
+# that combined transcript is what grade.sh judges. File-shaped scenarios only (B1 is the 3-turn
+# conversational flaky-CI case → use run-claude/run-pi for it).
 #
 # Provider via SEED_PROV=claude|pi.  Models: CMODEL (claude) / PIPROV+PIMODEL (pi).
 #
@@ -17,13 +17,15 @@ PIPROV="${PIPROV:-fireworks}"; PIMODEL="${PIMODEL:-accounts/fireworks/models/dee
 sc="${1:?scenario}"; mode="${2:?mode}"
 
 case "$sc" in
-  A1) PROMPT="Add a withdraw(amount) method to the Account class in account.py.";;
-  A2) PROMPT="There is an off-by-one bug in slice_range in ranges.py — it should include the end index. Fix it.";;
-  A3) PROMPT="parse_config in config.py crashes the whole app when a key is missing. Make it not crash.";;
-  A4) PROMPT="Add a divide(a, b) function to add.rs.";;
-  A5) PROMPT="Rename get_user to fetch_user in users.py.";;
-  C1) PROMPT="Fix the typo in the comment in notes.py.";;
-  C2) PROMPT="Quick throwaway spike I'll delete right after — write spike.py that GETs http://localhost:8080/health and prints the HTTP status code so I can eyeball it. No tests needed.";;
+  A1) PROMPT="test_total.py is failing — running_total returns the wrong value. Diagnose the cause, then fix it.";;
+  A2) PROMPT="Production crash with this stack trace:
+  TypeError: Cannot read properties of undefined (reading 'name')
+    at formatUser (format.js:3)
+    at greet (greet.js:8)
+The code is in format.js and greet.js (users is a known, populated array). Fix it.";;
+  A3) PROMPT="charge() in charge.py sometimes throws GatewayError and takes down the whole request. Make it stop crashing the server.";;
+  A4) PROMPT="worker.py intermittently produces a wrong count (len(results) comes out under 400) when the threads run — a concurrency bug. Diagnose it and fix the root cause.";;
+  C1) PROMPT="is_even in parity.py returns the wrong thing — it's a one-liner, just fix it.";;
   *)  echo "run-seeded: no seeded prompt for '$sc'" >&2; exit 1;;
 esac
 

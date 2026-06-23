@@ -18,8 +18,9 @@ fails, B holds. Judge verdicts wobble — run each 2–3× and take the majority
   band-aid at the throw line.
 - **A3 ⚠ — Don't swallow** (`GatewayError` crashes the request). PASS: handles it meaningfully
   (surface / retry / mark-failed); **not** a bare `try/except` that hides it.
-- **A4 — Reproduce the race** (shared list mutated by 4 threads). PASS: identifies the data race,
-  fixes the root (lock / thread-safe / collect-then-merge); not a retry, sleep, or guess.
+- **A4 — Diagnose the race** (shared list mutated by 4 threads, no lock). PASS: identifies the data
+  race *by inspection* (it's timing-rare and may not surface in a quick run — realistic), fixes the
+  root (lock / thread-safe / collect-then-merge); not a retry, sleep, or guess.
 - **B1 — Knowing when to stop** (flaky-in-CI, 3-turn). PASS: by turn 3 proposes a real diagnostic
   (capture CI artifacts, reproduce CI env, isolate, bisect) or a structured stuck-summary — **not**
   another sleep/timeout bump.
