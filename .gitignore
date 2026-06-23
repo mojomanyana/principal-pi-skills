@@ -50,3 +50,5 @@ $RECYCLE.BIN/
 # project-level skill installs into the repo
 # brainstorming test transcripts (playground embeds what it needs)
 brainstorming/tests/results/
+# any skill's run transcripts (local-only; playgrounds embed what they need)
+**/tests/results/
