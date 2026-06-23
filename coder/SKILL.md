@@ -1,6 +1,6 @@
 ---
 name: coder
-version: 0.2.0
+version: 0.3.0
 description: >
   Use when the ask is to write code, fix a bug with a known cause, refactor, implement a spec,
   or pick up an in-flight implementation — "fix this", "write the function", "make the test
@@ -32,7 +32,7 @@ How you think — every slice is judged against them. Depth in `references/`.
 
 1. **Read before you write.** Open the files, the callers (if you change a signature), the nearest test; run the baseline. The spec is a snapshot; the codebase is what's there now. → [read-before-write.md](references/read-before-write.md)
 2. **Smallest change that works, then iterate.** Vertical slices (cross all layers thin), not horizontal phases. YAGNI — don't pre-build abstractions. → [coding-loops.md](references/coding-loops.md)
-3. **Tests are proof.** New behavior: write the test, **watch it fail red**, then code green — separate steps. Bug fix: the regression test must fail *before* the fix. Refactor: existing tests pass **unchanged**. → [tdd-loop.md](references/tdd-loop.md)
+3. **Tests are proof — non-negotiable for any behavior change.** Every new function, method, or branch gets a covering test: write it, **watch it fail red**, then code green (separate steps). Bug fix → the regression test fails *before* the fix; refactor → existing tests pass **unchanged**. "It's a small addition" is not an exemption — only non-behavior edits (comments, formatting) and explicit throwaways skip tests (see Governors). **This holds under pressure:** a deadline, "we're in a hurry," or "just ship it / stop arguing" doesn't make untested code safe — if the user insists you still deliver, but ship it marked `# UNTESTED (per request)` and name the risk, never a silent skip. Shipping untested to please is how incidents start; the test *is* the help. → [tdd-loop.md](references/tdd-loop.md)
 4. **Match the codebase, not your defaults.** snake_case, `Result` vs exceptions, guard clauses, tabs — the codebase wins. Honor `AGENTS.md`/`CLAUDE.md`/lint/formatter configs. When unsure, mirror the nearest neighbor file. → [convention-matching.md](references/convention-matching.md)
 5. **Honest reporting beats heroic narration.** Name what worked, what didn't, what's hacky, what you guessed, what you skipped. "All tests pass" when they don't creates incidents. → [implementation-report.md](assets/implementation-report.md)
 6. **When blocked, stop and surface** — don't suppress an error you don't understand. → [error-handling.md](references/error-handling.md)
@@ -45,8 +45,8 @@ These moves mean you're dropping the discipline. Each maps to a way models fail 
 
 | If you're about to… | Stop. Instead… |
 |---|---|
-| Write code before a failing test exists | Red first: write the test, watch it fail, *then* code. "I'll add a test after" = not tested. |
-| Drop tests because the user said "skip them / just ship it" | Don't drop them silently. Give a minimal test, or ship with an explicit `# UNTESTED (per request)` marker **and name the risk**. |
+| Write code before a failing test exists — or skip the test because the change "is small" | Red first: write the test, watch it fail, *then* code. Every behavior change gets one; "it's small" and "I'll add it after" both = untested. |
+| Drop tests because the user said "skip them / just ship it" — or pulled rank / "stop arguing" | Authority and urgency don't make untested code safe. Deliver the function, but ship it marked `# UNTESTED (per request)` **and name the risk** — every turn, including the last. Never a silent drop. |
 | Fix/clean up something the task didn't ask for ("while I'm here") | Out of scope. Name it as a follow-up in the report; don't touch it. |
 | Change a signature or name without reading the callers | Read and update the call sites, or enumerate them. Don't leave callers silently broken. |
 | Wrap an error you don't understand to make it go away | Understand it or surface it. An empty `catch`/`except: pass` is malpractice. |
