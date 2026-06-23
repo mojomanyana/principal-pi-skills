@@ -4,7 +4,7 @@
 # Reads each model's latest GRADES.tsv + transcripts and injects MODELS/RESULTS into the
 # playground (between the /* DATA_START */ … /* DATA_END */ markers). Re-run after any bench.
 #
-# Env: JUDGE_LABEL (shown in the playground; default "glm-4p7 (fireworks)").
+# Env: JUDGE_LABEL (shown in the playground; default "opus (claude)").
 #
 set -uo pipefail
 here="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
@@ -13,7 +13,7 @@ html="$here/playground.html"
 [ -d "$results" ] || { echo "no results/ yet — run ./bench.sh first" >&2; exit 1; }
 [ -f "$html" ]   || { echo "missing playground.html" >&2; exit 1; }
 
-python3 - "$results" "$html" "${JUDGE_LABEL:-glm-4p7 (fireworks)}" <<'PY'
+python3 - "$results" "$html" "${JUDGE_LABEL:-opus (claude)}" <<'PY'
 import sys, os, glob, json, datetime, re
 results, html, judge = sys.argv[1], sys.argv[2], sys.argv[3]
 

@@ -89,7 +89,7 @@ For the baseline version, swap `--skill $SKILL` → `--no-skills`.
 # Cycle models with Ctrl+P inside an interactive session:
 pi --skill $SKILL --no-context-files --models 'fireworks/*deepseek*,fireworks/*glm*,anthropic/claude-haiku-4-5'
 ```
-Or just rerun with a different `--model` (e.g. `accounts/fireworks/models/glm-4p7`).
+Or just rerun with a different `--model` (e.g. `accounts/fireworks/models/glm-5p2`).
 
 ### Automated grading & cross-model comparison (`bench.sh`)
 
@@ -117,8 +117,8 @@ verdict NOT READY        SHIP             NOT READY
 
 - **Marks:** per model — `GREEN x/13`, a letter grade, critical-fail count, and SHIP / NOT READY
   (any ⚠-critical fail gates to NOT READY). Per-scenario reasons land in each run's `GRADES.tsv`.
-- **Judge:** defaults to `anthropic/claude-sonnet-4-6`; override with `JUDGEMODEL=`. Use a strong
-  model that is **not** the one under test.
+- **Judge:** defaults to `opus` (Claude/Max); override with `JUDGEMODEL=`. Use a strong model not
+  under test — for a neutral cross-check, a non-Claude judge (e.g. `glm-5p2`) avoids same-family grading.
 - **Cost:** `bench.sh` makes many calls (suite + grading × N models). `DRYRUN=1` first; `BENCHMODE=both`
   doubles it. Needs creds for both the test provider and the judge provider.
 
@@ -138,10 +138,10 @@ RUNNER=claude CMODEL=opus ./run-all.sh green   # one model, the long way
 ```
 
 - Make sure **`ANTHROPIC_API_KEY` is unset** (scripts warn if not) — otherwise `claude` may bill API.
-- `CMODEL` = `opus` | `sonnet` | `haiku` (all covered by Max). Judge: `JUDGEMODEL=sonnet` by default.
+- `CMODEL` = `opus` | `sonnet` | `haiku` (all covered by Max). Judge: `JUDGEMODEL=opus` by default.
 - For Claude, `green` injects the skill via `--append-system-prompt` (controlled behavior test);
   the harness differs from Pi's `--skill`, so treat Claude as a **reference lens**, not a like-for-like port.
-- Grading Claude with a Claude judge is same-family; for neutrality set `JUDGE_CLI=pi JUDGEMODEL=accounts/fireworks/models/glm-4p7` (costs Fireworks, not Max).
+- Grading Claude with a Claude judge is same-family; for a neutral de-confound set `JUDGE_CLI=pi JUDGEMODEL=accounts/fireworks/models/glm-5p2` (costs Fireworks, not Max), or re-grade saved transcripts with `tools/regrade-any.sh`.
 
 ### Report files (open per model, compare side by side)
 

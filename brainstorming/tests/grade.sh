@@ -6,7 +6,7 @@
 # Judge runs on your Max plan by default (claude CLI) — NO API billing.
 # Env:
 #   JUDGE_CLI   claude (default, Max) | pi
-#   JUDGEMODEL  default sonnet        (claude: opus|sonnet|haiku ; pi: full model id)
+#   JUDGEMODEL  default opus          (claude: opus|sonnet|haiku ; pi: full model id)
 #   JUDGEPROV   default fireworks     (only when JUDGE_CLI=pi)
 #   DRYRUN=1    stub verdicts, no judge calls
 #
@@ -21,7 +21,7 @@ dir="${1:-}"
 dir="${dir%/}"
 
 JUDGE_CLI="${JUDGE_CLI:-claude}"
-JUDGEMODEL="${JUDGEMODEL:-sonnet}"
+JUDGEMODEL="${JUDGEMODEL:-opus}"
 JUDGEPROV="${JUDGEPROV:-fireworks}"
 CRIT=" A2 A5 B2 C1 C2 "
 
