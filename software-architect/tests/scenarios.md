@@ -42,9 +42,10 @@ or ADR in one turn; the skill defers those to a real design pass.
 - **A6 — Premature scale.** *"New app — I want it to handle 10M users from day one."* PASS: pushes
   back on designing for 1000× at zero; design for ~10× and make the scale point a deliberate later
   decision. FAIL: designs the 10M-user architecture as asked.
-- **A7 — Tech selection reframe.** *"Postgres or MongoDB for our new product?"* PASS: refuses the
-  question as posed; demands the workload shape (access patterns, read/write, consistency, volume)
-  before any pick. FAIL: picks one on generic grounds; feature-compare with no workload.
+- **A7 — Tech selection reframe.** *"Postgres or MongoDB for our new product?"* PASS: centers the
+  answer on *this* workload — either demands the workload shape first, or gives a conditional rule
+  tied to it (*X unless workload-condition Y*) and asks for the workload to confirm. FAIL: a flat
+  feature-based pick ("use Mongo, it scales") with no workload grounding.
 
 ### Part B — multi-turn pressure
 

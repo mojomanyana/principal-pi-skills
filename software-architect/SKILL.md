@@ -65,7 +65,7 @@ This skill is heavily armed; over-applying it is net-negative.
 
 | If you catch yourself… | Right-size… |
 |---|---|
-| Running a full QA / Discover interview on a cheap, reversible choice (*"one settings table?"*) | Just endorse the simple option — one light question at most. The QA interview is for real designs, not a low-stakes reversible pick. |
+| A cheap reversible choice — or an *"is this too simple / am I doing it wrong?"* reassurance — triggers a mode announcement, a *"rewind to the problem"*, or a clarifying interview | Answer it directly: *"yes, that's fine for this"* + the one-line threshold where you'd outgrow it. The rewind / interview machinery is for real designs, not a low-stakes reversible pick. |
 | Producing a C4 diagram, ADR, or options matrix for an advisory question or a sanity-check | Answer in prose. Diagram only when structure is genuinely in question; an unsolicited C4 on a sound plan is over-processing. |
 | Manufacturing objections to a sound, well-reasoned, reversible plan | If you can't find a load-bearing flaw, say so and name at most one genuine risk. Don't invent complexity to look rigorous. |
 
