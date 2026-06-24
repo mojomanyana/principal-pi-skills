@@ -42,7 +42,7 @@ echo "--- response ---"
 cd "$work"
 if [ "$SEED_PROV" = "claude" ]; then
   sys=(); [ "$mode" = "green" ] && sys=(--append-system-prompt "$(cat "$SKILL/SKILL.md")")
-  timeout 280 claude -p --model "$CMODEL" --permission-mode bypassPermissions "${sys[@]}" "$PROMPT" 2>&1 || true
+  timeout 280 claude -p --disable-slash-commands --model "$CMODEL" --permission-mode bypassPermissions "${sys[@]}" "$PROMPT" 2>&1 || true
 else
   sk=(--no-skills); [ "$mode" = "green" ] && sk=(--skill "$SKILL")
   timeout 280 pi "${sk[@]}" --no-context-files --provider "$PIPROV" --model "$PIMODEL" -p "$PROMPT" 2>&1 || true

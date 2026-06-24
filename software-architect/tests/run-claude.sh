@@ -38,7 +38,7 @@ case "$mode" in
   *) echo "error: unknown mode '$mode' (red|green|force)" >&2; exit 1;;
 esac
 
-common=(-p --model "$CMODEL" --output-format text)
+common=(-p --disable-slash-commands --model "$CMODEL" --output-format text)
 if [ "${VERBOSE:-}" = "1" ]; then common+=(--verbose); fi
 
 echo "=============================================================="

@@ -74,7 +74,7 @@ JUDGE_EOF
 
 run_judge() {  # stdin: prompt ; echoes judge output
   if [ "$JUDGE_CLI" = "claude" ]; then
-    ( cd /tmp && claude -p --model "$JUDGEMODEL" --output-format text "$(cat)" 2>/dev/null ) || true
+    ( cd /tmp && claude -p --disable-slash-commands --model "$JUDGEMODEL" --output-format text "$(cat)" 2>/dev/null ) || true
   else
     pi --no-skills --no-context-files --no-session --provider "$JUDGEPROV" --model "$JUDGEMODEL" -p "$(cat)" 2>/dev/null || true
   fi
