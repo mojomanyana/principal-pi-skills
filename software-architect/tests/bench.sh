@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 #
-# bench.sh — run the brainstorming suite across several models, grade each, and compare.
+# bench.sh — run the software-architect suite across several models, grade each, and compare.
 # DeepSeek/others go through Pi; Claude reference models go through the `claude` CLI on your
 # Max plan (no API billing). Each model gets its own REPORT.md; a COMPARISON.md is written too.
 #
@@ -9,7 +9,7 @@
 #           claude:<alias>       e.g.  claude:opus   claude:haiku   (runs via Claude Code / Max)
 #   no args → default set: DeepSeek v4-pro (Pi) + Claude Opus + Claude Haiku (Max)
 #
-# Env: BENCHMODE=green(default)|both ; JUDGE_CLI/JUDGEMODEL (grader, default claude/sonnet on Max)
+# Env: BENCHMODE=green(default)|red|both ; JUDGE_CLI/JUDGEMODEL (grader, default claude/opus on Max)
 #      PITHINK, VERBOSE, DRYRUN=1
 #
 set -uo pipefail
@@ -30,7 +30,7 @@ fi
 benchmode="${BENCHMODE:-green}"
 
 echo "================================================================"
-echo " benchmark : ${#pairs[@]} models   mode: $benchmode   judge: ${JUDGE_CLI:-claude}/${JUDGEMODEL:-sonnet}"
+echo " benchmark : ${#pairs[@]} models   mode: $benchmode   judge: ${JUDGE_CLI:-claude}/${JUDGEMODEL:-opus}"
 for pm in "${pairs[@]}"; do echo "   - $pm"; done
 [ "${DRYRUN:-}" = "1" ] && echo " DRYRUN    : on (no model calls)"
 echo "================================================================"
