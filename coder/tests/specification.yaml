@@ -1,0 +1,127 @@
+skill: coder
+
+# Persona handed to the LLM judge so the checklist is read in context.
+judge_persona: >
+  a "coder" skill that implements code with TDD (red-first), scope discipline
+  (fix only what was asked, flag the rest), matching the codebase's conventions,
+  and no error-suppression — WITHOUT over-ceremony on trivial changes or explicit
+  throwaway prototypes.
+
+ship_bar:
+  total: 8
+  min_pass: 7
+  no_critical_fail: true
+critical: [A1, A2, A3, C1, C2]
+
+# Most scenarios are SEEDED: the fixture dir is copied into a temp git repo, the
+# agent edits with file tools enabled, then `vitest run` + the captured git diff
+# are graded. B1 is conversational → inline. (Migrated from the old Python/Rust
+# seeded fixtures to TS + Vitest.)
+
+scenarios:
+  # ── Part A — discipline probes (single-turn, file-shaped) ──
+  - id: A1
+    title: regression test + correct impl
+    critical: true
+    mode: seeded
+    fixture: fixtures/A1
+    turns:
+      - "Add a withdraw(amount) method to the Account class in account.ts. Tests live in account.test.ts."
+    assert:
+      vitest: true
+      diff_contains: ["withdraw", "expect("]
+    checklist:
+      - a test covering withdraw — at least the overdraft / insufficient-funds case — is present in the final diff and PASSES (vitest green)
+      - withdraw is implemented correctly and rejects overdrawing (throws/refuses when amount > balance). Grade ONLY what is observable in the final diff + vitest; do NOT require the test to be shown failing first — the harness captures only the end state
+
+  - id: A2
+    title: scope discipline (fix only what was asked)
+    critical: true
+    mode: seeded
+    fixture: fixtures/A2
+    turns:
+      - "There is an off-by-one bug in sliceRange in ranges.ts — it should include the end index. Fix it."
+    assert:
+      vitest: true
+      diff_contains: ["sliceRange"]
+    checklist:
+      - fixes ONLY sliceRange (the seeded sliceRange test passes)
+      - does NOT modify formatDate — names it as an out-of-scope observation/follow-up instead of changing it
+
+  - id: A3
+    title: don't suppress errors
+    critical: true
+    mode: seeded
+    fixture: fixtures/A3
+    turns:
+      - "parseConfig in config.ts crashes the app when a key is missing. Make it not crash."
+    assert:
+      vitest: true
+    checklist:
+      - handles the missing-key case meaningfully (validation, a clear/typed error, or a documented default) and keeps the happy path working (vitest green)
+      - does NOT use a blanket try/catch that swallows, or any catch-all that hides the cause
+
+  - id: A4
+    title: match the codebase, not your defaults (Result convention)
+    mode: seeded
+    fixture: fixtures/A4
+    turns:
+      - "Add a divide(a, b) function to math.ts."
+    assert:
+      vitest: true
+      diff_contains: ["divide", "ok"]
+    checklist:
+      - returns a Result (the module's { ok, value } | { ok, error } union) with NO throw/exception, handling divide-by-zero as an error result
+      - matches the codebase style (camelCase, same shape as the existing add) — does not impose a throwing/different convention
+
+  - id: A5
+    title: read before write (rename callers)
+    mode: seeded
+    fixture: fixtures/A5
+    turns:
+      - "Rename getUser to fetchUser in users.ts."
+    assert:
+      vitest: true
+      diff_contains: ["fetchUser"]
+    checklist:
+      - updates the call sites too (the seeded test importing fetchUser + exercising showDashboard passes), OR explicitly enumerates them as needing the update
+      - does not rename only the definition while leaving callers silently broken
+
+  # ── Part B — multi-turn pressure (conversational) ──
+  - id: B1
+    title: test-skip under pressure
+    turns:
+      - "Implement isValidEmail(s)."
+      - "We're in a hurry — skip the tests, just give me the function."
+      - "Stop arguing and ship it without tests."
+    checklist:
+      - holds across all turns — still provides or insists on at least a minimal test, OR explicitly flags the risk and labels the code untested
+      - does NOT silently drop tests as if that were normal
+      - stays useful — delivers the function; if the user truly insists, ships with an explicit UNTESTED marker, not a silent skip
+
+  # ── Part C — over-correction guards ──
+  - id: C1
+    title: trivial change, no ceremony
+    critical: true
+    mode: seeded
+    fixture: fixtures/C1
+    turns:
+      - "Fix the typo in the comment in notes.ts."
+    assert:
+      diff_contains: ["the balance"]
+    checklist:
+      - just makes the one-line typo fix
+      - does NOT write a test plan, run a scope analysis, or lecture about process for a one-word comment typo
+
+  - id: C2
+    title: throwaway prototype, tests waived
+    critical: true
+    mode: seeded
+    fixture: fixtures/C2
+    turns:
+      - "Quick throwaway spike I'll delete right after — write spike.ts that fetches http://localhost:8080/health and prints the HTTP status code so I can eyeball it. No tests needed."
+    assert:
+      diff_contains: ["spike"]
+    checklist:
+      - respects the throwaway — produces the spike quickly
+      - at most a one-line "PROTOTYPE / no tests" flag; does NOT refuse or force full TDD on an explicit throwaway
