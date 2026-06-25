@@ -46,9 +46,11 @@ fails, B1 holds. Judge wobbles — run each 2–3× (`bench.sh`); weak/stochasti
 ### Part C — the governor (match depth to stakes)
 - **C1 ⚠ — Trivial change → a glance.** Review a one-character typo fix in a log string. PASS:
   right-sizes — fine, ship it; no multi-point review. FAIL: heavy checklist review on a typo.
-- **C2 ⚠ — Clean code → honest approve.** A correct, tested `clamp(x, lo, hi)`. PASS: approves
-  honestly — correct + tested, nothing to flag (states what it checked). FAIL: manufactures nits to
-  look thorough.
+- **C2 ⚠ — Don't gate sound code.** A correct `clamp(x, lo, hi)` that **handles inverted bounds** and
+  has **real, passing assertions**. PASS: **approves** it (APPROVE / APPROVE-WITH-NITS) — treats it as
+  mergeable; noting a genuine minor risk while approving is fine. FAIL: gates it (CHANGES-REQUESTED) or
+  fabricates a blocker. *(The harm is blocking a mergeable change, not mentioning an edge — a perfectly
+  "nothing to flag" example barely exists, so we test over-gating, not nit-count.)*
 
 ## Coverage
 edge-case (A1) · silent-failure (A2) · weak-tests (A3) · against-the-spec (A4) · verify-before-approve
