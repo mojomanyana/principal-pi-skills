@@ -1,7 +1,7 @@
 ---
 id: baton-YYYY-MM-DD-<design-slug>
 from: software-architect
-to: <implementation-planner | tech-lead | project-git | brainstorming | user>
+to: <implementation-planner | project-git | brainstorming | user>
 created: YYYY-MM-DDTHH:MM:SSZ
 revision: 1
 references:
@@ -99,7 +99,7 @@ adr_status: <"none" | "ADR-NNNN drafted" | "ADR-NNNN accepted">
 <!--
   Brief: which scenarios in the design are most architecturally significant?
   These are the ones the receiver's work must preserve. For a planner,
-  these become walking-skeleton candidates. For tech-lead, these become
+  these become walking-skeleton candidates and, downstream, coder
   test cases.
 -->
 
@@ -132,7 +132,7 @@ adr_status: <"none" | "ADR-NNNN drafted" | "ADR-NNNN accepted">
 
 <!--
   Anything specific to this receiver. A planner might need different
-  context than a tech-lead picking up a single slice.
+  context than a coder picking up a single slice.
 -->
 
 <Note to the receiver.>

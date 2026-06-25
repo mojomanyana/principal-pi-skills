@@ -124,7 +124,7 @@ Things we deliberately did NOT decide in this session, and what would need to be
 > Hand off to `implementation-planner` skill. Key inputs: [decision summary, acceptance criteria, constraints].
 
 **If implementation (small, single-slice):**
-> Hand off to `tech-lead` skill. Key inputs: [decision, acceptance criteria, files of interest].
+> Hand off to `implementation-planner` skill (it produces the coding spec for the coder). Key inputs: [decision, acceptance criteria, files of interest].
 
 **If further brainstorming on a sub-question:**
 > Open a new session focused on [sub-question]. Carry forward: [the parts of this brief that should remain stable].

@@ -264,7 +264,7 @@ The structured pickup contract. Format:
   - `npm run typecheck` clean.
   - `npm run lint` clean.
   - Manual: hitting /export/csv with a sample query returns a CSV file with the expected columns.
-**Stop conditions (return to tech-lead):**
+**Stop conditions (return to implementation-planner):**
   - Conventions discovered during coding don't match the spec.
   - Any 🔴 decision needs revisiting.
   - Test plan reveals a gap mid-implementation.

@@ -12,7 +12,7 @@
 -->
 
 **Status:** draft | reviewed | locked
-**Spec author:** tech-lead (date: <YYYY-MM-DD>)
+**Spec author:** implementation-planner (date: <YYYY-MM-DD>)
 **Upstream:** <implementation-planner slice ID, brainstorm decision brief, or "direct user task">
 **Downstream:** coder
 
@@ -259,7 +259,7 @@ If none: "No flagged assumptions — every spec-load-bearing fact verified in §
 4. <existing test suite scope> still exits 0
 5. Manual: <verification step if applicable>
 
-**Stop conditions (pause and return to tech-lead):**
+**Stop conditions (pause and return to implementation-planner):**
 
 - An assumption above is wrong (spec must update).
 - A 🔴 decision needs revisiting.
@@ -281,4 +281,4 @@ If none: "No flagged assumptions — every spec-load-bearing fact verified in §
 
 | Date | Version | Change | Author |
 |---|---|---|---|
-| <YYYY-MM-DD> | v1 | Initial draft | tech-lead |
+| <YYYY-MM-DD> | v1 | Initial draft | implementation-planner |

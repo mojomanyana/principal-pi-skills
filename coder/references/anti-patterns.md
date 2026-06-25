@@ -106,9 +106,9 @@ async function processOrder(order) {
 > Spec stop condition: "If `STREAM_FAILED` addition breaks any exhaustive switch."
 > Coder: discovers a broken switch at `error-display.tsx:42`. Adds a case with a placeholder message. Continues.
 
-**Why it fails:** The placeholder message is a decision tech-lead and the user didn't make. It might be wrong (wrong copy, wrong i18n, wrong UX). The slice ships with a silent contract change.
+**Why it fails:** The placeholder message is a decision implementation-planner and the user didn't make. It might be wrong (wrong copy, wrong i18n, wrong UX). The slice ships with a silent contract change.
 
-**Cure:** Stop. Reverse-handoff to tech-lead with the specific question. See [`scope-discipline.md`](scope-discipline.md). The slice can pause for 30 seconds.
+**Cure:** Stop. Reverse-handoff to implementation-planner with the specific question. See [`scope-discipline.md`](scope-discipline.md). The slice can pause for 30 seconds.
 
 ---
 
@@ -236,7 +236,7 @@ try {
 
 **Why it fails:** The TODO is invisible at runtime. The user sees an empty result, not an error.
 
-**Cure:** Either handle the error properly now, or surface it (return `Err`, log warning, etc.). TODOs aren't a substitute for behavior. If the proper handling is out of scope, the spec needs to acknowledge that — surface to tech-lead.
+**Cure:** Either handle the error properly now, or surface it (return `Err`, log warning, etc.). TODOs aren't a substitute for behavior. If the proper handling is out of scope, the spec needs to acknowledge that — surface to implementation-planner.
 
 ---
 

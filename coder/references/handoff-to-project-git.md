@@ -44,7 +44,7 @@ Every baton has all five. Missing a section is a failure mode.
 export's shape. Five new tests; one new module (`src/api/export-csv.ts`),
 one route registration update.
 **Spec:** `/docs/specs/2026-05-12-csv-export.md`
-**Upstream:** tech-lead handoff baton (date: 2026-05-12).
+**Upstream:** implementation-planner handoff baton (date: 2026-05-12).
 ```
 
 One paragraph. Project-git uses this for the PR title and description seed.
@@ -206,7 +206,7 @@ Sometimes the slice ships partial. The baton handles this honestly:
 passing. The unicode CSV test (`exports_handles_unicode_cells`) fails because
 the existing serializer doesn't double-quote embedded quotes inside unicode
 strings — fix is out of scope per spec §7 (csv-stringify behavior). Surfaced
-to tech-lead for spec revision; in the interim, leaving the test skipped
+to implementation-planner for spec revision; in the interim, leaving the test skipped
 with a `// TODO(coder, 2026-05-12)` referencing the issue.
 
 ### 2. Branch state

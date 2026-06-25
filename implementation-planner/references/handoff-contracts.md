@@ -51,7 +51,7 @@ This is closely related to the context-engineering principle for agentic systems
 
 ## 3. The seven required sections
 
-Every baton has these, in this order. The canonical schema lives at [`../../baton-schema.md`](../../baton-schema.md); the drop-in template lives at [`../assets/handoff-baton.md`](../assets/handoff-baton.md).
+Every baton has these, in this order. The canonical schema lives at [`../../BATON.md`](../../BATON.md); the drop-in template lives at [`../assets/handoff-baton.md`](../assets/handoff-baton.md).
 
 The baton's **metadata** (ID, from/to skills, type, timestamps, plan/slice references) lives in **YAML frontmatter** — parseable by any orchestrator without regex extraction.
 

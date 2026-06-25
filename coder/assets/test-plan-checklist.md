@@ -154,7 +154,7 @@ Per the spec's baton, the following stop conditions exist. Confirm none fired:
 | `<spec stop condition 2>` | ✅ did not fire |
 | `<spec stop condition 3>` | ⚠️ fired (see implementation report §X for resolution) |
 
-**Any stop condition fired without resolution?** ❌ no | ⚠️ yes (NOT acceptable — surface to tech-lead before handoff)
+**Any stop condition fired without resolution?** ❌ no | ⚠️ yes (NOT acceptable — surface to implementation-planner before handoff)
 
 ---
 

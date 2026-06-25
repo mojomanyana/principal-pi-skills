@@ -1,18 +1,20 @@
 ---
 id: baton-YYYY-MM-DD-<plan-slug>-<slice-id>
 from: implementation-planner
-to: tech-lead
+to: coder
 created: YYYY-MM-DDTHH:MM:SSZ
 revision: 1
 references:
   - path: <path to plan, e.g., docs/plans/payment-flow.md>
     section: <"§4 — Slice S2" or similar>
+  - path: implementation-planner/assets/coding-spec.md
+    section: <the filled coding spec for this slice>
   - path: <design doc or ADR, if any>
 objective: |
-  <One to three sentences. What the tech-lead is being asked to do for
-  this slice. Bad: "Spec slice S2." Good: "Produce a coding spec for
-  slice S2 (token validation) per its acceptance criteria. The spec
-  must allow the coder to implement without inventing scope.">
+  <One to three sentences. What the coder is being asked to implement for
+  this slice. Bad: "Implement slice S2." Good: "Implement slice S2 (token
+  validation) per the coding spec and its acceptance criteria, without
+  inventing scope beyond what the spec sized for.">
 
 kill_criteria:
   - <Slice scope expands beyond what the plan sized for>
@@ -21,8 +23,8 @@ kill_criteria:
 
 return_contract:
   artifacts:
-    - filled coding spec (tech-lead/assets/coding-spec.md)
-    - handoff baton to coder (tech-lead/assets/handoff-baton.md)
+    - working implementation on a branch
+    - implementation report + handoff baton to project-git
   status: complete | needs-replan | blocked
 
 # Transition-specific:
@@ -34,7 +36,7 @@ acceptance_criteria:
 tried_ruled_out:
   - approach: <approach name>
     reason: <why it didn't work or was ruled out upstream>
-  # Surface what's been explored upstream so tech-lead doesn't repeat.
+  # Surface what's been explored upstream so the coder doesn't repeat.
 
 flagged_assumptions:
   - assumption: <statement>

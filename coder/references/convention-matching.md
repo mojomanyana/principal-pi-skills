@@ -2,7 +2,7 @@
 
 > *"Match the codebase, not your preferences."* — Tenet 4
 
-The spec (when present) may name the conventions to follow. The coder applies them at the point of writing. This reference is about the *execution* of convention-matching, complementing tech-lead's `convention-discovery.md` (which is about discovery before specification).
+The spec (when present) may name the conventions to follow. The coder applies them at the point of writing. This reference is about the *execution* of convention-matching, complementing implementation-planner's `convention-discovery.md` (which is about discovery before specification).
 
 A coder who silently introduces "better" patterns produces code reviewers will reject. The codebase is the authority. The conventions are constraints, not suggestions.
 
@@ -14,7 +14,7 @@ When in doubt, follow this order:
 
 1. **Explicit project rules** — project convention files (`AGENTS.md`, `CLAUDE.md`, `.cursorrules`, `CONTRIBUTING.md`). If a rule exists, it wins.
 2. **Formatter / linter config** — `.prettierrc`, `.eslintrc`, `ruff.toml`, `gofmt`. Tooling-enforced rules are non-negotiable.
-3. **The spec** — what tech-lead's exploration captured.
+3. **The spec** — what implementation-planner's exploration captured.
 4. **The nearest neighbor file** — proximity wins ties; the file 3 directories away matters less than the sibling.
 5. **The newer convention** — if generations of code disagree, follow the newer pattern (it's where the codebase is heading).
 
@@ -171,7 +171,7 @@ Implementation note: spec was silent on logger usage. Two patterns found:
 - src/api/export-pdf.ts uses structured logger.info({ msg, ...fields })
 - src/api/legacy-export.ts uses logger.info('message: ' + value)
 Chose the structured pattern (matches export-pdf, the newer code). Flagged
-for tech-lead awareness; replace if wrong.
+for implementation-planner awareness; replace if wrong.
 ```
 
 ---

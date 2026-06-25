@@ -15,7 +15,7 @@
 
 **Task / slice:** <one-line description>
 **Date:** <YYYY-MM-DD>
-**Author:** tech-lead
+**Author:** implementation-planner
 
 ---
 

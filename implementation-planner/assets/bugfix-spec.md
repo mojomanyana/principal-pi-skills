@@ -7,7 +7,7 @@
 -->
 
 **Status:** draft | reviewed | locked
-**Spec author:** tech-lead (date: <YYYY-MM-DD>)
+**Spec author:** implementation-planner (date: <YYYY-MM-DD>)
 **Upstream:** <bug report, incident ticket, or direct user task>
 **Downstream:** coder
 **Severity:** <P0 hot-fix | P1 next release | P2 backlog>
@@ -134,7 +134,7 @@ test('<descriptive_test_name>', async () => {
 3. Only then does the coder apply the fix from §6.
 4. The test passes after the fix.
 
-If step 2 doesn't fail, **the test doesn't catch the bug**. Coder pauses and returns to tech-lead — either the test is wrong, the reproduction is wrong, or the bug is not where we thought.
+If step 2 doesn't fail, **the test doesn't catch the bug**. Coder pauses and returns to implementation-planner — either the test is wrong, the reproduction is wrong, or the bug is not where we thought.
 
 ### 5.2 Additional tests
 
@@ -303,4 +303,4 @@ why we're not also refactoring nearby code>
 
 | Date | Version | Change | Author |
 |---|---|---|---|
-| <YYYY-MM-DD> | v1 | Initial draft | tech-lead |
+| <YYYY-MM-DD> | v1 | Initial draft | implementation-planner |

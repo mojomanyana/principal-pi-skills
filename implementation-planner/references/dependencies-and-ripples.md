@@ -273,7 +273,7 @@ one slice. Suggested decomposition:
 **Migration plan:** see above (three-slice decomposition); deferred to planner.
 ```
 
-This is the kind of ripple analysis that turns a "quick rename" into "this is a multi-slice migration with backward-compatibility steps." Surfacing it in the spec is the difference between a useful tech-lead and a rubber stamp.
+This is the kind of ripple analysis that turns a "quick rename" into "this is a multi-slice migration with backward-compatibility steps." Surfacing it in the spec is the difference between a useful implementation-planner and a rubber stamp.
 
 ---
 

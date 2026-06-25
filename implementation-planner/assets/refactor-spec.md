@@ -11,7 +11,7 @@
 -->
 
 **Status:** draft | reviewed | locked
-**Spec author:** tech-lead (date: <YYYY-MM-DD>)
+**Spec author:** implementation-planner (date: <YYYY-MM-DD>)
 **Upstream:** <implementation-planner slice ID, technical-debt ticket, or direct user task>
 **Downstream:** coder
 **Behavior change?** **NO.** (If yes, this is not a refactor; use coding-spec.md.)
@@ -377,4 +377,4 @@ persisted state (it shouldn't), revisit framing.
 
 | Date | Version | Change | Author |
 |---|---|---|---|
-| <YYYY-MM-DD> | v1 | Initial draft | tech-lead |
+| <YYYY-MM-DD> | v1 | Initial draft | implementation-planner |

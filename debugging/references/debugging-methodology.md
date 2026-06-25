@@ -172,7 +172,7 @@ If you've been debugging for an hour with no traction, **stop**. Three checks:
 
 1. **Re-read the bug report.** Are you debugging what was actually reported?
 2. **Re-state your hypothesis.** Has the hypothesis evolved into something untestable?
-3. **Surface to tech-lead / user.** Sometimes the bug is symptomatic of a design issue. Sometimes the report misled you. Sometimes another pair of eyes spots it in 30 seconds.
+3. **Surface to implementation-planner / user.** Sometimes the bug is symptomatic of a design issue. Sometimes the report misled you. Sometimes another pair of eyes spots it in 30 seconds.
 
 A reverse-handoff with a clear summary is much more useful than another hour of speculative edits:
 

@@ -2,7 +2,7 @@
 
 > *"Hand off, don't invoke."* — A first-class move.
 
-The handoff baton is the contract by which `tech-lead` passes work to `coder`. It is structured, complete, and self-contained — a coder picking up the baton in a fresh context window should be able to start coding without re-reading the spec from scratch.
+The handoff baton is the contract by which `implementation-planner` passes work to `coder`. It is structured, complete, and self-contained — a coder picking up the baton in a fresh context window should be able to start coding without re-reading the spec from scratch.
 
 This reference defines the baton's required sections, accepted formats, and worked examples.
 
@@ -16,7 +16,7 @@ Context engineering for long-running agent work is the dominant 2026 best practi
 - **Concrete first actions** so the coder doesn't spend a full context window deciding where to start.
 - **Explicit assumptions to reconfirm** so the coder verifies rather than trusts.
 - **A measurable acceptance signal** so "done" is unambiguous.
-- **Stop conditions** so the coder knows when to pause and return to tech-lead instead of plowing through.
+- **Stop conditions** so the coder knows when to pause and return to implementation-planner instead of plowing through.
 
 Free-form handoffs ("just implement the spec") fail predictably: the coder loses time orienting, makes silent assumptions, or declares work complete when it isn't. The baton solves these by encoding intent.
 
@@ -24,9 +24,9 @@ Free-form handoffs ("just implement the spec") fail predictably: the coder loses
 
 ## 2. The seven baton sections
 
-This baton follows the canonical schema defined in [`../../baton-schema.md`](../../baton-schema.md). The table below maps tech-lead's baton sections to the schema's seven canonical names:
+This baton follows the canonical schema defined in [`../../BATON.md`](../../BATON.md). The table below maps implementation-planner's baton sections to the schema's seven canonical names:
 
-| # | Canonical section | Tech-lead content | Purpose |
+| # | Canonical section | Implementation-planner content | Purpose |
 |---|---|---|---|
 | 1 | **Objective** | Outcome (one-liner) | Coder's north star without re-reading |
 | 2 | **Inputs** | Spec reference + commit/hygiene notes | Where to find the spec; conventions for commits & PR |
@@ -99,7 +99,7 @@ The flagged assumptions from spec section 9, in a checklist format so the coder 
       first commit. Confirm absence before adding.
 ```
 
-Each assumption has an explicit verification step. If any check fails, the coder pauses and pings tech-lead (see stop conditions).
+Each assumption has an explicit verification step. If any check fails, the coder pauses and pings implementation-planner (see stop conditions).
 
 ### 5. Acceptance signal
 
@@ -125,10 +125,10 @@ The list is **specific, runnable, and ordered** — typically cheapest checks fi
 
 ### 6. Stop conditions
 
-When the coder should pause and route back to tech-lead instead of pushing through:
+When the coder should pause and route back to implementation-planner instead of pushing through:
 
 ```markdown
-**Stop conditions (pause and return to tech-lead):**
+**Stop conditions (pause and return to implementation-planner):**
 
 - An assumption in §4 turns out wrong (spec needs an update before coding can proceed).
 - A 🔴 reversibility decision (per spec §7) needs revisiting.
@@ -278,12 +278,12 @@ That baton is ~50 lines. It would be considered a heavyweight handoff for a smal
 
 ---
 
-## 6. The coder's reverse-handoff (return to tech-lead)
+## 6. The coder's reverse-handoff (return to implementation-planner)
 
-When a stop condition fires, the coder returns to tech-lead with a structured response. The format mirrors the baton:
+When a stop condition fires, the coder returns to implementation-planner with a structured response. The format mirrors the baton:
 
 ```markdown
-## Reverse handoff → tech-lead
+## Reverse handoff → implementation-planner
 
 **Status:** Paused at step <X>.
 
@@ -292,7 +292,7 @@ an exhaustive switch at `src/dashboard/error-display.tsx:42`.
 
 **Evidence:** [paste of the switch statement; paste of the type error]
 
-**Asking tech-lead:**
+**Asking implementation-planner:**
 1. Should the new enum value be handled by `error-display.tsx` (i.e., add a case)
    and if so, what should the user-facing message be?
 2. Or should we revisit naming this as a separate error code?
@@ -301,7 +301,7 @@ an exhaustive switch at `src/dashboard/error-display.tsx:42`.
 "Stream interrupted; please retry." Confirm before I proceed.
 ```
 
-This is what makes the round-trip work. The coder doesn't guess; tech-lead resolves; the coder resumes.
+This is what makes the round-trip work. The coder doesn't guess; implementation-planner resolves; the coder resumes.
 
 ---
 

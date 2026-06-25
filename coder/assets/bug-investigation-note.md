@@ -259,7 +259,7 @@ $ <lint>
 
 ## 10. If unfixable in this slice
 
-<!-- Use only when surfacing back to user / tech-lead without a fix. -->
+<!-- Use only when surfacing back to user / implementation-planner without a fix. -->
 
 **Why this can't be fixed here:**
 
@@ -290,7 +290,7 @@ $ git log --oneline main..HEAD
 (or, if unfixed)
 
 ```
-<no commits — surfacing back to tech-lead>
+<no commits — surfacing back to implementation-planner>
 ```
 
 ---

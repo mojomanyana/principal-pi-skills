@@ -128,7 +128,7 @@ Sometimes the smell-check fires and you can't get past it. **The spec doesn't sh
 - **"Spec needs upstream input: <question>. Pausing until <user / planner> resolves <X>."**
 - **"Spec deferred: this change is recommended to be deferred until <prerequisite> is in place."**
 
-The tech-lead's job includes saying "no, not like this." Refusing a bad spec is more useful than producing a confident-looking spec that ships the wrong thing.
+The implementation-planner's job includes saying "no, not like this." Refusing a bad spec is more useful than producing a confident-looking spec that ships the wrong thing.
 
 This is non-negotiable for:
 - 🔴 reversibility decisions with no kill criterion possible.

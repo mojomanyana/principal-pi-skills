@@ -141,7 +141,7 @@ Example:
 
 <!--
   When the spec was unclear and you proceeded with an interpretation, name
-  the interpretation. If you'd asked tech-lead, what would the question
+  the interpretation. If you'd asked implementation-planner, what would the question
   have been? Capture that.
 -->
 

@@ -1,7 +1,7 @@
 ---
 id: baton-YYYY-MM-DD-<topic-slug>
 from: brainstorming
-to: <software-architect | implementation-planner | tech-lead | project-git | user>
+to: <software-architect | implementation-planner | project-git | user>
 created: YYYY-MM-DDTHH:MM:SSZ
 revision: 1
 references:
