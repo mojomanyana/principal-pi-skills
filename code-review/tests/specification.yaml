@@ -128,7 +128,7 @@ scenarios:
     turns:
       - "Review this one-character fix: a log string said 'conneting' and now says 'connecting'."
     checklist:
-      - right-sizes: a glance — fine, ship it
+      - "right-sizes: a glance — fine, ship it"
       - does NOT run a heavy multi-point review or checklist on a one-character log-string typo fix
 
   - id: C2

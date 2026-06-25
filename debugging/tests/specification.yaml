@@ -62,7 +62,7 @@ scenarios:
     mode: seeded
     fixture: fixtures/A4
     turns:
-      - "The test in worker.test.ts passes most runs but sometimes fails with a wrong count. Fix the flake in worker.ts."
+      - "The test in worker.test.ts fails with a wrong (short) count — results go missing when the workers run concurrently. Fix the bug in worker.ts."
     assert:
       vitest: true
     checklist:

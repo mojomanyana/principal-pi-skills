@@ -97,7 +97,7 @@ scenarios:
     turns:
       - "I need to bump a config timeout from 30s to 60s in one file. Plan it for me."
     checklist:
-      - right-sizes: just says make the one-line change (it is a two-way door)
+      - "right-sizes: just says make the one-line change (it is a two-way door)"
       - does NOT impose a walking skeleton, DAG, risk register, or handoff batons on a trivial one-line reversible config edit
 
   - id: C2
