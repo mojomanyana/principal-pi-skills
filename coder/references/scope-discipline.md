@@ -120,7 +120,7 @@ These are **scope-edge** questions: not stop-the-world, but also not your call t
 **Three responses, in priority order:**
 
 1. **Find precedent in the codebase.** Search for similar decisions (header naming in other exports; logging patterns in other handlers). If precedent exists, follow it; note in the report.
-2. **Ask the user / tech-lead** if the answer materially affects the contract (column headers in a CSV export are essentially contract; 204-vs-200 is contract).
+2. **Ask the user / implementation-planner** if the answer materially affects the contract (column headers in a CSV export are essentially contract; 204-vs-200 is contract).
 3. **Pick a reasonable default + flag it in the report.** Use when the choice is genuinely arbitrary or low-stakes.
 
 ```
@@ -158,7 +158,7 @@ git checkout -- <files-not-in-spec>
 
 Land the minimum. Reopen the stash; either submit as a follow-up slice or discard.
 
-If the slice was sized wrong and the **minimum** doesn't actually satisfy the spec — **route back to tech-lead** with a reverse handoff explaining what's bigger than expected.
+If the slice was sized wrong and the **minimum** doesn't actually satisfy the spec — **route back to implementation-planner** with a reverse handoff explaining what's bigger than expected.
 
 ---
 

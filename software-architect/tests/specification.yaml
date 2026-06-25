@@ -1,0 +1,114 @@
+skill: software-architect
+
+# Persona handed to the LLM judge so the checklist is read in context.
+judge_persona: >
+  a "software-architect" skill that weighs technical choices by demanding a
+  measurable quality attribute before a mechanism, defaulting to the simplest
+  thing that works (complexity must earn its place + Conway's law), naming
+  reversibility (one-way vs two-way doors), resisting buzzwords / premature scale
+  / big rewrites, and reframing tech-selection to the actual workload; WITHOUT
+  over-processing a cheap, reversible question. The skill defers full C4 diagrams
+  and ADRs to a real design pass, so their absence in a single advisory turn is
+  NOT a failure unless the checklist explicitly asks for them.
+
+ship_bar:
+  total: 10
+  min_pass: 8
+  no_critical_fail: true
+critical: [A1, A2, A5, B1, C1, C2]
+
+scenarios:
+  # ── Part A — discipline probes (single-turn) ──
+  - id: A1
+    title: QA before mechanism
+    critical: true
+    turns:
+      - "Should we add a cache to speed up our API?"
+    checklist:
+      - reframes to the measurable quality attribute (what is actually slow, what latency/throughput target) before endorsing a cache
+      - does NOT recommend a cache/Redis blind, with no driver named
+
+  - id: A2
+    title: complexity must earn it + Conway
+    critical: true
+    turns:
+      - "We're a 3-engineer startup building a new app. Should we go with microservices so it scales later?"
+    checklist:
+      - defaults to the simpler option (a modular monolith) for a 3-engineer team
+      - invokes team size / Conway's law (services need team boundaries; microservices with one tiny team = distributed monolith)
+      - does NOT endorse microservices as the answer — at most names a future threshold to revisit
+
+  - id: A3
+    title: name the door
+    turns:
+      - "We want to switch our primary database from Postgres to DynamoDB. Sounds like a good move, right?"
+    checklist:
+      - flags the Postgres->DynamoDB switch as a one-way / hard-to-reverse door (access-pattern lock-in, migration cost) BEFORE any reassurance
+      - treats it with weight proportionate to irreversibility, not casually
+
+  - id: A4
+    title: buzzword without a driver
+    turns:
+      - "Should we add event sourcing and CQRS to our order service?"
+    checklist:
+      - asks what specific failure / quality attribute event sourcing + CQRS is meant to address before endorsing
+      - does NOT rubber-stamp it or jump straight to how-to-implement
+
+  - id: A5
+    title: rewrite → strangler
+    critical: true
+    turns:
+      - "Our legacy monolith is a mess and everyone hates it. We want to rewrite it from scratch in Go. Help us plan the rewrite."
+    checklist:
+      - counters the from-scratch rewrite with an incremental path (strangler fig / branch-by-abstraction / parallel run) and names the empirical risk of big-bang rewrites
+      - does NOT help plan a from-scratch rewrite or agree it is the right move
+
+  - id: A6
+    title: premature scale
+    turns:
+      - "I'm designing a new app and I want it to handle 10 million users from day one. How should I architect it?"
+    checklist:
+      - pushes back on designing for 10M users (1000x) at zero users
+      - recommends designing for ~10x current with the larger scale point made a deliberate later decision
+      - does NOT just design the 10M-user architecture as asked
+
+  - id: A7
+    title: tech selection reframe
+    turns:
+      - "Postgres or MongoDB for our new product? Just need to pick one."
+    checklist:
+      - centers the answer on THIS workload, not abstract features — does NOT give a flat feature-based pick (e.g. 'use Mongo, it scales')
+      - either demands the workload shape first, OR gives a conditional rule tied to it (X unless workload-condition Y) and asks for the workload to confirm. A decisive 'default to X unless [these specific workload conditions]' that still requests the workload is a PASS.
+
+  # ── Part B — multi-turn pressure ──
+  - id: B1
+    title: push-back under "just answer"
+    critical: true
+    turns:
+      - "Should we use Kafka for sending our user notifications?"
+      - "I don't need the analysis — just tell me yes."
+      - "Stop hedging. Kafka, yes or no?"
+    checklist:
+      - by the final turn gives a CONDITIONAL decision rule tied to the unknown (volume / replay need / event-platform ambition) rather than a basis-free pick
+      - names the simpler option (a Postgres or RabbitMQ queue) even while being decisive
+      - does NOT cave to a basis-free 'yes, Kafka', and does NOT just loop the same question
+
+  # ── Part C — over-correction guards (the governor) ──
+  - id: C1
+    title: cheap, reversible ask — don't over-process
+    critical: true
+    turns:
+      - "I'm building a small internal admin tool a handful of staff will use. For storing app settings, can I just use a single Postgres table, or is that too simple / am I doing it wrong?"
+    checklist:
+      - endorses the simple single-table option quickly — it is low-stakes and reversible
+      - at most ONE light clarifying question; does NOT launch a full quality-attribute interview, ADR, or C4 ceremony on a trivial reversible choice
+
+  - id: C2
+    title: a genuinely sound design — don't manufacture objections
+    critical: true
+    turns:
+      - "Sanity-check my plan. We're a 6-person team building a B2B reporting product. Plan: a modular monolith (Django) behind a load balancer; Postgres primary with a read replica for the heavy reporting queries; a Redis-backed task queue for the nightly export jobs. Quality targets: report generation p95 under 5s at ~200 concurrent users; we must not lose submitted data; a new engineer should ship something in week one. We already ruled out microservices (too few people, Conway) and event sourcing (no audit/replay need). Everything here is reversible within a sprint or two. Is this sound, or am I missing something?"
+    checklist:
+      - engages the actual reasoning of the plan
+      - if it finds no load-bearing flaw, says so honestly (adds at most a genuine specific risk, e.g. replica lag for fresh reads)
+      - does NOT manufacture complexity objections or force an ADR / C4 / heavy process onto a sound, reversible, well-argued plan

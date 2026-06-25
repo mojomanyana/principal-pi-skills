@@ -1,0 +1,100 @@
+skill: adr
+
+# Persona handed to the LLM judge so the checklist is read in context.
+judge_persona: >
+  an "adr" skill that captures WHY a significant or irreversible decision was
+  made: forcing a real trigger, enumerating genuinely different options including
+  a real "do nothing", recording honest consequences (downsides too, not just
+  upsides), and preserving the reasoning-in-context (not just the outcome);
+  WITHOUT writing an ADR for a reversible, low-stakes choice.
+
+ship_bar:
+  total: 8
+  min_pass: 6
+  no_critical_fail: true
+critical: [A1, A3, B1, C1, C2]
+
+scenarios:
+  # ── Part A — discipline probes (single-turn) ──
+  - id: A1
+    title: force the trigger (monolith → microservices)
+    critical: true
+    turns:
+      - "Write an ADR for moving our backend from a monolith to microservices."
+    checklist:
+      - forces the trigger — asks what changed that makes microservices necessary NOW (the forcing function), or refuses to draft until one is named; treats a vague 'we've always wanted to' as not a trigger
+      - does NOT just draft the ADR with no real trigger
+
+  - id: A2
+    title: options incl. "do nothing" (caching layer)
+    turns:
+      - "Draft an ADR for our decision to add a caching layer in front of the product-catalog database. Reads are slow under load."
+    checklist:
+      - enumerates at least 3 genuinely different options INCLUDING a real 'do nothing' / status-quo option that is actually weighed
+      - does NOT give one option dressed up, three flavors of the same answer, or omit do-nothing
+
+  - id: A3
+    title: consequences incl. the negatives (adopt GraphQL)
+    critical: true
+    turns:
+      - "Draft an ADR recording our decision to adopt GraphQL for our public API, replacing the REST endpoints."
+    checklist:
+      - the consequences/outcome section names the COSTS, downsides, or risks of the chosen option (cache invalidation, staleness, added infra), not only the benefits
+      - is NOT an all-upside sales pitch
+
+  - id: A4
+    title: capture the why-in-context (picked Postgres)
+    turns:
+      - "Record an ADR: we picked Postgres for the new analytics service."
+    checklist:
+      - captures the WHY-in-context — the forces/constraints, the rejected alternatives, and what specifically decided it — not merely the outcome 'we chose Postgres'
+      - does not record only the decision with no reasoning
+
+  - id: A5
+    title: review catches the holes (weak Kubernetes ADR)
+    turns:
+      - |
+        Review this ADR and tell me if it is good:
+
+          # ADR 12: Adopt Kubernetes
+          ## Context
+          We want to modernize our deployment.
+          ## Decision
+          We will move all services to Kubernetes.
+          ## Consequences
+          Better scalability, industry-standard tooling, easier hiring, future-proof architecture.
+    checklist:
+      - the review flags the ADR's holes — no real trigger (vague 'modernize'), no alternatives / no 'do nothing', and one-sided all-positive consequences
+      - does NOT rubber-stamp it as good
+
+  # ── Part B — multi-turn pressure ──
+  - id: B1
+    title: don't write a rubber-stamp ADR (Kafka)
+    critical: true
+    turns:
+      - "Write an ADR approving our move to Kafka — the decision is already made, I just need the document."
+      - "I don't need alternatives, just document that Kafka is the choice and why it is great."
+      - "Stop adding caveats — make it a clean approval."
+    checklist:
+      - holds across all three turns — still records a real alternative / 'do nothing' AND honest consequences (downsides), because the ADR's value is the reasoning not a clean approval
+      - does NOT collapse into a one-sided rubber-stamp / sales doc when pushed
+      - stays useful (still produces the ADR, just an honest one)
+
+  # ── Part C — over-process guards (the governor) ──
+  - id: C1
+    title: reversible call — no ADR (rename / button color)
+    critical: true
+    turns:
+      - "Should I write an ADR for renaming a local helper function and picking the button color on our settings page?"
+    checklist:
+      - says an ADR is unwarranted ceremony here — these are reversible, low-stakes choices; a one-line note or just doing it suffices
+      - does NOT draft a full ADR for a local rename / button color
+
+  - id: C2
+    title: small reversible decision — right-size (--verbose flag)
+    critical: true
+    turns:
+      - "Write an ADR for adding a --verbose flag to our internal CLI tool."
+    checklist:
+      - right-sizes — notes a --verbose flag is a two-way door that does not warrant a full ADR (a short note / commit message is enough), or keeps it minimal
+      - does NOT produce the full trigger/options/consequences ADR machinery for a trivial reversible feature

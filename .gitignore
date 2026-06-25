@@ -48,3 +48,8 @@ $RECYCLE.BIN/
 .agents/
 # Note: do NOT add the above if you ever check
 # project-level skill installs into the repo
+# skill-check run outputs: ignore raw transcripts + the generated report, but
+# KEEP the validated results.yaml (verdicts + notes) so the record travels with
+# the skill it grades.
+**/tests/results/**/*.txt
+**/tests/results/**/*.html

@@ -7,7 +7,7 @@ revision: 1
 references:
   - path: <path to coding spec, or "(no spec — direct task)">
   - path: <path to implementation report, e.g., docs/reports/payment-flow-S2.md>
-  - path: <upstream baton from tech-lead, if any>
+  - path: <upstream baton from implementation-planner, if any>
 objective: |
   <One to three sentences. What project-git should do. Bad: "Open a PR."
   Good: "Open a PR for the payment-flow-S2 branch (clean acceptance,
@@ -73,7 +73,7 @@ flags_for_git:
 **Slice:** `<slice-name>`
 **Summary:** <1-3 sentences in user-facing terms>
 **Spec:** `<path to spec, or "(no spec — direct task)">`
-**Upstream:** <previous skill, e.g., "tech-lead handoff baton, 2026-05-12">
+**Upstream:** <previous skill, e.g., "implementation-planner handoff baton, 2026-05-12">
 
 ---
 
@@ -172,7 +172,7 @@ Brief highlights for project-git's attention:
 
 **What's not done:**
 
-- `<item>` because `<reason>`. Status: `<skipped | waiting on tech-lead | needs follow-up slice>`.
+- `<item>` because `<reason>`. Status: `<skipped | waiting on implementation-planner | needs follow-up slice>`.
 
 **What the user / reviewer should know:**
 

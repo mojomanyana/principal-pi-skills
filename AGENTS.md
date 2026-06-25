@@ -8,7 +8,7 @@ This file complements the individual `SKILL.md` files. It is the **routing layer
 
 ## 1. The framework in one paragraph
 
-There are six skills. They form a pipeline from fuzzy idea to merged PR: `brainstorming → software-architect → implementation-planner → tech-lead → coder → project-git`. Each skill is purpose-built for one phase of work. Each produces a tangible artifact (decision brief, design doc/ADR, implementation plan, coding spec, code + report, commits/PRs). Each ends with a **handoff baton** that compresses state for the next skill. No skill ever invokes another — you, the orchestrator, route based on the baton's `next_step_hint` or `Handoff Cues`.
+There are ten skills, and they fall into three shapes around a single spine. The **pipeline** carries a task from fuzzy idea to merged PR: `brainstorming → implementation-planner → coder → [ ponytail · code-review ] → project-git`. The **validate gate** — `ponytail` (simplicity) and `code-review` (correctness) — reviews what `coder` produced before it lands; these two critics review and recommend, they don't build. The **depth & repair** tier — `software-architect` (+ `adr`) for architectural calls, `debugging` when something fails — is entered only when the work needs it, not on every task. Above all of these sits **using-principal-pi-skills**: the posture + routing index you read to orient a multi-step task and pick the right skill. Each working skill is purpose-built for one phase, produces a tangible artifact (decision brief, design doc, ADR, implementation plan + per-slice spec, code + report, review verdict, diagnosis, commits/PRs), and ends with a **handoff baton** that compresses state for the next skill. No skill ever invokes another — you, the orchestrator, route based on the baton's `next_step_hint` or `Handoff Cues`.
 
 **Orchestrator** — the actor responsible for routing between skills. When a skill says *"point, don't invoke"* it means *this skill produces a handoff but does not itself trigger the next skill*. The orchestrator is whoever consumes that handoff and decides what runs next. The framework recognizes three orchestrator models, all valid:
 
@@ -28,14 +28,18 @@ When the user speaks, classify the input before reaching for a skill. The trigge
 
 | Input shape | Skill |
 |---|---|
+| User is unsure *which* skill applies, or is orienting a multi-step task spanning design → build → land | `using-principal-pi-skills` |
 | User is *exploring* a decision, not executing one ("I'm thinking about…", "should I…", "what are my options", "I'm stuck") | `brainstorming` |
 | User wants a *system designed* or a *significant technical choice weighed* ("design X", "Postgres or DynamoDB", "should we use microservices", "scale this") | `software-architect` |
-| User has a *spec, ADR, or decision brief* and needs *order of work* ("plan this", "break this down", "where do I start") | `implementation-planner` |
-| User has *a slice or task* and needs *code-level design before touching code* ("how should I implement", "scope this refactor", "design this change") | `tech-lead` |
+| User wants to *record why* a significant or irreversible decision was made ("write an ADR", "document this decision", "record why we chose X") | `adr` |
+| User has a *decision, spec, or task* and needs *order of work and/or a code-level spec* ("plan this", "break this down", "where do I start", "how should I implement", "scope this refactor", "design this change") | `implementation-planner` |
 | User wants *code written* ("fix this", "implement", "make the test pass", "build it") | `coder` |
+| User asks *"is this too complex / do we need this / simplify this diff"* — minimality on a written change | `ponytail` |
+| User asks *"review this / is it ready to merge"* — correctness before landing | `code-review` |
+| User has an *unknown failure to diagnose* ("why is this failing", "find the bug", "this test is red", "it crashes when…") | `debugging` |
 | User wants a *git or GitHub operation* ("commit", "push", "open PR", "leaked a secret", "find the regression", "tag a release") | `project-git` |
 
-**When more than one applies**, route by altitude: the highest-altitude skill that matches the *actual* request, not the surface phrasing. *"Should I use Redis or Memcached"* is `software-architect` (it's a technology selection), not `brainstorming` (which is for upstream decisions about whether to add caching at all). *"How do I commit this"* is `project-git`, not `coder`, even when the user expected to write more code.
+**When more than one applies**, route by altitude: the highest-altitude skill that matches the *actual* request, not the surface phrasing. *"Should I use Redis or Memcached"* is `software-architect` (it's a technology selection), not `brainstorming` (which is for upstream decisions about whether to add caching at all). *"How do I commit this"* is `project-git`, not `coder`, even when the user expected to write more code. *"Why is this test red"* is `debugging` (diagnose an unknown failure), not `coder` (which fixes a bug whose cause is already known).
 
 **When no skill fits**, don't force one. Answer directly. The skills cover principal-engineering work; everyday Q&A doesn't need them.
 
@@ -45,15 +49,16 @@ When the user speaks, classify the input before reaching for a skill. The trigge
 
 You will see these flows repeatedly. Recognize them so you can route ahead.
 
-- **Full lifecycle** (large new feature): `brainstorming → software-architect → implementation-planner → tech-lead → coder → project-git`. One baton per transition. Often the planner emits multiple batons — one per slice — and each slice walks `tech-lead → coder → project-git` independently.
-- **Mid-size** (decision already clear, but design is non-trivial): `software-architect → implementation-planner → tech-lead → coder → project-git`. Skip brainstorming.
-- **Small slice** (design clear, one change): `tech-lead → coder → project-git`. Skip planning.
-- **Tiny change** (typo, one-line fix, rename): `coder` (Mode B) → `project-git`. Skip the spec. See coder/SKILL.md Mode B for the five-part Mode B test that decides whether a task qualifies.
-- **Bug fix**: `tech-lead` (Mode C, bug-fix spec) → `coder` (Mode C, regression-test-first) → `project-git`. Or, for trivial bugs, `coder` (Mode E, debug) → `project-git`.
-- **Refactor**: `tech-lead` (Mode D, refactor spec with proof-of-equivalence) → `coder` (Mode D, behavior unchanged, existing tests pass unmodified) → `project-git`.
-- **ADR landing**: `software-architect` (Mode D, write ADR) → `project-git` (commit + PR in delegated mode).
+- **Full lifecycle** (large new feature): `brainstorming → software-architect → implementation-planner → coder → [ ponytail · code-review ] → project-git`. One baton per transition. The planner emits both the plan and the per-slice spec, and often multiple batons — one per slice — so each slice walks `implementation-planner (spec) → coder → [ ponytail · code-review ] → project-git` independently.
+- **Mid-size** (decision already clear, but design is non-trivial): `software-architect → implementation-planner → coder → [ ponytail · code-review ] → project-git`. Skip brainstorming.
+- **Small slice** (design clear, one change): `implementation-planner` (Mode B, spec one slice) → `coder → [ ponytail · code-review ] → project-git`. Skip the macro-plan.
+- **Tiny change** (typo, one-line fix, rename): `coder` (Mode B) → `project-git`. Skip the spec and, for a truly trivial reversible change, the validate gate. See coder/SKILL.md Mode B for the five-part Mode B test that decides whether a task qualifies.
+- **Bug fix**: `implementation-planner` (Mode C, bug-fix spec — regression test specified first) → `coder` (regression-test-first) → `[ code-review ] → project-git`. If the cause is *unknown*, start with `debugging` to diagnose, then route the confirmed fix to `coder`.
+- **Refactor**: `implementation-planner` (Mode D, refactor spec with proof-of-equivalence) → `coder` (behavior unchanged, existing tests pass unmodified) → `[ ponytail · code-review ] → project-git`.
+- **Diagnose a failure**: `debugging` (reproduce → isolate → hypothesize → probe → fix-and-verify) → `coder` (apply the confirmed fix) or `implementation-planner` (if the diagnosis reveals a design problem).
+- **ADR landing**: `adr` (write the record — usually after `software-architect` made the call) → `project-git` (commit + PR in delegated mode).
 - **Issue triage from brainstorm**: `brainstorming` (decision brief) → `project-git` (file issues, delegated mode).
-- **Stress test only**: `brainstorming` (Mode D, pre-mortem dominant) — produces a brief that flags risks, then loops back to whoever owns the work.
+- **Stress test only**: `brainstorming` (pre-mortem dominant) — produces a brief that flags risks, then loops back to whoever owns the work.
 - **Architecture review**: `software-architect` (Mode C) — produces target-state C4 diagrams and ranked findings; findings may spawn brainstorms or planning rounds.
 - **Replan mid-flight**: `implementation-planner` (Mode E) — first-class activity when a slice fails, scope shifts, or a spike result invalidates the approach. Not a failure mode.
 
@@ -63,7 +68,7 @@ You will see these flows repeatedly. Recognize them so you can route ahead.
 
 A baton is a typed structure handed from one skill to the next. It is the unit of cross-skill state. When a skill finishes, it emits one. When the next skill starts, it reads one.
 
-**The full schema lives in `BATON.md` at the repo root.** That document defines the common spine, the per-transition shapes (six forward transitions plus the project-git return baton), the YAML frontmatter convention, and validation rules. Read it once; this section is the executive summary.
+**The full schema lives in `BATON.md` at the repo root.** That document defines the common spine, the per-transition shapes (the forward transitions plus the project-git return baton), the YAML frontmatter convention, and validation rules. Read it once; this section is the executive summary.
 
 A well-formed baton carries (the **spine**):
 
@@ -81,8 +86,7 @@ Plus a **YAML frontmatter header** carrying the machine-parseable form of all th
 **Templates** (one per source skill):
 - `brainstorming/assets/handoff-baton.md` — brainstorming → any
 - `software-architect/assets/handoff-baton.md` — architect → any
-- `implementation-planner/assets/handoff-baton.md` — planner → tech-lead
-- `tech-lead/assets/handoff-baton.md` — tech-lead → coder
+- `implementation-planner/assets/handoff-baton.md` — planner → coder (carries the plan and the per-slice spec)
 - `coder/assets/handoff-baton-to-git.md` — coder → project-git
 - `project-git/references/delegation-contract.md` — project-git → caller (return baton / Facts block)
 
@@ -105,7 +109,7 @@ The skills use a consistent vocabulary across the framework. Use the same terms 
 - **costly** (🟡, code-level only) — undoing requires rework but not a migration.
 - **one-way door** (🔴 in code-level contexts) — undoing requires migration, downtime, version coordination, or downstream breakage. Requires an explicit **kill criterion** stated in advance.
 
-The framework uses **two tiers at decision/design altitude** (brainstorming, software-architect, implementation-planner) — just *two-way door* and *one-way door*, in prose. It uses **three tiers at code altitude** (tech-lead, with the middle "costly" tier and 🟢/🟡/🔴 emoji for scannability), because real code-level decisions come in three grades. This is intentional, not an inconsistency: the door metaphor reads cleanly at architectural scale, and the middle "costly" tier (a public-but-internal helper rename, a non-migration dependency bump) is meaningful only when you're looking at specific files.
+The framework uses **two tiers at decision/design altitude** (brainstorming, software-architect, adr) — just *two-way door* and *one-way door*, in prose. It uses **three tiers at code altitude** (implementation-planner's per-slice specs and coder, with the middle "costly" tier and 🟢/🟡/🔴 emoji for scannability), because real code-level decisions come in three grades. This is intentional, not an inconsistency: the door metaphor reads cleanly at architectural scale, and the middle "costly" tier (a public-but-internal helper rename, a non-migration dependency bump) is meaningful only when you're looking at specific files.
 
 **Quality Attribute Scenario (QAS)** — concrete, measurable requirement from the architecture skill. Format: source / stimulus / environment / artifact / response / measure. *"During Black Friday peak (env), the order service (artifact) must respond to a place-order request (stimulus) from the mobile app (source) with a confirmation (response) in under 500ms p95 (measure)."* Replace adjectives like "scalable" with QAS.
 
@@ -139,7 +143,7 @@ The framework uses **two tiers at decision/design altitude** (brainstorming, sof
 
 **Spike** — a time-boxed investigation with a written deliverable, used to de-risk an *unknown* risk before committing scope to dependent work.
 
-**Smell-check** — tech-lead's mandatory pre-commit on a spec: did this fight the codebase? Is the user solving the right problem? Are we re-implementing something that exists? Is this the smallest change?
+**Smell-check** — implementation-planner's mandatory check while spec-ing a slice: did this fight the codebase? Is the user solving the right problem? Are we re-implementing something that exists? Is this the smallest change?
 
 ---
 
@@ -147,7 +151,7 @@ The framework uses **two tiers at decision/design altitude** (brainstorming, sof
 
 These postures appear in multiple skills and apply across every transition.
 
-**Read before write.** Every operation starts with reading. The architect reads the codebase shape and the constraints; the tech-lead reads the affected files, callers, and tests; the coder reads files before modifying them; project-git reads working-tree state, recent log, and remote sync before any write. Seconds spent reading prevent hours unwinding.
+**Read before write.** Every operation starts with reading. The architect reads the codebase shape and the constraints; the planner reads the affected files, callers, and tests before spec-ing a slice; the coder reads files before modifying them; the reviewer reads the diff and runs it before a verdict; debugging reads the error and reproduces before editing; project-git reads working-tree state, recent log, and remote sync before any write. Seconds spent reading prevent hours unwinding.
 
 **Match the codebase, not your preferences.** Your training data is opinionated. The codebase wins every disagreement. If the project uses snake_case, you use snake_case. If it uses Result types instead of exceptions, you use Result types. Silent deviation is a code smell. Explicit deviation requires explicit justification.
 
@@ -168,7 +172,7 @@ These postures appear in multiple skills and apply across every transition.
 The skills enforce these. Apply them even when not explicitly stated.
 
 - **Solution proposed before problem stated.** *"Should we use Kafka?"* before *"what's the messaging requirement?"* — reframe to the problem first.
-- **Vague trigger phrases without substance.** *"Just give me the code"* on a non-trivial task — route to tech-lead first, or ask one clarifying question.
+- **Vague trigger phrases without substance.** *"Just give me the code"* on a non-trivial task — route to implementation-planner for a spec first, or ask one clarifying question.
 - **Plans without a walking skeleton.** Push back hard on *"but we know it works"* — have you actually run it end-to-end recently with the current dependency versions?
 - **One-way doors without kill criteria.** A schema migration without a kill criterion is malpractice. So is a vendor commit. So is a public API change.
 - **Specs without test plans.** If you can't write the test that catches the regression, the spec isn't ready.
@@ -192,17 +196,20 @@ Each skill has a specific deliverable. Know which one applies before you finish.
 
 | Skill | Required artifact | Template |
 |---|---|---|
+| `using-principal-pi-skills` | (Index/posture only — no artifact; orients and routes) | — |
 | `brainstorming` | Decision brief (question reframed, constraints, options, pre-mortem, decision, reversibility, open questions, handoff pointer) | `brainstorming/assets/decision-brief.md` |
 | `software-architect` (design) | Design doc with C4 Context + Container + relevant Component/Dynamic/Deployment | `software-architect/assets/design-doc-template.md` |
-| `software-architect` (ADR) | ADR with trigger, context/forces, ≥3 options including "do nothing", decision, consequences positive *and* negative | `software-architect/assets/adr-template.md` |
 | `software-architect` (advisory) | Prose answer + decision rule + reversibility note; diagram when structural | — |
-| `implementation-planner` | Plan with outcome, risks, walking skeleton, INVEST slices, DAG, reversibility tags, acceptance + kill criteria, status section | `implementation-planner/assets/implementation-plan.md` |
+| `adr` | ADR with trigger, context/forces, ≥3 options including "do nothing", decision, consequences positive *and* negative | `adr/assets/adr-template.md` |
+| `implementation-planner` (plan) | Plan with outcome, risks, walking skeleton, INVEST slices, DAG, reversibility tags, acceptance + kill criteria, status section | `implementation-planner/assets/implementation-plan.md` |
+| `implementation-planner` (slice spec) | Coding spec: outcome, scope, exploration notes, design, test plan, dependencies & ripples, reversibility, smell-check, flagged assumptions, handoff baton | `implementation-planner/assets/coding-spec.md` |
+| `implementation-planner` (bug) | Bug-fix spec: regression test specified first, root-cause diagnosis, minimal fix, blast radius | `implementation-planner/assets/bugfix-spec.md` |
+| `implementation-planner` (refactor) | Refactor spec with proof-of-equivalence plan | `implementation-planner/assets/refactor-spec.md` |
 | `implementation-planner` (baton-only mode) | One handoff baton for one transition | `implementation-planner/assets/handoff-baton.md` |
-| `tech-lead` (slice spec) | Coding spec: outcome, scope, exploration notes, design, test plan, dependencies & ripples, reversibility, smell-check, flagged assumptions, handoff baton | `tech-lead/assets/coding-spec.md` |
-| `tech-lead` (bug) | Bug-fix spec: regression test specified first, root-cause diagnosis, minimal fix, blast radius | `tech-lead/assets/bugfix-spec.md` |
-| `tech-lead` (refactor) | Refactor spec with proof-of-equivalence plan | `tech-lead/assets/refactor-spec.md` |
 | `coder` | Working code + commits + implementation report + handoff baton to project-git | `coder/assets/implementation-report.md`, `coder/assets/handoff-baton-to-git.md` |
-| `coder` (debug) | Bug investigation note + (if non-trivial) full report | `coder/assets/bug-investigation-note.md` |
+| `ponytail` | Verdict per change — KEEP / SIMPLIFY (with the smaller version) / DELETE (with why) | — |
+| `code-review` | Findings ranked Blocker / should-fix / nit, each with `file:line` + concrete fix, verified not assumed | — |
+| `debugging` | Confirmed root-cause diagnosis + a reproducing test, fix verified (suite + original repro green) | — |
 | `project-git` (human mode) | Narrative output + relevant URLs/SHAs/IDs | — |
 | `project-git` (delegated mode) | Brief confirmation + `## Facts` block (branch, commits, PR, CI status, warnings, `next_step_hint`) | — |
 
@@ -218,7 +225,7 @@ Examples:
 
 - Brainstorming's Tenet 6 says: *"See [cognitive-biases.md](references/cognitive-biases.md) for the full anti-sycophancy protocol."* Load that file when you sense the conversation is drifting into agreement-mode.
 - Architect's Tenet 1 says: *"See [quality-attributes.md](references/quality-attributes.md)."* Load that when the user is using fuzzy adjectives ("scalable", "secure") instead of measurable scenarios.
-- Tech-lead's Mode C says: *"See [debugging-methodology.md](references/debugging-methodology.md)."* Load that when working on a bug-fix spec where the root cause is non-obvious.
+- Debugging's five-phase loop says: *"See [debugging-methodology.md](references/debugging-methodology.md)."* Load that when a bug's root cause is non-obvious (reading errors, cross-process, intermittent bugs, knowing when to stop).
 - Project-git's Mode G says: *"See [recovery.md](references/recovery.md)."* Load that on `reflog`, lost commits, wrong-branch pushes, or leaked-secret incidents.
 
 Do *not* load references preemptively. Doing so wastes context window. Load when the linked context fires.
@@ -232,8 +239,8 @@ These are out-of-scope for the whole framework. If asked, redirect — or, when 
 - **Run another skill.** Skills point, the orchestrator routes. The point-don't-invoke rule is absolute.
 - **Make decisions silently.** Every load-bearing choice gets surfaced. The user can disagree before it lands.
 - **Produce conversation-only deliverables on principal-engineering work.** If the work is non-trivial, it ends with a written artifact.
-- **Validate without testing.** Brainstorming refuses *"tell me this is a good idea"* — it stress-tests instead. Architect refuses recommendations without QAS backing. Tech-lead refuses spec review without applying the nine tenets as a rubric. Coder refuses "looks right" as proof.
-- **Skip exploration.** Tech-lead won't spec code it hasn't read. Coder won't write code without reading the affected files first.
+- **Validate without testing.** Brainstorming refuses *"tell me this is a good idea"* — it stress-tests instead. Architect refuses recommendations without QAS backing. Code-review refuses an approval it hasn't verified ("unverified," never "LGTM"). Coder refuses "looks right" as proof.
+- **Skip exploration.** The planner won't spec code it hasn't read. Coder won't write code without reading the affected files first. Debugging won't fix what it hasn't reproduced.
 - **Commit with conflict markers, secrets, or to a protected branch without consent.** Project-git's safety overrides are non-negotiable.
 - **Rewrite plans silently.** Replans preserve history with dated revision notes.
 - **Hide one-way doors.** Reversibility tags are mandatory on significant decisions.
@@ -246,7 +253,7 @@ These are out-of-scope for the whole framework. If asked, redirect — or, when 
 - **Long sessions:** if the same skill runs more than ~20 exchanges, summarize state so far, ask whether to continue, narrow, or close.
 - **Multi-session continuation:** if the user returns with *"we were working on X"* and an artifact exists (brief, plan, spec, report), read it first, then ask what's changed. Don't restart from memory.
 - **Interrupted coder sessions:** read `progress.md` (per `coder/references/coding-loops.md`), run `git status` and `git log`, run the tests to determine green/red, then resume from the last consistent state.
-- **Drift recovery:** when the spec contradicts reality discovered mid-implementation, *stop*. Don't silently adapt. Reverse-handoff to tech-lead with a specific question.
+- **Drift recovery:** when the spec contradicts reality discovered mid-implementation, *stop*. Don't silently adapt. Reverse-handoff to implementation-planner with a specific question.
 - **Scope creep inside a session:** name it — *"that's a separate brainstorm / slice / decision; want to handle it after this one or fork now?"*
 
 ---

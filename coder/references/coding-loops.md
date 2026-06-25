@@ -265,4 +265,4 @@ Fix: spend 60 seconds writing it down. What's done (with commit references), wha
 - **Running the whole suite on every edit.** Slow feedback → slow iteration → frustration → shortcuts.
 - **Never running the whole suite.** You can land a regression you didn't know you caused. Run the whole suite at slice end.
 - **Treating every step as TDD.** Pure refactors don't need new tests; config changes don't have unit-level reds; spike work is discarded. Right-tool for the step.
-- **Treating the progress file as the spec.** The progress file is operational state, not design. Spec questions go to tech-lead.
+- **Treating the progress file as the spec.** The progress file is operational state, not design. Spec questions go to implementation-planner.

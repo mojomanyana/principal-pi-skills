@@ -36,7 +36,7 @@ Fail-fast code uses assertions, throws on unexpected input, and doesn't try to r
 - Test code where a "soft" failure hides the real bug.
 - Anywhere a wrong recovery would be worse than a crash (e.g., financial code where "default to zero" is dangerous).
 
-**Most codebases use both** — defensive at the boundary, fail-fast within. The convention discovery (`tech-lead`'s job) reveals which is used where.
+**Most codebases use both** — defensive at the boundary, fail-fast within. The convention discovery (`implementation-planner`'s job) reveals which is used where.
 
 ---
 

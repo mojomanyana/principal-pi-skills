@@ -34,7 +34,7 @@ Batons are markdown documents with a YAML frontmatter header carrying the spine 
 ---
 id: baton-2026-05-12-payment-flow-S2
 from: implementation-planner
-to: tech-lead
+to: coder
 created: 2026-05-12T14:30:00Z
 revision: 1
 references:
@@ -42,15 +42,15 @@ references:
     section: "§4 — Slice S2"
   - path: docs/adr/0007-payment-gateway.md
 objective: |
-  Produce a coding spec for slice S2 (token validation). The spec
-  must allow the coder to implement without inventing scope.
+  Implement slice S2 (token validation) from the filled coding spec.
+  The spec is sized so the coder can build without inventing scope.
 kill_criteria:
-  - Spec attempts to introduce a new authentication primitive not in the plan
+  - Slice requires a new authentication primitive not in the plan
   - Slice scope expands beyond what the plan sized for (S2 is a single-day effort)
 return_contract:
   artifacts:
-    - filled coding spec (tech-lead/assets/coding-spec.md)
-    - handoff baton to coder (tech-lead/assets/handoff-baton.md)
+    - implementation report (coder/assets/implementation-report.md)
+    - handoff baton to project-git (coder/assets/handoff-baton-to-git.md)
   status: complete | needs-replan | blocked
 
 # Transition-specific fields below:
@@ -86,20 +86,19 @@ The YAML header is **machine-parseable**. The prose body is **human-readable**. 
 
 ## 3. The transitions
 
-The framework has six primary transition types, plus the inverse-direction return baton from project-git. Each transition has its own required transition-specific fields *in addition to* the spine.
+The framework has five primary forward transition types, plus the inverse-direction return baton from project-git. Each transition has its own required transition-specific fields *in addition to* the spine. The table below covers the spine of the flow; the validate gate (`coder → ponytail` / `coder → code-review`) and the repair loop (`coder → debugging`, `debugging → coder` / `debugging → implementation-planner`) carry the same spine and lightweight transition fields documented inline in those skills.
 
 | Transition | Direction | Asset template |
 |---|---|---|
 | brainstorming → any | forward | `brainstorming/assets/handoff-baton.md` |
 | software-architect → any | forward | `software-architect/assets/handoff-baton.md` |
-| implementation-planner → tech-lead | forward | `implementation-planner/assets/handoff-baton.md` |
-| tech-lead → coder | forward | `tech-lead/assets/handoff-baton.md` |
+| implementation-planner → coder | forward | `implementation-planner/assets/handoff-baton.md` |
 | coder → project-git | forward | `coder/assets/handoff-baton-to-git.md` |
 | project-git → caller | **return** (Facts block) | inline; see `project-git/references/delegation-contract.md` |
 
 ### 3a. brainstorming → any
 
-Brainstorming produces a decision brief. The baton hands the brief forward to whatever skill consumes the decision (architect, planner, tech-lead, project-git, or back to the user).
+Brainstorming produces a decision brief. The baton hands the brief forward to whatever skill consumes the decision (architect, planner, project-git, or back to the user).
 
 **Required transition fields:**
 
@@ -113,7 +112,7 @@ Brainstorming produces a decision brief. The baton hands the brief forward to wh
 
 ### 3b. software-architect → any
 
-Architect produces a design doc, ADR, or advisory output. The baton hands the design forward — to planner (for build), tech-lead (for single-slice work), or project-git (for ADR commit).
+Architect produces a design doc, ADR, or advisory output. The baton hands the design forward — to planner (for build), adr (to record the decision), or project-git (for ADR commit).
 
 **Required transition fields:**
 
@@ -126,9 +125,9 @@ Architect produces a design doc, ADR, or advisory output. The baton hands the de
 | `non_goals` | array | Explicit out-of-scope items |
 | `reversibility` | enum: `two-way` / `one-way` | Door classification |
 
-### 3c. implementation-planner → tech-lead
+### 3c. implementation-planner → coder
 
-Planner emits one baton per slice. Each baton covers one INVEST-passing vertical slice.
+Planner emits one baton per slice. Each baton covers one INVEST-passing vertical slice and carries the filled coding spec for that slice — the planner now produces both the plan and the per-slice spec, so a single baton hands the slice straight to the coder. The fields merge what the slice itself needs (ID, acceptance criteria, what's been ruled out) with what the coder needs to start writing (spec path, first action, test plan).
 
 **Required transition fields:**
 
@@ -136,28 +135,17 @@ Planner emits one baton per slice. Each baton covers one INVEST-passing vertical
 |---|---|---|
 | `slice_id` | string | Slice identifier from the plan (e.g., `S2`) |
 | `acceptance_criteria` | array | Concrete done-when conditions |
-| `tried_ruled_out` | array | What's been explored upstream so tech-lead doesn't repeat |
-| `flagged_assumptions` | array | Things tech-lead must reconfirm before specifying |
+| `spec_path` | path | Link to the filled coding spec for this slice |
+| `first_action` | string | Concrete first move for the coder (e.g., *"read src/auth/schemas.ts and confirm helper exists"*) |
+| `test_plan_ref` | path | Link to test plan section of the spec |
+| `tried_ruled_out` | array | What's been explored upstream so the coder doesn't repeat |
+| `flagged_assumptions` | array | Things the coder must reconfirm before writing code |
 | `reversibility` | enum: `two-way` / `one-way` | Door classification |
+| `reversibility_tags` | object | Per-decision tags: 🟢/🟡/🔴 (see AGENTS.md §5) |
 | `dag_dependencies` | array | Slice IDs that must complete before this one |
 | `observability_criteria` | array | For production-bound slices |
 
-### 3d. tech-lead → coder
-
-Tech-lead produces a coding spec. The baton accompanies the spec.
-
-**Required transition fields:**
-
-| Field | Type | Purpose |
-|---|---|---|
-| `spec_path` | path | Link to the filled coding spec |
-| `first_action` | string | Concrete first move for the coder (e.g., *"read src/auth/schemas.ts and confirm helper exists"*) |
-| `flagged_assumptions` | array | Things coder must reconfirm before writing code |
-| `acceptance_signal` | string | What proves the slice is done |
-| `test_plan_ref` | path | Link to test plan section of the spec |
-| `reversibility_tags` | object | Per-decision tags: 🟢/🟡/🔴 (see AGENTS.md §5) |
-
-### 3e. coder → project-git
+### 3d. coder → project-git
 
 Coder finishes the slice and hands off to project-git for commit/PR shaping.
 
@@ -172,7 +160,7 @@ Coder finishes the slice and hands off to project-git for commit/PR shaping.
 | `implementation_report` | path | Link to the report |
 | `flags_for_git` | array | Special instructions (e.g., *"don't auto-merge — migration needs manual review"*) |
 
-### 3f. project-git → caller (return baton / Facts block)
+### 3e. project-git → caller (return baton / Facts block)
 
 Project-git is the only skill that emits a **return baton** — in delegated mode, it suppresses prose and returns a `## Facts` block with operation results.
 
@@ -242,7 +230,7 @@ For modes 1 and 2, batons typically live in the chat session itself and don't ne
 
 This framework targets orchestrator modes 1 and 2 today (see AGENTS.md §1). Batons are written and consumed by humans and agents reading chat output. The YAML frontmatter is **forward-compatible** with mode 3 (programmatic harness) without requiring it — when a harness exists, it can parse the YAML; until then, humans and agents read the prose body.
 
-The schema is deliberately **per-transition** rather than universal. A coder→git baton legitimately needs different fields (branch state, commit SHAs, acceptance checks) than a planner→tech-lead baton (slice ID, acceptance criteria, tried/ruled-out). Forcing one shape would erase signal. The common spine keeps the family coherent; the transition-specific extensions keep each baton useful for its receiver.
+The schema is deliberately **per-transition** rather than universal. A coder→git baton legitimately needs different fields (branch state, commit SHAs, acceptance checks) than a planner→coder baton (slice ID, acceptance criteria, coding spec, tried/ruled-out). Forcing one shape would erase signal. The common spine keeps the family coherent; the transition-specific extensions keep each baton useful for its receiver.
 
 No JSON Schema validator is shipped. The framework's contract is the prose schema in this document plus the per-skill templates. If you build a harness on top, validating against this document is straightforward — but adding a validator before there's a consumer would be premature complexity (see software-architect Mode I).
 

@@ -165,7 +165,7 @@ Example: spec says "tests are colocated as `*.test.ts`". Reality: this area uses
 When the spec is wrong about a **convention or contract**, you have two sub-choices:
 
 - **The wrong assumption doesn't affect the design** (e.g., tests live in a different directory but the spec still works). Adapt; note in the report.
-- **The wrong assumption affects the design** (e.g., the spec was structured around `Result<T>` but the code throws). **Stop. Reverse-handoff to tech-lead.**
+- **The wrong assumption affects the design** (e.g., the spec was structured around `Result<T>` but the code throws). **Stop. Reverse-handoff to implementation-planner.**
 
 The line between these is judgment. When in doubt, escalate. Tech-lead is cheap to consult; un-shipping wrong code is expensive.
 
@@ -180,7 +180,7 @@ Status: paused.
 Reason: baseline tests in `src/api/` are RED on `main` (3 failures, unrelated
   to this slice — see output below). The spec assumed a green baseline.
 Asking: should I (a) fix the baseline first, (b) skip the broken tests and
-  proceed flagged, (c) pause this slice and route to tech-lead?
+  proceed flagged, (c) pause this slice and route to implementation-planner?
 ```
 
 ---

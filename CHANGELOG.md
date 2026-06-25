@@ -125,6 +125,32 @@ True duplicated text totaled ~1.5% of the framework. Not worth the architectural
 
 ---
 
+## [0.2.0] — 2026-06-25
+
+Model-agnostic framework redesign. The six-skill stack became a ten-skill stack, every `SKILL.md` was rewritten to drop model-specific assumptions, and the per-skill bash benchmark was replaced by one declarative spec per skill.
+
+**Changed — model-agnostic rewrite of every skill.** Compressed `SKILL.md` bodies to one-line tenets, replaced prose guidance with armed red-flag / STOP tables plus over-correction governors (so a skill can't be pushed past its own remit), narrowed frontmatter `description`s to trigger-only text, and inlined the few load-bearing `AGENTS.md` facts directly into the skills — removing the `§N` cross-references that coupled skills to a specific repo layout.
+
+**Changed — `tech-lead` merged into `implementation-planner`.** The planner now produces both the implementation plan and the per-slice coding spec; the standalone `tech-lead/` skill is gone. Its assets moved under `implementation-planner/assets/` (`coding-spec.md`, `bugfix-spec.md`, `refactor-spec.md`, `risk-register.md`, `exploration-notes.md`).
+
+**Added — new skills.**
+- `ponytail` — simplicity sidekick / critic.
+- `code-review` — correctness gate.
+- `using-principal-pi-skills` — posture + routing index for the stack.
+- `adr` — split out of `software-architect` into its own skill.
+
+**Changed — the skill set is now ten:** `using-principal-pi-skills`, `brainstorming`, `software-architect`, `adr`, `implementation-planner`, `coder`, `ponytail`, `code-review`, `debugging`, `project-git`. Primary flow: brainstorming → implementation-planner → coder → [ponytail · code-review] → project-git, with software-architect (+adr) as design depth and debugging as the repair loop.
+
+**Changed — test harness consolidated.** Each skill now carries one declarative `tests/specification.yaml` (scenarios + checklist + ship bar), replacing the old per-skill bash harness (`run-pi` / `run-claude` / `bench` / `grade` / `cases` / `scenarios.md`). Seeded `coder` and `debugging` fixtures are TypeScript + Vitest. A separate, portable `skill-check` tool runs the specs.
+
+**Changed** `package.json` `pi.skills` manifest synced to the ten-skill stack.
+
+#### Design notes
+
+`package.json` `version` stays `0.1.0`; skills now version independently in their own frontmatter (`implementation-planner` 0.3.0, `coder` 0.3.0, `brainstorming` 2.2.0, others 0.1–0.2). The `0.2.0` tag here marks the framework-level restructure, not the package version.
+
+Nine of the ten skills ship a `specification.yaml`; `using-principal-pi-skills` is a routing index with no behavior of its own to spec, so it has no test directory.
+
 ## [0.1.0] — 2026-05-12
 
 Initial commit. Six skills (`brainstorming`, `software-architect`, `tech-lead`, `implementation-planner`, `coder`, `project-git`), each with `SKILL.md` + `assets/` + `references/`. MIT license.
