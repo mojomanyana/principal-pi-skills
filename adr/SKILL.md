@@ -6,7 +6,7 @@ description: >
   irreversible technical decision was made, so the reasoning survives. Triggers: "write an ADR",
   "document this decision", "record why we chose X", "review this ADR". Pairs with
   `software-architect` (which makes the decision); this skill captures it. NOT for making the
-  design choice itself (use `software-architect`) or building it (use `tech-lead` / `coder`).
+  design choice itself (use `software-architect`) or building it (use `implementation-planner` / `coder`).
 ---
 
 # ADR — Capture the Decision, Not Just the Outcome
@@ -55,7 +55,7 @@ Y-statement) and when to use which → [adr-templates.md](references/adr-templat
 
 ## Handoff — point, don't invoke
 - The ADR needs to land in git (file + commit) → **`project-git`**.
-- The decision implies a build → **`implementation-planner`** (multi-step) or **`tech-lead`** (single slice).
+- The decision implies a build → **`implementation-planner`** (plan + spec).
 - The choice itself is still contested or unmade → back to **`software-architect`** (or `brainstorming`).
 
 ## References

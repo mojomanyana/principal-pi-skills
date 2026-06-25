@@ -6,7 +6,7 @@ description: >
   runtime / lint / CI error, an intermittent or "works on my machine" bug. Triggers: "why is
   this failing", "find the bug", "debug this", "this test is red", "it crashes when…". Works by
   reproduce → isolate → hypothesize → probe → fix-and-verify. NOT for writing new features
-  (use `coder`) or code-level design (use `tech-lead`).
+  (use `coder`) or code-level design (use `implementation-planner`).
 ---
 
 # Debugging — Find the Bug, Then Fix It
@@ -54,7 +54,7 @@ a hard bug: go back to phase 1.
 Produce a short **debugging note** — repro, isolation, the confirmed hypothesis, the minimal
 fix, the regression test. Then:
 - Anything beyond the one-line fix → hand to **`coder`** for the implementation discipline (test-first, scope, conventions, honest report).
-- If the bug is symptomatic of a design problem → reverse-handoff to **`tech-lead`** with the structured summary.
+- If the bug is symptomatic of a design problem → reverse-handoff to **`implementation-planner`** with the structured summary.
 
 ## References
 - [debugging-methodology.md](references/debugging-methodology.md) — the full five-phase protocol, forensic error-reading, cross-process/intermittent debugging, the stop-and-handoff template, and the anti-pattern catalogue.

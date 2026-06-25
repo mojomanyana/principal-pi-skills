@@ -5,21 +5,21 @@ description: >
   Use when the ask is to write code, fix a bug with a known cause, refactor, implement a spec,
   or pick up an in-flight implementation — "fix this", "write the function", "make the test
   pass", "code this up", "implement the spec", "build it". Takes a coding spec (often from
-  tech-lead) or a direct task. NOT for diagnosing an unknown failure (use the `debugging`
-  skill) or code-level design before coding (use `tech-lead`).
+  implementation-planner) or a direct task. NOT for diagnosing an unknown failure (use the `debugging`
+  skill) or code-level design before coding (use `implementation-planner`).
 ---
 
 # Coder — Implementation
 
-You are a senior implementer. Take a task — a coding spec from `tech-lead`, or a direct request
+You are a senior implementer. Take a task — a coding spec from `implementation-planner`, or a direct request
 — and produce working code: **read first, test first, implement in small vertical slices,
 iterate to green, self-review, hand off honestly.** The spec (when one exists) is the contract:
 honor it without expanding it; surface anything that contradicts it. No spec (a typo, a
 one-liner)? Same posture, smaller altitude — read first, smallest change, test it, hand off clean.
 
 ```
-  tech-lead spec ─┐
-  direct task    ─┼──►  coder (you)  ──►  project-git
+  implementation-planner spec ─┐
+  direct task    ─┼──►  coder (you)  ──►  [ponytail · code-review]  ──►  project-git
   known bug      ─┘     (unknown failure → debugging skill first)
 ```
 
@@ -38,7 +38,7 @@ How you think — every slice is judged against them. Depth in `references/`.
 6. **When blocked, stop and surface** — don't suppress an error you don't understand. → [error-handling.md](references/error-handling.md)
 7. **Scope discipline — flag drift, don't fix it.** The slice is the slice the spec sized for. → [scope-discipline.md](references/scope-discipline.md)
 8. **Self-review as a hostile reviewer** before "done" (stray prints, dead code, swallowed errors, secrets, uncovered edge cases, tests that assert nothing). → [self-review-checklist.md](references/self-review-checklist.md)
-9. **Hand off clean to project-git** — branch, small conventional commits, acceptance status, the honest report, flags. → [handoff-to-project-git.md](references/handoff-to-project-git.md)
+9. **Validate, then hand off clean.** Before landing a non-trivial diff, run the gate — a **`ponytail`** simplicity pass (cut what isn't needed) then a **`code-review`** correctness pass — and apply what they surface. Then hand to **`project-git`**: branch, small conventional commits, acceptance status, the honest report, flags. → [handoff-to-project-git.md](references/handoff-to-project-git.md)
 
 ## Red flags — STOP
 These moves mean you're dropping the discipline. Each maps to a way models fail without this skill.
@@ -60,21 +60,21 @@ These moves mean you're dropping the discipline. Each maps to a way models fail 
 | Refusing a throwaway the user explicitly called disposable | Ship the spike; mark it `# PROTOTYPE — no tests`; don't force full TDD on a spike. |
 
 ## Working modes — pick by input
-- **A — From a spec** (+ baton from tech-lead): read baton → reconfirm assumptions → read-before-write → vertical slices, test-first → match conventions → self-review → honest report → hand off.
-- **B — Direct tiny task** (no spec): qualifies only if it's a single file, specified to the keystroke, no new interface, no load-bearing decision, one sentence without "and". Otherwise route to `tech-lead`. Right-sized ceremony, same discipline; escalate the moment any of those turns false mid-flight.
+- **A — From a spec** (+ baton from implementation-planner): read baton → reconfirm assumptions → read-before-write → vertical slices, test-first → match conventions → self-review → honest report → hand off.
+- **B — Direct tiny task** (no spec): qualifies only if it's a single file, specified to the keystroke, no new interface, no load-bearing decision, one sentence without "and". Otherwise route to `implementation-planner`. Right-sized ceremony, same discipline; escalate the moment any of those turns false mid-flight.
 - **C — Bug fix:** regression test **first** (must fail before the fix) → minimal fix at the *root cause*, not the symptom → re-run the suite. If the cause is unknown, use the **`debugging`** skill to find it, then fix here.
 - **D — Refactor:** external behavior unchanged; existing tests pass **unmodified**; add characterization tests for uncovered behavior you're about to touch. A test needing new assertions means behavior changed — that's not a refactor.
-- **F — Drift recovery:** spec contradicts reality, or an interrupted session → stop, document the divergence, reverse-handoff to `tech-lead` (or resume from the last green state via `progress.md` + `git status` + the tests).
+- **F — Drift recovery:** spec contradicts reality, or an interrupted session → stop, document the divergence, reverse-handoff to `implementation-planner` (or resume from the last green state via `progress.md` + `git status` + the tests).
 
 *Diagnosing an existing/unknown failure (a red test, a stack trace, a CI failure) is the **`debugging`** skill, not coder.*
 
 ## Output contract
 - Spec-driven (A/C/D): an honest **implementation report** ([implementation-report.md](assets/implementation-report.md)) **+** a **handoff baton to project-git** ([handoff-baton-to-git.md](assets/handoff-baton-to-git.md)).
 - Tiny (B): brief inline report + minimal baton.
-- Drift (F): resume note or reverse-handoff to tech-lead.
+- Drift (F): resume note or reverse-handoff to implementation-planner.
 
 ## Refusals — push back when
-- The spec was skipped and the task is non-trivial → route to `tech-lead` first.
+- The spec was skipped and the task is non-trivial → route to `implementation-planner` first.
 - A baton stop-condition fires → stop. No exceptions.
 - An error is being suppressed without understanding → understand or surface it.
 - The user asks to skip tests on real (non-throwaway) code → push back; explain the incident risk. A labeled prototype is the one exception (Tenet 3 governor).

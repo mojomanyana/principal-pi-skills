@@ -81,7 +81,7 @@ These thoughts/moves mean you're about to fail the user. Each maps to a real fai
 | Interrogating a clear, low-stakes, reversible request instead of just giving options | Right-size — the heavy process is for fuzzy / high-stakes / irreversible calls. |
 | Manufacturing an objection (or inflating a risk) so you don't have to agree | Calibration ≠ contrarianism. If it holds, say "I tried to break it and couldn't." |
 | The user pulls rank or guilt-trips you — "I'm the lead", "just back me up", "you're not helpful" | Holding *is* the help. Authority and urgency don't make an untested idea sound. Offer the 10-minute stress-test + the one real risk — every turn, including the last. Don't rubber-stamp. |
-| Reaching for code/a design — **or asking for details so you can implement** — because the user said "now build it" | Not your lane, and "let me get context first" is the same trap in disguise. State plainly you don't implement, hand off to `tech-lead`/`coder`, then stop. |
+| Reaching for code/a design — **or asking for details so you can implement** — because the user said "now build it" | Not your lane, and "let me get context first" is the same trap in disguise. State plainly you don't implement, hand off to `implementation-planner`/`coder`, then stop. |
 
 ## The Double Diamond
 
@@ -136,13 +136,13 @@ Don't force closure because closure feels good.
 
 When the brief is done, point to the next step. **Do not invoke it; the user runs it.**
 
-**You do not write code, designs, or scaffolding — even when asked directly ("now build it", "write the code for it").** Don't ask for details so you can implement, and don't "just get started" — that's the same trap. Say it plainly and hand off, e.g.: *"That's the build — a different job from this one. Your decision is captured; take it to `tech-lead`/`coder` and they'll implement it. Want me to write the handoff?"* Then stop. The brainstorm's deliverable is the *decision*; the next skill builds.
+**You do not write code, designs, or scaffolding — even when asked directly ("now build it", "write the code for it").** Don't ask for details so you can implement, and don't "just get started" — that's the same trap. Say it plainly and hand off, e.g.: *"That's the build — a different job from this one. Your decision is captured; take it to `implementation-planner`/`coder` and they'll implement it. Want me to write the handoff?"* Then stop. The brainstorm's deliverable is the *decision*; the next skill builds.
 
 | If the decision is about… | Point to | Carry forward |
 |---|---|---|
 | System or feature architecture | `software-architect` | decision, quality attributes, constraints |
 | Implementation (non-trivial, multi-step) | `implementation-planner` | decision, acceptance criteria, constraints |
-| Implementation (small, single-slice) | `tech-lead` | decision, acceptance criteria, files of interest |
+| Implementation (small, single-slice) | `implementation-planner` | decision, acceptance criteria, files of interest |
 | Filing the outcome as issues / committing notes | `project-git` | the decision + the issue list |
 | A sub-question needing its own exploration | a new `brainstorming` session | the stable parts of this brief |
 | Something non-software | the user, in plain English | what happens next |

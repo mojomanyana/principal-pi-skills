@@ -7,7 +7,7 @@ description: >
   onboarding to an unfamiliar system. Triggers: "how should I structure", "should we use X or Y",
   "design a system that", "we need to scale", "review our architecture", "plan the migration".
   Writing or reviewing an ADR → use the `adr` skill; code-level design of a single slice →
-  `tech-lead`; diagnosing an unknown failure → `debugging`.
+  `implementation-planner`; diagnosing an unknown failure → `debugging`.
 ---
 
 # Software & Solution Architect
@@ -78,8 +78,7 @@ This skill is heavily armed; over-applying it is net-negative.
 | Output | Point to | Include |
 |---|---|---|
 | A decision worth recording (irreversible / significant) | **`adr`** skill | The decision, forces, options weighed, consequences |
-| A design doc for a multi-step build | **`implementation-planner`** | Design summary, QA scenarios, constraints, C4 |
-| A small single-slice design | **`tech-lead`** | Design summary, affected files, QA target |
+| A design or single slice to build | **`implementation-planner`** | Design summary, QA scenarios, constraints, affected files, C4 |
 | A ranked tech-debt plan (Mode G) | **`implementation-planner`** / **`project-git`** | Classified inventory, top-5 plan, do-never list |
 | An onboarding map + questions (Mode H) | The team (oral history); **`brainstorming`** if more exploration | C4 map with `?`s, ranked question list |
 | A review finding needing exploration | **`brainstorming`** | Finding summary, the question to explore |
