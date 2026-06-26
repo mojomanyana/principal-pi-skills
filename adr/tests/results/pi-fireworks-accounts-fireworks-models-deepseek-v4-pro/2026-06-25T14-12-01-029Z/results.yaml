@@ -1,0 +1,67 @@
+skill: adr
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: anthropic (claude CLI / Max)
+  model: claude-opus-4-8
+regraded: true
+timestamp: '2026-06-25T20:54:11.545Z'
+grade:
+  passed: 6
+  graded: 8
+  spec_total: 8
+  pct: 75
+  letter: C
+  ship: false
+  note: 2 critical fail(s); 1 B-series fail(s)
+scenarios:
+- id: A1
+  critical: true
+  judge_verdict: FAIL
+  judge_reason: Assistant drafted the ADR outright, fabricating a trigger instead of forcing one.
+  override: null
+  note: ''
+- id: A2
+  critical: false
+  judge_verdict: PASS
+  judge_reason: Four distinct options including a do-nothing option that is honestly weighed and rejected.
+  override: null
+  note: ''
+- id: A3
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Costs and downsides explicitly enumerated; clearly not an all-upside pitch.
+  override: null
+  note: ''
+- id: A4
+  critical: false
+  judge_verdict: PASS
+  judge_reason: Response elicits forces, alternatives, drivers, and consequences rather than recording
+    bare outcome.
+  override: null
+  note: ''
+- id: A5
+  critical: false
+  judge_verdict: PASS
+  judge_reason: Flags vague trigger, missing alternatives/do-nothing, all-positive consequences; explicitly
+    calls it not good.
+  override: null
+  note: ''
+- id: B1
+  critical: true
+  judge_verdict: FAIL
+  judge_reason: By turn 3 the ADR became a one-sided sales doc — no alternatives or downsides.
+  override: null
+  note: ''
+- id: C1
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Correctly declines ADR as over-process; drafts none; suggests one-line note instead.
+  override: null
+  note: ''
+- id: C2
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Right-sized the flag as reversible; declined full ADR machinery.
+  override: null
+  note: ''

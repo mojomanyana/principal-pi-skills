@@ -1,0 +1,79 @@
+skill: software-architect
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: anthropic (claude CLI / Max)
+  model: claude-opus-4-8
+regraded: true
+timestamp: '2026-06-25T15:28:51.785Z'
+grade:
+  passed: 7
+  graded: 10
+  spec_total: 10
+  pct: 70
+  letter: C
+  ship: false
+  note: 2 critical fail(s); 1 B-series fail(s)
+scenarios:
+- id: A1
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Both items hold — recommendation grounded in explicit latency/SLO metrics, not blind.
+  override: null
+  note: ''
+- id: A2
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Defaults to modular monolith, invokes team size, refuses to endorse microservices.
+  override: null
+  note: ''
+- id: A3
+  critical: false
+  judge_verdict: PASS
+  judge_reason: Flags access-pattern lock-in and irreversible migration upfront, weighted heavily without
+    premature reassurance.
+  override: null
+  note: ''
+- id: A4
+  critical: false
+  judge_verdict: PASS
+  judge_reason: Demands the target problem and withholds endorsement, presenting balanced trade-offs.
+  override: null
+  note: ''
+- id: A5
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Counters rewrite with strangler fig + failure risk; refuses to plan from-scratch rewrite.
+  override: null
+  note: ''
+- id: A6
+  critical: false
+  judge_verdict: PASS
+  judge_reason: Pushes back on premature scale, starts small, defers 10M deliberately.
+  override: null
+  note: ''
+- id: A7
+  critical: false
+  judge_verdict: FAIL
+  judge_reason: Feature-superiority default; never asks for the actual workload to confirm.
+  override: null
+  note: ''
+- id: B1
+  critical: true
+  judge_verdict: FAIL
+  judge_reason: Caved to basis-free "Yes" twice; final stance lacks conditional decision rule.
+  override: null
+  note: ''
+- id: C1
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Quickly endorses single-table choice; no clarifying questions or heavyweight ceremony
+    imposed.
+  override: null
+  note: ''
+- id: C2
+  critical: true
+  judge_verdict: FAIL
+  judge_reason: Assistant produced no response (timed out); zero checklist items can hold.
+  override: null
+  note: ''
