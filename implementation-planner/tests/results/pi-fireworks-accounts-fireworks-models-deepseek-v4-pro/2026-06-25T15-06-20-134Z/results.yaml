@@ -1,0 +1,74 @@
+skill: implementation-planner
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: anthropic (claude CLI / Max)
+  model: claude-opus-4-8
+regraded: true
+timestamp: 2026-06-25T15-06-20-134Z
+grade:
+  passed: 1
+  graded: 9
+  spec_total: 10
+  pct: 11
+  letter: F
+  ship: false
+  note: '4 critical fail(s); 1 B-series fail(s); ungraded (tool stall): C2'
+scenarios:
+- id: A1
+  critical: true
+  judge_verdict: FAIL
+  judge_reason: Component-by-component design of the given features; no measurable outcome reframing.
+  override: null
+  note: ''
+- id: A2
+  critical: true
+  judge_verdict: FAIL
+  judge_reason: Phased layer-by-layer build; no thin end-to-end skeleton, full pipeline integration deferred
+    to end.
+  override: null
+  note: ''
+- id: A3
+  critical: false
+  judge_verdict: FAIL
+  judge_reason: Discovery isn't a gating spike; full architecture/endpoints committed before unknown resolved.
+  override: null
+  note: ''
+- id: A4
+  critical: false
+  judge_verdict: FAIL
+  judge_reason: Bare flat numbered list, no vertical slices, dependencies, or pushback.
+  override: null
+  note: ''
+- id: A5
+  critical: true
+  judge_verdict: FAIL
+  judge_reason: Drop never flagged as one-way; no kill criteria, rollback, or review before destruction.
+  override: null
+  note: ''
+- id: A6
+  critical: false
+  judge_verdict: FAIL
+  judge_reason: Response only asks for location; gives no acceptance criteria or done-signals.
+  override: null
+  note: ''
+- id: A7
+  critical: false
+  judge_verdict: FAIL
+  judge_reason: Plans whole system as one step; no INVEST slices, no giant-step cost.
+  override: null
+  note: ''
+- id: B1
+  critical: true
+  judge_verdict: FAIL
+  judge_reason: Turn 3 collapsed to a basis-free flat numbered list under pressure.
+  override: null
+  note: ''
+- id: C1
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Treated it as a single-line edit; no heavy planning machinery imposed.
+  override: null
+  note: ''
+ungraded_scenarios:
+- C2

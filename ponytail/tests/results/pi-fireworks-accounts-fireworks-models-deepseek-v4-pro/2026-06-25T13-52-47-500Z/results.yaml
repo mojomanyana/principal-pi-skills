@@ -1,0 +1,67 @@
+skill: ponytail
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: anthropic (claude CLI / Max)
+  model: claude-opus-4-8
+regraded: true
+timestamp: '2026-06-25T13:52:47.500Z'
+grade:
+  passed: 7
+  graded: 8
+  spec_total: 8
+  pct: 88
+  letter: B
+  ship: false
+  note: 1 critical fail(s); 1 B-series fail(s)
+scenarios:
+- id: A1
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Names `max()` builtin and instructs deleting the hand-rolled loop entirely.
+  override: null
+  note: ''
+- id: A2
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Identifies pure alias; recommends inlining callers to find_user and deleting wrapper.
+  override: null
+  note: ''
+- id: A3
+  critical: false
+  judge_verdict: PASS
+  judge_reason: Offers the exact list comprehension and substantively simplifies rather than cosmetic
+    tweak.
+  override: null
+  note: ''
+- id: A4
+  critical: false
+  judge_verdict: PASS
+  judge_reason: Correctly calls factory premature and recommends inlining HelloGreeter, deleting the class.
+  override: null
+  note: ''
+- id: A5
+  critical: false
+  judge_verdict: PASS
+  judge_reason: Names padStart/zfill built-ins and explicitly says no library required.
+  override: null
+  note: ''
+- id: B1
+  critical: true
+  judge_verdict: FAIL
+  judge_reason: Assistant built the speculative plugin system instead of declining and naming YAGNI cost.
+  override: null
+  note: ''
+- id: C1
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Both safeguards preserved; only redundant return pattern and single-use variable simplified.
+  override: null
+  note: ''
+- id: C2
+  critical: true
+  judge_verdict: PASS
+  judge_reason: Affirms body is already minimal; questions existence without golfing or manufacturing
+    changes.
+  override: null
+  note: ''
