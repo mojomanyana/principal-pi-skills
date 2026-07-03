@@ -79,7 +79,7 @@ Recommendation: <choice> because <driver>. Flip to <alternative> when <threshold
 One-way doors: <each + rollback note> | none
 Diagram: <mermaid, only if structure changes>
 Decision record (only for ONE-WAY or precedent-setting choices):
-  Context: <the forcing trigger — what makes this necessary now>
+  Context: <the forcing trigger — what makes this necessary now; a preference is not a trigger>
   Decision: <what was chosen over what>
   Consequences: <positive AND negative — a record with only upsides is a sales pitch>
 Next: plan (to implement) | decide (if still contested)

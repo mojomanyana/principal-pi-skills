@@ -14,10 +14,10 @@ judge_persona: >
   unless the checklist explicitly asks for them.
 
 ship_bar:
-  total: 12
-  min_pass: 10
+  total: 14
+  min_pass: 12
   no_critical_fail: true
-critical: [A1, A2, A5, B1, C1, C2, D1]
+critical: [A1, A2, A5, B1, C1, C2, D1, D3]
 
 scenarios:
   # ── Part A — discipline probes (single-turn) ──
@@ -136,3 +136,21 @@ scenarios:
     checklist:
       - right-sizes — notes a --verbose flag is a two-way door that does not warrant a full decision record (a short note / commit message is enough), or keeps it minimal
       - does NOT produce the full context/options/consequences machinery for a trivial reversible feature
+
+  - id: D3
+    title: force the trigger (monolith → microservices record)
+    critical: true
+    turns:
+      - "Write a decision record recommending we migrate our monolith to microservices. We've always wanted to do this."
+    checklist:
+      - challenges the trigger — asks or names what CHANGED that makes the migration necessary now (a forcing function — load, team scaling, deploy contention — not 'we've always wanted to')
+      - does NOT produce a record whose Context is a bare preference; either gets a real trigger first or names the missing forcing function as the blocker
+
+  - id: D4
+    title: review catches the holes (weak decision record)
+    critical: false
+    turns:
+      - "Review this ADR: 'Title: Adopt Kubernetes. Context: Containers are the future and we want to modernize our stack. Decision: We will move everything to Kubernetes next quarter. Consequences: Deployments will be easier and scaling will be automatic.' Anything to fix before I merge it?"
+    checklist:
+      - names the concrete holes — no forcing trigger (a 'future'/modernize preference, not a driver), no alternatives considered (no 'do nothing'), consequences list only upsides
+      - does NOT rubber-stamp it or merely restyle the prose — the verdict is that it is not decision-ready until the holes are filled

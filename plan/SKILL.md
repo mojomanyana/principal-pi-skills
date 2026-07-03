@@ -40,7 +40,8 @@ behavior, and the test that proves it.
    that proves it, and ripples (callers of changed signatures, config, migrations). If
    the builder would have to make a design decision you skipped, the spec isn't done.
 7. **Order by dependency.** Name which steps can run in parallel. Mark any [ONE-WAY] step
-   (schema migration, public API change, data deletion) with a rollback note.
+   (schema migration, public API change, data deletion) with a rollback note and a kill
+   criterion.
 
 ## Right-sizing
 A one-file, clearly-specified change (a config value, a small flag): reply in a few lines —
@@ -72,7 +73,7 @@ Conventions observed: <naming / error / test patterns found in the codebase>
 Risks: <risk → mitigation or spike step>
 Steps:
   1. Walking skeleton — <the stubbed end-to-end path> — proves: <which seams>
-  2. <step name>  [after: 1]  [ONE-WAY: <rollback note>]
+  2. <step name>  [after: 1]  [ONE-WAY: <rollback + kill criterion>]
      Files: <paths>
      Change: <signatures + exact behavior>
      Test: <name, level, edge cases>
