@@ -42,7 +42,7 @@ README: "Every output template ends with a `Next:` line." git-ops's Facts block 
 **Fix shape:** add `next:` to the Facts block (or scope the README claim to the six
 conversational skills).
 
-## 6. [CONFIRMED] v1↔v2 byte-for-byte duplication of fixtures + spec scenarios
+## 6. ✅ FIXED in a000b25 (v2 promoted, v1 stack deleted) — [CONFIRMED] v1↔v2 byte-for-byte duplication of fixtures + spec scenarios
 `build/tests/fixtures/` ≡ `coder/tests/fixtures/`, `debug/tests/fixtures/`
 ≡ `debugging/tests/fixtures/` (diff -r exit 0); spec scenario bodies for build/debug/git-ops/
 decide/review/architect largely verbatim from their v1 counterparts. Every fixture/checklist
@@ -60,7 +60,7 @@ gate. The compliant return-a-result path is taught in the same sentence, so it's
 not a determinism — but reorder the anchor to lead with the non-throwing shape (and/or
 make the anchor domain-neutral: `markFailed(record)`, `OperationFailedError`).
 
-## 8. [CONFIRMED, low] stray kimi-judged duplicate baseline —
+## 8. ✅ RESOLVED by a000b25 (file deleted with the v1 stack; v1 evidence now lives in git history) — [CONFIRMED, low] stray kimi-judged duplicate baseline —
 `brainstorming/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-06-25T14-26-09-685Z/results.yaml`
 The housekeeping commit added the pre-regrade (kimi-judged) duplicate of the Opus-judged
 baseline run (same grade, 10/12). Drop it to keep "Opus-judged baseline" strictly true.
@@ -76,9 +76,10 @@ baseline run (same grade, 10/12). Drop it to keep "Opus-judged baseline" strictl
 - Micro-contradictions from patch layering: plan "a few lines" vs "three lines"; build's
   triple-stated typo exemption; git-ops Checks row teaching a 2-step leak playbook vs
   rule 4's 4-step "all four steps every time".
-- `` invisible in root README/AGENTS (no layout entry, no install story);
+- ~~`proposals/` invisible in root README/AGENTS (no layout entry, no install story);
   README's "extend the framework" authoring conventions (assets/, references/) contradict
-  the v2 design without being scoped.
+  the v2 design without being scoped.~~ Resolved by a000b25: README/AGENTS rewritten
+  around the v2 set with layout + install sections.
 - Committed run-dir noise: 37 results.yaml where 14 are current; no manifest mapping runs
   to rounds. Consider pruning superseded runs or adding a round manifest.
 - Redundant scenario pairs (decide A2≈A5, review S3⊂S4) — optional harness cost trim.
