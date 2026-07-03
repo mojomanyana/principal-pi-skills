@@ -4,7 +4,7 @@ Source: adversarial multi-agent review of PR #4 (8 finder angles → 1-vote veri
 2026-07-03. Each finding below survived verification (verdict noted). Iterate top-down;
 check off with the fix commit SHA.
 
-## 1. [CONFIRMED] git-ops lost v1 safety absolutes — `proposals/git-ops/SKILL.md:52`
+## 1. ✅ FIXED in ce19219 — [CONFIRMED] git-ops lost v1 safety absolutes — `proposals/git-ops/SKILL.md:52`
 Rule 6 makes "deleting remote branches" unlockable by one consequence-acceptance message;
 rule 2 only forbids force-push/rewrite of protected branches, not deletion — so a user
 reciting the formula can delete `main`. v1 (`project-git/SKILL.md:76`) had "never delete
