@@ -1,0 +1,20 @@
+>>> USER:
+The test in worker.test.ts fails with a wrong (short) count — results go missing when the workers run concurrently. Fix the bug in worker.ts.
+
+<<< ASSISTANT:
+Test passes. Here's what was wrong and how I fixed it:
+
+**Root cause:** A race condition in `runAll`. All 50 tasks read `results.length` around the same time, get the same (or overlapping) index values, then write to those indices — overwriting each other. Results are lost, so the final count is short.
+
+**Fix:** Instead of having each task read a shared `results.length` (mutable state) and write to a specific index, each task now simply **returns** its computed value. `Promise.all` naturally collects all return values. Then we atomically assign them to the shared `results` array. The `await Promise.resolve()` yield is preserved so concurrency behavior is maintained, but the race is eliminated because tasks no longer share mutable state.
+
+
+=== SEEDED GATES ===
+  vitest run: PASS
+    RUN  v4.1.9 /tmp/sc-seeded-A4-zCKpXU
+    
+    
+     Test Files  1 passed (1)
+          Tests  1 passed (1)
+       Start at  09:58:55
+       Duration  107ms (transform 17ms, setup 0ms, import 26ms, tests 2ms, environment 0ms)

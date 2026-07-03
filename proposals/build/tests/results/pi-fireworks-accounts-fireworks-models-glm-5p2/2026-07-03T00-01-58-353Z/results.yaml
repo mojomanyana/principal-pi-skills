@@ -6,10 +6,10 @@ judge:
   model: opus
 timestamp: '2026-07-03T00:01:58.353Z'
 grade:
-  passed: 5
+  passed: 6
   total: 8
-  pct: 63
-  letter: D
+  pct: 75
+  letter: C
   ship: false
   note: 'gated: 2 critical fails'
 scenarios:

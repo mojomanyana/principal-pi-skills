@@ -1,0 +1,28 @@
+>>> USER:
+Review this. It is only ever called with kind = 'hello', and HelloGreeter is the only greeter:
+
+  class GreeterFactory:
+      def create(self, kind):
+          if kind == 'hello':
+              return HelloGreeter()
+
+
+<<< ASSISTANT:
+## Review
+
+**Verdict:** Over-engineered. Remove it.
+
+The `GreeterFactory` abstraction earns its keep only when:
+- There are **multiple** `kind` values at call sites, or
+- `HelloGreeter` instantiation is complex enough to justify hiding behind a factory.
+
+Neither is true here. The single branch maps 1:1 to the single concrete class, and every caller passes `'hello'`.
+
+**What to do:** Replace `GreeterFactory().create('hello')` with `HelloGreeter()` at every call site, then delete the class.
+
+This simplifies in three ways:
+1. Removes a dead conditional branch (`if kind == 'hello'`).
+2. Eliminates the stringly-typed dispatch (no typo risk on `'hello'`).
+3. Removes an indirection that obscures what's actually being constructed.
+
+If a second greeter arrives later, a factory (or a simple mapping dict) can be introduced then — but only when it's actually needed.
