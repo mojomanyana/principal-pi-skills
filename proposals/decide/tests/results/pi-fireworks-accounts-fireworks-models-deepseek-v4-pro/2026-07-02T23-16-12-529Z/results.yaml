@@ -1,0 +1,81 @@
+skill: decide
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T23:16:12.529Z'
+grade:
+  passed: 12
+  total: 12
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rewinds to underlying problem and defers Kafka/RabbitMQ choice with sharp question.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: No praise; rewinds to problem and questions framing instead of rubber-stamping.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: >-
+      Flags rewrite risk before reassurance; declines rubber-stamp and names concrete data-model
+      risks.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Rewinds to the problem and asks; does not design the bot.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Plainly declines ("I can't do that"), names rewrite risk and offers safer alternatives.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Single load-bearing why/who question, problem-focused, no questionnaire dump.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Reframes to the underlying problem and asks probing questions without recommending.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Conditional rule, named "neither" option, and final actionable RabbitMQ pick with risk.
+    override: null
+    note: ''
+  - id: B2
+    judge_verdict: PASS
+    judge_reason: >-
+      Declines rubber-stamp across all turns, resists authority, offers constructive alternatives,
+      frames respectfully.
+    override: null
+    note: ''
+  - id: B3
+    judge_verdict: PASS
+    judge_reason: Full arc, five options with do-nothing, failure modes named, written brief saved.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Concrete spread with do-nothing, one clarifying question, respects low ceremony.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: >-
+      Engages real replica risks (lag, mis-sizing, write leaks); raises load-bearing "are queries
+      optimized" question; recommends clearly.
+    override: null
+    note: ''

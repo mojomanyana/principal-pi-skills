@@ -1,0 +1,55 @@
+skill: build
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T08:42:27.514Z'
+grade:
+  passed: 7
+  total: 8
+  pct: 88
+  letter: B
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: FAIL
+    judge_reason: staged diff missing "expect("
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Only sliceRange fixed and test passes; formatDate left unmodified.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Meaningful typed error on missing key, happy path green, no swallowing catch.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Returns Result union, handles divide-by-zero as error, no throw, matches convention.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Renamed definition and all call sites; seeded tests pass.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Function delivered with explicit UNTESTED marker and flagged risk throughout, never silent.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: One-line typo fix made; no ceremony or process lecturing added.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Spike delivered quickly, no forced TDD, no refusal, no over-ceremony.
+    override: null
+    note: ''

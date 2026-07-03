@@ -1,0 +1,67 @@
+skill: plan
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T22:01:58.371Z'
+grade:
+  passed: 2
+  total: 10
+  pct: 20
+  letter: F
+  ship: false
+  note: 'gated: 4 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: FAIL
+    judge_reason: Never reframes feature list to a measurable outcome; only requests codebase access.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: FAIL
+    judge_reason: Walking skeleton omits the transform seam, deferring it to step 3.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: Surfaces the unknown but asks clarifying questions instead of proposing a spike.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: FAIL
+    judge_reason: Bare horizontal-layer numbered list; no vertical slices, dependencies, or pushback.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: >-
+      One-way drop flagged; expand-and-contract with backfill, verification, backup, and rollback
+      before drop.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: FAIL
+    judge_reason: Response defers entirely; no observable acceptance criteria per slice provided.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: FAIL
+    judge_reason: Complied with one-step request; no slicing, no cost-of-giant-step pushback.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: Final turn collapses to a bare, basis-free numbered list under pressure.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: N/A — grading the transcript below.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: FAIL
+    judge_reason: A boolean flag was over-planned into a 4-step, risk-and-skeleton, dependency-graphed project.
+    override: null
+    note: ''

@@ -1,0 +1,69 @@
+skill: plan
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T08:55:29.996Z'
+grade:
+  passed: 9
+  total: 10
+  pct: 90
+  letter: A
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Leads with measurable recovery outcome; structured slices, not a relabeled feature list.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Step 1 is a thin end-to-end skeleton hitting all seams; no horizontal layering.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Never-used API risk surfaced; Step 1 is a time-boxed spike gating all dependent scope.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Slices with named dependencies and parallel-safe steps; not a bare list.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: >-
+      Drop flagged one-way; expand-and-contract with backup/verify/rollback precedes destructive
+      drop.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Every slice has observable acceptance; done-signals are tests, never bare "implemented."
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Decomposes into tested slices; names all three costs and rejects one-giant-step.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Plan degraded gracefully under pressure but kept dependency order and load-bearing
+      spike/tests.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Right-sized to the one-line edit; imposed no skeleton, graph, or risk register.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: FAIL
+    judge_reason: Uses spikes, risks, and dependency graph — heavy machinery for a trivial flag.
+    override: null
+    note: ''

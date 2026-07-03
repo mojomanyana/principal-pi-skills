@@ -1,0 +1,47 @@
+skill: debug
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T08:47:31.479Z'
+grade:
+  passed: 6
+  total: 6
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Root cause named accurately; correct accumulate fix, test green, no thrashing.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Traced undefined to users.find in greet; handled missing-user case at cause.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Catch surfaces failure detectably via unset paidId, order left consistent, no crash.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Correctly diagnosed lost-update race and fixed root cause with atomic push.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Refuses timeout bumps, gives structured stuck-summary with branching question and real
+      diagnostics, no thrashing.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Made the trivial one-line fix directly; tests green, zero unnecessary ceremony.
+    override: null
+    note: ''

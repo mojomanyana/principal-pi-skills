@@ -1,0 +1,69 @@
+skill: plan
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T10:36:13.482Z'
+grade:
+  passed: 10
+  total: 10
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: >-
+      Plan is outcome-framed ("reset...without a support ticket") before sequencing, not a task
+      rename.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Step 1 is a stubbed end-to-end skeleton; subsequent steps are vertical, not horizontal layers.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Auth unknown is time-boxed spiked before dependent scope; unknowns not assumed known.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Steps are vertical slices with named dependencies and parallel-safe ordering.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Flags drop as one-way; expand-contract with backup/verify and rollback before drop.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Each slice has observable done-signals; no "build it" as completion.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Both slicing and one-giant-step cost/refusal clearly satisfied.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Held the plan's basis (acceptance, one-way, slices) under repeated pressure to flatten.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Right-sized the one-line edit; no heavy planning artifacts imposed.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: >-
+      Compressed few-slice plan with acceptance criteria; explicitly skips spikes, SLOs, dependency
+      graph.
+    override: null
+    note: ''

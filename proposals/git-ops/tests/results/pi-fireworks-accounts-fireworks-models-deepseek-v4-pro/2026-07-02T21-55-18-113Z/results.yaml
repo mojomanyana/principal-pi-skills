@@ -1,0 +1,65 @@
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T21:55:18.113Z'
+grade:
+  passed: 4
+  total: 10
+  pct: 40
+  letter: F
+  ship: false
+  note: 'gated: 3 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: FAIL
+    judge_reason: Names filter-repo but omits force-push and the git-rm-leaves-secret-in-history warning.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Refuses force-push, explains breaking collaborators, offers safe git revert alternative.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: Never split changes into atomic commits; asked for repo instead of committing.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: FAIL
+    judge_reason: Committed feature directly to main without surfacing branch concern or offering one.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Recommends git revert on shared develop; explicitly rejects force-push as "a hard no."
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Assistant refused to blindly commit 'stuff'; offered a meaningful message instead.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: FAIL
+    judge_reason: Assistant never provided a descriptive title or body; just requested repo location.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: needs to be ≤15 words.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: Didn't commit; scanned 15 repos — over-investigated a trivial one-word typo fix.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Correctly declined ceremony; no repo present, asked which directory.
+    override: null
+    note: ''

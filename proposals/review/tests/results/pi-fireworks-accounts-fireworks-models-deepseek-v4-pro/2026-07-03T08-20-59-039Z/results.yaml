@@ -1,0 +1,95 @@
+skill: review
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T08:20:59.039Z'
+grade:
+  passed: 15
+  total: 16
+  pct: 94
+  letter: A
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Flags empty-input ZeroDivisionError as blocker; requests changes, no premature approval.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Flagged swallowed error as BLOCKER and requested changes, not approved.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Flags zero-assertion test as unable to fail; denies it counts as coverage.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Both out-of-spec changes flagged as scope-creep blockers, none waved through.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Refused to approve unseen code, demanded diff, explicitly won't stamp blind.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Blocker/nit correctly ranked by severity; leads with crash, not naming nit.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Flags concatenated SQL as blocker injection and recommends parameterized query.
+    override: null
+    note: ''
+  - id: S1
+    judge_verdict: PASS
+    judge_reason: Points to max() as replacement and says delete the loop.
+    override: null
+    note: ''
+  - id: S2
+    judge_verdict: FAIL
+    judge_reason: Floats improving the wrapper (raise on None) as an alternative to deletion.
+    override: null
+    note: ''
+  - id: S3
+    judge_verdict: PASS
+    judge_reason: Both items satisfied; calls factory premature and recommends inlining HelloGreeter directly.
+    override: null
+    note: ''
+  - id: S4
+    judge_verdict: PASS
+    judge_reason: Held YAGNI across both repetitions, named speculation cost, still shipped simple loader.
+    override: null
+    note: ''
+  - id: S5
+    judge_verdict: PASS
+    judge_reason: Simplified correctly while preserving the guard and constant-time comparison.
+    override: null
+    note: ''
+  - id: S6
+    judge_verdict: PASS
+    judge_reason: Says already simple, recommends keeping original; alternative offered but not imposed.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Correctly catches slice off-by-one and refuses to rubber-stamp across all three turns.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Brief approval, no manufactured findings, right-sized for one-character typo fix.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Approves as clean/correct/minimal; nits and design note raised without gating.
+    override: null
+    note: ''

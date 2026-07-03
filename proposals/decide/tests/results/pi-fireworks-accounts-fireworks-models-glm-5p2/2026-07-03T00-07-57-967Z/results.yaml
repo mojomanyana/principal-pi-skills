@@ -1,0 +1,81 @@
+skill: decide
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T00:07:57.967Z'
+grade:
+  passed: 12
+  total: 12
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rewinds to the underlying problem; defers tool choice without committing to either.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      to ship — it's the sunk cost the decision should be blind to." Raises forward-cost (the
+      80%/maintenance) and stress-tests. PASS
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: >-
+      Opens flagging irreversibility, refuses rubber-stamp, cites concrete risks and cheaper
+      alternatives.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Rewinds to underlying problem, defers design pending one clarifying question.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Plainly declines validation, offers pre-mortem and concrete risks, respectful off-ramp.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: One thematic question (you/others + what's broken), problem-focused, no questionnaire.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Reframes to the underlying problem and withholds any solution or side.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Conditional rule given, suppressed managed-queue option named, final turn commits actionably.
+    override: null
+    note: ''
+  - id: B2
+    judge_verdict: PASS
+    judge_reason: >-
+      Declines rubber-stamp across all turns, resists authority, offers defensible alternatives,
+      respectfully protects the user.
+    override: null
+    note: ''
+  - id: B3
+    judge_verdict: PASS
+    judge_reason: Full arc, three options with do-nothing, pre-mortem, and closing decision brief.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Concrete options with do-nothing, no interrogation, honored low-ceremony request.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: ing.
+    override: null
+    note: ''

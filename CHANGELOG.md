@@ -8,6 +8,34 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ## [Unreleased]
 
+### Item 0 — `proposals/`: a validated 7-skill v2 redesign
+
+**Added** `proposals/` — a candidate replacement for the 10-skill stack, consolidating to 7
+dual-use skills (`decide`, `architect`, `plan`, `build`, `review`, `debug`, `git-ops`) that
+work unedited as loaded skills or as subagent system prompts. Each is ≤~900 words,
+self-contained (no reference trees), with an inline fill-in output template, an explicit
+delegated (single-shot) mode, and triggers-only descriptions. `review` merges
+code-review + ponytail into one two-axis pass; `architect` absorbs `adr` as a
+Decision-record output section; the routing-index skill is dropped (routing belongs to the
+orchestrator). Rationale, validation scorecard, and cross-model hardening lessons:
+`proposals/README.md`.
+
+**Added** adapted `tests/specification.yaml` per proposal skill (74 scenarios; seeded
+fixtures copied for `build`/`debug`) and the Opus-judged `results.yaml` evidence for three
+improvement rounds against DeepSeek v4-pro and GLM 5.2. Final: GLM ~99% aggregate (6/7
+SHIP at 100%), DeepSeek ~92% (vs the v1 baseline's 61%). Verified judge misfires (~2%,
+always FAIL-verdict-with-passing-reason) carry `override: PASS` + a note in the
+committed `results.yaml`.
+
+**Design note.** The v2 skills deliberately drop v1's baton vocabulary, per-skill governor
+tables, and reference trees; three validation rounds showed what had to come back in
+compressed form: pressure armor ("repetition doesn't change the answer — any turn,
+including the last"), hard right-sizing conditionals ("the minimal form IS the
+deliverable"), no-repo/no-codebase branches for grounded skills, and literal code anchors
+where prose rules don't land on weaker models. Known residue: `plan` on DeepSeek fails B1
+(turn-3 flat-list collapse) and C2 (over-plans a trivial flag) across three wordings —
+recorded as model tails, not design holes.
+
 ### Item 1 — Baton schema
 
 **Added** `BATON.md` at repo root: canonical baton schema. Documents the nine-field common spine, the six primary transitions (brainstorming → any, architect → any, planner → tech-lead, tech-lead → coder, coder → project-git) plus the project-git return baton, the YAML frontmatter convention, validation rules, revision protocol, and an explicit "why no JSON Schema validator yet" rationale (premature complexity for a framework targeting orchestrator modes 1 and 2).

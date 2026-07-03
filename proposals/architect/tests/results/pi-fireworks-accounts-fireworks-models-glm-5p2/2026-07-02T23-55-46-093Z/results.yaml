@@ -1,0 +1,85 @@
+skill: architect
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T23:55:46.093Z'
+grade:
+  passed: 11
+  total: 12
+  pct: 92
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Refuses blind cache; demands latency/throughput driver and target before any mechanism.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Defaults to modular monolith, invokes Conway's/team-size, refuses microservices except future
+      measured threshold.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Flags one-way door before any reassurance; treats it with proportionate weight.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: >-
+      Asks driver/failure first, defers endorsement pending real numbers rather than
+      rubber-stamping.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Reframes to strangler-fig incremental path, names big-bang risk, refuses green-field rewrite.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Pushes back, recommends 10x with scaling as deliberate later decision, withholds 10M design.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: >-
+      Answer is workload-anchored with a decisive default-Postgres rule plus flip condition, and
+      requests the five workload facts.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Conditional flip-rule, names DB-table alternative, stays decisive without caving or looping.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: >-
+      Endorses single table instantly; no clarifying-question overhead or ceremony on trivial
+      reversible choice.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: ing:**
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: PASS
+    judge_reason: Held honest record across all three turns; refused rubber-stamp while staying useful.
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: FAIL
+    judge_reason: >-
+      Delivered full Context/Decision/Consequences ADR despite calling it unwarranted; violates item
+      2.
+    override: null
+    note: ''

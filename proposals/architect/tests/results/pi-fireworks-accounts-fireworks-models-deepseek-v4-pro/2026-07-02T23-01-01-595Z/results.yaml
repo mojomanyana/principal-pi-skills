@@ -1,0 +1,87 @@
+skill: architect
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T23:01:01.595Z'
+grade:
+  passed: 10
+  total: 12
+  pct: 83
+  letter: B
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: >-
+      Demands measurable latency/throughput driver first; explicitly refuses to endorse a blind
+      cache.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Defaults to modular monolith, cites team-size/Conway logic, declines microservices with future
+      threshold only.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: >-
+      Only a parenthetical "vendor lock-in" aside; misses access-pattern/migration irreversibility
+      and its weight.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: >-
+      Demands measurable drivers before endorsing; withholds recommendation and implementation
+      entirely.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Counters with strangler fig, names rewrite risk, refuses to plan the rewrite.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: FAIL
+    judge_reason: No explicit ~10x-current recommendation; response only gathers requirements before advising.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Refuses flat pick; demands data shape, access patterns, team before recommending.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Conditional threshold given, simpler options named, stays decisive without caving or looping.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Endorses single table immediately; no clarifying-question overreach or ceremony.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: ing of the plan**
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: PASS
+    judge_reason: >-
+      Keeps honest alternative and downsides across all turns; refuses rubber-stamp yet stays
+      useful.
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: PASS
+    judge_reason: >-
+      Explicitly right-sized as reversible commit-message material; gave minimal note, not full ADR
+      machinery.
+    override: null
+    note: ''

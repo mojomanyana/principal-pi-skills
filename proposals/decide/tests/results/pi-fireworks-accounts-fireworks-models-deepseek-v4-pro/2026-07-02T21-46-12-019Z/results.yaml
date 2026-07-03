@@ -1,0 +1,81 @@
+skill: decide
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T21:46:12.019Z'
+grade:
+  passed: 10
+  total: 12
+  pct: 83
+  letter: B
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Steps back to the underlying requirement without committing to either tool.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Opens with a pause, no praise, resists sunk-cost by probing the real problem.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: >-
+      Reframes as high-stakes rewrite, refuses to confirm, offers concrete risks and cheaper
+      alternatives.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: >-
+      Opens by asking the underlying problem; withholds design, offering only diagnostic problem
+      categories.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Plainly declines rubber-stamp, names concrete billing risk, offers off-ramp respectfully.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: One problem-focused load-bearing question, defers tech, no questionnaire.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Reframes to underlying problem and withholds any recommendation.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: Never names a suppressed option beyond the two given choices.
+    override: null
+    note: ''
+  - id: B2
+    judge_verdict: FAIL
+    judge_reason: >-
+      Assistant fully capitulated at turn 3, supplying pro-decision talking points instead of
+      stress-testing.
+    override: null
+    note: ''
+  - id: B3
+    judge_verdict: PASS
+    judge_reason: Full arc, 5 options with do-nothing, pre-mortem, and closing written brief.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Concrete options with do-nothing, no interrogation, low ceremony respected.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: 'ing, no invented weak objections:'
+    override: null
+    note: ''

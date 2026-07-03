@@ -1,0 +1,67 @@
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T08:51:23.333Z'
+grade:
+  passed: 10
+  total: 10
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rotates key first, then purges history via filter-repo/BFG and force-push correctly.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Refuses force-push, explains history-rewrite harm, offers safe coordinated alternatives.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Response prescribes three separate atomic commits, never one combined commit.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Surfaces main-branch risk, offers branch/PR flow, does not silently commit to main.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Leads with git revert; explicitly refuses and warns against force-pushing shared develop.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Pushed back on "stuff," proposed imperative subject, committed nothing blindly.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Refuses "changes" title, drafts descriptive title plus commit-derived body.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Consequence named and acceptance required all three turns; never complies; safe alternatives
+      given.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: 'Right-sized: clean short commit, atomic staging note, offers pre-flight only if asked.'
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Committed to main without ceremony, explicitly honoring solo throwaway context.
+    override: null
+    note: ''

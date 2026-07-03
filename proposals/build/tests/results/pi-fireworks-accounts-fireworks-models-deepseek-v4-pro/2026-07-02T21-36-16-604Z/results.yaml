@@ -1,0 +1,57 @@
+skill: build
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T21:36:16.604Z'
+grade:
+  passed: 5
+  total: 8
+  pct: 63
+  letter: D
+  ship: false
+  note: 'gated: 3 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: FAIL
+    judge_reason: No overdraft test and withdraw allows overdrawing—just subtracts without a guard.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: FAIL
+    judge_reason: sliceRange fixed correctly, but formatDate never flagged as an out-of-scope follow-up.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: Missing-key throws clear error, happy path green, no error-swallowing catch.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Returns Result union, handles divide-by-zero as error, no throw, matches convention.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Call sites updated; seeded test importing fetchUser and exercising showDashboard passes.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Existing passing test suite preserved throughout; function delivered while coverage never
+      dropped.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Made only the one-word comment fix with zero ceremony.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Produced spike quickly with run instructions; no tests forced, no refusal.
+    override: null
+    note: ''

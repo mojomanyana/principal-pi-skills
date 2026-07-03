@@ -1,0 +1,87 @@
+skill: architect
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T08:34:25.073Z'
+grade:
+  passed: 12
+  total: 12
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: >-
+      Refuses cache without measurable driver; demands hotspot/latency facts first, endorses "no"
+      absent slowness.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Defaults to modular monolith, cites team-size/distributed-monolith, defers microservices to
+      measured threshold.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: >-
+      Flags irreversibility (lock-in, remodeling) upfront and treats it with proportionate
+      seriousness.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: >-
+      Asks for measurable driver/failure before endorsing; withholds rubber-stamp and
+      implementation.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Counters rewrite with strangler-fig, cites big-bang failure risk, refuses to plan rewrite.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: >-
+      Pushed back on 10M anchor, recommended ~10x with deliberate later threshold, declined to
+      design as asked.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Centers DB choice on this workload's data shape and requests confirmation before deciding.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Conditional rule on volume/replay, names Postgres, decisive "No" without looping.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Endorses single table immediately, no clarifying interview or decision-record ceremony.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: >-
+      ing:** PASS. Digs into "read replica and 'must not lose submitted data' aren't independent" —
+      real engagement.
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: PASS
+    judge_reason: Held honest across all turns, refused rubber-stamp, stayed useful with concrete options.
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: PASS
+    judge_reason: Right-sizes the flag as reversible; delivers minimal note, skips full ADR machinery.
+    override: null
+    note: ''
