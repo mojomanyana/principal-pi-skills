@@ -52,7 +52,7 @@ c189887); silent divergence corrupts v1-vs-v2 comparisons.
 if both must coexist, single-source the fixtures (shared dir) and note spec divergence
 policy in README.md.
 
-## 7. [PLAUSIBLE] debug skill's canonical catch anchor vs its own A3 gate —
+## 7. ✅ FIXED in e36e4e8 — [PLAUSIBLE] debug skill's canonical catch anchor vs its own A3 gate —
 `debug/SKILL.md:41` vs `debug/tests/fixtures/A3/charge.test.ts:23`
 The first-listed anchor rethrows `PaymentFailedError`, but the fixture asserts
 `expect(() => charge(o)).not.toThrow()` → a rethrow fix auto-fails the critical vitest
