@@ -1,7 +1,7 @@
 {
     "name": "principal-pi-skills",
     "version": "0.1.0",
-    "description": "Skill framework for principal-level software engineering: brainstorming, implementation-planner, coder, ponytail, code-review, debugging, software-architect, adr, project-git, plus a using-principal-pi-skills posture/routing index.",
+    "description": "Skill framework for principal-level software engineering: seven dual-use skills (decide, architect, plan, build, review, debug, git-ops) that work unedited as loaded skills or as subagent system prompts.",
     "license": "MIT",
     "author": "Nemanja Alavanja",
     "repository": {
@@ -19,16 +19,13 @@
     ],
     "pi": {
         "skills": [
-            "./using-principal-pi-skills",
-            "./brainstorming",
-            "./implementation-planner",
-            "./coder",
-            "./ponytail",
-            "./code-review",
-            "./debugging",
-            "./software-architect",
-            "./adr",
-            "./project-git"
+            "./decide",
+            "./architect",
+            "./plan",
+            "./build",
+            "./review",
+            "./debug",
+            "./git-ops"
         ]
     }
 }

@@ -8,6 +8,20 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ## [Unreleased]
 
+### Item 0.1 — v2 promoted; v1 stack removed
+
+**Changed** The seven v2 skills moved from `proposals/` to the repository root and are
+now the framework. **Removed** the ten v1 skill directories (`brainstorming`,
+`software-architect`, `adr`, `implementation-planner`, `coder`, `ponytail`,
+`code-review`, `debugging`, `project-git`, `using-principal-pi-skills`), `BATON.md`
+(v2 has no baton vocabulary), and the v1-era `README.md`/`AGENTS.md`, both rewritten
+around the v2 set; `package.json`'s `pi.skills` now registers the seven. The v1 stack —
+including its specs, fixtures, and Opus-judged baseline results — survives in git
+history at the commit before this one. Promotion also resolves the v1↔v2 fixture/spec
+byte-duplication flagged in PR #4 review (finding 6): the duplicated trees were deleted
+with the stack that owned them. Paths below in Item 0 read `proposals/…` as written at
+the time; drop the prefix for the promoted layout.
+
 ### Item 0 — `proposals/`: a validated 7-skill v2 redesign
 
 **Added** `proposals/` — a candidate replacement for the 10-skill stack, consolidating to 7
