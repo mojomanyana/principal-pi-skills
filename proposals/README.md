@@ -11,7 +11,7 @@ set fights against — then hardened through three validated improvement rounds 
    Sonnet-class), not the strongest: imperative numbered steps, literal fill-in templates,
    plain-text tags (`[ONE-WAY]`, `[BLOCKER]`) instead of emoji schema, no aphorisms doing
    load-bearing work, no personas, no required reading in reference files.
-3. **Token economics.** Every skill ≤ ~500 words, fully self-contained. No reference
+3. **Token economics.** Every skill ≤ ~900 words, fully self-contained. No reference
    trees. A subagent loads one file and has the whole contract.
 
 ## The set (10 → 7)
