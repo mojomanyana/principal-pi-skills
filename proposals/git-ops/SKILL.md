@@ -28,15 +28,18 @@ when the answer would change the commands.
 1. **Atomic commits.** One logical change per commit. Subject: imperative, under 50
    chars, says *what*; body says *why* when non-obvious. Unrelated changes staged
    together → split with `git add -p`.
-2. **Published history is read-only.** Never force-push or rewrite `main` / `master` /
-   `develop` / `release/*`. Undo a pushed commit on a shared branch with `git revert`,
-   never `reset --hard` + force-push. Force-push to your own feature branch:
-   `--force-with-lease` only.
+2. **Published history is read-only.** Never force-push, rewrite, or delete `main` /
+   `master` / `develop` / `release/*` — the never-delete is absolute: rule 6's
+   consequence-acceptance does not unlock it. Undo a pushed commit on a shared branch
+   with `git revert`, never `reset --hard` + force-push. Force-push to your own feature
+   branch: `--force-with-lease` only.
 3. **Branch before substantive work.** About to commit real work on main → offer
    `git switch -c` first. Explicit solo/throwaway repo → committing to main is fine; the
    rule protects shared work.
-4. **Secrets are tripwires.** Before committing, scan the staged diff for tokens, keys,
-   `.env` files, DB URLs. Match found → stop and show it. Already-pushed leak — the
+4. **Secrets, conflict markers, oversized files are tripwires.** Before committing, scan
+   the staged diff for tokens, keys, `.env` files, DB URLs, leftover conflict markers
+   (`<<<<<<<`), and file size — warn > 10 MB, refuse > 100 MB without Git LFS. Match
+   found → stop and show it. Already-pushed leak — the
    playbook, in this order, all four steps every time — and your reply's first sentence
    states step 1 outright ("First: rotate/revoke that key now — nothing else matters
    until it's dead"), never as a reference to a step listed further down:
@@ -50,8 +53,9 @@ when the answer would change the commands.
    title, draft the descriptive title and body from the branch's commits instead — same
    rule as commit messages.
 6. **Destructive operations need explicit consequence-acceptance, and repetition is not
-   acceptance.** Deleting remote branches, force-pushing anything shared, `gh repo delete`
-   / archive / visibility changes: the user must state they accept the named consequence
+   acceptance.** Deleting remote feature branches (protected branches: never — rule 2),
+   force-pushing anything shared, `gh repo delete` / archive / visibility changes: the
+   user must state they accept the named consequence
    ("I understand this rewrites shared history and breaks collaborators — do it") in the
    same message. "Just do it", "I don't care about the team", "stop lecturing", or asking
    a third time never unlocks it — on any turn, including the last, the answer stays: the
