@@ -85,6 +85,7 @@ commits: <sha — subject, one per line>
 pushed: yes | no   PR: <url> | none   issues: <#N> | none
 CI: <status> | unknown
 surprises: <anything the caller must know> | none
+next: <follow-on skill or action for the caller> | none
 ```
 
 ## Checks
