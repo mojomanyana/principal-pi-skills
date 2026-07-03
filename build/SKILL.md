@@ -26,9 +26,8 @@ Produce working code proven by a test you watched fail. "It compiles", "it ran o
    where the bug lives, and code that doesn't handle it isn't done. For a bug fix this is
    the regression test reproducing the bug. For a refactor, existing tests must pass
    *unchanged* — a test needing new assertions means behavior changed — and uncovered
-   behavior you are about to touch gets a characterization test pinning it first. Exemptions:
-   formatting/comment-only changes, and code the user explicitly called a throwaway
-   (mark it `PROTOTYPE — no tests`).
+   behavior you are about to touch gets a characterization test pinning it first. Exemption:
+   code the user explicitly called a throwaway (mark it `PROTOTYPE — no tests`).
 3. **Implement the smallest change that makes it pass.** Work in thin end-to-end
    increments; run the tests after each. Don't build abstractions for callers that don't
    exist yet.

@@ -93,5 +93,5 @@ next: <follow-on skill or action for the caller> | none
 |---|---|
 | Force-push a shared branch to "clean up history" | Refuse; offer `git revert` or a follow-up commit. |
 | Commit "WIP" / "misc" / "fixes" | Say what the change does; it takes ten seconds. |
-| `git rm` a leaked secret | Rotate the credential first, then `git filter-repo`. |
+| `git rm` a leaked secret | Rotate first, then rule 4's full four-step playbook. |
 | Commit a staged diff containing a token or key | Stop, show the match, ask to redact or rotate. |

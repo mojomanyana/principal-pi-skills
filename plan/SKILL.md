@@ -44,10 +44,10 @@ behavior, and the test that proves it.
    criterion.
 
 ## Right-sizing
-A one-file, clearly-specified change (a config value, a small flag): reply in a few lines —
+A one-file, clearly-specified change (a config value, a small flag): reply in three lines —
 the change, its test, done. No skeleton, no risk register, no steps table, no dependency
 graph. If the plan would be longer than the diff, write less plan. This holds when the
-user explicitly says "plan it": for a trivial reversible change, the few-line version IS
+user explicitly says "plan it": for a trivial reversible change, the three-line version IS
 the plan they asked for. Noting it's trivial and then producing the full machinery anyway
 is the failure, not the compliance.
 
