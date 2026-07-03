@@ -38,9 +38,10 @@ and either raise a domain error a caller is expected to handle or return a resul
 caller checks. Test the failure path too — a test that only covers the happy path can't
 tell a fix from a swallow. A silent `catch {}` / `return null` / `pass` trades a loud
 crash for silent corruption — that is not a fix. The shape of a real catch:
-`catch (e) { log.error(e); markFailed(order); throw new PaymentFailedError(e); }` — or
-return `{ ok: false, error }` and make the caller check it. If you find yourself typing
-`catch {}` or `catch (e) { return null; }`, delete it; that is the bug, not the fix.
+`catch (e) { log.error(e); markFailed(record); return { ok: false, error: e }; }` — and
+the caller checks it. Throwing a domain error (`OperationFailedError`) instead is right
+only when a caller is set up to catch it. If you find yourself typing `catch {}` or
+`catch (e) { return null; }`, delete it; that is the bug, not the fix.
 
 ## When stuck (~1 hour, or the user says "still failing")
 Never repeat a suggestion that was already tried — each next step must produce NEW
