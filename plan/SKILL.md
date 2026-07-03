@@ -30,8 +30,8 @@ behavior, and the test that proves it.
    time-boxed spike step *before* dependent work. A plan with zero risks listed is
    incomplete.
 4. **Step 1 is the walking skeleton**: the thinnest end-to-end path that touches EVERY
-   seam the request names (e.g. ingest → validate → transform → store → notify — none
-   deferred to a later step) with stub logic. Never plan horizontal layers ("all models,
+   seam the request names (e.g. fetch → parse → persist → report — none deferred to a
+   later step) with stub logic. Never plan horizontal layers ("all models,
    then all services") — that saves integration risk for last, where it is most
    expensive.
 5. **Slice vertically.** Each later step is a small end-to-end increment, independently

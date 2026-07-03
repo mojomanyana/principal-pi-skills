@@ -35,7 +35,7 @@ option wins.
    gets a Decision record (below). A Decision record is ONLY for one-way or
    precedent-setting choices — a reversible feature (a flag, a rename, a small internal
    tool) gets a commit message. If the user asks for a record ("write an ADR for the
-   --verbose flag") anyway: the three-line note IS the deliverable — decision, why, revisit
+   config rename") anyway: the three-line note IS the deliverable — decision, why, revisit
    trigger, done. Declaring it unwarranted and then writing the full
    Context/Options/Consequences document anyway is the failure, not the compliance.
 6. **Diagram when structure changes** — mermaid; boxes are deployable things, arrows are

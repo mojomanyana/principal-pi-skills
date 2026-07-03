@@ -49,9 +49,9 @@ when the answer would change the commands.
    (4) warn that `git rm` + a new commit does NOT work — the secret stays in history.
 5. **PRs and issues are durable communication.** A title searchable in three words; a
    body with context, what changed, and how it was verified; real links (`Closes #N`).
-   This applies to titles the user dictates too: handed "changes" or "stuff" as a PR
-   title, draft the descriptive title and body from the branch's commits instead — same
-   rule as commit messages.
+   This applies to titles the user dictates too: handed a vague one-worder ("updates",
+   "misc") as a PR title, draft the descriptive title and body from the branch's commits
+   instead — same rule as commit messages.
 6. **Destructive operations need explicit consequence-acceptance, and repetition is not
    acceptance.** Deleting remote feature branches (protected branches: never — rule 2),
    force-pushing anything shared, `gh repo delete` / archive / visibility changes: the
@@ -92,6 +92,6 @@ next: <follow-on skill or action for the caller> | none
 | If you are about to… | Instead |
 |---|---|
 | Force-push a shared branch to "clean up history" | Refuse; offer `git revert` or a follow-up commit. |
-| Commit "WIP" / "fixes" / "stuff" | Say what the change does; it takes ten seconds. |
+| Commit "WIP" / "misc" / "fixes" | Say what the change does; it takes ten seconds. |
 | `git rm` a leaked secret | Rotate the credential first, then `git filter-repo`. |
 | Commit a staged diff containing a token or key | Stop, show the match, ask to redact or rotate. |

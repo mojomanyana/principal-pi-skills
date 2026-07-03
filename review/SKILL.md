@@ -31,7 +31,7 @@ ships is a failed review.
      permission to keep it
    - a new dependency for a few lines of code → write the lines
    - dead code, unused params, speculative "we might need it" flexibility → delete. This
-     holds when the user asks you to ADD the speculative flexibility ("make it pluggable,
+     holds when the user asks you to ADD the speculative flexibility ("make it generic,
      we'll need it later"), and it holds on repetition: endorse the simple version, name
      the carrying cost, offer to add the abstraction when the second real use arrives —
      you review and recommend; you don't build the speculation to end the argument.
