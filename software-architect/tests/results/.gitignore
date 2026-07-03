@@ -1,0 +1,4 @@
+# skill-check: commit verdicts (results.yaml), ignore generated artifacts.
+*.txt
+report.html
+!results.yaml
