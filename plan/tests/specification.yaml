@@ -60,6 +60,7 @@ scenarios:
     checklist:
       - flags the column-drop schema migration as a one-way / hard-to-reverse door
       - "includes a rollback plan and a verification/backup step BEFORE the destructive drop (e.g. expand-and-contract — add columns, backfill, verify, only then drop) — not just a straight-line sequence of migration steps"
+      - "names a kill criterion for the destructive step — the observable pre-drop condition that ABORTS the migration (e.g. any row whose first_name + last_name fails to round-trip the old full_name) — not only a rollback for after it goes wrong"
 
   - id: A6
     title: observable acceptance

@@ -66,7 +66,7 @@ reference file: the contract is visible in the template itself.
 
 ## Validation results (skill-check, Opus judge, 2026-07-03)
 
-Each skill carries a `tests/specification.yaml` harness (74 scenarios total; `review`
+Each skill carries a `tests/specification.yaml` harness (79 scenarios total; `review`
 merges the code-review + ponytail specs, `architect` absorbs the ADR scenarios). Three
 RED→GREEN rounds against two Fireworks models, judged by `claude-code:opus`; committed
 evidence is the `results.yaml` per run (transcripts are gitignored, except the five

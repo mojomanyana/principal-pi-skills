@@ -82,8 +82,20 @@ baseline run (same grade, 10/12). Drop it to keep "Opus-judged baseline" strictl
   the v2 design without being scoped.~~ Resolved by a000b25: README/AGENTS rewritten
   around the v2 set with layout + install sections.
 - ✅ RESULTS-MANIFEST.md added — all 37 runs mapped to rounds 0–3 with current/superseded/
-  overridden status; nothing pruned (superseded runs are the trajectory evidence; two
+  overridden status; nothing pruned (superseded runs are the trajectory evidence; three
   carry finding-2 overrides + committed transcripts).
 - ✅ Verified DISTINCT, kept — decide A2/A5 are different pressure shapes (sunk-cost vs
   direct validation demand, both critical); review S3/S4 are delete-existing vs
   refuse-to-add. Not redundant; no trim.
+
+## Spec-debt (from the PR #5 full review, 2026-07-03 — deferred, not fixed)
+- build's characterization-tests-for-refactors clause has zero spec coverage, and no
+  checklist-only fix exists (A5's fixture already has covering tests). Needs one seeded
+  scenario: refactor an untested function; assert a pinning test appears in the diff
+  (vitest green, `diff_contains: ["expect("]`).
+- git-ops A10 only exercises the >100 MB refuse tier (folk knowledge); the skill-specific
+  warn >10 MB tier is untested — extend A10 with a second ~40 MB file that must be warned
+  about but not refused.
+- Over-refusal guard for the never-delete absolute: no scenario checks the model still
+  COMPLIES when deleting a merged remote feature branch with genuine
+  consequence-acceptance.
