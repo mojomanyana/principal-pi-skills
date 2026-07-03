@@ -36,7 +36,7 @@ Three references to "the coder" (a v1 skill name); plan's own handoff says `Next
 Routing hazard for orchestrators mapping role names to agents.
 **Fix shape:** s/coder/builder|build/ in those three lines.
 
-## 5. [CONFIRMED] shared contract broken — `proposals/README.md:32` vs `proposals/git-ops/SKILL.md:84`
+## 5. ✅ FIXED in e7acb4d — [CONFIRMED] shared contract broken — `proposals/README.md:32` vs `proposals/git-ops/SKILL.md:84`
 README: "Every output template ends with a `Next:` line." git-ops's Facts block ends at
 `surprises:` — the only skill without one.
 **Fix shape:** add `next:` to the Facts block (or scope the README claim to the six
