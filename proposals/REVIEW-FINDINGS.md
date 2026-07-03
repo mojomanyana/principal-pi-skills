@@ -31,7 +31,7 @@ skill-check's judge parsing (misfires were always FAIL-verdict-with-passing-reas
 debug 826, build 753, review 752, decide 651); CHANGELOG in the same PR says "≤~900".
 **Fix shape:** correct README to the measured budget (≤~900) so both docs agree.
 
-## 4. [CONFIRMED] stale "coder" references — `proposals/plan/SKILL.md:12,41,93`
+## 4. ✅ FIXED in d6a3a64 — [CONFIRMED] stale "coder" references — `proposals/plan/SKILL.md:12,41,93`
 Three references to "the coder" (a v1 skill name); plan's own handoff says `Next: build`.
 Routing hazard for orchestrators mapping role names to agents.
 **Fix shape:** s/coder/builder|build/ in those three lines.
