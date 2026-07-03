@@ -50,7 +50,7 @@ Each skill carries the same `tests/specification.yaml` harness as the v1 skills 
 scenarios total; `review` merges the code-review + ponytail specs, `architect` absorbs the
 ADR scenarios). Three RED→GREEN rounds against two Fireworks models, judged by
 `claude-code:opus`; committed evidence is the `results.yaml` per run (transcripts are
-gitignored).
+gitignored, except the five misfire transcripts backing the overrides, committed for audit).
 
 | Skill | DeepSeek v4-pro | GLM 5.2 |
 |---|---|---|

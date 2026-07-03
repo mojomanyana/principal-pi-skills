@@ -9,7 +9,7 @@ description: >
 
 # Plan — Slices and Specs
 
-Turn a task into steps a coder can execute without making load-bearing decisions.
+Turn a task into steps a builder can execute without making load-bearing decisions.
 A plan that bottoms out in "add validation" is not a plan; each step names files,
 behavior, and the test that proves it.
 
@@ -38,7 +38,7 @@ behavior, and the test that proves it.
    testable, roughly a day or less of work.
 6. **Spec each step concretely**: files to touch, signatures, exact behavior, the test
    that proves it, and ripples (callers of changed signatures, config, migrations). If
-   the coder would have to make a design decision you skipped, the spec isn't done.
+   the builder would have to make a design decision you skipped, the spec isn't done.
 7. **Order by dependency.** Name which steps can run in parallel. Mark any [ONE-WAY] step
    (schema migration, public API change, data deletion) with a rollback note.
 
@@ -90,4 +90,4 @@ Next: build, starting at step 1
 | Accept "plan it as one step" for multi-part work | Decompose anyway and say why: one giant step blocks parallel work, hides risk, and has no honest done-signal. |
 | Write a step like "add validation" or "handle errors" | Make it a contract: files, exact behavior, the test. If you can't name the test, it's too vague. |
 | Spec a file you haven't opened | Open it. A spec for a fiction wastes everyone's time. |
-| Leave the tests as the coder's homework | Name each test, its level, and its edge cases in the step. |
+| Leave the tests as the builder's homework | Name each test, its level, and its edge cases in the step. |
