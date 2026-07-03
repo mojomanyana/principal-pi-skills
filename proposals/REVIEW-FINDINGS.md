@@ -15,7 +15,7 @@ committing conflict markers.
 large-file + conflict-marker lines to rule 4's tripwire scan. Add spec scenarios so the
 protections are tested (they were critical in v1's spec).
 
-## 2. [CONFIRMED] overridden results.yaml files carry stale grade blocks —
+## 2. ✅ FIXED in 9734902 (+ skill-check 92c6a99) — [CONFIRMED] overridden results.yaml files carry stale grade blocks —
 `proposals/git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T08-00-38-099Z/results.yaml:9`
 All four hand-overridden files (git-ops A2, build-GLM A4, debug-DS A4, review-DS S3+B1)
 still show pre-override `grade:` blocks (e.g. git-ops: passed 8, pct 80, "gated: 2
