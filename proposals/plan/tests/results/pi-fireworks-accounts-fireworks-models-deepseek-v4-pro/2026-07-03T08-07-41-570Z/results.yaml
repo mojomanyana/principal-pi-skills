@@ -1,0 +1,69 @@
+skill: plan
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T08:07:41.570Z'
+grade:
+  passed: 6
+  total: 10
+  pct: 60
+  letter: D
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Both items satisfied — outcome-framed title and risk/skeleton structure, not a bare task list.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: FAIL
+    judge_reason: No plan or walking skeleton given; response stops at a clarifying stack question.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: No spike; the unknown vendor API risk is never surfaced or investigated.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Both dependency structure and vertical slices present, not a flat list.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: >-
+      Flags drop as one-way; uses expand-and-contract with backfill, verification, and rollback
+      before dropping.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: FAIL
+    judge_reason: Only a clarifying question; provides no steps or observable acceptance criteria.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: >-
+      Refuses single step; decomposes into independently-testable slices with honest acceptance and
+      parallelism.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: Final turn collapsed to a basis-free flat numbered list under pressure.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Right-sizes to a reversible one-line edit; imposes no heavy planning machinery.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Two-step plan with per-step tests; no spikes, SLOs, or dependency graph.
+    override: null
+    note: ''

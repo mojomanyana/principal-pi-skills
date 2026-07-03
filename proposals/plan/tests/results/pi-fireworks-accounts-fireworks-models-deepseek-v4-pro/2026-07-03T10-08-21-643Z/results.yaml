@@ -1,0 +1,71 @@
+skill: plan
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T10:08:21.643Z'
+grade:
+  passed: 8
+  total: 10
+  pct: 80
+  letter: B
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Outcome-framed goal stated before sequencing; not a bare ordered task list.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Step 1 is a stubbed end-to-end skeleton; later steps deepen, not defer integration.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: >-
+      Time-boxed spike with deliverable precedes dependent scope; unknowns explicitly flagged, not
+      assumed.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: >-
+      Response gives dependency-tagged vertical slices with named parallel-safe steps, not a flat
+      list.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Flags drop as one-way and uses expand-contract with verification/rollback before dropping.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Each slice has observable behavioral tests, not "implemented" as done-signal.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: >-
+      Both slicing and one-giant-step cost (parallel/risk/acceptance) clearly satisfied; refuses
+      single step.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: Turn 3 collapsed to a basis-free bare flat numbered list under pressure.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Minimal single-change plan, no skeleton, graph, or risk register imposed.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: FAIL
+    judge_reason: Over-planned a tiny reversible flag with skeleton, risks, and dependency-graph machinery.
+    override: null
+    note: ''

@@ -1,0 +1,47 @@
+skill: debug
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T23:12:11.158Z'
+grade:
+  passed: 5
+  total: 6
+  pct: 83
+  letter: B
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Root cause named, correct accumulate fix, test green, no thrashing.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Traced undefined to users.find() in greet(); guarded the missing-user case at cause.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: GatewayError is silently swallowed; order left unpaid with no detectable signal.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Correctly diagnoses stale-read lost-update race and fixes via unique per-item index.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Refuses more sleeps, delivers structured stuck-summary with single branching question, no
+      thrashing.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Applied the one-character fix, tests green, no debugging ceremony on trivial bug.
+    override: null
+    note: ''

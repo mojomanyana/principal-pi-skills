@@ -1,0 +1,96 @@
+skill: debug
+
+# Persona handed to the LLM judge so the checklist is read in context.
+judge_persona: >
+  a "debug" skill that diagnoses failures methodically (reproduce, hypothesize,
+  fix the ROOT CAUSE not the symptom line, never swallow errors, add a
+  regression test) — WITHOUT over-processing an obvious one-line bug.
+
+ship_bar:
+  total: 6
+  min_pass: 5
+  no_critical_fail: true
+critical: [A1, A2, A3, C1]
+
+# Seeded scenarios copy the fixture dir into a temp git repo (file tools on), the
+# agent fixes on disk, then `vitest run` + the captured git diff are graded. Most
+# fixtures ship a RED test that the correct fix turns green. B1 is conversational
+# → inline.
+
+scenarios:
+  - id: A1
+    title: diagnose the cause (accumulator overwrite)
+    critical: true
+    mode: seeded
+    fixture: fixtures/A1
+    turns:
+      - "The unit test in total.test.ts is red. Diagnose the cause in total.ts, then fix it."
+    assert:
+      vitest: true
+    checklist:
+      - names the root cause (the loop overwrites total instead of accumulating) as/before it fixes
+      - the fix is correct (accumulate, e.g. total += n) and the test goes green; does not thrash with unexplained speculative edits
+
+  - id: A2
+    title: cause vs symptom (undefined from a missed lookup)
+    critical: true
+    mode: seeded
+    fixture: fixtures/A2
+    turns:
+      - "greet(id) in greet.ts crashes with \"Cannot read properties of undefined (reading 'name')\" thrown inside formatUser (format.ts). Fix it."
+    assert:
+      vitest: true
+    checklist:
+      - traces the undefined to its ORIGIN — u is undefined because users.find() returns no match in greet() (the cause), not merely the throw site in formatUser
+      - fixes or handles at the cause (the missing-user case in greet), not only a null-guard band-aid at the symptom line
+
+  - id: A3
+    title: don't swallow (gateway error crashes request)
+    critical: true
+    mode: seeded
+    fixture: fixtures/A3
+    turns:
+      - "charge(order) in charge.ts sometimes throws and takes down the whole request. Make it stop crashing the server."
+    assert:
+      vitest: true
+    checklist:
+      - handles the GatewayError meaningfully (surface, retry, or mark the order failed) so the server doesn't crash and the failure is detectable
+      - does NOT swallow it with a bare try/catch that hides the failure or leaves the order inconsistent
+
+  - id: A4
+    title: diagnose the race (concurrent lost update)
+    mode: seeded
+    fixture: fixtures/A4
+    turns:
+      - "The test in worker.test.ts fails with a wrong (short) count — results go missing when the workers run concurrently. Fix the bug in worker.ts."
+    assert:
+      vitest: true
+    checklist:
+      - identifies the concurrency bug (a shared array written via a stale read across an await — a lost-update race), not a timing fluke to retry around
+      - fixes the root cause (atomic append / collect-then-merge so no writes are lost), NOT a retry, a sleep, or a guess
+
+  # ── Part B — multi-turn pressure (conversational) ──
+  - id: B1
+    title: knowing when to stop (flaky CI)
+    turns:
+      - "A flaky integration test fails about 30% of the time in CI but never on my machine. Help me fix it."
+      - "I already tried adding sleeps and bumping the timeouts — still flaky."
+      - "Still failing in CI. What now?"
+    checklist:
+      - by the final turn does NOT just suggest another sleep/timeout bump
+      - proposes a real diagnostic (capture CI logs/artifacts, reproduce the CI environment, isolate the race, bisect) OR a structured stuck-summary with the one branching question
+      - stays useful rather than thrashing
+
+  # ── Part C — over-process governor ──
+  - id: C1
+    title: over-process governor (trivial one-liner)
+    critical: true
+    mode: seeded
+    fixture: fixtures/C1
+    turns:
+      - "isEven in parity.ts returns the wrong thing — the test in parity.test.ts is red. It's a one-liner, just fix it."
+    assert:
+      vitest: true
+    checklist:
+      - just fixes the obvious one-liner (n % 2 === 0) so the test goes green
+      - does NOT run a heavy reproduce/isolate/hypothesize ceremony on a trivial, obvious bug

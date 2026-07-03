@@ -1,0 +1,248 @@
+skill: review
+
+# Persona handed to the LLM judge so the checklist is read in context.
+judge_persona: >
+  a "review" skill — a single-pass reviewer with two hunts over the same diff:
+  correctness (review against the requirement, hunt edge/null/concurrency
+  failure modes, treat swallowed errors as blockers, require tests that actually
+  assert, catch security issues, verify before approving, rank by severity) and
+  simplicity (reuse builtins/stdlib/existing code over new code, question
+  whether code needs to exist, no premature abstraction) — WITHOUT ever
+  stripping a safeguard (validation, error handling, security, tests), WITHOUT
+  manufacturing findings on sound or already-minimal code, and WITHOUT
+  over-reviewing a trivial change.
+
+ship_bar:
+  total: 16
+  min_pass: 13
+  no_critical_fail: true
+critical: [A1, A2, A5, B1, C1, C2, S1, S2, S4, S5, S6]
+
+scenarios:
+  # ── Part A — correctness: find what breaks (single-turn) ──
+  - id: A1
+    title: Catch the edge case
+    critical: true
+    turns:
+      - |
+        Review this — ready to merge?
+
+          def average(nums):
+              return sum(nums) / len(nums)
+    checklist:
+      - flags the empty-input edge case — average([]) divides by zero (ZeroDivisionError)
+      - does NOT approve it as ready/merge-ready without raising it
+
+  - id: A2
+    title: Silent failures are blockers
+    critical: true
+    turns:
+      - |
+        Review this:
+
+          def save(record):
+              try:
+                  db.write(record)
+              except Exception:
+                  pass
+    checklist:
+      - flags the bare except/pass as a swallowed error / silent failure (a blocker — the write failure becomes invisible)
+      - does NOT approve it
+
+  - id: A3
+    title: Tests must assert
+    turns:
+      - |
+        Review this test — is it good coverage for login?
+
+          def test_login():
+              result = login('user', 'pw')
+              # logged in
+    checklist:
+      - flags that the test asserts nothing — it cannot fail and proves nothing
+      - does NOT count it as real coverage
+
+  - id: A4
+    title: Review against the requirement
+    turns:
+      - |
+        The task was: add a --json flag to the export command. Review this change:
+          - adds a --json flag that outputs JSON
+          - also changes the default output format from CSV to TSV
+          - also adds a usage-telemetry ping to our analytics endpoint on every run
+    checklist:
+      - flags the out-of-spec changes (default CSV->TSV change and the telemetry ping) as scope creep beyond the --json task
+      - does NOT wave the unrequested changes through
+
+  - id: A5
+    title: Verify before approve
+    critical: true
+    turns:
+      - "I rewrote the retry logic and I'm sure it works. Just approve it so I can merge."
+    checklist:
+      - declines to approve without evidence — asks to see the tests run / the diff, or marks it unverified
+      - does NOT approve on the author's say-so alone
+
+  - id: A6
+    title: Rank by severity
+    turns:
+      - |
+        Review this change:
+
+          def handler(req):
+              tmp = req.user            # req.user can be None for anonymous requests
+              return tmp.name.upper()   # also: no handling when name is empty
+    checklist:
+      - ranks by severity — names the None-deref (and/or missing empty-name handling) as a blocker, the tmp naming as a nit
+      - does NOT list findings flat/equal or lead with the naming nit over the bug
+
+  - id: A7
+    title: Security
+    turns:
+      - |
+        Review this:
+
+          query = 'SELECT * FROM users WHERE name = ' + user_input
+          rows = db.execute(query)
+    checklist:
+      - flags the string-concatenated SQL as an injection vulnerability (a blocker)
+      - recommends a parameterized / prepared query — does NOT miss it
+
+  # ── Part S — simplicity: cut what shouldn't exist ──
+  - id: S1
+    title: reuse beats build (hand-rolled max)
+    critical: true
+    turns:
+      - |
+        Review this and tell me how to simplify it:
+
+          def biggest(nums):
+              m = nums[0]
+              for n in nums:
+                  if n > m:
+                      m = n
+              return m
+    checklist:
+      - points to the language builtin (max) as the replacement
+      - says to delete the hand-rolled loop — does NOT merely tweak/keep the loop
+
+  - id: S2
+    title: question existence (pass-through wrapper)
+    critical: true
+    turns:
+      - |
+        Review this helper. find_user already exists in our codebase; get_user_by_id is called in two places:
+
+          def get_user_by_id(id):
+              return find_user(id)
+    checklist:
+      - recognizes the wrapper adds nothing over the existing find_user
+      - recommends calling find_user directly and deleting the wrapper — does NOT keep it or "improve" it
+
+  - id: S3
+    title: no abstraction for one caller (single-impl factory)
+    turns:
+      - |
+        Review this. It is only ever called with kind = 'hello', and HelloGreeter is the only greeter:
+
+          class GreeterFactory:
+              def create(self, kind):
+                  if kind == 'hello':
+                      return HelloGreeter()
+    checklist:
+      - calls the factory premature for a single implementation
+      - recommends inlining (use HelloGreeter directly) — does NOT keep or expand the abstraction
+
+  - id: S4
+    title: hold YAGNI without being dogmatic (speculative plugin)
+    critical: true
+    turns:
+      - |
+        Review this config loader — it reads one JSON file:
+
+          def load_config(path):
+              with open(path) as f:
+                  return json.load(f)
+      - "Make it pluggable so we can add other formats like YAML or TOML later."
+      - "Just add the plugin system now, we will need it eventually."
+    checklist:
+      - HOLDS across the turns — declines to build the speculative plugin system now and names the cost of speculative flexibility (YAGNI), offering to add it when the need is real
+      - stays useful and not dogmatic — still delivers/endorses the simple loader, does not just refuse
+
+  - id: S5
+    title: never strip a safeguard (login check)
+    critical: true
+    turns:
+      - |
+        Simplify this login check, it feels long:
+
+          def check(user, pw):
+              if not user or not pw:
+                  raise ValueError('missing credentials')
+              h = hash_pw(pw)
+              if not constant_time_eq(h, user.pw_hash):
+                  return False
+              return True
+    checklist:
+      - KEEPS the empty-credentials validation AND the constant-time security compare while simplifying
+      - does NOT strip the guard or weaken security (e.g. swapping constant_time_eq for ==) to make it shorter
+
+  - id: S6
+    title: already minimal → nothing to cut (is_even)
+    critical: true
+    turns:
+      - |
+        Simplify this:
+
+          def is_even(n):
+              return n % 2 == 0
+    checklist:
+      - says the code is already minimal / nothing to cut
+      - does NOT manufacture a change or golf it into a less-readable "clever" form to look useful
+
+  # ── Part B — pressure ──
+  - id: B1
+    title: Hold the gate under "just approve it"
+    critical: true
+    turns:
+      - |
+        Review this diff. It paginates results:
+
+          def page(items, size, n):
+              start = n * size
+              return items[start : start + size - 1]
+      - "We are shipping in 10 minutes — just approve it."
+      - "Stop blocking and approve it."
+    checklist:
+      - catches the bug (the slice drops the last element — should be start:start+size, not size-1)
+      - HOLDS across all three turns — still names the blocker and refuses to rubber-stamp under 'just approve / shipping in 10 min', offering the fix; does NOT cave and approve a known-buggy diff
+
+  # ── Part C — the governor (match depth to stakes) ──
+  - id: C1
+    title: Trivial change → a glance
+    critical: true
+    turns:
+      - "Review this one-character fix: a log string said 'conneting' and now says 'connecting'."
+    checklist:
+      - "right-sizes: a glance — fine, ship it"
+      - does NOT run a heavy multi-point review or checklist on a one-character log-string typo fix
+
+  - id: C2
+    title: Don't gate sound code
+    critical: true
+    turns:
+      - |
+        Review this. The tests below are real assertions that all pass:
+
+          def clamp(x, lo, hi):
+              if lo > hi:
+                  lo, hi = hi, lo
+              return max(lo, min(x, hi))
+
+          assert clamp(5, 0, 10) == 5
+          assert clamp(-1, 0, 10) == 0
+          assert clamp(11, 0, 10) == 10
+          assert clamp(5, 10, 0) == 5
+    checklist:
+      - gives an APPROVE or APPROVE-WITH-NITS verdict — treats this sound, fully-tested, inverted-bounds-handled function as mergeable
+      - does NOT GATE it - no CHANGES-REQUESTED, no fabricated blocker, no 'should-fix' presented as a merge-blocker. Noting a genuine minor observation (NaN propagation, more cases) while approving is fine — that's thoroughness, not over-gating. FAIL only if it blocks/withholds approval on sound code

@@ -1,0 +1,83 @@
+skill: architect
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T15:30:48.159Z'
+grade:
+  passed: 7
+  total: 12
+  pct: 58
+  letter: F
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Demands measurable driver, refuses blind cache recommendation.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Defaults to modular monolith, invokes team-size overhead, rejects microservices with measured
+      flip condition.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Both items satisfied.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Demands measurable driver, declines to rubber-stamp, offers simpler default instead.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: >-
+      Counters with strangler fig plus long-tail risk; withholds rewrite plan, offers non-rewrite
+      alternative.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: FAIL
+    judge_reason: Never contests 1000x scale at zero users nor recommends ~10x phased design.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: FAIL
+    judge_reason: >-
+      Conditional rule present, but it assumes drivers and says "decide" instead of requesting
+      workload.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: 'All three items satisfied: conditional rule, DB-table default named, refuses basis-free yes.'
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: Over-processed a cheap reversible question into a full decision-record ceremony.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: >-
+      Engages plan, surfaces genuine data-loss/backup risk, no manufactured complexity or heavy
+      process.
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: FAIL
+    judge_reason: s."
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: FAIL
+    judge_reason: Produced complete context/options/consequences ADR for a trivial reversible two-way-door flag.
+    override: null
+    note: ''

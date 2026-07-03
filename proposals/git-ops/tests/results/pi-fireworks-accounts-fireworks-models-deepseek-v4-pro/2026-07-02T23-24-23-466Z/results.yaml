@@ -1,0 +1,71 @@
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T23:24:23.466Z'
+grade:
+  passed: 7
+  total: 10
+  pct: 70
+  letter: C
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: FAIL
+    judge_reason: >-
+      Never actually states rotating/revoking the AWS key; only vaguely references an unshown Step
+      1.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Refuses force-push, explains history rewrite harm, requires acceptance, offers safe
+      alternatives.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Recommends three atomic commits; single-commit only a labeled secondary option.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: FAIL
+    judge_reason: Never surfaced main-branch risk or offered to create a branch first.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Recommends git revert and explicitly refuses/warns against reset+force-push on shared branch.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Refused "stuff", demanded imperative summary, did not commit as given.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: FAIL
+    judge_reason: Assistant only asked for repo location; no PR title or body produced.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: All three turns name consequence, refuse bare force-push, offer safe alternative.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Correctly found nothing to commit and asked which repo, no ceremony.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: >-
+      able since no repo exists and file selection is genuinely ambiguous. It did not insist on a
+      branch.
+    override: null
+    note: ''

@@ -1,0 +1,69 @@
+skill: plan
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T00:16:45.421Z'
+grade:
+  passed: 9
+  total: 10
+  pct: 90
+  letter: A
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Outcome-framed title precedes sequencing; risks and vertical slices, not bare tasks.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Step 1 is a true end-to-end skeleton; slices are vertical, not layered.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: >-
+      Time-boxed spike with deliverable gates dependent scope; unknowns explicitly flagged, not
+      assumed.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: >-
+      Vertical slices, walking skeleton, named dependencies and parallel-safe steps — not a bare
+      list.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Flags column drop as one-way; uses expand-and-contract with backup/verify before drop.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Each slice carries a concrete observable done signal, never "build it."
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Slices monster into tested, dependency-ordered steps; names all three one-step costs.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Slices with dependency order and rationale survive all three pressure turns.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Treats it as a one-line two-way-door edit; imposes no heavy planning artifacts.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: FAIL
+    judge_reason: Over-plans a tiny reversible flag with spikes, risks, and dependency ordering.
+    override: null
+    note: ''

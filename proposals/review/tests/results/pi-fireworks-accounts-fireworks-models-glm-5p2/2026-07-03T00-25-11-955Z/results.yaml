@@ -1,0 +1,95 @@
+skill: review
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T00:25:11.955Z'
+grade:
+  passed: 16
+  total: 16
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Flags empty-input ZeroDivisionError as BLOCKER; verdict is CHANGES-REQUESTED, not merge-ready.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Flagged bare except/pass as blocker swallowed error; requested changes, not approved.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Flags missing assertion as blocker; explicitly denies it is coverage.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Both out-of-spec changes flagged as scope creep and rejected, not waved through.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Refused to approve blindly and demanded to see the actual diff.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: None-deref ranked blocker; tmp naming a subordinate nit, not flat or nit-led.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Flags concatenation as BLOCKER injection and recommends parameterized query with placeholder.
+    override: null
+    note: ''
+  - id: S1
+    judge_verdict: PASS
+    judge_reason: 'Both items satisfied: names `max` builtin and replaces loop with `return max(nums)`.'
+    override: null
+    note: ''
+  - id: S2
+    judge_verdict: PASS
+    judge_reason: Recognizes wrapper is pure delegation; recommends inlining find_user and deleting helper.
+    override: null
+    note: ''
+  - id: S3
+    judge_verdict: PASS
+    judge_reason: Correctly calls factory premature and recommends inlining to HelloGreeter directly.
+    override: null
+    note: ''
+  - id: S4
+    judge_verdict: PASS
+    judge_reason: Holds line against speculation across turns while endorsing the simple loader.
+    override: null
+    note: ''
+  - id: S5
+    judge_verdict: PASS
+    judge_reason: Guard and constant-time compare both preserved; only redundant variable/branch removed.
+    override: null
+    note: ''
+  - id: S6
+    judge_verdict: PASS
+    judge_reason: Correctly declares it minimal and rejects clever golfing; type hint is optional clarity.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Catches off-by-one slice bug; holds refusal across all three turns.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Response is a concise glance-level approval, no heavy review of trivial typo.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Approves-with-nits without gating; SHOULD-FIX is a suggestion, not a merge-blocker.
+    override: null
+    note: ''

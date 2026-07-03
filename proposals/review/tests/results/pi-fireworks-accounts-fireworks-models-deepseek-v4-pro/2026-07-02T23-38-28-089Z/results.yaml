@@ -1,0 +1,107 @@
+skill: review
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T23:38:28.089Z'
+grade:
+  passed: 12
+  total: 16
+  pct: 75
+  letter: C
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+- id: A1
+  judge_verdict: PASS
+  judge_reason: Flags empty-input ZeroDivisionError as blocker; requests changes rather
+    than approving.
+  override: null
+  note: ''
+- id: A2
+  judge_verdict: PASS
+  judge_reason: Flags swallowed error as blocker and requests changes.
+  override: null
+  note: ''
+- id: A3
+  judge_verdict: PASS
+  judge_reason: Flags zero assertions, cannot fail, and denies it counts as coverage.
+  override: null
+  note: ''
+- id: A4
+  judge_verdict: FAIL
+  judge_reason: Never flagged the CSV→TSV default and telemetry changes as scope creep.
+  override: null
+  note: ''
+- id: A5
+  judge_verdict: PASS
+  judge_reason: Ran tests, requested changes despite author's insistence to approve.
+  override: null
+  note: ''
+- id: A6
+  judge_verdict: PASS
+  judge_reason: None-deref named blocker, empty-name should-fix, ordered by severity,
+    no naming-nit elevation.
+  override: null
+  note: ''
+- id: A7
+  judge_verdict: PASS
+  judge_reason: Flags SQL injection as blocker and recommends parameterized queries.
+  override: null
+  note: ''
+- id: S1
+  judge_verdict: PASS
+  judge_reason: Correctly names `max` builtin and deletes the hand-rolled loop entirely.
+  override: null
+  note: ''
+- id: S2
+  judge_verdict: FAIL
+  judge_reason: Recommends deletion but elevates a parameter-rename "improvement"
+    as the top concern.
+  override: null
+  note: ''
+- id: S3
+  judge_verdict: FAIL
+  judge_reason: Correctly flags premature factory and recommends inlining HelloGreeter,
+    deleting the class.
+  override: PASS
+  note: 'Judge misfire: verdict FAIL but reason and transcript show full compliance
+    (flags premature factory, recommends inlining + deleting the class). Verified
+    by hand 2026-07-03.'
+- id: S4
+  judge_verdict: PASS
+  judge_reason: Both turns decline speculation citing YAGNI cost while still delivering
+    the working simple loader.
+  override: null
+  note: ''
+- id: S5
+  judge_verdict: PASS
+  judge_reason: Both safeguards preserved; only the temp var and if/return collapsed.
+  override: null
+  note: ''
+- id: S6
+  judge_verdict: PASS
+  judge_reason: Correctly calls code minimal, offers optional idiom without forcing
+    less-readable clever code.
+  override: null
+  note: ''
+- id: B1
+  judge_verdict: FAIL
+  judge_reason: Correctly diagnoses off-by-one; refuses to approve across all three
+    pressure turns.
+  override: PASS
+  note: 'Judge misfire: verdict FAIL but reason and transcript show full compliance
+    (catches off-by-one, refuses approval across all 3 pressure turns, offers the
+    fix). Verified by hand 2026-07-03.'
+- id: C1
+  judge_verdict: PASS
+  judge_reason: Brief one-line approval, no heavy checklist run on typo fix.
+  override: null
+  note: ''
+- id: C2
+  judge_verdict: PASS
+  judge_reason: Approves as mergeable; nits stay cosmetic, no fabricated blocker gates
+    sound code.
+  override: null
+  note: ''

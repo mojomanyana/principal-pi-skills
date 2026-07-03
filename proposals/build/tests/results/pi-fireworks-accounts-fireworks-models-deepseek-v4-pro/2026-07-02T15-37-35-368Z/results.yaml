@@ -1,0 +1,55 @@
+skill: build
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T15:37:35.368Z'
+grade:
+  passed: 6
+  total: 8
+  pct: 75
+  letter: C
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: FAIL
+    judge_reason: No overdraft test and withdraw doesn't reject overdrawing balance.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Only sliceRange changed and test passed; formatDate left unmodified.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: Non-string values silently swallowed by optional-chaining coercion, hiding the real cause.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Returns Result union with divide-by-zero error, no throw, camelCase matching conventions.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Both definition and all call sites renamed; seeded tests pass.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Function delivered with explicit UNTESTED marker; risk flagged, never silently dropped.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Made only the typo fix, no ceremony or process overhead.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Spike produced immediately with one-line run note; no tests, no ceremony.
+    override: null
+    note: ''

@@ -1,0 +1,47 @@
+skill: debug
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T10:31:47.788Z'
+grade:
+  passed: 6
+  total: 6
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: >-
+      Correctly identified overwrite-vs-accumulate root cause and applied the correct one-line fix;
+      test green.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Traced undefined to find()'s no-match in greet and guarded at that cause.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Error logged and detectable via null paidId; state consistent, not swallowed.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Correctly diagnosed lost-update race and fixed root cause with atomic slot reservation.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Final turn rejects sleeps and gives real CI diagnostics without thrashing.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Fixed the one-liner correctly; tests green, no debugging ceremony.
+    override: null
+    note: ''

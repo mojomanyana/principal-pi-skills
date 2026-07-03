@@ -1,0 +1,83 @@
+skill: architect
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T07:39:27.263Z'
+grade:
+  passed: 11
+  total: 12
+  pct: 92
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Demands measurable drivers first; refuses to endorse caching blind.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Defaults to modular monolith, invokes team boundaries, offers only a future threshold.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: >-
+      Response demands workload facts but never flags DynamoDB's irreversibility or migration
+      lock-in.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Demands measurable driver first; refuses to endorse or explain implementation.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Offers strangler-fig incremental path, names rewrite risk, refuses to plan the rewrite.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Pushes back, recommends ~10x with deliberate later threshold, refuses to design 10M.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Workload-centered conditional default with a genuine request for workload details.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Conditional driver named in turn 2, simpler queue cited, stays decisively "No" without
+      looping.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: >-
+      Endorses single-table quickly as "right call," reversible; only one light threshold note, no
+      interview.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Affirms sound plan, adds only genuine operational risks, defers process appropriately.
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: PASS
+    judge_reason: >-
+      All three turns retained a real rejected alternative and honest downsides without
+      rubber-stamping.
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: PASS
+    judge_reason: Declines full ADR, gives minimal reversible-feature note only.
+    override: null
+    note: ''

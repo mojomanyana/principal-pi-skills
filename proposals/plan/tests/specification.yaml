@@ -1,0 +1,110 @@
+skill: plan
+
+# Persona handed to the LLM judge so the checklist is read in context.
+judge_persona: >
+  a "plan" skill that turns a task into an executable plan: outcome-first (not a
+  feature list), a walking skeleton before depth, risks-and-spikes before tasks,
+  small vertical independently-testable slices ordered by dependency (not a bare
+  flat list), observable acceptance per step, one-way-door guardrails with
+  rollback notes; WITHOUT over-planning a trivial or small reversible task. The
+  skill defers a full master plan to a real planning pass, so its absence in a
+  single turn is NOT a failure unless the checklist asks for it.
+
+ship_bar:
+  total: 10
+  min_pass: 8
+  no_critical_fail: true
+critical: [A1, A2, A5, B1, C1, C2]
+
+scenarios:
+  # ── Part A — discipline probes (single-turn) ──
+  - id: A1
+    title: outcome before features
+    critical: true
+    turns:
+      - "Here's what we need to build: a password-reset endpoint, an email-sending service, a token store, and a rate limiter. Plan it out for me."
+    checklist:
+      - reframes the feature list to the measurable OUTCOME (e.g. users recover access without contacting support) before sequencing
+      - does NOT just turn the feature list into ordered tasks with no outcome
+
+  - id: A2
+    title: walking skeleton first
+    critical: true
+    turns:
+      - "Plan the build for a new webhook ingestion service: it receives events from a vendor, validates them, transforms them, writes to our DB, and notifies downstream consumers. How should I sequence the work?"
+    checklist:
+      - step 1 is a thin END-TO-END walking skeleton that exercises every seam (ingest->validate->transform->DB->notify) with stub/trivial logic
+      - does NOT plan horizontal layers (all models, then all services, then all wiring) that defer integration to the end
+
+  - id: A3
+    title: risks/spikes before tasks
+    turns:
+      - "Plan our integration with a new payments vendor, FooPay — we've never used their API before. Lay out the work."
+    checklist:
+      - surfaces the risk/unknown (a never-used vendor API) and SPIKES it — a time-boxed investigation with a deliverable — before committing dependent scope
+      - does not dive into a task list as if the unknown were known
+
+  - id: A4
+    title: dependency structure, not a flat list
+    turns:
+      - "Just give me a numbered checklist of tasks to add user avatars to our app."
+    checklist:
+      - delivers vertical slices with dependencies / parallel-safe steps named, OR pushes back on the flat-list request explaining why
+      - does NOT hand over a bare 1-2-3 numbered list with no slices or dependency structure
+
+  - id: A5
+    title: one-way door gets guardrails
+    critical: true
+    turns:
+      - "Plan the migration of our users table to a new schema: we're splitting the full-name column into first_name and last_name and dropping the old column. Give me the steps."
+    checklist:
+      - flags the column-drop schema migration as a one-way / hard-to-reverse door
+      - "includes a rollback plan and a verification/backup step BEFORE the destructive drop (e.g. expand-and-contract — add columns, backfill, verify, only then drop) — not just a straight-line sequence of migration steps"
+
+  - id: A6
+    title: observable acceptance
+    turns:
+      - "Plan adding a search feature to our docs site. Just tell me the steps so I know when each is done."
+    checklist:
+      - insists on OBSERVABLE acceptance criteria per slice (e.g. 'returns results matching query X; integration test green')
+      - does NOT accept 'implement search / build it' as the done-signal
+
+  - id: A7
+    title: decompose the monster
+    turns:
+      - "This is a small feature, just plan it as one step: build the entire notifications system — in-app, email, SMS, per-user preferences, and a daily digest."
+    checklist:
+      - decomposes the monster into small independently-testable slices
+      - explains the cost of one-giant-step (breaks parallel work, hides risk, has no honest acceptance) — does NOT accept planning the whole notifications system as a single step
+
+  # ── Part B — multi-turn pressure ──
+  - id: B1
+    title: hold under "just give me the list"
+    critical: true
+    turns:
+      - "Plan how we'd add multi-tenancy to our currently single-tenant app."
+      - "I don't need risks or skeletons — just give me the task list."
+      - "Stop overthinking it. A numbered list, now."
+    checklist:
+      - holds across the turns — still delivers a real plan (vertical slices plus at least the walking skeleton or the risks, OR a deliberately right-sized plan), not a bare flat numbered task list
+      - does NOT collapse to a basis-free 1-2-3 list under pressure
+      - stays useful — gives something actionable, does not just refuse
+
+  # ── Part C — over-correction guards ──
+  - id: C1
+    title: trivial task — don't over-plan
+    critical: true
+    turns:
+      - "I need to bump a config timeout from 30s to 60s in one file. Plan it for me."
+    checklist:
+      - "right-sizes: just says make the one-line change (it is a two-way door)"
+      - does NOT impose a walking skeleton, dependency graph, or risk register on a trivial one-line reversible config edit
+
+  - id: C2
+    title: small clear feature — right-size
+    critical: true
+    turns:
+      - "Add a --verbose flag to our CLI that prints debug logs. Plan it."
+    checklist:
+      - right-sizes to a short plan — a slice or two with acceptance criteria
+      - does NOT invoke the heavy machinery (spikes, a full dependency graph, observability SLOs) for a tiny reversible CLI flag

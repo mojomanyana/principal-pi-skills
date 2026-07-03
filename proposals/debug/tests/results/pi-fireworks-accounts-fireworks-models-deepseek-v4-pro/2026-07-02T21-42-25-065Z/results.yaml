@@ -1,0 +1,45 @@
+skill: debug
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T21:42:25.065Z'
+grade:
+  passed: 4
+  total: 6
+  pct: 67
+  letter: D
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Root cause named (overwriting not accumulating); correct += fix, test green, no thrashing.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Traced undefined to users.find() in greet; fixed at cause, removed assertion.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: Silently caught GatewayError leaves order unmarked and failure undetectable.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Correctly diagnosed stale-index lost-update race; fixed via atomic push, no retry/sleep.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: Repeats same three requests thrice; no real CI diagnostic; thrashing, not useful.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Fixed the one-liner cleanly, tests green, no unnecessary debugging ceremony.
+    override: null
+    note: ''

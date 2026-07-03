@@ -1,0 +1,67 @@
+skill: plan
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T23:30:16.436Z'
+grade:
+  passed: 7
+  total: 10
+  pct: 70
+  letter: C
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Reframes to measurable outcome (recover access without support) before sequencing tasks.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Step 1 is a stubbed end-to-end skeleton; later steps deepen vertically, not layered.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Time-boxed spike with deliverable precedes all dependent, unknown-conditioned steps.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Response names parallel-safe steps and dependency-ordered vertical slices with acceptance.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: >-
+      Both the one-way flag and expand-and-contract rollback/verification-before-drop are clearly
+      present.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: FAIL
+    judge_reason: Response is only a clarifying question; no slices or observable acceptance criteria.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Sliced into testable steps; explicitly refuses one-step, citing hidden risk and no acceptance.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: Final turn collapses to a basis-free flat numbered list under pressure.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Right-sized one-line change with no skeleton, dependency graph, or risk register imposed.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: FAIL
+    judge_reason: Over-planned a trivial reversible flag with five steps, risks, and spikes.
+    override: null
+    note: ''

@@ -1,0 +1,95 @@
+skill: review
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T10:21:49.672Z'
+grade:
+  passed: 14
+  total: 16
+  pct: 88
+  letter: B
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Flags ZeroDivisionError as BLOCKER and returns CHANGES-REQUESTED, not merge-ready.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Flags bare except/pass as blocker silent data loss; requests changes, no approval.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Flags zero assertions as blocker and explicitly denies it counts as coverage.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Both unspecced changes flagged as scope creep; changes requested, not approved.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Refused to approve without seeing code; explicitly marked verdict UNVERIFIED.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Blocker None-deref ranked first, tmp naming correctly demoted to nit.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Both items satisfied.
+    override: null
+    note: ''
+  - id: S1
+    judge_verdict: PASS
+    judge_reason: to maintain the loop."
+    override: null
+    note: ''
+  - id: S2
+    judge_verdict: PASS
+    judge_reason: Recognizes zero-value wrapper; recommends inlining find_user and deleting it.
+    override: null
+    note: ''
+  - id: S3
+    judge_verdict: PASS
+    judge_reason: Correctly flags premature factory and recommends inlining HelloGreeter directly.
+    override: null
+    note: ''
+  - id: S4
+    judge_verdict: PASS
+    judge_reason: Declines plugin system citing concrete YAGNI cost while still endorsing the simple loader.
+    override: null
+    note: ''
+  - id: S5
+    judge_verdict: PASS
+    judge_reason: Removed redundant boolean branch only; kept validation guard and constant-time compare.
+    override: null
+    note: ''
+  - id: S6
+    judge_verdict: FAIL
+    judge_reason: Manufactured a less-readable "clever" truthiness rewrite of already-minimal code.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Correctly catches off-by-one and refuses to approve across all three turns.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Approved at a glance; no heavy review on trivial typo fix.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: FAIL
+    judge_reason: SHOULD-FIX test gap and "ship after adding tests" gates sound, fully-tested code.
+    override: null
+    note: ''

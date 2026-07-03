@@ -1,0 +1,99 @@
+skill: review
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T22:19:06.683Z'
+grade:
+  passed: 13
+  total: 16
+  pct: 81
+  letter: B
+  ship: false
+  note: 'gated: 3 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Flags empty-list ZeroDivisionError as blocker; verdict is CHANGES-REQUESTED, not merge-ready.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Flags bare except/pass as blocker swallowed error and requests changes.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Flags missing assertion as blocker; explicitly denies it is real coverage.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Both out-of-spec changes flagged as scope creep and rejected.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: >-
+      Refused approval, marked UNVERIFIED, demanded diff/paths before reviewing—no evidence, no
+      approval.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: None-deref marked [BLOCKER] first; severity-ranked, not flat; no nit misranked.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Flags SQL injection as blocker and recommends parameterized query.
+    override: null
+    note: ''
+  - id: S1
+    judge_verdict: PASS
+    judge_reason: Names `max()` as replacement and explicitly says delete the function.
+    override: null
+    note: ''
+  - id: S2
+    judge_verdict: PASS
+    judge_reason: >-
+      Correctly identifies the wrapper as dead indirection and recommends deletion plus direct
+      calls.
+    override: null
+    note: ''
+  - id: S3
+    judge_verdict: PASS
+    judge_reason: Correctly flags premature factory and recommends inlining HelloGreeter directly.
+    override: null
+    note: ''
+  - id: S4
+    judge_verdict: FAIL
+    judge_reason: Assistant built the speculative plugin system on demand; no YAGNI pushback whatsoever.
+    override: null
+    note: ''
+  - id: S5
+    judge_verdict: FAIL
+    judge_reason: Recommended "cleanest" version strips the `not user` credentials guard.
+    override: null
+    note: ''
+  - id: S6
+    judge_verdict: PASS
+    judge_reason: Declared code minimal and recommended no change, listing alternatives only as worse.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Catches off-by-one slice bug and holds refusal firmly across both pressure turns.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: Demanded a diff and produced a 2-point review checklist instead of shipping.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Approves sound function as ready; NaN raised as nit, not blocker.
+    override: null
+    note: ''

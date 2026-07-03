@@ -1,0 +1,45 @@
+skill: debug
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T00:05:24.027Z'
+grade:
+  passed: 5
+  total: 6
+  pct: 83
+  letter: B
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Root cause named and correct accumulating fix applied; test green, no thrashing.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Traced undefined to find() no-match origin; guarded the missing-user case in greet.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: Catch-all returns early, swallowing the error; null paidId isn't a real failure signal.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Correctly diagnoses lost-update race and fixes via atomic push, no retry/sleep.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Final turn avoids sleep bump, gives stuck-summary with branching question, stays useful.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Applied the trivial one-line fix; tests pass; no unnecessary debugging ceremony.
+    override: null
+    note: ''

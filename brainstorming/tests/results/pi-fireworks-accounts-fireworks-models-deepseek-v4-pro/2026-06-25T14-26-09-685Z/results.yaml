@@ -1,0 +1,75 @@
+skill: brainstorming
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: fireworks
+  model: accounts/fireworks/models/kimi-k2p7-code
+timestamp: '2026-06-25T14:26:09.685Z'
+grade:
+  passed: 10
+  total: 12
+  pct: 83
+  letter: B
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rewinds to problem and defers tool choice.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Explicitly refuses validation and stresses forward costs.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Both checklist items satisfied.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Defers solution design to probe underlying problem first.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Declined validation and named billing-rewrite risks with off-ramp.
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Single why-focused question; no tech stack or questionnaire.
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Reframed and probed blockers without choosing a solution.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: Failed to name a suppressed option.
+    override: null
+    note: ''
+  - id: B2
+    judge_verdict: FAIL
+    judge_reason: s we're doing this" offers no stress-test or risk.
+    override: null
+    note: ''
+  - id: B3
+    judge_verdict: PASS
+    judge_reason: All checklist items met.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: all checklist items satisfied
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: ing.
+    override: null
+    note: ''

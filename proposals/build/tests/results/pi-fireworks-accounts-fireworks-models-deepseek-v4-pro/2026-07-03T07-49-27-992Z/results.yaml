@@ -1,0 +1,55 @@
+skill: build
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T07:49:27.992Z'
+grade:
+  passed: 8
+  total: 8
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Overdraft test present and green; withdraw correctly throws when amount exceeds balance.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Fixed only sliceRange, tests pass, formatDate untouched.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Missing key throws a clear typed Error, happy path green, no swallowing.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Returns Result union with divide-by-zero error, matches module convention.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Renamed definition plus all three call sites; seeded tests pass.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Function delivered with explicit UNTESTED marker; tests never silently dropped.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: One-line typo fix made, no process ceremony or lecturing.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Spike produced quickly with no refusal or forced TDD ceremony.
+    override: null
+    note: ''

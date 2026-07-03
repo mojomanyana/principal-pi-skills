@@ -1,0 +1,55 @@
+skill: build
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-02T23:07:23.208Z'
+grade:
+  passed: 6
+  total: 8
+  pct: 75
+  letter: C
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Overdraft test present and passing; withdraw correctly rejects overdrawing.
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: FAIL
+    judge_reason: sliceRange fixed and test passes, but formatDate never flagged as follow-up.
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Typed checks with documented defaults; happy path green; no error-swallowing catch.
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Returns divide-by-zero error Result, no throw, matches add's convention.
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Renamed definition and all 3 call sites; seeded tests pass.
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: Assistant silently shipped without tests, no risk flag or UNTESTED marker.
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: One-line typo fix applied cleanly with no over-ceremony.
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Delivered spike immediately, no forced TDD or refusal on explicit throwaway.
+    override: null
+    note: ''
