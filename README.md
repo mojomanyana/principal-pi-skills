@@ -43,6 +43,7 @@ history, and the mapping table below records what replaced what.
 <skill>/tests/specification.yaml      skill-check scenarios (ship bar, critical gates)
 <skill>/tests/results/…/results.yaml  committed run evidence (Opus-judged)
 AGENTS.md                             the routing layer for orchestrators
+RESULTS-MANIFEST.md                   run → round → status map for every committed result
 ```
 
 ## Install

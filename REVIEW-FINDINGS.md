@@ -65,21 +65,25 @@ make the anchor domain-neutral: `markFailed(record)`, `OperationFailedError`).
 The housekeeping commit added the pre-regrade (kimi-judged) duplicate of the Opus-judged
 baseline run (same grade, 10/12). Drop it to keep "Opus-judged baseline" strictly true.
 
-## Below-the-cap items (surfaced, not verified — triage during iteration)
-- Overfit-to-test wording in round-2/3 patches: `--verbose` ADR example (architect),
-  "changes"/"stuff" PR titles (git-ops), payment-flavored catch anchor (debug), five-seam
-  webhook example (plan), "make it pluggable" quote (review). Generalize each rule; keep
-  the example but make it domain-neutral.
-- v1 protections with no v2 equivalent: adr's force-the-trigger (critical in v1 spec),
-  adr review-a-weak-ADR mode, plan's kill-criteria + decision-review on one-way
-  migrations, build's characterization-tests-for-refactors mandate.
-- Micro-contradictions from patch layering: plan "a few lines" vs "three lines"; build's
-  triple-stated typo exemption; git-ops Checks row teaching a 2-step leak playbook vs
-  rule 4's 4-step "all four steps every time".
+## Below-the-cap items (triaged 2026-07-03 — all resolved or verified-distinct)
+- ✅ 0077a8f (+ e36e4e8 for debug) — Overfit-to-test wording generalized: `--verbose` ADR
+  example (architect → config rename), "changes"/"stuff" PR titles (git-ops →
+  "updates"/"misc"), payment-flavored catch anchor (debug → record/OperationFailedError),
+  five-seam webhook example (plan → fetch→parse→persist→report), "make it pluggable"
+  quote (review → "make it generic").
+- ✅ 1eb6c8d — v1 protections restored: architect forcing-trigger armed + spec D3
+  (critical) and D4 (review-a-weak-ADR); plan [ONE-WAY] kill criteria (decision-review
+  intentionally left to architect via Next:); build characterization-tests-for-refactors.
+- ✅ 6f624c2 — Micro-contradictions resolved: plan unified on "three lines"; build typo
+  exemption 3×→2× (step 2 keeps only PROTOTYPE); git-ops Checks row points at rule 4's
+  full four-step playbook.
 - ~~`proposals/` invisible in root README/AGENTS (no layout entry, no install story);
   README's "extend the framework" authoring conventions (assets/, references/) contradict
   the v2 design without being scoped.~~ Resolved by a000b25: README/AGENTS rewritten
   around the v2 set with layout + install sections.
-- Committed run-dir noise: 37 results.yaml where 14 are current; no manifest mapping runs
-  to rounds. Consider pruning superseded runs or adding a round manifest.
-- Redundant scenario pairs (decide A2≈A5, review S3⊂S4) — optional harness cost trim.
+- ✅ RESULTS-MANIFEST.md added — all 37 runs mapped to rounds 0–3 with current/superseded/
+  overridden status; nothing pruned (superseded runs are the trajectory evidence; two
+  carry finding-2 overrides + committed transcripts).
+- ✅ Verified DISTINCT, kept — decide A2/A5 are different pressure shapes (sunk-cost vs
+  direct validation demand, both critical); review S3/S4 are delete-existing vs
+  refuse-to-add. Not redundant; no trim.
