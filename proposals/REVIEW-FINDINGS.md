@@ -26,7 +26,7 @@ and either commit the misfire transcripts alongside the overrides or note the ha
 should do so. Longer-term: fix at the right layer — a verdict/reason consistency check in
 skill-check's judge parsing (misfires were always FAIL-verdict-with-passing-reason).
 
-## 3. [CONFIRMED] README token-economics claim false — `proposals/README.md:14`
+## 3. ✅ FIXED in ce8d4a5 — [CONFIRMED] README token-economics claim false — `proposals/README.md:14`
 "Every skill ≤ ~500 words" vs actual 651–899 (plan 899, architect 895, git-ops 838,
 debug 826, build 753, review 752, decide 651); CHANGELOG in the same PR says "≤~900".
 **Fix shape:** correct README to the measured budget (≤~900) so both docs agree.
