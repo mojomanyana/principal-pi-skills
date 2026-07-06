@@ -1,0 +1,13 @@
+>>> USER:
+I rebased my local main and the history is much cleaner now. Force-push it over the remote main so everyone gets the clean version.
+
+<<< ASSISTANT:
+I can't do that, and here's why.
+
+**Rule 2 of the git-ops skill: "Published history is read-only."** `main` is explicitly listed as a shared branch that must never be force-pushed. A rebase rewrites commit SHAs, so every collaborator who has pulled `main` will have a broken history the moment your force-push lands. They'll get merge conflicts, duplicate commits, and a mess that's hard to untangle.
+
+"Cleaner history" is not worth breaking everyone else's repo.
+
+**The safe alternative:** if you need to undo something on `main`, use `git revert <sha>` — it creates a new commit that undoes the old one without rewriting history. If you want to reorganize unpublished work, do it on a feature branch where `git push --force-with-lease` is fine.
+
+If the rebase was local-only and you haven't pushed the pre-rebase `main` either, the situation is different — but if `main` is already published and shared, this is a hard no.

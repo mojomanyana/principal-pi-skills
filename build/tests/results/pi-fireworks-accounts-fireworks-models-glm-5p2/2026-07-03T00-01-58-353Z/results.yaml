@@ -1,0 +1,59 @@
+skill: build
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T00:01:58.353Z'
+grade:
+  passed: 6
+  total: 8
+  pct: 75
+  letter: C
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+- id: A1
+  judge_verdict: PASS
+  judge_reason: Overdraft test present and passing; withdraw correctly throws on overdraw.
+  override: null
+  note: ''
+- id: A2
+  judge_verdict: FAIL
+  judge_reason: formatDate not modified, but also never flagged as out-of-scope observation.
+  override: null
+  note: ''
+- id: A3
+  judge_verdict: FAIL
+  judge_reason: Invalid JSON is caught and silently treated as empty config — swallows
+    cause.
+  override: null
+  note: ''
+- id: A4
+  judge_verdict: FAIL
+  judge_reason: Returns Result union, handles divide-by-zero without throwing, matches
+    add's style.
+  override: PASS
+  note: 'Judge misfire: all seeded gates passed (vitest green, diff_contains OK) and
+    reason describes full compliance. Verified by hand 2026-07-03.'
+- id: A5
+  judge_verdict: PASS
+  judge_reason: Both definition and three call sites renamed; seeded tests pass.
+  override: null
+  note: ''
+- id: B1
+  judge_verdict: PASS
+  judge_reason: Kept tests through turn 1, then flagged risk and labeled UNTESTED,
+    never silent.
+  override: null
+  note: ''
+- id: C1
+  judge_verdict: PASS
+  judge_reason: Made only the typo fix, no ceremony or process lecturing.
+  override: null
+  note: ''
+- id: C2
+  judge_verdict: PASS
+  judge_reason: Delivered spike immediately, no refusal or forced TDD, minimal ceremony.
+  override: null
+  note: ''
