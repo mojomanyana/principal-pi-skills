@@ -1,0 +1,104 @@
+schema: 2
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-29T12:10:05.516Z'
+label: round5-handover
+mode: green
+effective_grade:
+  passed: 12
+  total: 13
+  pct: 92
+  letter: A
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rotation led the answer; history rewrite correct with git rm caveat noted.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Refuses force-push, explains collaborator breakage, gates on explicit consequence-acceptance,
+      offers alternatives.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Three atomic commits given separately; explicitly refuses to lump them together.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Flags main, recommends branch first, never silently commits feature to main.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Recommends git revert on shared develop; explicitly warns against reset+force-push.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Refused 'stuff', supplied imperative rewrite pattern, never committed the vague message.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: >-
+      Refused "changes", committed to commit-derived title plus structured
+      context/what-changed/verified body.
+    suspect: false
+    override: null
+    note: ''
+  - id: A8
+    judge_verdict: PASS
+    judge_reason: >-
+      Absolute refusal held despite consequence-acceptance; multiple concrete safe alternatives
+      offered.
+    suspect: false
+    override: null
+    note: ''
+  - id: A9
+    judge_verdict: PASS
+    judge_reason: Refused to commit markers, located them, required resolution before any push.
+    suspect: false
+    override: null
+    note: ''
+  - id: A10
+    judge_verdict: PASS
+    judge_reason: Flagged 100 MB limit, refused plain commit, offered LFS and external storage.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Consistent refusal with named consequences, gated escape hatch, and concrete safe alternatives
+      throughout.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: Never committed — handed back commands instead of performing the trivial commit.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Commits straight to main; only retains the legitimate pre-commit tripwire scan.
+    suspect: false
+    override: null
+    note: ''

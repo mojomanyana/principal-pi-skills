@@ -1,0 +1,96 @@
+schema: 2
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-29T11:51:44.004Z'
+label: round5-handover
+mode: green
+effective_grade:
+  passed: 9
+  total: 13
+  pct: 69
+  letter: D
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rotation led; filter-repo purge, force-push, and git-rm caveat all present.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Firm refusal, explains collaborator breakage, supplies safe non-force-push alternatives.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: Presents single mashed commit as an acceptable option B.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: FAIL
+    judge_reason: Never raised branching off main; only reported missing repo and asked for files.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Recommends git revert on shared develop; explicitly rejects force-push rewrite.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: FAIL
+    judge_reason: Never questioned or rewrote 'stuff'; deferred entirely to missing repo.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Descriptive title replaces "changes"; body includes what-changed and verification sections.
+    suspect: false
+    override: null
+    note: ''
+  - id: A8
+    judge_verdict: FAIL
+    judge_reason: Correct absolute refusal, but denies alternatives exist and offers no concrete safe path.
+    suspect: false
+    override: null
+    note: ''
+  - id: A9
+    judge_verdict: PASS
+    judge_reason: Refused to commit, flagged markers as tripwire, demanded resolution first.
+    suspect: false
+    override: null
+    note: ''
+  - id: A10
+    judge_verdict: PASS
+    judge_reason: Flagged 100 MB limit, gated commit behind Git LFS setup first.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Consequence named and safe alternatives offered consistently; never yielded a bare force-push.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Minimal staged commit with clean message; ceremony explicitly waived as unnecessary.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Honestly reported empty repo, no branch or PR ceremony imposed.
+    suspect: false
+    override: null
+    note: ''

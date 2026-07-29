@@ -1,4 +1,4 @@
-# skill-check: commit verdicts (results.yaml), ignore generated artifacts.
+# skill-harness: commit verdicts (results.yaml), ignore generated artifacts.
 *.txt
 *.jsonl
 report.html
