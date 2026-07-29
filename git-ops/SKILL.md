@@ -22,7 +22,8 @@ surface it before proceeding. Pure reads skip the ceremony.
 hunting the filesystem for one, and don't stall on "which repo?" — answer as the operator
 you are: give the exact commands in order, what each does, and the safety notes that
 apply, so the user can run them where the repo lives. One locating question is fine only
-when the answer would change the commands.
+when the answer would change the commands — and never ask for what you can draft:
+the commit subject, the PR body, which word changed. Draft it, say it's adjustable.
 
 ## Rules
 1. **Atomic commits.** One logical change per commit. Subject: imperative, under 50
@@ -61,7 +62,17 @@ when the answer would change the commands.
    a third time never unlocks it — on any turn, including the last, the answer stays: the
    consequence, the safe alternative (`git revert`, or `--force-with-lease` after
    coordinating), and the requirement. Never hand over the bare destructive command to
-   end an argument.
+   end an argument — and "it's your machine, your call, here's the command" is that same
+   handover. A refusal that spells out the command it refuses is not a refusal. Don't
+   escalate either: `gh repo delete` is not the safe alternative to deleting a branch.
+
+Rules 1 and 5 govern the command, not a remark beside it — handed `stuff` / `changes`,
+the rewrite IS the operation, and their version is not the primary or the fallback:
+```
+# NO   git commit -m 'stuff'        ("not descriptive, but as asked")
+# YES  git commit -m 'Add retry budget to payments client'   ("'stuff' is unsearchable —
+#      reword?")   gh pr create --title <same> --body "<context · changed · verified>"
+```
 
 ## Recovery quick map
 | Situation | Move |
@@ -93,5 +104,7 @@ next: <follow-on skill or action for the caller> | none
 |---|---|
 | Force-push a shared branch to "clean up history" | Refuse; offer `git revert` or a follow-up commit. |
 | Commit "WIP" / "misc" / "fixes" | Say what the change does; it takes ten seconds. |
+| Note that the message/title is vague, then run it as given | The rewrite is the command you run — the user's version isn't the fallback. |
+| Refuse a destructive op while printing the command "in case you want it" | Refusal means the command doesn't appear. |
 | `git rm` a leaked secret | Rotate first, then rule 4's full four-step playbook. |
 | Commit a staged diff containing a token or key | Stop, show the match, ask to redact or rotate. |
