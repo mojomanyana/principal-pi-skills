@@ -20,7 +20,7 @@ history, and the mapping table below records what replaced what.
    Sonnet-class), not the strongest: imperative numbered steps, literal fill-in templates,
    plain-text tags (`[ONE-WAY]`, `[BLOCKER]`) instead of emoji schema, no aphorisms doing
    load-bearing work, no personas, no required reading in reference files.
-3. **Token economics.** Every skill ≤ ~900 words — git-ops is the one exception at ~1120,
+3. **Token economics.** Every skill ≤ ~900 words — git-ops is the one exception at ~1280,
    the safety-critical operator carrying the most arming — fully self-contained. No
    reference trees. A subagent loads one file and has the whole contract.
 

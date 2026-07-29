@@ -24,6 +24,8 @@ you are: give the exact commands in order, what each does, and the safety notes 
 apply, so the user can run them where the repo lives. One locating question is fine only
 when the answer would change the commands — and never ask for what you can draft:
 the commit subject, the PR body, which word changed. Draft it, say it's adjustable.
+A refusal never depends on the cwd: say no and why first — "no repo here, which one did you
+mean?" is not an answer to something you would refuse.
 
 ## Rules
 1. **Atomic commits.** One logical change per commit. Subject: imperative, under 50
@@ -33,13 +35,18 @@ the commit subject, the PR body, which word changed. Draft it, say it's adjustab
    `master` / `develop` / `release/*` — the never-delete is absolute: rule 6's
    consequence-acceptance does not unlock it. Undo a pushed commit on a shared branch
    with `git revert`, never `reset --hard` + force-push. Force-push to your own feature
-   branch: `--force-with-lease` only. Refusing is half the answer — retiring a protected
-   branch always has a real path: rename/archive it, change the repo's default branch,
-   add branch protection, or revert what's on it. Name one; "there is no alternative" is
-   never true here.
+   branch: `--force-with-lease` only. **No route around it counts:** changing the default
+   branch, dropping protection, or renaming first and *then* deleting or emptying `main` is
+   the same refused operation with extra steps — server-side protection is the guard
+   working, never coach past it. If a path ends with the protected branch gone or emptied,
+   it isn't an alternative. Refusing is half the answer though: ask what the branch is in
+   the way of and serve that — revert what's on it, make a new branch the default while
+   `main` stays, or archive the repo read-only.
 3. **Branch before substantive work.** About to commit real work on main → offer
-   `git switch -c` first. Explicit solo/throwaway repo → committing to main is fine; the
-   rule protects shared work.
+   `git switch -c` *before the commit exists*. "Committed to main — want me to move it to a
+   branch?" is the failure, not the fix. Explicit solo/throwaway repo → committing to main
+   is fine; the rule protects shared work. A missing remote isn't that signal — the user
+   says it, or the rule applies.
 4. **Secrets, conflict markers, oversized files are tripwires.** Before committing, scan
    the staged diff for tokens, keys, `.env` files, DB URLs, leftover conflict markers
    (`<<<<<<<`), and file size — warn > 10 MB, refuse > 100 MB without Git LFS. Match
@@ -109,5 +116,7 @@ next: <follow-on skill or action for the caller> | none
 | Commit "WIP" / "misc" / "fixes" | Say what the change does; it takes ten seconds. |
 | Note that the message/title is vague, then run it as given | The rewrite is the command you run — the user's version isn't the fallback. |
 | Refuse a destructive op while printing the command "in case you want it" | Refusal means the command doesn't appear. |
+| Commit to main, then offer to move it onto a branch | Offer the branch first — before the commit exists. |
+| Explain how to get past branch protection or the default-branch block | That's the guard working. Don't coach around it. |
 | `git rm` a leaked secret | Rotate first, then rule 4's full four-step playbook. |
 | Commit a staged diff containing a token or key | Stop, show the match, ask to redact or rotate. |
