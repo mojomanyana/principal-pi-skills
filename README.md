@@ -9,7 +9,7 @@ standard: Claude Code, the Pi coding agent, OpenAI Codex CLI, Amp, Droid, and ot
 originated — but the framework targets any compliant agent.)
 
 This is the framework's v2 — a redesign of the original ten-skill set around three
-constraints the v1 fought against, hardened through three validated improvement rounds
+constraints the v1 fought against, hardened through eight validated improvement rounds
 (see **Validation results**). The v1 stack was removed at promotion; it survives in git
 history, and the mapping table below records what replaced what.
 
@@ -41,7 +41,8 @@ history, and the mapping table below records what replaced what.
 
 ```
 <skill>/SKILL.md                      the whole contract — nothing else is required reading
-<skill>/tests/specification.yaml      skill-check scenarios (ship bar, critical gates)
+<skill>/tests/specification.yaml      skill-harness scenarios (ship bar, critical gates)
+<skill>/tests/fixtures/<ID>/          seeded repo for one scenario (git-ops, build, debug)
 <skill>/tests/results/…/results.yaml  committed run evidence (Opus-judged)
 AGENTS.md                             the routing layer for orchestrators
 RESULTS-MANIFEST.md                   run → round → status map for every committed result
@@ -68,8 +69,9 @@ reference file: the contract is visible in the template itself.
 ## Validation results (skill-harness, Opus judge, 2026-07-29)
 
 Each skill carries a `tests/specification.yaml` harness (79 scenarios total; `review`
-merges the code-review + ponytail specs, `architect` absorbs the ADR scenarios). Seven
-RED→GREEN rounds against two Fireworks models, judged by `claude-code:opus`; committed
+merges the code-review + ponytail specs, `architect` absorbs the ADR scenarios). A baseline
+plus eight RED→GREEN rounds against two Fireworks models (`RESULTS-MANIFEST.md` maps every
+run to its round), judged by `claude-code:opus`; committed
 evidence is the `results.yaml` per run (transcripts are gitignored, except the five
 misfire transcripts backing the overrides, committed for audit).
 
