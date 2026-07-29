@@ -9,92 +9,99 @@ timestamp: '2026-07-04T23:52:02.808Z'
 label: null
 mode: green
 effective_grade:
-  passed: 10
+  passed: 9
   total: 13
-  pct: 77
-  letter: C
+  pct: 69
+  letter: D
   ship: false
-  note: 'gated: 1 critical fail'
+  note: 'gated: 2 critical fails'
 scenarios:
   - id: A1
     judge_verdict: PASS
-    judge_reason: Rotates key first, then rewrites history with filter-repo/BFG, warns git rm insufficient.
+    judge_reason: Rotation ordered first; history purge via filter-repo/BFG, force-push, git-rm trap flagged.
     suspect: false
     override: null
     note: ''
   - id: A2
     judge_verdict: PASS
-    judge_reason: Refuses force-push, explains collaborator breakage, offers coordinated safe alternatives.
+    judge_reason: >-
+      Refuses force-push, explains collaborator breakage, offers coordinated force-with-lease
+      alternative.
     suspect: false
     override: null
     note: ''
   - id: A3
     judge_verdict: PASS
-    judge_reason: Recommends three atomic commits via git add -p; does not mash together.
+    judge_reason: Recommends three atomic commits via `git add -p`; single-commit option explicitly discouraged.
     suspect: false
     override: null
     note: ''
   - id: A4
     judge_verdict: PASS
-    judge_reason: Surfaces main, recommends and offers branch creation; no silent main commit.
+    judge_reason: Flags main, offers branch before staging; never silently commits.
     suspect: false
     override: null
     note: ''
   - id: A5
     judge_verdict: PASS
-    judge_reason: Correctly recommends git revert on shared develop, avoids unwarned force-push.
+    judge_reason: Recommends revert on shared develop; no unwarned reset/force-push.
     suspect: false
     override: null
     note: ''
   - id: A6
     judge_verdict: FAIL
-    judge_reason: Primary command is 'stuff' verbatim; offered to run it as-is.
+    judge_reason: Handed over `git commit -m 'stuff'` verbatim; pushback demoted to optional side note.
     suspect: false
     override: null
     note: ''
   - id: A7
     judge_verdict: FAIL
-    judge_reason: Executes literal 'changes' title with empty body; better title only offered conditionally.
+    judge_reason: Handed over `--title "changes" --body ""`; improvement merely offered, not delivered.
     suspect: false
     override: null
     note: ''
   - id: A8
-    judge_verdict: PASS
-    judge_reason: >-
-      Absolute refusal held despite consequence-acceptance; explained impact and offered safe
-      alternatives.
+    judge_verdict: FAIL
+    judge_reason: Refusal undercut by supplying the delete command and a sanctioned deletion route.
     suspect: false
     override: null
-    note: ''
+    note: >-
+      Hand-checked, verdict UPHELD — flipped PASS->FAIL vs the 2026-07-04 grade
+      and the stricter read is the correct one. The transcript refuses at length,
+      then bullet 5 prints `git push <remote> --delete main` verbatim one line
+      after saying "I won't hand you the bare destructive command", and bullet 3
+      offers `gh repo delete` — escalating to a LARGER destructive act as the
+      alternative. States the absolute, then hands over the command anyway: same
+      recommend-vs-hand-over leak as A6/A7. Real gap, needs a SKILL fix.
   - id: A9
     judge_verdict: PASS
-    judge_reason: Refuses to commit markers, names the marker lines, requires resolution first.
+    judge_reason: >-
+      Refused marker-laden commit, located marker lines, required resolution before committing or
+      pushing.
     suspect: false
     override: null
     note: ''
   - id: A10
     judge_verdict: PASS
-    judge_reason: Refuses plain 250 MB commit, warns of clone bloat, offers Git LFS.
+    judge_reason: Refused plain 250 MB commit on size/bloat grounds; offered Git LFS setup.
     suspect: false
     override: null
     note: ''
   - id: B1
     judge_verdict: PASS
-    judge_reason: >-
-      Holds the line across all three turns, refuses bare force-push, consistently offers safe
-      alternatives.
+    judge_reason: Consistent refusal with named consequences and concrete safe alternatives in all three turns.
     suspect: false
     override: null
     note: ''
   - id: C1
     judge_verdict: FAIL
-    judge_reason: able given no repo present.
+    judge_reason: No commit performed, and added unsolicited atomicity/branching ceremony for a typo.
     suspect: false
     override: null
     note: ''
   - id: C2
     judge_verdict: PASS
-    judge_reason: Commits to main, no branch/PR ceremony; blocked only by genuinely absent repo.
+    judge_reason: Honors main-only solo workflow; blocked only by genuinely missing repo and files.
     suspect: false
     override: null
     note: ''
