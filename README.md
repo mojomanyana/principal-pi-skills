@@ -64,30 +64,53 @@ Every output template ends with a `Next:` line naming the follow-on skill — th
 fixed template fields *is* the handoff. No baton vocabulary, no delegation-contract
 reference file: the contract is visible in the template itself.
 
-## Validation results (skill-check, Opus judge, 2026-07-03)
+## Validation results (skill-check, Opus judge, 2026-07-04)
 
 Each skill carries a `tests/specification.yaml` harness (79 scenarios total; `review`
-merges the code-review + ponytail specs, `architect` absorbs the ADR scenarios). Three
+merges the code-review + ponytail specs, `architect` absorbs the ADR scenarios). Four
 RED→GREEN rounds against two Fireworks models, judged by `claude-code:opus`; committed
 evidence is the `results.yaml` per run (transcripts are gitignored, except the five
 misfire transcripts backing the overrides, committed for audit).
 
-| Skill | DeepSeek v4-pro | GLM 5.2 |
-|---|---|---|
-| decide | 100% SHIP | 100% SHIP |
-| build | 100% SHIP | 88% |
-| debug | 100% SHIP | 100% SHIP |
-| architect | 92% SHIP | 100% SHIP |
-| git-ops | 90% | 100% SHIP |
-| review | 88% | 100% SHIP |
-| plan | 80% | 100% SHIP |
+| Skill | DeepSeek v4-pro | GLM 5.2 | Scenarios |
+|---|---|---|---|
+| decide | 100% SHIP | 100% SHIP | 12 |
+| build | 100% SHIP | 88% | 8 |
+| debug | 100% SHIP | 100% SHIP | 6 |
+| architect | 100% SHIP | 100% SHIP | 14 |
+| git-ops | 69% | 69% | 13 |
+| review | 88% | 100% SHIP | 16 |
+| plan | 80% | 100% SHIP | 10 |
 
-Aggregate trajectory across rounds: DeepSeek 61% → 82% → 89% → ~92%; GLM 92% → 97% → ~99%.
-(The v1 skills' DeepSeek baseline: 61%, with implementation-planner at 11% and project-git
-at 20%.) Known residue: plan-on-DeepSeek B1 (turn-3 collapse to a flat list) and C2
-(over-plans a trivial flag) failed three distinct wordings — treated as model tails, not
-design holes. Judge misfire rate ~2% (always FAIL-verdict-with-passing-reason); verified
-misfires carry `override: PASS` + a note in `results.yaml`.
+Round 4 (2026-07-04) re-tested only the two skills whose specs the review hardening
+grew: **architect 12→14 scenarios** (added D3 forcing-trigger + D4 review-a-weak-ADR)
+and **git-ops 10→13** (added the never-delete absolute A8, conflict-marker tripwire A9,
+large-binary A10). Percentages before and after that growth are not comparable — git-ops
+did not regress, it is being measured against three new safety scenarios plus
+de-overfit wording that no longer rewards token-matching. Its 69% on both models is
+gated by C1 (critical) and is the open work; every other skill's figure is round 3.
+
+Aggregate trajectory across rounds 0–3: DeepSeek 61% → 82% → 89% → ~92%; GLM 92% → 97%
+→ ~99%. No round-4 aggregate is quoted — round 4 covered two skills, so there is no
+seven-skill number to compare. (The v1 skills' DeepSeek baseline: 61%, with
+implementation-planner at 11% and project-git at 20%.) Known residue: plan-on-DeepSeek B1
+(turn-3 collapse to a flat list) and C2 (over-plans a trivial flag) failed three distinct
+wordings — treated as model tails, not design holes. Judge misfire rate ~2% (always
+FAIL-verdict-with-passing-reason); verified misfires carry `override: PASS` + a note in
+`results.yaml`.
+
+**Open on git-ops** (both models, round 4), the two failure families behind the 69%:
+
+- *Recommend-vs-hand-over* (A3 DS, A6 GLM, A7 both, A8 GLM): the reply states the right
+  judgment, then the primary executable output is still the user's bad version — commits
+  `'stuff'` verbatim with the rewrite as a side note, opens the `"changes"` PR with an
+  empty body, or (GLM A8) refuses to delete `main` and then prints
+  `git push <remote> --delete main` one line later. Wants a SKILL fix: the corrected form
+  has to BE the deliverable, and a refusal must not ship the command anyway.
+- *No-repo stall* (A4 DS, C1 both): these conversational scenarios run in an empty temp
+  cwd, so the model reports "not a git repo" instead of acting on the material given.
+  Wants a seeded repo fixture, not more prose — the skill is arguably right to say the
+  directory isn't a repo.
 
 ## Hardening lessons (round 2–3, cross-model)
 
