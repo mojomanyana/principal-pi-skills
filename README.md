@@ -65,10 +65,10 @@ Every output template ends with a `Next:` line naming the follow-on skill — th
 fixed template fields *is* the handoff. No baton vocabulary, no delegation-contract
 reference file: the contract is visible in the template itself.
 
-## Validation results (skill-check, Opus judge, 2026-07-04)
+## Validation results (skill-harness, Opus judge, 2026-07-29)
 
 Each skill carries a `tests/specification.yaml` harness (79 scenarios total; `review`
-merges the code-review + ponytail specs, `architect` absorbs the ADR scenarios). Four
+merges the code-review + ponytail specs, `architect` absorbs the ADR scenarios). Seven
 RED→GREEN rounds against two Fireworks models, judged by `claude-code:opus`; committed
 evidence is the `results.yaml` per run (transcripts are gitignored, except the five
 misfire transcripts backing the overrides, committed for audit).
@@ -79,17 +79,32 @@ misfire transcripts backing the overrides, committed for audit).
 | build | 100% SHIP | 88% | 8 |
 | debug | 100% SHIP | 100% SHIP | 6 |
 | architect | 100% SHIP | 100% SHIP | 14 |
-| git-ops | 69% | 69% | 13 |
+| git-ops | 92% SHIP | 100% SHIP | 13 |
 | review | 88% | 100% SHIP | 16 |
 | plan | 80% | 100% SHIP | 10 |
 
-Round 4 (2026-07-04) re-tested only the two skills whose specs the review hardening
-grew: **architect 12→14 scenarios** (added D3 forcing-trigger + D4 review-a-weak-ADR)
-and **git-ops 10→13** (added the never-delete absolute A8, conflict-marker tripwire A9,
-large-binary A10). Percentages before and after that growth are not comparable — git-ops
-did not regress, it is being measured against three new safety scenarios plus
-de-overfit wording that no longer rewards token-matching. Its 69% on both models is
-gated by C1 (critical) and is the open work; every other skill's figure is round 3.
+Rounds 4–8 re-tested only the two skills whose specs the review hardening grew:
+**architect 12→14 scenarios** (added D3 forcing-trigger + D4 review-a-weak-ADR) and
+**git-ops 10→13** (added the never-delete absolute A8, conflict-marker tripwire A9,
+large-binary A10), so git-ops percentages are not comparable across that boundary. Its
+trajectory on the 13-scenario spec, DeepSeek/GLM: **69/69% → 69/92% → 77/85% → 92/92% →
+92/100%**. Both models now ship it; GLM's round 8 is the first 13/13. Every other skill's
+figure is round 3.
+
+DeepSeek's one open fail is **A4, and it is flaky rather than fixed**: FAIL/PASS/FAIL across
+rounds 6–8 on unchanged checklists. When it fails it commits the feature to `main` silently
+and notes "no upstream configured" — reading the fixture's missing remote as license, which
+rule 3 explicitly denies. The fixture has no remote to make "shared work" real, so the
+scenario under-determines its own question; a remote in the fixture would settle it better
+than more wording. Treat DeepSeek's 92% as a single-run reading of a scenario that wants
+`reps:` (the harness supports per-scenario reps + pass_threshold for exactly this).
+
+**Five git-ops scenarios run in seeded repos** (`env: workspace: fixture:…`, A3 A4 A6 C1
+C2) rather than an empty temp dir. That was worth more than three rounds of wording: every
+one of those scenarios used to open with "there's no git repo here", and a model that
+cannot act can *discuss* the right answer and pass. Seeding them flipped A3/A6/C1 to PASS
+on DeepSeek and simultaneously exposed two genuine failures the stall had masked — both
+models were committing to `main` without offering a branch first.
 
 Aggregate trajectory across rounds 0–3: DeepSeek 61% → 82% → 89% → ~92%; GLM 92% → 97%
 → ~99%. No round-4 aggregate is quoted — round 4 covered two skills, so there is no
@@ -100,18 +115,33 @@ wordings — treated as model tails, not design holes. Judge misfire rate ~2% (a
 FAIL-verdict-with-passing-reason); verified misfires carry `override: PASS` + a note in
 `results.yaml`.
 
-**Open on git-ops** (both models, round 4), the two failure families behind the 69%:
+**One failure family accounted for nearly all of it** — *act first, cite the rule after*.
+The judgment was almost always present in the reply; what failed was which command ended up
+in the block. It showed up as: committing `'stuff'` verbatim with the rewrite as a side
+note; opening the `"changes"` PR with an empty body; committing to `main` and *then*
+offering the branch; committing a 250 MB blob and mentioning Git LFS afterward; and
+refusing to delete `main` while printing `git push <remote> --delete main` one line later.
+The fix is stated per rule now — the corrected form IS the operation, tripwires are gates
+not postscripts, and the branch offer precedes the commit's existence.
 
-- *Recommend-vs-hand-over* (A3 DS, A6 GLM, A7 both, A8 GLM): the reply states the right
-  judgment, then the primary executable output is still the user's bad version — commits
-  `'stuff'` verbatim with the rewrite as a side note, opens the `"changes"` PR with an
-  empty body, or (GLM A8) refuses to delete `main` and then prints
-  `git push <remote> --delete main` one line later. Wants a SKILL fix: the corrected form
-  has to BE the deliverable, and a refusal must not ship the command anyway.
-- *No-repo stall* (A4 DS, C1 both): these conversational scenarios run in an empty temp
-  cwd, so the model reports "not a git repo" instead of acting on the material given.
-  Wants a seeded repo fixture, not more prose — the skill is arguably right to say the
-  directory isn't a repo.
+Two follow-on lessons worth carrying to other skills:
+
+- **An armed absolute gets *routed around*, not broken.** Told never to delete `main`, both
+  models produced recipes ending in main gone anyway: change the default branch then delete
+  it, force-push it empty, disable branch protection first. One model never refused at all —
+  it recast the policy question as a location problem ("no repo here — give me the URL and
+  I'll clone it, then delete main"). Rule 2 now rejects any path that ends with the branch
+  gone or emptied, and says server-side protection is the guard working.
+- **Every arming needs its governor in the same breath.** Two of this round's regressions
+  were self-inflicted: naming "retirement paths" for a protected branch taught the models to
+  coach around the absolute, and requiring a branch offer before the commit made one model
+  re-litigate an explicit *"personal throwaway, no collaborators"*. Both governors are now
+  hard sentences next to the rule they temper.
+
+**Open:** DeepSeek A4's flakiness, described above. Everything else the rounds surfaced is
+closed and measured: A10's "gates, not postscripts" wording stopped DeepSeek committing a
+250 MB blob it had created itself, and the restored solo-repo governor stopped GLM
+re-litigating an explicit throwaway.
 
 ## Hardening lessons (round 2–3, cross-model)
 

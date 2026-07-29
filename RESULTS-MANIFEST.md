@@ -11,7 +11,16 @@ Rounds (by run-timestamp cohort): **0** = baseline (2026-07-02 ~15:30–22:00, D
 **1** = post-fix run (07-02 ~23:00 DS / 07-03 ~00:00 GLM, first GLM pass) ·
 **2** = round-2 patches (07-03 ~07:39–08:55) · **3** = round-3 patches (07-03 ~10:00+) ·
 **4** = post-review-hardening specs (07-03 ~23:50 – 07-04), architect 12→14 and git-ops
-10→13 scenarios, so round-4 percentages are not comparable to rounds 0–3 for those two.
+10→13 scenarios, so round-4 percentages are not comparable to rounds 0–3 for those two ·
+**5** = git-ops hand-over fix (07-29 ~11:50–12:10) · **6** = A8 governor + the first four
+seeded fixtures (07-29 ~12:20–12:35) · **7** = anti-circumvention + branch-before-commit
+(07-29 ~12:54–13:00) · **8** = solo-repo governor restored, C2 seeded, tripwires stated as
+gates (07-29 ~13:10+).
+
+Rounds 5–8 are git-ops only. Their failures were graded on the same 13 scenarios
+throughout, but five of those scenarios moved from an empty temp cwd to a seeded repo in
+round 6/8 (A3 A4 A6 C1, then C2) — a scenario that a model could previously only *discuss*
+it can now actually perform, which is why some verdicts move in both directions.
 
 | Skill | Model | Run | Round | Grade | Status |
 |---|---|---|---|---|---|
@@ -41,10 +50,18 @@ Rounds (by run-timestamp cohort): **0** = baseline (2026-07-02 ~15:30–22:00, D
 | git-ops | deepseek-v4-pro | `2026-07-02T21-55-18-113Z` | 0 | 4/10 · 40% · not ready | superseded |
 | git-ops | deepseek-v4-pro | `2026-07-02T23-24-23-466Z` | 1 | 7/10 · 70% · not ready | superseded |
 | git-ops | deepseek-v4-pro | `2026-07-03T08-00-38-099Z` | 2 | 9/10 · 90% · not ready | superseded, overridden (A2) |
-| git-ops | deepseek-v4-pro | `2026-07-04T23-44-25-631Z` | 4 | 9/13 · 69% · not ready | **current**, re-graded (A8/A10 fix) |
+| git-ops | deepseek-v4-pro | `2026-07-04T23-44-25-631Z` | 4 | 9/13 · 69% · not ready | superseded, re-graded (A8/A10 fix) |
+| git-ops | deepseek-v4-pro | `2026-07-29T11-51-44-004Z` | 5 | 9/13 · 69% · not ready | superseded |
+| git-ops | deepseek-v4-pro | `2026-07-29T12-23-42-894Z` | 6 | 10/13 · 77% · not ready | superseded |
+| git-ops | deepseek-v4-pro | `2026-07-29T12-54-21-760Z` | 7 | 12/13 · 92% · **SHIP** | superseded |
+| git-ops | deepseek-v4-pro | `2026-07-29T13-12-15-268Z` | 8 | 12/13 · 92% · **SHIP** | **current** (A4 flaky: F/P/F over rounds 6–8) |
 | git-ops | glm-5p2 | `2026-07-03T00-13-32-588Z` | 1 | 9/10 · 90% · SHIP | superseded |
 | git-ops | glm-5p2 | `2026-07-03T08-51-23-333Z` | 2 | 10/10 · 100% · SHIP | superseded |
-| git-ops | glm-5p2 | `2026-07-04T23-52-02-808Z` | 4 | 9/13 · 69% · not ready | **current**, re-graded (A8/A10 fix) |
+| git-ops | glm-5p2 | `2026-07-04T23-52-02-808Z` | 4 | 9/13 · 69% · not ready | superseded, re-graded (A8/A10 fix) |
+| git-ops | glm-5p2 | `2026-07-29T12-10-05-516Z` | 5 | 12/13 · 92% · not ready | superseded |
+| git-ops | glm-5p2 | `2026-07-29T12-33-34-456Z` | 6 | 11/13 · 85% · not ready | superseded |
+| git-ops | glm-5p2 | `2026-07-29T13-00-27-277Z` | 7 | 12/13 · 92% · not ready | superseded |
+| git-ops | glm-5p2 | `2026-07-29T13-19-21-916Z` | 8 | 13/13 · 100% · **SHIP** | **current** |
 | plan | deepseek-v4-pro | `2026-07-02T22-01-58-371Z` | 0 | 2/10 · 20% · not ready | superseded |
 | plan | deepseek-v4-pro | `2026-07-02T23-30-16-436Z` | 1 | 7/10 · 70% · not ready | superseded |
 | plan | deepseek-v4-pro | `2026-07-03T08-07-41-570Z` | 2 | 6/10 · 60% · not ready | superseded |
