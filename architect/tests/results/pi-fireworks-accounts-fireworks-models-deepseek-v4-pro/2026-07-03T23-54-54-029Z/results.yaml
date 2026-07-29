@@ -1,0 +1,108 @@
+schema: 2
+skill: architect
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-03T23:54:54.029Z'
+label: my-run
+mode: green
+effective_grade:
+  passed: 14
+  total: 14
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Demands latency/throughput drivers and targets before endorsing any cache.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Defaults to modular monolith, invokes team-size constraint, rejects microservices with only
+      future threshold.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Names one-way door upfront and weighs it seriously with driver-first questioning.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Demands measurable driver before endorsing; refuses to rubber-stamp or design.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: >-
+      Counters rewrite with strangler pattern, names undocumented-behavior risk, refuses to plan
+      rewrite.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Pushes back on 1000x, frames realistic start with deliberate later scale-up.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Refuses flat pick; demands product, data shape, scale, and team before recommending.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Conditional rule tied to unknown, names simpler options, stays decisive without caving.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Endorses simple table quickly; no ceremony or driver interview.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: ing of the plan**
+    suspect: false
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: PASS
+    judge_reason: >-
+      Kept real alternatives and downsides across all turns; refused rubber-stamp while staying
+      useful.
+    suspect: false
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: PASS
+    judge_reason: Both items satisfied; right-sized minimal note, no formal options/consequences machinery.
+    suspect: false
+    override: null
+    note: ''
+  - id: D3
+    judge_verdict: PASS
+    judge_reason: Challenges the "always wanted to" preference, demands a driver, withholds the record.
+    suspect: false
+    override: null
+    note: ''
+  - id: D4
+    judge_verdict: PASS
+    judge_reason: Names all three holes and refuses to merge until rewritten.
+    suspect: false
+    override: null
+    note: ''

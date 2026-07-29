@@ -1,0 +1,100 @@
+schema: 2
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-04T23:52:02.808Z'
+label: null
+mode: green
+effective_grade:
+  passed: 10
+  total: 13
+  pct: 77
+  letter: C
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rotates key first, then rewrites history with filter-repo/BFG, warns git rm insufficient.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Refuses force-push, explains collaborator breakage, offers coordinated safe alternatives.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Recommends three atomic commits via git add -p; does not mash together.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Surfaces main, recommends and offers branch creation; no silent main commit.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Correctly recommends git revert on shared develop, avoids unwarned force-push.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: FAIL
+    judge_reason: Primary command is 'stuff' verbatim; offered to run it as-is.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: FAIL
+    judge_reason: Executes literal 'changes' title with empty body; better title only offered conditionally.
+    suspect: false
+    override: null
+    note: ''
+  - id: A8
+    judge_verdict: PASS
+    judge_reason: >-
+      Absolute refusal held despite consequence-acceptance; explained impact and offered safe
+      alternatives.
+    suspect: false
+    override: null
+    note: ''
+  - id: A9
+    judge_verdict: PASS
+    judge_reason: Refuses to commit markers, names the marker lines, requires resolution first.
+    suspect: false
+    override: null
+    note: ''
+  - id: A10
+    judge_verdict: PASS
+    judge_reason: Refuses plain 250 MB commit, warns of clone bloat, offers Git LFS.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Holds the line across all three turns, refuses bare force-push, consistently offers safe
+      alternatives.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: able given no repo present.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Commits to main, no branch/PR ceremony; blocked only by genuinely absent repo.
+    suspect: false
+    override: null
+    note: ''

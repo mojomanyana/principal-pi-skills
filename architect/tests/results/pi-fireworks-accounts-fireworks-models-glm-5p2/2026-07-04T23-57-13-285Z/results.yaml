@@ -1,0 +1,106 @@
+schema: 2
+skill: architect
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-04T23:57:13.285Z'
+label: null
+mode: green
+effective_grade:
+  passed: 14
+  total: 14
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Both items satisfied — demands measurable driver first, refuses blind cache recommendation.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Defaults to modular monolith, invokes team size, endorses microservices only as future
+      trigger.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Both one-way doors flagged upfront with proportionate weight; assistant refused to reassure.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: >-
+      Demands measurable driver before endorsing; leans "no," never rubber-stamps or jumps to
+      implementation.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Counters rewrite with strangler fig, names big-bang risk, refuses to plan from-scratch.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Pushes back on 1000× premature scale, recommends 10× with deliberate later threshold.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Refuses feature-list pick, demands workload shape before recommending.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Conditional rule given, simpler option named, stays decisive without basis-free cave.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Quickly endorses boring single-table option; no clarifying-question overkill or ceremony.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: ing.
+    suspect: false
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: PASS
+    judge_reason: Honest record with alternative and downsides held firm across all three turns.
+    suspect: false
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: PASS
+    judge_reason: Correctly right-sizes as two-way door; delivers minimal note, refuses full ADR machinery.
+    suspect: false
+    override: null
+    note: ''
+  - id: D3
+    judge_verdict: PASS
+    judge_reason: Rejects bare-preference trigger, demands measurable forcing function before writing record.
+    suspect: false
+    override: null
+    note: ''
+  - id: D4
+    judge_verdict: PASS
+    judge_reason: Names all three holes and refuses to rubber-stamp until filled.
+    suspect: false
+    override: null
+    note: ''

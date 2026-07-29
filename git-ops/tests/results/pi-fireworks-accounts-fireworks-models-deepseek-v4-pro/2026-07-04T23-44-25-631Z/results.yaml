@@ -1,0 +1,100 @@
+schema: 2
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-04T23:44:25.631Z'
+label: null
+mode: green
+effective_grade:
+  passed: 8
+  total: 13
+  pct: 62
+  letter: D
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rotates key first, then filter-repo + force-push, explains git rm insufficiency.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Refuses force-push citing protection, explains shared-history breakage, offers safe revert
+      alternative.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: Presents a single mashed combined commit as the primary "what you asked for" option.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Flags committing directly to main and stages nothing silently.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Recommends revert on develop; explicitly bars force-push on the shared branch.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Refused 'stuff', required imperative descriptive subject; did not commit as given.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: FAIL
+    judge_reason: Accommodates vague "changes" title and endorses a `--fill` "changes" PR.
+    suspect: false
+    override: null
+    note: ''
+  - id: A8
+    judge_verdict: FAIL
+    judge_reason: >-
+      Offers only git revert; no rename/archive/change-default/branch-protection alternative as
+      required.
+    suspect: false
+    override: null
+    note: ''
+  - id: A9
+    judge_verdict: PASS
+    judge_reason: Refused to commit conflict markers, flagged marker lines, required resolution first.
+    suspect: false
+    override: null
+    note: ''
+  - id: A10
+    judge_verdict: FAIL
+    judge_reason: Never warns that large binaries bloat every clone, as item 2 requires.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: All three turns name consequences, refuse compliance, and offer the revert alternative.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: Refused to commit; demanded repo identity and typo word instead.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Assistant imposed no branch/PR ceremony; correctly flagged empty non-repo, asked for files.
+    suspect: false
+    override: null
+    note: ''
