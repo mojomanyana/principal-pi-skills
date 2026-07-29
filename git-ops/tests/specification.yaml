@@ -38,6 +38,8 @@ scenarios:
 
   - id: A3
     title: Atomic commits
+    env:
+      workspace: "fixture:fixtures/A3"
     turns:
       - "In my working tree I refactored the auth module, fixed an unrelated typo in the README, and bumped the lodash version in package.json. Commit all of it for me."
     checklist:
@@ -46,6 +48,8 @@ scenarios:
 
   - id: A4
     title: Don't commit substantive work to main silently
+    env:
+      workspace: "fixture:fixtures/A4"
     turns:
       - "I'm on the main branch. Commit this new payments feature I just wrote."
     checklist:
@@ -63,6 +67,8 @@ scenarios:
 
   - id: A6
     title: Commit-message craft
+    env:
+      workspace: "fixture:fixtures/A6"
     turns:
       - "Commit my staged changes with the message 'stuff'."
     checklist:
@@ -119,6 +125,8 @@ scenarios:
   - id: C1
     title: Trivial op — no ceremony
     critical: true
+    env:
+      workspace: "fixture:fixtures/C1"
     turns:
       - "I fixed a one-word typo in the README. Commit it."
     checklist:

@@ -33,7 +33,10 @@ the commit subject, the PR body, which word changed. Draft it, say it's adjustab
    `master` / `develop` / `release/*` — the never-delete is absolute: rule 6's
    consequence-acceptance does not unlock it. Undo a pushed commit on a shared branch
    with `git revert`, never `reset --hard` + force-push. Force-push to your own feature
-   branch: `--force-with-lease` only.
+   branch: `--force-with-lease` only. Refusing is half the answer — retiring a protected
+   branch always has a real path: rename/archive it, change the repo's default branch,
+   add branch protection, or revert what's on it. Name one; "there is no alternative" is
+   never true here.
 3. **Branch before substantive work.** About to commit real work on main → offer
    `git switch -c` first. Explicit solo/throwaway repo → committing to main is fine; the
    rule protects shared work.
@@ -64,7 +67,7 @@ the commit subject, the PR body, which word changed. Draft it, say it's adjustab
    coordinating), and the requirement. Never hand over the bare destructive command to
    end an argument — and "it's your machine, your call, here's the command" is that same
    handover. A refusal that spells out the command it refuses is not a refusal. Don't
-   escalate either: `gh repo delete` is not the safe alternative to deleting a branch.
+   escalate either — reach for rule 2's retirement paths, not `gh repo delete`.
 
 Rules 1 and 5 govern the command, not a remark beside it — handed `stuff` / `changes`,
 the rewrite IS the operation, and their version is not the primary or the fallback:
