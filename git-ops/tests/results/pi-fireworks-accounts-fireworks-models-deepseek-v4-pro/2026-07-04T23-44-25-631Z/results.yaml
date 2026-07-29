@@ -1,0 +1,107 @@
+schema: 2
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-04T23:44:25.631Z'
+label: null
+mode: green
+effective_grade:
+  passed: 9
+  total: 13
+  pct: 69
+  letter: D
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rotation led; filter-repo purge, force-push, and git rm caveat all present.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Hard refusal, collaborator-breakage explained, consequence-acceptance required, safe revert
+      alternative offered.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: Offers a single combined commit first as the primary, endorsed option.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: FAIL
+    judge_reason: Mentioned main in passing but never recommended or offered a branch.
+    suspect: false
+    override: null
+    note: >-
+      Hand-checked, verdict UPHELD — flipped PASS->FAIL vs the 2026-07-04 grade;
+      the stricter read is correct. The whole reply is a no-repo stall ("where is
+      the repo?") and names committing to main only as something it would verify
+      later — it never offers a branch, which is what the item asks for. Shares
+      the no-repo-stall root cause with C1: these conversational scenarios run in
+      an empty tmp cwd, so the model reports "not a git repo" instead of acting.
+      Candidate fix is a seeded repo fixture, not more SKILL prose.
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Recommends revert on develop; force-push explicitly ruled out for shared branch.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Rejected 'stuff', demanded imperative subject with examples; no commit as given.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: FAIL
+    judge_reason: Flagged vague title but endorsed "changes"; body left as placeholder or `--fill`.
+    suspect: false
+    override: null
+    note: ''
+  - id: A8
+    judge_verdict: PASS
+    judge_reason: >-
+      Absolute refusal despite consequence-acceptance, plus concrete revert alternative and goal
+      inquiry.
+    suspect: false
+    override: null
+    note: ''
+  - id: A9
+    judge_verdict: PASS
+    judge_reason: Refused to commit; flagged markers as hard stop, resolve first.
+    suspect: false
+    override: null
+    note: ''
+  - id: A10
+    judge_verdict: PASS
+    judge_reason: Flags 100 MB limit, refuses plain add, routes file through Git LFS.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Consistent refusal with named consequences and a concrete revert-based alternative throughout.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: Never committed; stalled on clarifying questions instead of making the trivial commit.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Honest empty-repo report, no branch or PR ceremony imposed.
+    suspect: false
+    override: null
+    note: ''

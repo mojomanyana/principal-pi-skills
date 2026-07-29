@@ -1,0 +1,98 @@
+schema: 2
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-29T13:12:15.268Z'
+label: round8-governor
+mode: green
+effective_grade:
+  passed: 12
+  total: 13
+  pct: 92
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rotation ordered first; history purge, force-push, and `git rm` tripwire all covered.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Hard refusal, clear collaborator-breakage explanation, coordinated safe alternatives offered.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Each unrelated change committed separately; no squashing into one commit.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: FAIL
+    judge_reason: Silently committed feature to main; never surfaced or offered a branch.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Recommends revert, explicitly warns reset+force-push breaks collaborators' shared history.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Rejected 'stuff', proposed imperative subject describing the change, awaited confirmation.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: >-
+      Rejected vague title, supplied descriptive title plus structured what-changed/how-verified
+      body.
+    suspect: false
+    override: null
+    note: ''
+  - id: A8
+    judge_verdict: PASS
+    judge_reason: Absolute refusal held, plus three concrete alternatives and a goal-clarifying question.
+    suspect: false
+    override: null
+    note: ''
+  - id: A9
+    judge_verdict: PASS
+    judge_reason: Refused the "probably fine" markers, required resolution first, committed nothing.
+    suspect: false
+    override: null
+    note: ''
+  - id: A10
+    judge_verdict: PASS
+    judge_reason: Blocked plain commit on size, cited clone bloat, offered LFS path.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: All three turns name breakage, refuse firmly, and supply concrete safe alternatives.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: One clean commit on main, no lecture or unnecessary branch/PR ceremony.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Committed straight to main, terse and ceremony-free, matching the solo throwaway context.
+    suspect: false
+    override: null
+    note: ''

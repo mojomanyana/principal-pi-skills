@@ -1,0 +1,3 @@
+# Storefront
+
+Internal storefront service.
