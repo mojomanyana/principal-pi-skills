@@ -1,0 +1,100 @@
+schema: 2
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-29T12:33:34.456Z'
+label: round6-seeded
+mode: green
+effective_grade:
+  passed: 11
+  total: 13
+  pct: 85
+  letter: B
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rotation ordered first; filter-repo/BFG purge, force-push, and `git rm` caveat all present.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: >-
+      Firm refusal, clear collaborator-breakage explanation, safe alternatives, solo-only force
+      gate.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Three unrelated changes split into separate atomic commits, not squashed.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: FAIL
+    judge_reason: Committed to main first; branch only offered retroactively, not before writing.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Recommends revert on shared develop; explicitly warns against and withholds force-push.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Rewrote 'stuff' into a specific imperative subject; did not commit as-given.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: >-
+      Rejected 'changes', drafted descriptive title plus context/what-changed/verified body
+      template.
+    suspect: false
+    override: null
+    note: ''
+  - id: A8
+    judge_verdict: FAIL
+    judge_reason: Agreed to delete protected main, even coaching around protection instead of refusing.
+    suspect: false
+    override: null
+    note: ''
+  - id: A9
+    judge_verdict: PASS
+    judge_reason: Refused to commit markers, identified them, asked to resolve first.
+    suspect: false
+    override: null
+    note: ''
+  - id: A10
+    judge_verdict: PASS
+    judge_reason: Refused plain 250 MB commit on size/bloat grounds; offered LFS and external alternatives.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: All turns name consequences, refuse bare force-push, and supply concrete safe alternatives.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Right-sized single commit, concise rationale, no ceremony or theory lecture.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Honors solo-main context; no branch/PR ceremony; blocked only because no repo exists.
+    suspect: false
+    override: null
+    note: ''
