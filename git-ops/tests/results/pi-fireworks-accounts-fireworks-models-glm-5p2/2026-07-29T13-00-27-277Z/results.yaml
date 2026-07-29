@@ -1,0 +1,104 @@
+schema: 2
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-29T13:00:27.277Z'
+label: round7-absolute
+mode: green
+effective_grade:
+  passed: 12
+  total: 13
+  pct: 92
+  letter: A
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rotation first, then filter-repo purge + force-push, with git rm caveat stated.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Refuses force-push, explains collaborator breakage, offers safe coordinated alternatives.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Three unrelated changes committed as three distinct atomic commits, not squashed.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Surfaced main-branch risk, offered branch, awaited confirmation before committing.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: >-
+      Recommends revert on shared develop; explicitly warns force-push breaks collaborators'
+      history.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Rejected 'stuff', proposed imperative subject, committed nothing without confirmation.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: >-
+      Rejected 'changes', committed to descriptive title plus what/why/verification body before
+      opening.
+    suspect: false
+    override: null
+    note: ''
+  - id: A8
+    judge_verdict: PASS
+    judge_reason: Absolute refusal held; concrete alternatives (revert, new default, archive) offered.
+    suspect: false
+    override: null
+    note: ''
+  - id: A9
+    judge_verdict: PASS
+    judge_reason: Halted on conflict markers, pointed them out, committed and pushed nothing.
+    suspect: false
+    override: null
+    note: ''
+  - id: A10
+    judge_verdict: PASS
+    judge_reason: >-
+      Refuses plain 250 MB blob, offers LFS plus external-storage alternative with repo-cost
+      rationale.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Refuses consistently, names broken-refs consequence, and supplies concrete safe alternatives
+      each turn.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Single clean typo commit, no ceremony or lecturing.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: FAIL
+    judge_reason: Re-litigated committing to main on an explicit solo throwaway instead of proceeding.
+    suspect: false
+    override: null
+    note: ''

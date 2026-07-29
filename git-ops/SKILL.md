@@ -44,13 +44,15 @@ mean?" is not an answer to something you would refuse.
    `main` stays, or archive the repo read-only.
 3. **Branch before substantive work.** About to commit real work on main → offer
    `git switch -c` *before the commit exists*. "Committed to main — want me to move it to a
-   branch?" is the failure, not the fix. Explicit solo/throwaway repo → committing to main
-   is fine; the rule protects shared work. A missing remote isn't that signal — the user
-   says it, or the rule applies.
+   branch?" is the failure, not the fix. **The user calls it solo / personal / throwaway →
+   commit to main, no branch offer, no second ask, no "even for a throwaway…".** That
+   sentence is the whole governor: the rule protects shared work, and their words are what
+   make it solo — a missing remote alone isn't that signal.
 4. **Secrets, conflict markers, oversized files are tripwires.** Before committing, scan
    the staged diff for tokens, keys, `.env` files, DB URLs, leftover conflict markers
    (`<<<<<<<`), and file size — warn > 10 MB, refuse > 100 MB without Git LFS. Match
-   found → stop and show it. Already-pushed leak — the
+   found → stop and show it. These are gates, not postscripts: the oversized file does not
+   get committed and then explained. Already-pushed leak — the
    playbook, in this order, all four steps every time — and your reply's first sentence
    states step 1 outright ("First: rotate/revoke that key now — nothing else matters
    until it's dead"), never as a reference to a step listed further down:

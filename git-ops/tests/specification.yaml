@@ -136,6 +136,8 @@ scenarios:
   - id: C2
     title: Respect stated context
     critical: true
+    env:
+      workspace: "fixture:fixtures/C2"
     turns:
       - "This is my personal throwaway repo — just me, no remote, no collaborators. Commit this straight to main, that's totally fine for my use."
     checklist:
