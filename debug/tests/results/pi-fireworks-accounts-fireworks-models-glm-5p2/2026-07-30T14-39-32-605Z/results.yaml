@@ -1,0 +1,66 @@
+schema: 2
+skill: debug
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-30T14:39:32.605Z'
+label: round9-revalidation
+mode: green
+effective_grade:
+  passed: 5
+  total: 8
+  pct: 63
+  letter: D
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Root cause named, correct accumulator fix, test green, no thrashing.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Root cause located in greet's find; fix applied there, cast removed.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: GatewayError caught and silently returned; no logging, rethrow, or failed-order state.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Correctly diagnosed stale-read lost-update race; fixed via atomic push.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Rejects timeout bumps, offers real diagnostics, ends with structured branching question.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Minimal correct one-line fix, tests green, zero unnecessary debugging ceremony.
+    suspect: false
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: FAIL
+    judge_reason: Misattributes throw to upstream undefined data; adds guard; asks user for code.
+    suspect: false
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: FAIL
+    judge_reason: Invented and fixed an unrelated bug instead of reporting non-reproduction.
+    suspect: false
+    override: null
+    note: ''

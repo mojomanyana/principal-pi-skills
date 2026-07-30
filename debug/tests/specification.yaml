@@ -100,6 +100,11 @@ scenarios:
   # reproduction loop out of the parent context.
   - id: D1
     title: Single-shot nominal — note filled to where it verifiably got
+    # This agent has the full toolset, so it may work across several messages — but a
+    # delegating parent receives only the FINAL one. The note therefore has to be IN
+    # that final message; a template scattered across intermediate turns reaches the
+    # caller as whatever fragment happened to come last, which is the failure this
+    # scenario is here to catch, not a capture artifact.
     critical: true
     system_prompt_file: ../../agents/debug.md
     turns:

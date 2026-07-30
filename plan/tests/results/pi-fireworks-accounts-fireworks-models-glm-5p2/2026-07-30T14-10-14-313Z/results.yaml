@@ -1,0 +1,94 @@
+schema: 2
+skill: plan
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-30T14:10:14.313Z'
+label: round9-revalidation
+mode: green
+effective_grade:
+  passed: 6
+  total: 12
+  pct: 50
+  letter: F
+  ship: false
+  note: 'gated: 3 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Outcome-framed goal precedes sequencing; plan adds risks, skeleton, per-step acceptance.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: End-to-end stubbed skeleton first; subsequent steps deepen seams, not horizontal layers.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: >-
+      Time-boxed spike with deliverable gates dependent steps; downstream detail explicitly
+      assumption-flagged.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: FAIL
+    judge_reason: Bare 13-item flat list; no slices, dependencies, or pushback.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Expand-and-contract with one-way flag, rollback, backup, and pre-drop abort condition.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Each slice carries observable, testable done-signals; no vague "implemented" acceptance.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: FAIL
+    judge_reason: Rejected one-step implicitly but never explained why one giant step fails.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Dependency-ordered vertical slices with skeleton survived pressure; concrete and actionable
+      throughout.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: Ceremonial four-step plan and risk notes for a trivial two-way-door edit.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: FAIL
+    judge_reason: Adds spikes, risk register, and dependency notes to a trivial reversible flag.
+    suspect: false
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: FAIL
+    judge_reason: Ends with three direct questions to the user, violating no-questions rule.
+    suspect: false
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: FAIL
+    judge_reason: Produced speculative plan with seven questions instead of BLOCKED with one.
+    suspect: false
+    override: null
+    note: ''

@@ -9,7 +9,7 @@ to isolated contexts (`plan`, `review`, `debug` — hand-written single-shot var
 standard, so other harnesses can consume the skills, but pi is the supported target.
 
 This is the framework's v2 — a redesign of the original ten-skill set around three
-constraints the v1 fought against, hardened through eight validated improvement rounds
+constraints the v1 fought against, hardened through nine validated improvement rounds
 (see **Validation results**). The v1 stack was removed at promotion; it survives in git
 history, and the mapping table below records what replaced what.
 
@@ -74,40 +74,46 @@ Every output template ends with a `Next:` line naming the follow-on skill — th
 fixed template fields *is* the handoff. No baton vocabulary, no delegation-contract
 reference file: the contract is visible in the template itself.
 
-## Validation results (skill-harness, Opus judge, 2026-07-29)
+## Validation results (skill-harness, Opus judge, 2026-07-30)
 
 Each skill carries a `tests/specification.yaml` harness (79 scenarios total; `review`
 merges the code-review + ponytail specs, `architect` absorbs the ADR scenarios). A baseline
-plus eight RED→GREEN rounds against two Fireworks models (`RESULTS-MANIFEST.md` maps every
+plus nine RED→GREEN rounds against two Fireworks models (`RESULTS-MANIFEST.md` maps every
 run to its round), judged by `claude-code:opus`; committed
 evidence is the `results.yaml` per run (transcripts are gitignored, except the five
 misfire transcripts backing the overrides, committed for audit).
 
-| Skill | DeepSeek v4-pro | GLM 5.2 | Scenarios |
-|---|---|---|---|
-| decide | 100% SHIP | 100% SHIP | 12 |
-| build | 100% SHIP | 88% | 8 |
-| debug | 100% SHIP | 100% SHIP | 6 |
-| architect | 100% SHIP | 100% SHIP | 14 |
-| git-ops | 92% SHIP | 100% SHIP | 13 |
-| review | 88% | 100% SHIP | 16 |
-| plan | 80% | 100% SHIP | 10 |
+| Skill | DeepSeek v4-pro | GLM 5.2 | Scenarios | Results as of |
+|---|---|---|---|---|
+| decide | 92% | 100% SHIP¹ | 12 | 2026-07-30 / 07-03¹ |
+| build | 75% | 75% | 8 | 2026-07-30 |
+| debug | 75% | 63% | 8 | 2026-07-30 |
+| architect | 100% SHIP | 100% SHIP | 14 | 2026-07-04² |
+| git-ops | 77%³ | 92% SHIP⁴ | 13 | 2026-07-30 |
+| review | 83% | 83%⁴ | 18 | 2026-07-30 |
+| plan | 75% | 50% | 12 | 2026-07-30 |
+
+¹ `decide`'s GLM figure is older, and still valid: its `SKILL.md` is byte-identical to the
+text that run measured (the v2 promotion moved the file without editing it), so nothing
+has changed for it to describe. Verified by content hash, not by commit date.
+² `architect`'s last run postdates its last `SKILL.md` edit; not stale.
+³ Same text scored 92% in round 8 and 77% here, with a *different* failure set (A3/A7/C1
+vs A4). That spread is the argument for `reps:` everywhere — see below.
+⁴ One scenario in each of these runs was lost to a harness timeout (`review` GLM A4,
+`git-ops` GLM A10: "Assistant produced no response"), not to skill behavior. Both are
+counted as failures above rather than quietly excluded; neither is evidence about the
+skill.
 
 Rounds 4–8 re-tested only the two skills whose specs the review hardening grew:
 **architect 12→14 scenarios** (added D3 forcing-trigger + D4 review-a-weak-ADR) and
 **git-ops 10→13** (added the never-delete absolute A8, conflict-marker tripwire A9,
 large-binary A10), so git-ops percentages are not comparable across that boundary. Its
 trajectory on the 13-scenario spec, DeepSeek/GLM: **69/69% → 69/92% → 77/85% → 92/92% →
-92/100%**. Both models now ship it; GLM's round 8 is the first 13/13. Every other skill's
-figure is round 3.
+92/100%**. Round 9 then re-ran it on a changed spec (see below).
 
-DeepSeek's one open fail is **A4, and it is flaky rather than fixed**: FAIL/PASS/FAIL across
-rounds 6–8 on unchanged checklists. When it fails it commits the feature to `main` silently
-and notes "no upstream configured" — reading the fixture's missing remote as license, which
-rule 3 explicitly denies. The fixture has no remote to make "shared work" real, so the
-scenario under-determines its own question; a remote in the fixture would settle it better
-than more wording. Treat DeepSeek's 92% as a single-run reading of a scenario that wants
-`reps:` (the harness supports per-scenario reps + pass_threshold for exactly this).
+A4 was the open fail through round 8 — FAIL/PASS/FAIL on unchanged checklists, committing
+to `main` while citing "no upstream configured". Round 9 closed it by giving the fixture a
+real remote and `reps: 3`; see below.
 
 **Five git-ops scenarios run in seeded repos** (`env: workspace: fixture:…`, A3 A4 A6 C1
 C2) rather than an empty temp dir. That was worth more than three rounds of wording: every
@@ -148,10 +154,58 @@ Two follow-on lessons worth carrying to other skills:
   re-litigate an explicit *"personal throwaway, no collaborators"*. Both governors are now
   hard sentences next to the rule they temper.
 
-**Open:** DeepSeek A4's flakiness, described above. Everything else the rounds surfaced is
-closed and measured: A10's "gates, not postscripts" wording stopped DeepSeek committing a
-250 MB blob it had created itself, and the restored solo-repo governor stopped GLM
-re-litigating an explicit throwaway.
+### Round 9 (2026-07-30): what revalidation found
+
+Four skills' `SKILL.md` had been edited *after* their last run, by the below-the-cap triage
+commits merged on 2026-07-03 without a revalidation round. Round 9 re-ran them on both
+models. It found three regressions the published table had been concealing, each traceable
+to one of those commits:
+
+- **`debug` A3 — error-swallowing, both models.** Round 3 had A3 passing on both; it now
+  fails on both ("caught and silently returned; no logging, rethrow, or failed-order
+  state"). The only intervening change is `e36e4e8`, which reworded the catch anchor to
+  strengthen it and lost it instead. Two models, one commit: a regression, not variance.
+- **`build` A1 — test-first, both models.** DeepSeek's seeded fixture now goes red
+  (`vitest failed`), GLM's staged diff contains no `expect(` at all. `6f624c2`.
+- **`plan` on GLM — 100% → 50%.** The largest. It lost *both* right-sizing governors (a
+  ceremonial four-step plan for a trivial two-way-door edit; spikes and a risk register
+  for a `--verbose` flag) *and* vertical slicing (a bare 13-item flat list). `6f624c2` is
+  described as "plan unified on three lines"; that unification is the prime suspect.
+
+Not everything moved: every skill's pre-existing scenarios held or improved except those
+three cases — `plan` on DeepSeek actually went 8/10 → 9/10, fixing C2.
+
+**The delegation contract, measured for the first time.** `agents/{plan,review,debug}.md`
+now have D1 (nominal, critical) and D2 (starved) scenarios run as single-shot system
+prompts. Results split sharply by skill rather than by model:
+
+| Agent | DeepSeek | GLM | Failure shape |
+|---|---|---|---|
+| `review` | 2/2 | 1/2 | ranks the assertion-free test above the swallowed error |
+| `debug` | 1/2 | 0/2 | scatters its note across tool-using messages, so only the trailing fragment reaches a caller; on GLM's starved case it invented and fixed an unrelated bug instead of reporting non-reproduction |
+| `plan` | 0/2 | 0/2 | ends a single-shot reply with direct questions to a user who cannot answer, and answers the starved case with seven questions plus a speculative plan |
+
+**A4's flakiness is closed.** With a real bare `origin` wired in and `reps: 3`, git-ops A4
+passes 3/3 with flakiness 0.00 on both models, after FAIL/PASS/FAIL across rounds 6–8. The
+diagnosis held: the fixture was under-determined, not the skill undisciplined — "no
+upstream configured" genuinely reads as a solo repo.
+
+**Judge misfires were mostly a parser bug.** Across 12 runs (~150 scenarios) judged by the
+fixed parser, *zero* verdicts came back suspect or ambiguous, against a historical ~2%
+misfire rate. The old `REASON_RE` was case-insensitive with an optional colon, so any prose
+word containing "reason" became the stored reason — manufacturing FAIL-with-passing-reason
+misfires that never happened. No committed result in this round carries a hand-written
+`override:`.
+
+**Open:** the three regressions above are diagnosed, not fixed — fixing them means
+reverting or reworking parts of `6f624c2` and `e36e4e8` and re-running. `plan`'s and
+`debug`'s agent variants do not hold on either model. Two runs lost a scenario to a
+harness timeout. `git-ops` on DeepSeek spread 92% → 77% on unchanged text, which is the
+case for putting `reps:` on every scenario rather than only A4.
+
+Round 8 closed the rest of that hardening: A10's "gates, not postscripts" wording stopped
+DeepSeek committing a 250 MB blob it had created itself, and the restored solo-repo governor
+stopped GLM re-litigating an explicit throwaway.
 
 ## Hardening lessons (round 2–3, cross-model)
 

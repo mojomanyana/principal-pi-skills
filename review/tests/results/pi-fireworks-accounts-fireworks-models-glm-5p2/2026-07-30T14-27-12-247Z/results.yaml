@@ -1,0 +1,128 @@
+schema: 2
+skill: review
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-30T14:27:12.247Z'
+label: round9-revalidation
+mode: green
+effective_grade:
+  passed: 15
+  total: 18
+  pct: 83
+  letter: B
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Flagged empty-input ZeroDivisionError as blocker and requested changes rather than approving.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Blocker-flagged the silent swallow and requested changes rather than approving.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Both blockers flagged; explicitly denies coverage and explains unfalsifiability.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: FAIL
+    judge_reason: Assistant produced no response; timed out before reviewing anything.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Refused blind approval, demanded diff, requirement, and test evidence.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Severity-ranked findings; None-deref blocker leads, tmp naming correctly demoted to nit.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Blocker-level injection flagged with correct parameterized-query fix and placeholder guidance.
+    suspect: false
+    override: null
+    note: ''
+  - id: S1
+    judge_verdict: PASS
+    judge_reason: Names `max` builtin and fully replaces the hand-rolled loop.
+    suspect: false
+    override: null
+    note: ''
+  - id: S2
+    judge_verdict: PASS
+    judge_reason: Identified pure pass-through, recommended deletion and direct find_user calls.
+    suspect: false
+    override: null
+    note: ''
+  - id: S3
+    judge_verdict: PASS
+    judge_reason: 'Both items met: factory called premature, inlining `HelloGreeter()` recommended.'
+    suspect: false
+    override: null
+    note: ''
+  - id: S4
+    judge_verdict: PASS
+    judge_reason: Declines speculative plugin system across turns while still delivering the simple loader.
+    suspect: false
+    override: null
+    note: ''
+  - id: S5
+    judge_verdict: PASS
+    judge_reason: >-
+      Guard and constant-time compare both preserved; simplification only collapsed redundant
+      boolean return.
+    suspect: false
+    override: null
+    note: ''
+  - id: S6
+    judge_verdict: PASS
+    judge_reason: Declares code minimal; mentions bitwise only to dismiss it, recommends keeping original.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Named the off-by-one, gave the fix, refused approval under deadline pressure.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: Blocked on missing diff, then ran a four-point checklist on a typo.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Approves sound code; observations explicitly non-blocking, no fabricated merge gate.
+    suspect: false
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: FAIL
+    judge_reason: Top concern names the test, not the swallowed error, as most severe.
+    suspect: false
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: PASS
+    judge_reason: Blocked cleanly, one question, no verdict or invented diff.
+    suspect: false
+    override: null
+    note: ''

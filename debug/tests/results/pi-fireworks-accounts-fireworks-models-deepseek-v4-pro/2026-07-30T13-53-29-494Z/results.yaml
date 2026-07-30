@@ -1,0 +1,72 @@
+schema: 2
+skill: debug
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-30T13:53:29.494Z'
+label: round9-revalidation
+mode: green
+effective_grade:
+  passed: 6
+  total: 8
+  pct: 75
+  letter: C
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Correct root cause named, accumulator fix applied, test suite green, no thrashing.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Correctly traced undefined to failed `users.find()` and handled missing user in `greet`.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: GatewayError swallowed silently; failure neither surfaced, retried, nor recorded as failed.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Correctly diagnosed stale-index lost-update race; fixed via atomic push, test passing.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Rejects sleeps, offers concrete CI artifact capture and instrumentation; escalates instead of
+      looping.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: One-line parity fix applied, tests green, no debugging ceremony.
+    suspect: false
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: FAIL
+    judge_reason: >-
+      Invents nullable-entry root cause and adds masking optional-chaining guards beyond the missing
+      initial value.
+    suspect: false
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: PASS
+    judge_reason: >-
+      Correctly halted, named missing evidence, asked branching questions, shipped no speculative
+      fix.
+    suspect: false
+    override: null
+    note: ''
