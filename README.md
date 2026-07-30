@@ -1,12 +1,12 @@
 # principal-pi-skills
 
-**Seven dual-use skills for principal-level software engineering with an AI coding agent.**
-Each file works as a loaded skill *and* as a subagent system prompt (Claude Code
-`.claude/agents/`, pi subagents) with zero editing. Compatible with any agent that
-supports the [Agent Skills](https://hochej.github.io/pi-mono/coding-agent/skills/)
-standard: Claude Code, the Pi coding agent, OpenAI Codex CLI, Amp, Droid, and others.
-(The "pi" in the name nods to the Pi coding agent — where the `SKILL.md` convention
-originated — but the framework targets any compliant agent.)
+**Seven skills for principal-level software engineering with the
+[pi coding agent](https://github.com/badlogic/pi-mono) — four inline skills and three
+that double as subagents.** Dialogue and session state run inline (`decide`,
+`architect`, `build`, `git-ops`); heavy reading, cold judgment, and noisy loops delegate
+to isolated contexts (`plan`, `review`, `debug` — hand-written single-shot variants in
+`agents/`). The files follow the [Agent Skills](https://agentskills.io/specification)
+standard, so other harnesses can consume the skills, but pi is the supported target.
 
 This is the framework's v2 — a redesign of the original ten-skill set around three
 constraints the v1 fought against, hardened through eight validated improvement rounds
@@ -40,25 +40,33 @@ history, and the mapping table below records what replaced what.
 ## Layout
 
 ```
-<skill>/SKILL.md                      the whole contract — nothing else is required reading
+<skill>/SKILL.md                      the interactive contract — nothing else is required reading
+agents/{plan,review,debug}.md         single-shot subagent variants (tools in frontmatter) — edited in lockstep with their SKILL.md
+prompts/{feature,bugfix}.md           /feature and /bugfix workflow templates
 <skill>/tests/specification.yaml      skill-harness scenarios (ship bar, critical gates)
 <skill>/tests/fixtures/<ID>/          seeded repo for one scenario (git-ops, build, debug)
 <skill>/tests/results/…/results.yaml  committed run evidence (Opus-judged)
-AGENTS.md                             the routing layer for orchestrators
+AGENTS.md                             the routing + dispatch layer for the orchestrator
 RESULTS-MANIFEST.md                   run → round → status map for every committed result
 ```
 
-## Install
+## Install (pi)
 
-- **Pi**: the repo is a pi package — `pi.skills` in `package.json` registers all seven;
-  or point `--skill` at a single folder.
-- **Claude Code (skills)**: copy or symlink each `<skill>/` folder into `.claude/skills/`.
-- **Claude Code (subagents)**: copy each `SKILL.md` body into `.claude/agents/<name>.md`;
-  the frontmatter `description` doubles as the agent description (it contains only
-  triggers — an orchestrator can route on it without reading the body). Restrict tools
-  structurally, not in prose: `decide`/`architect`/`plan`/`review` get read-only tools;
-  `build`/`debug`/`git-ops` get write access. Boundary prose ("you don't write code") is
-  deleted from the bodies because the tool config enforces it.
+1. **Skills + prompts**: `pi install git:github.com/mojomanyana/principal-pi-skills` —
+   the `pi` manifest registers the skills and the `/feature` and `/bugfix` templates.
+2. **Subagents**: install pi-mono's subagent extension
+   (`packages/coding-agent/examples/extensions/subagent` — symlink its `index.ts` and
+   `agents.ts` into `~/.pi/agent/extensions/subagent/`), then link the agent
+   definitions once:
+
+   ```
+   mkdir -p ~/.pi/agent/agents && ln -sf "$(pwd)"/agents/*.md ~/.pi/agent/agents/
+   ```
+
+   Tool restriction is structural, in the agents' frontmatter: `plan` is read-only;
+   `review` adds `bash` only to run tests; `debug` gets the full toolset.
+3. Without the extension everything still runs inline as skills. When and why to
+   delegate is defined in [AGENTS.md](./AGENTS.md).
 
 ## Shared contract
 
