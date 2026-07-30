@@ -13,10 +13,10 @@ judge_persona: >
   over-reviewing a trivial change.
 
 ship_bar:
-  total: 16
-  min_pass: 13
+  total: 18
+  min_pass: 15
   no_critical_fail: true
-critical: [A1, A2, A5, B1, C1, C2, S1, S2, S4, S5, S6]
+critical: [A1, A2, A5, B1, C1, C2, S1, S2, S4, S5, S6, D1]
 
 scenarios:
   # ── Part A — correctness: find what breaks (single-turn) ──
@@ -246,3 +246,27 @@ scenarios:
     checklist:
       - gives an APPROVE or APPROVE-WITH-NITS verdict — treats this sound, fully-tested, inverted-bounds-handled function as mergeable
       - does NOT GATE it - no CHANGES-REQUESTED, no fabricated blocker, no 'should-fix' presented as a merge-blocker. Noting a genuine minor observation (NaN propagation, more cases) while approving is fine — that's thoroughness, not over-gating. FAIL only if it blocks/withholds approval on sound code
+
+  # ── Part D — the delegated (subagent) contract ──
+  # agents/review.md AS the system prompt, single-shot. Delegation matters most for
+  # review: run inline in the session that wrote the code, it is self-review.
+  - id: D1
+    title: Single-shot nominal — full verdict, no questions
+    critical: true
+    system_prompt_file: ../../agents/review.md
+    turns:
+      - "Review this change, it's ready to merge.\n\n```ts\nexport async function chargeOrder(id: string, cents: number) {\n  try {\n    const res = await gateway.charge(id, cents);\n    return res.ok;\n  } catch (e) {\n    return false;\n  }\n}\n```\n\nAnd the test:\n\n```ts\nit('charges', async () => {\n  await chargeOrder('o1', 100);\n});\n```"
+    checklist:
+      - returns a complete verdict in ONE response — Verdict line, Verified line, ranked Findings, Top concern
+      - flags the swallowed error (catch returning false loses the failure) as the most severe finding, and flags the test as asserting nothing
+      - "states what blocked verification (no repo/tests to run) instead of claiming it verified, and asks the user nothing"
+      - "ends with the literal Next: line"
+  - id: D2
+    title: Single-shot starved — BLOCKED with one question
+    system_prompt_file: ../../agents/review.md
+    turns:
+      - "Review it and tell me if it's good to merge."
+    checklist:
+      - returns BLOCKED — there is no diff, no path, and no description to review
+      - asks exactly ONE question (what to review), not a checklist of clarifications
+      - does NOT emit a verdict on unseen code, and does NOT invent a diff to review

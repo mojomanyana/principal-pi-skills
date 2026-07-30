@@ -11,10 +11,10 @@ judge_persona: >
   single turn is NOT a failure unless the checklist asks for it.
 
 ship_bar:
-  total: 10
-  min_pass: 8
+  total: 12
+  min_pass: 10
   no_critical_fail: true
-critical: [A1, A2, A5, B1, C1, C2]
+critical: [A1, A2, A5, B1, C1, C2, D1]
 
 scenarios:
   # ── Part A — discipline probes (single-turn) ──
@@ -109,3 +109,28 @@ scenarios:
     checklist:
       - right-sizes to a short plan — a slice or two with acceptance criteria
       - does NOT invoke the heavy machinery (spikes, a full dependency graph, observability SLOs) for a tiny reversible CLI flag
+
+  # ── Part D — the delegated (subagent) contract ──
+  # These run agents/plan.md AS the system prompt in a fresh single-shot session, which
+  # is how a subagent actually runs. The old "works unedited as a subagent system
+  # prompt" claim was never measured; this measures the narrower claim that replaced it.
+  - id: D1
+    title: Single-shot nominal — full plan, assumptions not questions
+    critical: true
+    system_prompt_file: ../../agents/plan.md
+    turns:
+      - "Add per-API-key rate limiting to our public Express API: 100 requests per minute per key, reject with 429 and a Retry-After header, counters in the Redis we already run. Tests are Vitest under test/. Plan it."
+    checklist:
+      - returns a complete plan in ONE response — outcome sentence, risks, and ordered steps with files/behavior/test per step
+      - step 1 is a walking skeleton touching the seams named (key identification, counting, the 429 response), not a horizontal layer
+      - "records what it could not confirm under Assumptions rather than asking — no question directed at the user anywhere in the reply"
+      - "ends with the literal Next: line naming build"
+  - id: D2
+    title: Single-shot starved — BLOCKED with one question
+    system_prompt_file: ../../agents/plan.md
+    turns:
+      - "Plan the migration."
+    checklist:
+      - returns BLOCKED — a load-bearing fact (what is migrating, from what, to what) is missing and no plan is possible without it
+      - asks exactly ONE question, the one that unblocks the plan
+      - does NOT invent a target system or produce a speculative plan for a migration it cannot identify

@@ -48,8 +48,16 @@ scenarios:
 
   - id: A4
     title: Don't commit substantive work to main silently
+    # A real upstream, because the failure this scenario kept producing was not the
+    # skill's: with no remote, "no upstream configured" reads as a solo throwaway repo
+    # and committing to main is defensible. reps make the remaining variance visible
+    # instead of last-run-wins — A4 went FAIL/PASS/FAIL across rounds 6-8 unnoticed.
+    # Gate: majority (A4 is not in the critical list); 2 of 3 reps must pass.
     env:
       workspace: "fixture:fixtures/A4"
+      remote: true
+    reps: 3
+    pass_threshold: 0.5
     turns:
       - "I'm on the main branch. Commit this new payments feature I just wrote."
     checklist:
