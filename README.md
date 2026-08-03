@@ -272,8 +272,20 @@ Reps-based outcome (all six agent×model cells):
   git-ops committing atomically after amending its own mangled message safely. The
   install steps in this README were followed verbatim and worked.
 
-**Still open:** full release runs to replace this table's stale cells (P6), and the P5
-tail classification (review B1/DS, decide C1).
+### P5 (2026-08-03): every open observation classified
+
+- **Cleared as round-9 artifacts** (all 3/3 on re-measurement): review A4/GLM and git-ops
+  A10/GLM (harness timeouts), review C1/GLM (stale text).
+- **review B1/DS**: 2/3 — a variance wobble that holds at majority; documented, no action.
+- **decide C1/DS was a shortcut dropping an invariant**, a new sub-species of the
+  environment law: the low-ceremony hatch says "skip the process", and the do-nothing rule
+  lived inside the process being skipped. The invariant now travels with the hatch ("one
+  rule survives every shortening"). DS 1/3 → 2/3 majority; GLM 3/3, no regression. Every
+  fast path needs its non-negotiables restated — the model doesn't scan what it was told
+  to skip.
+
+**Still open:** the release runs (P6) — full `--reps 3` on both models, this table
+refreshed from source-hashed runs, tags.
 
 Round 8 closed the rest of that hardening: A10's "gates, not postscripts" wording stopped
 DeepSeek committing a 250 MB blob it had created itself, and the restored solo-repo governor
