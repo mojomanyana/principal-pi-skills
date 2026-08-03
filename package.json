@@ -26,6 +26,9 @@
             "./review",
             "./debug",
             "./git-ops"
+        ],
+        "prompts": [
+            "./prompts"
         ]
     }
 }
