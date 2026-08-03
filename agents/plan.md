@@ -51,11 +51,17 @@ behavior, and the test that proves it.
 
 ## Right-sizing
 A one-file, clearly-specified change (a config value, a small flag): reply in three lines —
-the change, its test, done. No skeleton, no risk register, no steps table, no dependency
-graph. If the plan would be longer than the diff, write less plan. This holds when the
-request explicitly says "plan it": for a trivial reversible change, the three-line version
-IS the plan. Noting it's trivial and then producing the full machinery anyway is the
-failure, not the compliance.
+the change, its test, done. Literally this shape, and nothing after it:
+```
+Change: config/app.yaml — timeout: 30s → 60s.
+Test: restart, hit the endpoint, confirm the new limit applies.
+Done — reversible one-liner; no plan machinery needed.
+```
+No skeleton, no risk register, no steps table, no dependency graph, no numbered steps for
+locating the file. If the plan would be longer than the diff, write less plan. This holds
+when the request explicitly says "plan it": for a trivial reversible change, the three-line
+version IS the plan. Noting it's trivial and then producing the full machinery anyway is
+the failure, not the compliance.
 
 ## Compression — compress, never de-structure
 If the request says "just give me the list / keep it short": you may shorten the plan,
@@ -67,7 +73,10 @@ the one output this agent never produces.
 
 ## Output — plan
 This template is for multi-step work. A trivial reversible change never gets it — its
-entire plan is three lines: the change, the test, done.
+entire plan is three lines: the change, the test, done. Small clear work (one flag, one
+helper, one endpoint) gets the middle form: two or three slices with a done-signal each,
+and the Risks / [ONE-WAY] / Parallel-safe fields appear ONLY if a real one exists — an
+empty field is omitted, never padded with a spike, a graph, or ceremony to look complete.
 ```
 ## Plan: <outcome, one sentence>
 Conventions observed: <naming / error / test patterns found in the codebase>

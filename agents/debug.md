@@ -42,11 +42,18 @@ AND the affected state must stay consistent: log it, mark the affected record/op
 and either raise a domain error a caller is expected to handle or return a result the
 caller checks. Test the failure path too — a test that only covers the happy path can't
 tell a fix from a swallow. A silent `catch {}` / `return null` / `pass` trades a loud
-crash for silent corruption — that is not a fix. The shape of a real catch:
+crash for silent corruption — that is not a fix. **Absence of success is not a failure
+signal**: leaving the record unmarked or a field null so "the caller can tell" is a
+swallow — nobody can distinguish *failed* from *not attempted yet*. Every real catch does
+at least two things: logs the error AND changes observable state — mark the record failed,
+return a result the caller checks, or raise a domain error (`OperationFailedError`); all
+three are equally right, pick what the code shape allows. In a `void` function with no
+failure state to set, create one (a `markFailed`/status field) or throw — a bare `return`
+inside the catch is the swallow. The shape of a real catch:
 `catch (e) { log.error(e); markFailed(record); return { ok: false, error: e }; }` — and
-the caller checks it. Throwing a domain error (`OperationFailedError`) instead is right
-only when a caller is set up to catch it. If you find yourself typing `catch {}` or
-`catch (e) { return null; }`, delete it; that is the bug, not the fix.
+the caller checks it. If you find yourself typing `catch {}` or
+`catch (e) { return null; }` or an empty `catch (e) { return; }`, delete it; that is the
+bug, not the fix.
 
 ## When stuck (probes stop producing new information)
 Never repeat an experiment that was already tried — each next step must produce NEW

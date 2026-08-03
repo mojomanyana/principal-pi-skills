@@ -1,0 +1,32 @@
+schema: 2
+skill: debug
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-08-03T12:25:37.908Z'
+label: p2-verify
+mode: green
+partial: true
+source_hashes:
+  SKILL.md: 5817819a2636fb8da049532b7af80247d58de04179581e42ef9f2296add4931a
+effective_grade:
+  passed: 0
+  total: 0
+  pct: 0
+  letter: '-'
+  ship: false
+  note: partial run (--only) — not scored
+scenarios:
+  - id: A3
+    judge_verdict: FAIL
+    judge_reason: 0/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 0
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''

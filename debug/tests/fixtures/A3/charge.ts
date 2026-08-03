@@ -12,7 +12,9 @@ export const paymentGateway = {
 export interface Order {
   total: number;
   paidId: string | null;
+  failedReason: string | null;
   markPaid(id: string): void;
+  markFailed(reason: string): void;
 }
 
 export function charge(order: Order): void {
