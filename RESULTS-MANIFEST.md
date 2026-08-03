@@ -21,7 +21,9 @@ verification (08-03): `--only` partial runs at `reps: 3` — marked *partial*, t
 iteration evidence, never a **current** scorecard cell, and never staleness coverage ·
 **P3** = delegation-contract verification (08-03): D1/D2 via `system_prompt_file`, reps 3;
 two DS runs re-graded after the judge hit its session limit mid-queue (transcripts intact,
-verdicts re-judged — the ERROR path worked as designed).
+verdicts re-judged — the ERROR path worked as designed) ·
+**P4** = coverage-debt verification (08-03): redesigned debug D1, new git-ops A11/A12
+over-refusal guards, new build A6 characterization scenario — partial runs, reps 3.
 
 Rounds 5–8 are git-ops only. Their failures were graded on the same 13 scenarios
 throughout, but five of those scenarios moved from an empty temp cwd to a seeded repo in
@@ -108,3 +110,9 @@ it can now actually perform, which is why some verdicts move in both directions.
 | plan | glm-5p2 | `2026-08-03T13-27-24-574Z` | P3 | D1 2/3, D2 3/3 | partial (p3-verify, reps 3) |
 | review | deepseek-v4-pro | `2026-08-03T13-24-20-198Z` | P3 | D1 2/3, D2 2/3 | partial (p3-verify, reps 3) |
 | review | glm-5p2 | `2026-08-03T13-48-30-092Z` | P3 | D1 2/3, D2 3/3 | partial (p3-verify, reps 3) |
+| build | deepseek-v4-pro | `2026-08-03T14-08-45-240Z` | P4 | A6 2/3 | partial (p4-verify, reps 3) |
+| build | glm-5p2 | `2026-08-03T14-17-18-037Z` | P4 | A6 0/3 | partial (p4-verify, reps 3) |
+| debug | deepseek-v4-pro | `2026-08-03T14-03-44-316Z` | P4 | D1 3/3 | partial (p4-verify, reps 3) |
+| debug | glm-5p2 | `2026-08-03T14-12-28-493Z` | P4 | D1 3/3 | partial (p4-verify, reps 3) |
+| git-ops | deepseek-v4-pro | `2026-08-03T14-06-06-855Z` | P4 | A11 2/3, A12 2/3 | partial (p4-verify, reps 3) |
+| git-ops | glm-5p2 | `2026-08-03T14-14-29-744Z` | P4 | A11 3/3, A12 3/3 | partial (p4-verify, reps 3) |
