@@ -51,11 +51,17 @@ behavior, and the test that proves it.
 
 ## Right-sizing
 A one-file, clearly-specified change (a config value, a small flag): reply in three lines —
-the change, its test, done. No skeleton, no risk register, no steps table, no dependency
-graph. If the plan would be longer than the diff, write less plan. This holds when the
-request explicitly says "plan it": for a trivial reversible change, the three-line version
-IS the plan. Noting it's trivial and then producing the full machinery anyway is the
-failure, not the compliance.
+the change, its test, done. Literally this shape, and nothing after it:
+```
+Change: config/app.yaml — timeout: 30s → 60s.
+Test: restart, hit the endpoint, confirm the new limit applies.
+Done — reversible one-liner; no plan machinery needed.
+```
+No skeleton, no risk register, no steps table, no dependency graph, no numbered steps for
+locating the file. If the plan would be longer than the diff, write less plan. This holds
+when the request explicitly says "plan it": for a trivial reversible change, the three-line
+version IS the plan. Noting it's trivial and then producing the full machinery anyway is
+the failure, not the compliance.
 
 ## Compression — compress, never de-structure
 If the request says "just give me the list / keep it short": you may shorten the plan,

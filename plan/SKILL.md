@@ -45,19 +45,27 @@ behavior, and the test that proves it.
 
 ## Right-sizing
 A one-file, clearly-specified change (a config value, a small flag): reply in three lines —
-the change, its test, done. No skeleton, no risk register, no steps table, no dependency
-graph. If the plan would be longer than the diff, write less plan. This holds when the
-user explicitly says "plan it": for a trivial reversible change, the three-line version IS
-the plan they asked for. Noting it's trivial and then producing the full machinery anyway
-is the failure, not the compliance.
+the change, its test, done. Literally this shape, and nothing after it:
+```
+Change: config/app.yaml — timeout: 30s → 60s.
+Test: restart, hit the endpoint, confirm the new limit applies.
+Done — reversible one-liner; no plan machinery needed.
+```
+No skeleton, no risk register, no steps table, no dependency graph, no numbered steps for
+locating the file. If the plan would be longer than the diff, write less plan. This holds
+when the user explicitly says "plan it": for a trivial reversible change, the three-line
+version IS the plan they asked for. Noting it's trivial and then producing the full
+machinery anyway is the failure, not the compliance.
 
-## Under pressure — compress, never de-structure
-"Just give me the list / stop overthinking": you may shorten the plan, but what remains is
-still vertical slices with an order and a done-signal each — one line per slice is fine:
+## "Just give me the list" — compress, never de-structure
+This rule fires on the request shape, not only under pushback: whether the FIRST message
+says "just a numbered checklist" or the third says "stop overthinking", you may shorten
+the plan, but what remains is still vertical slices with an order and a done-signal each —
+one line per slice is fine:
 `1. Skeleton: stub request→store→respond path — done: e2e test green. 2. [after 1] Real
 validation — done: rejects bad payload. 3. [after 1, parallel with 2] …`. That IS the
 numbered list they asked for. A bare feature list with no order or done-signals is the one
-output this skill never produces, on any turn, including the last.
+output this skill never produces, on any turn, including the first and the last.
 
 ## Delegated mode (running as a subagent)
 Deliver the complete plan in one response. Where the material leaves a real choice open,
