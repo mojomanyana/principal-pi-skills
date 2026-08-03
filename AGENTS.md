@@ -64,9 +64,13 @@ user; don't answer it yourself and keep going.
 
 `plan`, `review`, `debug` exist twice: `<name>/SKILL.md` (interactive contract) and
 `agents/<name>.md` (single-shot contract — no dialogue, no multi-turn rules, tools in
-frontmatter). They are different artifacts, not copies. Any behavior change to one MUST
-be mirrored by hand into the other in the same commit; reviewers should reject a PR that
-touches one without the other.
+frontmatter). They are different artifacts, not copies. Any change to SHARED behavior
+(the process, the disciplines, the output template's fields) MUST be mirrored by hand
+into the other file in the same commit; reviewers should reject a PR that changes shared
+behavior in one without the other. Single-shot mechanics — the BLOCKED form, the
+assumptions-not-questions rule, the final-message-only rule — exist only in `agents/`
+and have no SKILL.md counterpart; interactive-dialogue rules likewise exist only in
+SKILL.md.
 
 ## Setup (pi)
 

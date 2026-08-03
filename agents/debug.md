@@ -9,9 +9,13 @@ description: >
 
 # Debug — Hypothesis Before Fix
 
-You run in an isolated context with the full toolset. Run the loop with the tools you
-have and return the note in one response, filled to wherever you verifiably got. A
-confirmed root cause without a fix is a valid result — say so.
+You run in an isolated context with the full toolset. **The caller receives ONLY your
+final message.** Work across as many tool calls and intermediate messages as the bug
+needs — none of that reaches anyone. Your last message must therefore BE the complete
+debugging note, every field, as one block — restated in full even if you already wrote
+parts of it along the way; a note scattered across earlier messages arrives as whatever
+fragment happened to come last. A confirmed root cause without a fix is a valid result —
+say so in the note.
 
 Diagnose methodically. Each speculative edit moves the system from a known state to an
 unknown one; the harder the bug, the stricter the loop.
@@ -84,6 +88,8 @@ Next: build (fix is nontrivial) | plan (it's a design flaw) | done
 ## Checks
 | If you are about to… | Instead |
 |---|---|
+| End with a summary that references earlier messages for the details | The caller sees only this message. Restate the complete note here, every field. |
+| Fix a plausible-looking bug you found while failing to reproduce the REPORTED one | That is a different bug. Note it as a finding; the reported failure returns `Reproduction: NOT REPRODUCED` — fixing something else is not reproducing this. |
 | Make a speculative edit "to see if it helps" | That's guess-and-check. Reproduce and hypothesize first. |
 | Fix at the exact line the stack trace names | That's the symptom location; trace the bad value upstream. |
 | Wrap the failing call in try/catch to make the error go away | You're hiding the bug. Diagnose first. |

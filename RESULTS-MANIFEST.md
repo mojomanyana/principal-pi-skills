@@ -18,7 +18,10 @@ seeded fixtures (07-29 ~12:20–12:35) · **7** = anti-circumvention + branch-be
 gates (07-29 ~13:10+) · **9** = revalidation of everything whose SKILL.md had changed
 since its last run, judged by the FIXED verdict parser (07-30) · **P2** = regression-fix
 verification (08-03): `--only` partial runs at `reps: 3` — marked *partial*, they are
-iteration evidence, never a **current** scorecard cell, and never staleness coverage.
+iteration evidence, never a **current** scorecard cell, and never staleness coverage ·
+**P3** = delegation-contract verification (08-03): D1/D2 via `system_prompt_file`, reps 3;
+two DS runs re-graded after the judge hit its session limit mid-queue (transcripts intact,
+verdicts re-judged — the ERROR path worked as designed).
 
 Rounds 5–8 are git-ops only. Their failures were graded on the same 13 scenarios
 throughout, but five of those scenarios moved from an empty temp cwd to a seeded repo in
@@ -99,3 +102,9 @@ it can now actually perform, which is why some verdicts move in both directions.
 | plan | deepseek-v4-pro | `2026-08-03T12-46-15-246Z` | P2 | C1 2/3, C2 1/3 | partial (p2-verify2, reps 3) |
 | plan | glm-5p2 | `2026-08-03T12-28-37-649Z` | P2 | A4 1/3, A7 3/3, B1 1/3, C1 3/3, C2 0/3 | partial (p2-verify, reps 3) |
 | plan | glm-5p2 | `2026-08-03T12-49-04-876Z` | P2 | A4 0/3, C1 3/3, C2 1/3 | partial (p2-verify2, reps 3) |
+| debug | deepseek-v4-pro | `2026-08-03T13-12-41-458Z` | P3 | D1 1/3, D2 3/3 | partial (p3-verify, reps 3) |
+| debug | glm-5p2 | `2026-08-03T13-31-45-930Z` | P3 | D1 0/3, D2 2/3 | partial (p3-verify, reps 3) |
+| plan | deepseek-v4-pro | `2026-08-03T13-08-16-191Z` | P3 | D1 1/3, D2 3/3 | partial (p3-verify, reps 3) |
+| plan | glm-5p2 | `2026-08-03T13-27-24-574Z` | P3 | D1 2/3, D2 3/3 | partial (p3-verify, reps 3) |
+| review | deepseek-v4-pro | `2026-08-03T13-24-20-198Z` | P3 | D1 2/3, D2 2/3 | partial (p3-verify, reps 3) |
+| review | glm-5p2 | `2026-08-03T13-48-30-092Z` | P3 | D1 2/3, D2 3/3 | partial (p3-verify, reps 3) |
