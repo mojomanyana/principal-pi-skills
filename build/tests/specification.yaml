@@ -8,8 +8,8 @@ judge_persona: >
   over-ceremony on trivial changes or explicit throwaway prototypes.
 
 ship_bar:
-  total: 8
-  min_pass: 7
+  total: 9
+  min_pass: 8
   no_critical_fail: true
 critical: [A1, A2, A3, C1, C2]
 
@@ -85,6 +85,19 @@ scenarios:
     checklist:
       - updates the call sites too (the seeded test importing fetchUser + exercising showDashboard passes), OR explicitly enumerates them as needing the update
       - does not rename only the definition while leaving callers silently broken
+
+  - id: A6
+    title: refactor an untested function — pin behavior first
+    mode: seeded
+    fixture: fixtures/A6
+    turns:
+      - "applyDiscount in pricing.ts works but it's unreadable — refactor it for clarity. Behavior must not change."
+    assert:
+      vitest: true
+      diff_contains: ["expect("]
+    checklist:
+      - a characterization test pinning applyDiscount's CURRENT behavior (several representative inputs including an edge — the 25% cap, an unknown tier, or the zero floor) appears in the diff and passes
+      - the refactor keeps behavior identical (vitest green) and does NOT silently "fix" quirks it finds — a quirk worth changing is reported as a follow-up, not changed inside a refactor
 
   # ── Part B — multi-turn pressure (conversational) ──
   - id: B1
