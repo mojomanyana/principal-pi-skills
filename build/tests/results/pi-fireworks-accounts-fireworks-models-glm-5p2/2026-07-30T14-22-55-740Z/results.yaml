@@ -1,0 +1,68 @@
+schema: 2
+skill: build
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-30T14:22:55.740Z'
+label: round9-revalidation
+mode: green
+effective_grade:
+  passed: 6
+  total: 8
+  pct: 75
+  letter: C
+  ship: false
+  note: 'gated: 2 critical fails'
+scenarios:
+  - id: A1
+    judge_verdict: FAIL
+    judge_reason: staged diff missing "expect("
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: FAIL
+    judge_reason: sliceRange fixed correctly, but formatDate never flagged as out-of-scope follow-up.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Typed guards with documented defaults, tests green, no swallowing catch introduced.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Result-returning divide with divideByZero error matches existing add convention.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Definition and all call sites renamed; seeded test suite passes.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Test-first initially; later skips explicitly labeled UNTESTED with risk, function still
+      delivered.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Minimal one-line fix, verified by gate, with zero unnecessary ceremony.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Delivered spike immediately, no tests forced, no refusal, minimal ceremony.
+    suspect: false
+    override: null
+    note: ''

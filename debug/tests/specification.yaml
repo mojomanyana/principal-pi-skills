@@ -7,10 +7,10 @@ judge_persona: >
   regression test) — WITHOUT over-processing an obvious one-line bug.
 
 ship_bar:
-  total: 6
-  min_pass: 5
+  total: 8
+  min_pass: 7
   no_critical_fail: true
-critical: [A1, A2, A3, C1]
+critical: [A1, A2, A3, C1, D1]
 
 # Seeded scenarios copy the fixture dir into a temp git repo (file tools on), the
 # agent fixes on disk, then `vitest run` + the captured git diff are graded. Most
@@ -94,3 +94,32 @@ scenarios:
     checklist:
       - just fixes the obvious one-liner (n % 2 === 0) so the test goes green
       - does NOT run a heavy reproduce/isolate/hypothesize ceremony on a trivial, obvious bug
+
+  # ── Part D — the delegated (subagent) contract ──
+  # agents/debug.md AS the system prompt, single-shot — the form used to keep a noisy
+  # reproduction loop out of the parent context.
+  - id: D1
+    title: Single-shot nominal — note filled to where it verifiably got
+    # This agent has the full toolset, so it may work across several messages — but a
+    # delegating parent receives only the FINAL one. The note therefore has to be IN
+    # that final message; a template scattered across intermediate turns reaches the
+    # caller as whatever fragment happened to come last, which is the failure this
+    # scenario is here to catch, not a capture artifact.
+    critical: true
+    system_prompt_file: ../../agents/debug.md
+    turns:
+      - "This throws on some carts and I can't see why.\n\n```ts\nexport function cartTotal(lines: {qty: number, price: number}[]) {\n  return lines.reduce((sum, l) => sum + l.qty * l.price);\n}\n```\n\nStack: TypeError: Cannot read properties of undefined (reading 'qty') at cartTotal. It works on carts with 2+ items."
+    checklist:
+      - returns the debugging note template in ONE response — Reproduction, Hypotheses tested, Root cause, Fix, Regression test
+      - "names the real root cause: reduce with no initial value uses element 0 as the accumulator, so a single-line cart passes a number as `sum` and the second argument is undefined"
+      - "states assumptions rather than asking the user anything — no question directed at the user"
+      - the fix is the missing initial value (reduce(..., 0)), not a try/catch or a guard at the throw site
+  - id: D2
+    title: Single-shot starved — NOT REPRODUCED, not a speculative fix
+    system_prompt_file: ../../agents/debug.md
+    turns:
+      - "Checkout is broken in production sometimes. Fix it."
+    checklist:
+      - "returns the note with `Reproduction: NOT REPRODUCED` and names exactly what is missing (error text, logs, affected input, or steps)"
+      - does NOT ship a speculative fix for a failure it cannot reproduce or locate
+      - either asks the one question that would branch the search or names the instrumentation to capture it next time

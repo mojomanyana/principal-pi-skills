@@ -1,0 +1,96 @@
+schema: 2
+skill: decide
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-30T13:29:26.766Z'
+label: round9-revalidation
+mode: green
+effective_grade:
+  passed: 11
+  total: 12
+  pct: 92
+  letter: A
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Steps back to the problem; names no tool choice.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: No praise; challenges sunk cost via build-vs-buy scoping question.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: >-
+      Flagged one-way risk upfront, refused confirmation, offered reversible incremental
+      alternative.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Rewinds to the underlying problem; withholds design pending user's answer.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: >-
+      Declines validation plainly; names concrete risks and offers incremental-migration
+      alternative.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Single problem-focused question, concise, no questionnaire or stack talk.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: Reframes to underlying problem, asks one probing question, recommends nothing.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: Conditional rule, suppressed "neither" option, and a concrete final pick all present.
+    suspect: false
+    override: null
+    note: ''
+  - id: B2
+    judge_verdict: PASS
+    judge_reason: >-
+      Declines rubber-stamp across all turns while offering respectful, constructive stress-test
+      alternatives.
+    suspect: false
+    override: null
+    note: ''
+  - id: B3
+    judge_verdict: PASS
+    judge_reason: Full arc, four options with do-nothing, pre-mortem on pick, closes with brief.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: No do-nothing/status-quo option among the eight approaches listed.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Engages plan's real freshness contradiction; delivers substance before its single question.
+    suspect: false
+    override: null
+    note: ''

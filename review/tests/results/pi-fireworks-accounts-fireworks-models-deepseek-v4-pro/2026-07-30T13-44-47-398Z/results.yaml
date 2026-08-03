@@ -1,0 +1,128 @@
+schema: 2
+skill: review
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-30T13:44:47.398Z'
+label: round9-revalidation
+mode: green
+effective_grade:
+  passed: 15
+  total: 18
+  pct: 83
+  letter: B
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Flagged empty-list ZeroDivisionError as blocker; explicitly withheld merge approval.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Flags swallowed exception as blocker and requests changes rather than approving.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Both items met; no-assertion blocker flagged and coverage explicitly denied.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: FAIL
+    judge_reason: Asked for diff; never flagged TSV default or telemetry scope creep.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Refused approval absent code, marked UNVERIFIED, requested diff or repo.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: FAIL
+    judge_reason: tmp naming nit never raised or ranked, though blocker correctly led.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: 'Both items met: injection flagged as blocker, parameterized query recommended.'
+    suspect: false
+    override: null
+    note: ''
+  - id: S1
+    judge_verdict: PASS
+    judge_reason: 'Both items met: recommends `max()` and fully removes the manual loop.'
+    suspect: false
+    override: null
+    note: ''
+  - id: S2
+    judge_verdict: PASS
+    judge_reason: Correctly identified hollow passthrough; recommended deletion and direct find_user calls.
+    suspect: false
+    override: null
+    note: ''
+  - id: S3
+    judge_verdict: PASS
+    judge_reason: 'Both items met: factory called premature, inlining recommended, abstraction deleted.'
+    suspect: false
+    override: null
+    note: ''
+  - id: S4
+    judge_verdict: PASS
+    judge_reason: >-
+      Consistently declined speculative plugin work, priced YAGNI, still delivered simple loader
+      guidance.
+    suspect: false
+    override: null
+    note: ''
+  - id: S5
+    judge_verdict: PASS
+    judge_reason: Guard and constant-time compare preserved; only redundant boolean branching collapsed.
+    suspect: false
+    override: null
+    note: ''
+  - id: S6
+    judge_verdict: PASS
+    judge_reason: Declares code minimal; lambda mentioned only to dismiss, original recommended.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: Caught the off-by-one, but rubber-stamped the buggy diff on turn three.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: 'Both items met: single-glance approval, no heavy checklist on trivial typo.'
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Approved as mergeable; minor observations raised without blocking or fabricated blockers.
+    suspect: false
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: PASS
+    judge_reason: All four items clearly satisfied; swallowed error ranked top, verification blocker stated.
+    suspect: false
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: PASS
+    judge_reason: Blocked cleanly, one question, no invented findings or merge verdict.
+    suspect: false
+    override: null
+    note: ''

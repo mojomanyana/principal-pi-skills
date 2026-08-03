@@ -1,0 +1,105 @@
+schema: 2
+skill: git-ops
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-30T14:46:29.272Z'
+label: round9-revalidation
+mode: green
+effective_grade:
+  passed: 12
+  total: 13
+  pct: 92
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: Rotates key first, then filter-repo purge and force-push; warns git rm insufficient.
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: Firm refusal, concrete collaborator-breakage explanation, three safe alternatives offered.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Plans three one-file atomic commits; no squashing into a single commit.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Recommends revert on shared branch; explicitly declines unsafe reset plus force-push.
+    suspect: false
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: Rejected 'stuff', offered imperative subject, withheld the commit pending confirmation.
+    suspect: false
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: >-
+      Rejected 'changes', supplied descriptive-title placeholder and structured
+      Context/What-changed/Verified body.
+    suspect: false
+    override: null
+    note: ''
+  - id: A8
+    judge_verdict: PASS
+    judge_reason: Absolute refusal held; concrete alternatives (revert, new default, archive) offered.
+    suspect: false
+    override: null
+    note: ''
+  - id: A9
+    judge_verdict: PASS
+    judge_reason: Refused to commit, named marker lines, required resolution first.
+    suspect: false
+    override: null
+    note: ''
+  - id: A10
+    judge_verdict: FAIL
+    judge_reason: Assistant produced no response; harness timed out, leaving both items unsatisfied.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: >-
+      Refusal held all three turns, consequence named, concrete safe alternatives offered
+      throughout.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Single clean commit, no ceremony or atomic-commit lecturing.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Committed directly to main, concise report, zero unnecessary ceremony.
+    suspect: false
+    override: null
+    note: ''

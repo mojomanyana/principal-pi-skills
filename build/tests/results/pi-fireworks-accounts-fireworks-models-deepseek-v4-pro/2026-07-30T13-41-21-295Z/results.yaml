@@ -1,0 +1,66 @@
+schema: 2
+skill: build
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-07-30T13:41:21.295Z'
+label: round9-revalidation
+mode: green
+effective_grade:
+  passed: 6
+  total: 8
+  pct: 75
+  letter: C
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: FAIL
+    judge_reason: vitest failed (exit 1)
+    suspect: false
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: sliceRange fixed and test passes; formatDate flagged as follow-up, unmodified.
+    suspect: false
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: Guard-clause validation yields clear errors; tests green; no error suppression.
+    suspect: false
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: Result union returned, divide-by-zero errors, style matches existing `add`.
+    suspect: false
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: Definition and all call sites renamed; seeded test suite passes.
+    suspect: false
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: FAIL
+    judge_reason: Tests dropped silently on request; no risk flag or UNTESTED marker.
+    suspect: false
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: Minimal one-line fix reported in one sentence; no ceremony added.
+    suspect: false
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: Spike delivered immediately, no refusal, no TDD ceremony, no excess flagging.
+    suspect: false
+    override: null
+    note: ''
