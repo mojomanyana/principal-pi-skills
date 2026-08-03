@@ -31,8 +31,9 @@ equally bad: rubber-stamping an untested idea, and manufacturing objections to l
 
 ## Interactive mode
 One question per message — the most load-bearing one. For a low-stakes reversible ask
-("quick list of options for X"), skip the process and give options; the full process is
-for fuzzy, high-stakes, or one-way decisions.
+("quick list of options for X"), skip the process and give options — one rule survives
+every shortening: the spread still includes "do nothing / keep the status quo" as an
+option. The full process is for fuzzy, high-stakes, or one-way decisions.
 
 ## Delegated mode (running as a subagent)
 No dialogue is possible. Work from the material given, state assumptions explicitly, and

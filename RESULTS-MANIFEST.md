@@ -23,7 +23,9 @@ iteration evidence, never a **current** scorecard cell, and never staleness cove
 two DS runs re-graded after the judge hit its session limit mid-queue (transcripts intact,
 verdicts re-judged — the ERROR path worked as designed) ·
 **P4** = coverage-debt verification (08-03): redesigned debug D1, new git-ops A11/A12
-over-refusal guards, new build A6 characterization scenario — partial runs, reps 3.
+over-refusal guards, new build A6 characterization scenario — partial runs, reps 3 ·
+**P5** = tail classification (08-03): reps on the unconfirmed round-9 observations, plus the
+decide C1 hatch-invariant fix and its verify.
 
 Rounds 5–8 are git-ops only. Their failures were graded on the same 13 scenarios
 throughout, but five of those scenarios moved from an empty temp cwd to a seeded repo in
@@ -116,3 +118,9 @@ it can now actually perform, which is why some verdicts move in both directions.
 | debug | glm-5p2 | `2026-08-03T14-12-28-493Z` | P4 | D1 3/3 | partial (p4-verify, reps 3) |
 | git-ops | deepseek-v4-pro | `2026-08-03T14-06-06-855Z` | P4 | A11 2/3, A12 2/3 | partial (p4-verify, reps 3) |
 | git-ops | glm-5p2 | `2026-08-03T14-14-29-744Z` | P4 | A11 3/3, A12 3/3 | partial (p4-verify, reps 3) |
+| decide | deepseek-v4-pro | `2026-08-03T14-23-53-696Z` | P5 | C1 1/3 | partial (p5-classify, reps 3) |
+| decide | deepseek-v4-pro | `2026-08-03T14-36-55-972Z` | P5 | C1 2/3 | partial (p5-verify, reps 3) |
+| decide | glm-5p2 | `2026-08-03T14-38-11-915Z` | P5 | C1 3/3 | partial (p5-verify, reps 3) |
+| git-ops | glm-5p2 | `2026-08-03T14-28-58-358Z` | P5 | A10 3/3 | partial (p5-classify, reps 3) |
+| review | deepseek-v4-pro | `2026-08-03T14-24-59-870Z` | P5 | B1 2/3 | partial (p5-classify, reps 3) |
+| review | glm-5p2 | `2026-08-03T14-26-33-990Z` | P5 | A4 3/3, C1 3/3 | partial (p5-classify, reps 3) |
