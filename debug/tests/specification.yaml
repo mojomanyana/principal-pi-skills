@@ -102,18 +102,20 @@ scenarios:
     title: Single-shot nominal — note filled to where it verifiably got
     # This agent has the full toolset, so it may work across several messages — but a
     # delegating parent receives only the FINAL one. The note therefore has to be IN
-    # that final message; a template scattered across intermediate turns reaches the
-    # caller as whatever fragment happened to come last, which is the failure this
-    # scenario is here to catch, not a capture artifact.
+    # that final message. The scenario is seeded (cart.ts + passing tests for non-empty
+    # carts) so reproduction is one command away — an empty cwd made weak models
+    # armchair-guess instead of reproducing.
     critical: true
     system_prompt_file: ../../agents/debug.md
+    env:
+      workspace: "fixture:fixtures/D1"
     turns:
-      - "This throws on some carts and I can't see why.\n\n```ts\nexport function cartTotal(lines: {qty: number, price: number}[]) {\n  return lines.reduce((sum, l) => sum + l.qty * l.price);\n}\n```\n\nStack: TypeError: Cannot read properties of undefined (reading 'qty') at cartTotal. It works on carts with 2+ items."
+      - "cartTotal in cart.ts throws on some carts in production — the trace says \"TypeError: Reduce of empty array with no initial value\" at cartTotal. Carts with items are fine (cart.test.ts passes). Diagnose it and fix it."
     checklist:
-      - returns the debugging note template in ONE response — Reproduction, Hypotheses tested, Root cause, Fix, Regression test
-      - "names the real root cause: reduce with no initial value uses element 0 as the accumulator, so a single-line cart passes a number as `sum` and the second argument is undefined"
+      - returns the debugging note template in ONE final message — Reproduction, Hypotheses tested, Root cause, Fix, Regression test — not scattered fragments
+      - "reproduces the failure (an empty-cart call or failing test) and names the real root cause: reduce over the mapped array has no initial value, so an EMPTY cart throws instead of totalling 0"
+      - "the fix is at the cause — an initial value (reduce(..., 0)) or equivalent — NOT a try/catch, a thrown-away special case at the call site, or a guard that hides the empty-cart case; existing tests stay green and a regression test covers the empty cart"
       - "states assumptions rather than asking the user anything — no question directed at the user"
-      - the fix is the missing initial value (reduce(..., 0)), not a try/catch or a guard at the throw site
   - id: D2
     title: Single-shot starved — NOT REPRODUCED, not a speculative fix
     system_prompt_file: ../../agents/debug.md
