@@ -227,8 +227,31 @@ The law all of P2 re-confirmed: **weak models obey the material in front of them
 skill text.** Environment fixes (fixture affordances, runner signals, remotes) landed
 3/3; prose fixes against in-context evidence lost every time.
 
-**Still open from round 9:** `plan`'s and `debug`'s agent variants failing their
-delegation contract (P3), and full release runs to replace this table's stale cells.
+### P3 (2026-08-03): the delegation contract, fixed
+
+Root cause was the same law again: `BLOCKED` appeared in AGENTS.md, both prompt templates,
+and six checklist items — and in zero of the three agent definitions. The agents now carry
+the contract themselves: plan's gap dichotomy (bridgeable → a *stated* assumption;
+load-bearing → a literal BLOCKED form, one question, no plan attached) and debug's
+mechanism ("the caller receives ONLY your final message — restate the complete note
+there"). Review was left untouched and measured instead.
+
+Reps-based outcome (all six agent×model cells):
+
+- **D2 starved — fixed everywhere.** From 0/2 across the board in round 9 to
+  majority-or-unanimous in all cells (plan 3/3 · 3/3, debug 3/3 · 2/3, review 2/3 · 3/3).
+- **D1 nominal — contract holds; residuals changed kind.** review passes 2/3 on both
+  models with no edit (the round-9 miss was variance, as reps predicted). plan/DS 1/3 now
+  fails on walking-skeleton *depth* — plan quality, not delegation; the questions are
+  gone. debug D1 (DS 1/3, GLM 0/3) is genuine misdiagnosis of the pasted bug: with an
+  empty cwd, reproducing means transcribing code first, so weak models armchair-guess.
+  Seeding the scenario's code as a fixture (the environment law) is queued as spec work.
+- Mid-queue, the judge hit its subscription session limit; the harness returned visible
+  `ERROR` verdicts instead of fake FAILs, and `grade` re-judged the two poisoned runs
+  from saved transcripts at zero model cost.
+
+**Still open:** debug D1 seeding + the remaining coverage debt (P4), and full release runs
+to replace this table's stale cells.
 
 Round 8 closed the rest of that hardening: A10's "gates, not postscripts" wording stopped
 DeepSeek committing a 250 MB blob it had created itself, and the restored solo-repo governor
