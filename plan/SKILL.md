@@ -74,7 +74,10 @@ than asking.
 
 ## Output — plan
 This template is for multi-step work. A trivial reversible change never gets it — its
-entire plan is three lines: the change, the test, done.
+entire plan is three lines: the change, the test, done. Small clear work (one flag, one
+helper, one endpoint) gets the middle form: two or three slices with a done-signal each,
+and the Risks / [ONE-WAY] / Parallel-safe fields appear ONLY if a real one exists — an
+empty field is omitted, never padded with a spike, a graph, or ceremony to look complete.
 ```
 ## Plan: <outcome, one sentence>
 Conventions observed: <naming / error / test patterns found in the codebase>

@@ -5,8 +5,12 @@ function makeOrder(total: number) {
   return {
     total,
     paidId: null as string | null,
+    failedReason: null as string | null,
     markPaid(id: string) {
       this.paidId = id;
+    },
+    markFailed(reason: string) {
+      this.failedReason = reason;
     },
   };
 }
@@ -21,7 +25,7 @@ describe("charge", () => {
   it("does not crash the caller when the gateway fails", () => {
     const o = makeOrder(500);
     expect(() => charge(o)).not.toThrow();
-    // the failure must be detectable: a failed charge is NOT marked paid
+    // a failed charge must not be marked paid
     expect(o.paidId).toBeNull();
   });
 });
