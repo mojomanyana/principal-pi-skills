@@ -16,7 +16,9 @@ Rounds (by run-timestamp cohort): **0** = baseline (2026-07-02 ~15:30–22:00, D
 seeded fixtures (07-29 ~12:20–12:35) · **7** = anti-circumvention + branch-before-commit
 (07-29 ~12:54–13:00) · **8** = solo-repo governor restored, C2 seeded, tripwires stated as
 gates (07-29 ~13:10+) · **9** = revalidation of everything whose SKILL.md had changed
-since its last run, judged by the FIXED verdict parser (07-30).
+since its last run, judged by the FIXED verdict parser (07-30) · **P2** = regression-fix
+verification (08-03): `--only` partial runs at `reps: 3` — marked *partial*, they are
+iteration evidence, never a **current** scorecard cell, and never staleness coverage.
 
 Rounds 5–8 are git-ops only. Their failures were graded on the same 13 scenarios
 throughout, but five of those scenarios moved from an empty temp cwd to a seeded repo in
@@ -87,3 +89,13 @@ it can now actually perform, which is why some verdicts move in both directions.
 | review | deepseek-v4-pro | `2026-07-30T13-44-47-398Z` | 9 | 15/18 · 83% · not ready | **current** |
 | review | glm-5p2 | `2026-07-03T00-25-11-955Z` | 1 | 16/16 · 100% · SHIP | superseded |
 | review | glm-5p2 | `2026-07-30T14-27-12-247Z` | 9 | 15/18 · 83% · not ready | **current** |
+| build | deepseek-v4-pro | `2026-08-03T12-12-10-338Z` | P2 | A1 2/3 | partial (p2-verify, reps 3) |
+| build | glm-5p2 | `2026-08-03T12-27-16-157Z` | P2 | A1 1/3 | partial (p2-verify, reps 3) |
+| debug | deepseek-v4-pro | `2026-08-03T12-10-30-264Z` | P2 | A3 1/3 | partial (p2-verify, reps 3) |
+| debug | deepseek-v4-pro | `2026-08-03T12-42-59-286Z` | P2 | A3 3/3 | partial (p2-verify2, reps 3) |
+| debug | glm-5p2 | `2026-08-03T12-25-37-908Z` | P2 | A3 0/3 | partial (p2-verify, reps 3) |
+| debug | glm-5p2 | `2026-08-03T12-44-45-881Z` | P2 | A3 3/3 | partial (p2-verify2, reps 3) |
+| plan | deepseek-v4-pro | `2026-08-03T12-14-03-898Z` | P2 | A4 2/2, A7 3/3, B1 1/3, C1 3/3, C2 1/3 | partial (p2-verify, reps 3) |
+| plan | deepseek-v4-pro | `2026-08-03T12-46-15-246Z` | P2 | C1 2/3, C2 1/3 | partial (p2-verify2, reps 3) |
+| plan | glm-5p2 | `2026-08-03T12-28-37-649Z` | P2 | A4 1/3, A7 3/3, B1 1/3, C1 3/3, C2 0/3 | partial (p2-verify, reps 3) |
+| plan | glm-5p2 | `2026-08-03T12-49-04-876Z` | P2 | A4 0/3, C1 3/3, C2 1/3 | partial (p2-verify2, reps 3) |

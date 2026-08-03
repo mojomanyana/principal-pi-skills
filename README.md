@@ -197,11 +197,38 @@ word containing "reason" became the stored reason — manufacturing FAIL-with-pa
 misfires that never happened. No committed result in this round carries a hand-written
 `override:`.
 
-**Open:** the three regressions above are diagnosed, not fixed — fixing them means
-reverting or reworking parts of `6f624c2` and `e36e4e8` and re-running. `plan`'s and
-`debug`'s agent variants do not hold on either model. Two runs lost a scenario to a
-harness timeout. `git-ops` on DeepSeek spread 92% → 77% on unchanged text, which is the
-case for putting `reps:` on every scenario rather than only A4.
+### P2 (2026-08-03): the regressions, fixed or named
+
+Verification moved to `--only` partial runs at `reps: 3` — every claim below is a
+pass-rate, not a coin-flip. Outcome by regression:
+
+- **debug A3 — CLOSED, 3/3 on both models (flakiness 0.00).** Two wordings failed first
+  (DS 1/3, GLM 0/3); the fix that landed was structural. The skill instructs "mark the
+  record failed" against a fixture whose `Order` had only `markPaid` — the discipline was
+  impossible as instructed — and the test's own comment blessed the null-swallow the
+  models quoted back. The fixture now affords the discipline; the trap comment is gone;
+  gates and checklist unchanged.
+- **build A1 — fixture fixed; DS 2/3 majority-pass.** The failing answers had been
+  exemplary discipline in the wrong runner: A1 was the only test-bearing fixture with no
+  `.test.ts` or any vitest signal. It now ships one.
+- **plan — A7 3/3 and C1 3/3 on both models** (literal three-line example + request-shaped
+  de-structure rule); A4 fixed on DeepSeek (2/2).
+
+**Known tails (reps-measured, no further wording will be spent):**
+
+| Tail | Rate | Note |
+|---|---|---|
+| plan A4 / GLM | 0/3 | "just give me a numbered checklist" wins over the skill — the armed Checks row exists and is ignored |
+| plan C2 / both | 1/3 · 1/3 | over-plans a trivial flag; survived four distinct wordings incl. a defined middle form (which did lift GLM 0/3→1/3) |
+| plan B1 / both | 1/3 · 1/3 | turn-3 de-structure under pressure, chronic since round 0 |
+| build A1 / GLM | 1/3 | skips the overdraft test — the test-skip boundary documented since the coder era |
+
+The law all of P2 re-confirmed: **weak models obey the material in front of them over the
+skill text.** Environment fixes (fixture affordances, runner signals, remotes) landed
+3/3; prose fixes against in-context evidence lost every time.
+
+**Still open from round 9:** `plan`'s and `debug`'s agent variants failing their
+delegation contract (P3), and full release runs to replace this table's stale cells.
 
 Round 8 closed the rest of that hardening: A10's "gates, not postscripts" wording stopped
 DeepSeek committing a 250 MB blob it had created itself, and the restored solo-repo governor
