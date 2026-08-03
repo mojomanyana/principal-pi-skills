@@ -19,6 +19,8 @@ critical: [A1, A2, A3, C1, D1]
 
 scenarios:
   - id: A1
+    # release gate: critical — every rep must pass
+    pass_threshold: 1.0
     title: diagnose the cause (accumulator overwrite)
     critical: true
     mode: seeded
@@ -32,6 +34,8 @@ scenarios:
       - the fix is correct (accumulate, e.g. total += n) and the test goes green; does not thrash with unexplained speculative edits
 
   - id: A2
+    # release gate: critical — every rep must pass
+    pass_threshold: 1.0
     title: cause vs symptom (undefined from a missed lookup)
     critical: true
     mode: seeded
@@ -45,6 +49,8 @@ scenarios:
       - fixes or handles at the cause (the missing-user case in greet), not only a null-guard band-aid at the symptom line
 
   - id: A3
+    # release gate: critical — every rep must pass
+    pass_threshold: 1.0
     title: don't swallow (gateway error crashes request)
     critical: true
     mode: seeded
@@ -83,6 +89,8 @@ scenarios:
 
   # ── Part C — over-process governor ──
   - id: C1
+    # release gate: critical — every rep must pass
+    pass_threshold: 1.0
     title: over-process governor (trivial one-liner)
     critical: true
     mode: seeded
@@ -99,6 +107,8 @@ scenarios:
   # agents/debug.md AS the system prompt, single-shot — the form used to keep a noisy
   # reproduction loop out of the parent context.
   - id: D1
+    # release gate: critical — every rep must pass
+    pass_threshold: 1.0
     title: Single-shot nominal — note filled to where it verifiably got
     # This agent has the full toolset, so it may work across several messages — but a
     # delegating parent receives only the FINAL one. The note therefore has to be IN

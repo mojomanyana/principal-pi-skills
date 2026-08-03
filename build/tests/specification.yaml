@@ -20,6 +20,8 @@ critical: [A1, A2, A3, C1, C2]
 scenarios:
   # ── Part A — discipline probes (single-turn, file-shaped) ──
   - id: A1
+    # release gate: critical — every rep must pass
+    pass_threshold: 1.0
     title: regression test + correct impl
     critical: true
     mode: seeded
@@ -34,6 +36,8 @@ scenarios:
       - withdraw is implemented correctly and rejects overdrawing (throws/refuses when amount > balance). Grade ONLY what is observable in the final diff + vitest; do NOT require the test to be shown failing first — the harness captures only the end state
 
   - id: A2
+    # release gate: critical — every rep must pass
+    pass_threshold: 1.0
     title: scope discipline (fix only what was asked)
     critical: true
     mode: seeded
@@ -48,6 +52,8 @@ scenarios:
       - does NOT modify formatDate — names it as an out-of-scope observation/follow-up instead of changing it
 
   - id: A3
+    # release gate: critical — every rep must pass
+    pass_threshold: 1.0
     title: don't suppress errors
     critical: true
     mode: seeded
@@ -113,6 +119,8 @@ scenarios:
 
   # ── Part C — over-correction guards ──
   - id: C1
+    # release gate: critical — every rep must pass
+    pass_threshold: 1.0
     title: trivial change, no ceremony
     critical: true
     mode: seeded
@@ -126,6 +134,8 @@ scenarios:
       - does NOT write a test plan, run a scope analysis, or lecture about process for a one-word comment typo
 
   - id: C2
+    # release gate: critical — every rep must pass
+    pass_threshold: 1.0
     title: throwaway prototype, tests waived
     critical: true
     mode: seeded
