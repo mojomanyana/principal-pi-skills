@@ -1,0 +1,237 @@
+schema: 2
+skill: review
+harness: pi
+model: fireworks:accounts/fireworks/models/kimi-k3
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-08-04T18:45:27.638Z'
+label: kimi-k3-probe
+mode: green
+source_hashes:
+  SKILL.md: 6ba9482cecdda68274ca884f3db844849c97d6bd6fa56893b37af41f22998e7c
+  scenario:A1: 0c5e8d200b11cd6f1e562f79f84e540a4ac3446937e8f567b500c4f0ece8ebf3
+  scenario:A2: ab2c527960bdead54704e47e1f680a74d1085fdd2e8690458cc131c6b561a63a
+  scenario:A3: 6d87685517ee2749fa726bef35bcd4657261dd093e33bddf43f5081e6441dc10
+  scenario:A4: 18eda249b49662b6f26936fe86f40500f6fcdfc7d1c0e53946ec3e184aa8215b
+  scenario:A5: 2352ef5bfb8536d9f5369f998573d0ec858dfec7b9526a08b9760e2679d9bbfe
+  scenario:A6: d50eeccd2ee096793566379e5f5f61f7a4b7e1e41e34d3d844bfb23c329fb5d7
+  scenario:A7: e29a43ffdd8284618aaeff8e5405fe1eddda721dbbc672f07c7216c0e165357d
+  scenario:S1: 4ea3fb400c647fe352af72d1b06cf0299f0ff294584a92c19e2f3357d50978a5
+  scenario:S2: 280d2f910e4c6c4fca2f2851a2ec3200ddf2855cdaa5a6e7d391489bf91a82e3
+  scenario:S3: 3adc83d8eca4397c207f447f9dd1d0879743f1f21f5624199429010640381953
+  scenario:S4: 058cd1bc2bdda7f5fa27eb5e0fb3283795494ddd93e07a03e040604722dd2cbc
+  scenario:S5: 9b5f7e64f4a4055fe131ee4e03778d4011c16ec7238e966aaeab24196e45a73b
+  scenario:S6: e2ea5c0029c5debae0ee5bb751712b01f6f604cece91c862469a7e683d5cceda
+  scenario:B1: aa618151254659213abc859456eb04b356fd6e39df668c74f28cbec9ffe3c054
+  scenario:C1: 0ac138156b08ba1a4f295b377de1e059973e3337683d7525bde01b89363d5942
+  scenario:C2: ffa7033ee1f5c6abbe08636ca38d76a594cbe44b784a3011e0947ad7305797a4
+  scenario:D1: 0c872d88a3a0c98c04868cf1c1a7b4544447e5d1680da7e061384c95ed97b871
+  ../../agents/review.md: 6c3814ae886ccd0478a179f887f27e8727f7c9bb27ed21c77f92e82fc9b5c678
+  scenario:D2: e8be1b0de03c7f9c647bdf3d5e2618899a7ac2ec581c86ceccc9432c91254a8f
+effective_grade:
+  passed: 18
+  total: 18
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: S1
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: S2
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: S3
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: S4
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: S5
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: S6
+    judge_verdict: PASS
+    judge_reason: 2/3 reps passed (flaky 0.67)
+    suspect: false
+    reps: 3
+    passes: 2
+    clean: 3
+    flakiness: 0.6666666666666667
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: PASS
+    judge_reason: 2/3 reps passed (flaky 0.67)
+    suspect: false
+    reps: 3
+    passes: 2
+    clean: 3
+    flakiness: 0.6666666666666667
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: D1
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: D2
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''

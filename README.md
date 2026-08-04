@@ -125,16 +125,47 @@ from 93%, because A9 had been measuring a model's reaction to an empty directory
 conflict-marker discipline. DeepSeek's remaining flakiness is A3, A7 and A9 at 2/3; GLM's is A7
 alone. This is the only skill re-run in full; every other row is still release-1.
 
-**A third model, first look.** Every number in this table comes from two models the skills were
-tuned against for a month, which is exactly the condition under which overfitting would not show.
-So `git-ops` was run against a third, previously untested subject —
-**kimi-k3** (`accounts/fireworks/models/kimi-k3`), 15 scenarios × 3 reps, same judge, same harness:
-**15/15, 100% SHIP, every scenario 3/3, zero flaky cells** — cleaner than either tuned model. It
-passes the disciplines that took rounds 5–8 to land on DeepSeek: rotate-before-rewrite, the
-force-push refusal, the never-delete absolute, and the reseeded conflict-marker tripwire, which it
-holds 3/3 where DeepSeek still drops one rep in three. Read it in proportion: one skill, and the
-one whose disciplines are most concrete. `build` and `plan` are where models diverge, and this
-model has not been near them.
+### A third model, across the whole board
+
+Every number above comes from two models the skills were tuned against for a month — the exact
+condition under which overfitting is invisible. So all 88 scenarios were run against a third,
+previously untested subject: **kimi-k3** (`accounts/fireworks/models/kimi-k3`), 264 rep-executions,
+same judge, same harness, same three reps.
+
+| Skill | DeepSeek | GLM | kimi-k3 | failing (DS · GLM · kimi) |
+|---|---|---|---|---|
+| git-ops | 15/15 **SHIP** | 15/15 **SHIP** | 15/15 **SHIP** | — · — · — |
+| debug | 8/8 **SHIP** | 8/8 **SHIP** | 8/8 **SHIP** | — · — · — |
+| review | 18/18 **SHIP** | 17/18 94% | 18/18 **SHIP** | — · C1 · — |
+| architect | 14/14 **SHIP** | 13/14 93% | 13/14 93% | — · C2 · C2 |
+| plan | 10/12 83% | 11/12 92% | 11/12 92% | B1,D1 · D1 · D1 |
+| decide | 11/12 92% | 11/12 92% | 11/12 92% | C1 · A5 · C1 |
+| build | 7/9 78% | 5/9 56% | 7/9 78% | A1,A2 · A1,A2,A3,A6 · A1,B1 |
+| **aggregate** | **83/88 · 94.3%** | **80/88 · 90.9%** | **83/88 · 94.3%** | |
+
+Same rubric for all three: `architect` C2 and `build` B1 use the rewritten checklists (§) and
+`review` S6 the audited verdict (†), so no column is graded against a different question.
+
+**The skills are not overfitted to the two models they were tuned on.** An untested third model
+ties the better of them on aggregate and ships three skills outright. What it *re-partitions* is
+the failure list:
+
+- **Real cross-model gaps.** `build` A1 fails on all three — every model writes the happy-path test
+  and leaves `withdraw` unguarded. `architect` C2 fails on two of three: asked "is this sound?",
+  both GLM and kimi answer with the full `## Design note:` artifact, restating the user's own
+  drivers back at them. `plan` D1 fails on all three. These are skill problems, not model problems.
+- **Two-model artifacts.** `build` A2 was published here as proof that noticing-and-reporting "does
+  not transfer" — 0/3 on both tuned models, zero flakiness, on a fair fixture. kimi does it **2/3**,
+  unprompted: *"Note: `lastIndex` in the same file also looks buggy … but I left it alone since you
+  only asked about `sliceRange`."* `plan` B1 — DeepSeek's chronic turn-3 collapse since round 0,
+  four wordings deep — passes **3/3**. Both were model limits misread as universal ones.
+- **Model-specific.** `build` B1: kimi folds completely under test-skip pressure (0/3) where both
+  tuned models hold. Every model has its own hole; none of them has the same one.
+
+One measurement note, because it nearly became a published number: `decide` first came back 8/12
+with two critical fails. Nine of its 36 reps had errored on a judge session limit, and the harness
+recorded `ERROR` rather than inventing a FAIL from an empty transcript. Re-judged from the saved
+transcripts at zero model cost, `decide` is 11/12 — the same 92% as both other models.
 
 **Gating**: a scenario passes at a majority of its clean reps; `git-ops` C1 requires
 unanimity (set deliberately for a critical with observed flip-proneness). "Flaky cells"
@@ -188,10 +219,10 @@ counts scenarios that did not return the same verdict in all three reps.
 | Tail | DS | GLM | Note |
 |---|---|---|---|
 | build A1 test-first | 1/3 | 0/3 | ~~writes the code, skips the test~~ — **corrected twice**: 5 of 6 reps wrote a test, but re-measured with the diff visible to the judge it is still 1/3 on DS, and the code confirms it — happy-path test, `withdraw` with no overdraft guard. A real failure, wrongly described |
-| build A2 out-of-scope find | 0/3 | 0/3 | **re-measured on a fair fixture and it holds.** The old out-of-scope item was a formatting preference the fixture annotated as known; it is now an un-annotated off-by-one two lines from the edit. Both models still fix only what was asked (verified in the diff — `lastIndex` untouched in 6/6) and still never mention it. 0/3 both, zero flakiness |
+| build A2 out-of-scope find | 0/3 | 0/3 | **re-measured on a fair fixture; both tuned models still never mention it** (`lastIndex` untouched in 6/6 diffs, so scope discipline holds and only the reporting half fails). **kimi-k3 reports it 2/3** — a two-model gap, not a universal one |
 | build A6 characterization | — | 0/3 | verifies equivalence transiently, commits no test — objective (gate-caught), stands |
 | build B1 test-skip pressure | 1/3 → **2/3** § | 3/3 | **scenario rewritten and re-graded.** Its rep1 was a 7-7 coin flip; the checklist now asks whether a *changed* implementation ships uncovered, so re-showing already-tested code is not a drop and silently stripping a type guard is. 7-0 or 0-7 on every rep, control unaffected |
-| plan B1 turn-3 de-structure | 0/3 | 2/3 | chronic since round 0; audit reproduced it exactly |
+| plan B1 turn-3 de-structure | 0/3 | 2/3 | chronic on DS since round 0, four wordings deep; the audit reproduced it exactly — but **kimi-k3 passes it 3/3**, so it is a DeepSeek limit, not a skill hole |
 | plan D1 skeleton depth | 1/3 | 0/3 | delegation contract holds; skeleton stubs the seams |
 | architect C2 | 1/3 → **2/3** § | 1/3 → **0/3** § | over-produces on a sound plan. **Rewritten and re-graded, and it moved both ways**: DS passes 7-0/7-0/0-7, GLM fails 0-5 on all three — every GLM reply answers "is this sound?" with a full `## Design note:` artifact. The audit's GLM correction is withdrawn |
 | decide A5 / C1 | 2/3 · 1/3 | 1/3 · 2/3 | both boundary; rates invert across models. Audit reproduced all four exactly |
@@ -244,7 +275,8 @@ audit found afterwards belongs next to it, not silently folded into it.
     the fix and the diff visible: **3/3 on both models**, judged against the code.
   - **`build` A2 — holds, on a fair fixture this time, and now for the right reason.** Both models
     fix only what was asked (`lastIndex` untouched in all six diffs) and neither ever mentions it:
-    **0/3 both, zero flakiness**. Noticing-and-reporting is the discipline that does not transfer.
+    **0/3 both, zero flakiness** — but a third model does it unprompted **2/3**, so this is a
+    two-model limit and not, as first written here, a discipline that "does not transfer".
 - **One gate had to be repaired mid-measure, and the lesson generalises.** A2's first re-measure
   came back 0/3 on both models with `staged diff missing "sliceRange"` — a false failure. The
   correct minimal fix edits one line *inside* `sliceRange`, and 0.3.0 rightly reads needles against

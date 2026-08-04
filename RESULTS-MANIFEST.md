@@ -145,3 +145,9 @@ it can now actually perform, which is why some verdicts move in both directions.
 | git-ops | deepseek-v4-pro | `2026-08-04T15-14-56-904Z` | release-2-gitops | 15/15 · 100% · **SHIP** | **current** (full, reps 3, 3 flaky: A3 A7 A9) |
 | git-ops | glm-5p2 | `2026-08-04T15-38-03-797Z` | release-2-gitops | 15/15 · 100% · **SHIP** | **current** (full, reps 3, 1 flaky: A7) |
 | git-ops | kimi-k3 | `2026-08-04T16-09-12-158Z` | kimi-k3-probe | 15/15 · 100% · **SHIP** | probe (third model, full git-ops, reps 3, 0 flaky — not part of the two-model scorecard) |
+| architect | kimi-k3 | `2026-08-04T18-15-15-040Z` | kimi-k3-probe | 13/14 · 93% · not ready | probe (third model, full, reps 3, 0 flaky, fails: C2) |
+| build | kimi-k3 | `2026-08-04T16-59-49-139Z` | kimi-k3-probe | 7/9 · 78% · not ready | probe (third model, full, reps 3, 3 flaky, fails: A1, B1) |
+| debug | kimi-k3 | `2026-08-04T19-46-21-872Z` | kimi-k3-probe | 8/8 · 100% · **SHIP** | probe (third model, full, reps 3, 0 flaky) |
+| decide | kimi-k3 | `2026-08-04T19-22-15-594Z` | kimi-k3-probe | 11/12 · 92% · not ready | probe (third model, full, reps 3, 1 flaky, fails: C1; re-judged from saved transcripts after a judge session limit errored 9 reps) |
+| plan | kimi-k3 | `2026-08-04T17-31-49-121Z` | kimi-k3-probe | 11/12 · 92% · not ready | probe (third model, full, reps 3, 2 flaky, fails: D1) |
+| review | kimi-k3 | `2026-08-04T18-45-27-638Z` | kimi-k3-probe | 18/18 · 100% · **SHIP** | probe (third model, full, reps 3, 2 flaky) |
