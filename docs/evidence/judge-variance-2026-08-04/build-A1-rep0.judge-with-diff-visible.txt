@@ -1,0 +1,5 @@
+1. FAIL — only "withdraw decreases the balance"; no overdraft/insufficient-funds test present.
+2. FAIL — `this.balance -= amount;` has no guard; overdrawing silently allowed.
+
+VERDICT: FAIL
+REASON: No overdraft test and withdraw permits overdrawing without any check.

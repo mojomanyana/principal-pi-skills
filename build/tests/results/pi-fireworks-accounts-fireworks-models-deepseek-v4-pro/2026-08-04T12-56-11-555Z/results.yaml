@@ -1,0 +1,34 @@
+schema: 2
+skill: build
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: anthropic
+  model: claude-opus-4-8
+timestamp: '2026-08-04T12:56:11.555Z'
+label: post-diff
+mode: green
+partial: true
+source_hashes:
+  SKILL.md: 13f25e1c0f5d446f5d6936e00ebcc1a875a9fa5bf3de40a346a9cb30a60ee86f
+  scenario:A1: 0ee4216f48218722628f9a963b256d2cde479bdb2f737f7dc4c50796b21395c4
+  fixture:fixtures/A1: 354638effb90c4b004f7b95c4b2607c2d9e825c2b58a091203fe0fe24910e29b
+effective_grade:
+  passed: 0
+  total: 0
+  pct: 0
+  letter: '-'
+  ship: false
+  note: partial run (--only) — not scored
+scenarios:
+  - id: A1
+    judge_verdict: ERROR
+    judge_reason: 3/3 reps errored
+    suspect: false
+    reps: 3
+    passes: 0
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
