@@ -89,19 +89,20 @@ reference file: the contract is visible in the template itself.
 ## Validation results — release-1 (skill-harness, Opus judge, 2026-08-04)
 
 88 scenarios across seven skills, **both models, every scenario run three times** —
-528 rep-executions, judged by `claude-code:opus`. Every cell below is a pass-rate, not a
-single draw. Committed evidence is the `results.yaml` per run; `RESULTS-MANIFEST.md` maps
-all 104 runs to their round.
+528 rep-executions for release-1, plus 90 re-running `git-ops` (¶) and 102 re-running `build` and
+`debug` (‖), all judged by `claude-code:opus`. Every cell below is a pass-rate, not a single draw.
+Committed evidence is the `results.yaml` per run; `RESULTS-MANIFEST.md` maps all 123 runs to their
+round and says which four cells each table row comes from.
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | Scenarios | Flaky cells (DS/GLM) | Failing (rate) |
 |---|---|---|---|---|---|
-| **debug** | **100% SHIP** | **100% SHIP** | 8 | 2 / 1 | — |
+| **debug** | **100% SHIP** ‖ | **100% SHIP** ‖ | 8 | 2 / 1 | — |
 | **git-ops** | **100% SHIP** ¶ | **100% SHIP** ¶ | 15 | 3 / 1 | — |
 | review | **100% SHIP** † | 94% | 18 | 7 / 3 | C1 1/3 (GLM) |
 | architect | **100% SHIP** § | 93% § | 14 | 2 / 2 | C2 0/3 (GLM) |
 | decide | 92% | 92% | 12 | 2 / 2 | C1 1/3 · A5 1/3 |
 | plan | 83% | 92% | 12 | 2 / 2 | B1 0/3, D1 1/3 · D1 0/3 |
-| build | 78% § | 56% | 9 | 2 / 1 | A1, A2 · A1, A2, A3, A6 |
+| build | 44% ‖ | 44% ‖ | 9 | 2 / 3 | A1, A2, A6, B1, C2\* — both models |
 
 † **Corrected after a judge audit** (2026-08-04), not re-run against the models. Every
 non-unanimous cell in the release was re-judged from its saved transcripts and disputed reps
@@ -115,8 +116,10 @@ at 7-7 over fourteen judgments. Rewritten so the question has an answer, every r
 SHIP cell) and **fails 0-5 per rep on GLM**, which withdraws the audit's earlier correction and
 returns `architect`/GLM to 13/14. All three GLM replies answer "is this sound?" with a full
 `## Design note:` artifact restating the user's own drivers back at them — a consistent failure the
-old count-based checklist never named. `build` B1 (DS) passes, lifting `build`/DS to 7/9 without
-shipping it, since A1 and A2 are critical and fail. Method and margins: [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md);
+old count-based checklist never named. `build` B1 (DS) passed under that re-grade — **since
+superseded**: the ‖ re-run measured B1 directly against the same rewritten checklist and it fails on
+both models (1/3 DS, 0/3 GLM), so the re-grade no longer carries `build`/DS. `architect` C2's
+re-grade stands; `architect` was not re-run. Method and margins: [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md);
 the per-judgment record behind these cells is committed at
 [`docs/evidence/rubric-2-regrade.md`](docs/evidence/rubric-2-regrade.md). The release-1
 `results.yaml` files keep their original verdicts — a re-grade under a later rubric is a different
@@ -126,7 +129,32 @@ measurement, not a correction to what that round recorded.
 its A9 scenario was reseeded. Both models now score **15/15 with nothing failing** — DeepSeek up
 from 93%, because A9 had been measuring a model's reaction to an empty directory rather than its
 conflict-marker discipline. DeepSeek's remaining flakiness is A3, A7 and A9 at 2/3; GLM's is A7
-alone. This is the only skill re-run in full; every other row is still release-1.
+alone.
+
+‖ **`build` and `debug` were fully re-run** (2026-08-04, label `post-diff-remeasure-full`, 102
+rep-executions, `@skill-harness/cli@0.3.0` pinned, judged on the subscription) because 0.3.0 changed
+what a `mode: seeded` verdict is measured from: `f6a5f6c` puts the staged diff in front of the judge,
+and `3b10473` reads `diff_contains` against changed lines instead of context. `build` has 8 seeded
+scenarios of 9 and `debug` 5 of 8; the other five skills have none, so their rows are untouched and
+still release-1.
+
+**`debug` held: 8/8 on both models with the judge reading the code instead of the model's account of
+it.** That was the cell most at risk here — it could only hold or lose — and it held, unanimous
+except B1/D2 (DS) and D1 (GLM) at 2/3.
+
+**`build` fell from 78%/56% to 44%/44%, and the drop is three different things.** A6 is real and new
+on DeepSeek: all three reps refactored `pricing.ts` and committed no characterization test, so the
+`expect(` gate failed with no judge involved — release-1's 3/3 had actually written
+`pricing.test.ts`. B1 is real on both models: GLM withdrew its tests unlabelled in all three reps
+("tests removed", "no tests attached"), each verdict quoting the transcript. **C2 is neither — it is
+a broken gate**, and it is marked `*` in the table for that reason. Its needle asks for the word
+"spike" in a file named `spike.ts`, which changed lines never contain, so it scores word choice
+rather than behavior — DeepSeek 0/3, GLM 1/3, kimi-k3 3/3, on functionally identical spikes, the
+whole difference being whether line 1 is a comment saying "throwaway spike". Per-rep diffs:
+[`docs/evidence/c2-needle-2026-08-05.md`](docs/evidence/c2-needle-2026-08-05.md). Corrected, `build` is at most 5/9 · 56%. It ships on neither
+model either way: A1 and A2 are critical and fail. The needle fix plus a full `build` re-run are
+queued as a follow-up rather than folded in here, because editing the spec now would mark these two
+rows stale, and `stale` is a warning on a branch but a failure on `main`.
 
 ### A third model, across the whole board
 
@@ -143,27 +171,40 @@ same judge, same harness, same three reps.
 | architect | 14/14 **SHIP** | 13/14 93% | 13/14 93% | — · C2 · C2 |
 | plan | 10/12 83% | 11/12 92% | 11/12 92% | B1,D1 · D1 · D1 |
 | decide | 11/12 92% | 11/12 92% | 11/12 92% | C1 · A5 · C1 |
-| build | 7/9 78% | 5/9 56% | 7/9 78% | A1,A2 · A1,A2,A3,A6 · A1,B1 |
-| **aggregate** | **83/88 · 94.3%** | **80/88 · 90.9%** | **83/88 · 94.3%** | |
+| build | 4/9 44% ‖ | 4/9 44% ‖ | 7/9 78% | A1,A2,A6,B1,C2\* · A1,A2,A6,B1,C2\* · A1,B1 |
+| **aggregate** | **80/88 · 90.9%** | **79/88 · 89.8%** | **83/88 · 94.3%** | |
 
 Same rubric for all three: `architect` C2 and `build` B1 use the rewritten checklists (§) and
-`review` S6 the audited verdict (†), so no column is graded against a different question.
+`review` S6 the audited verdict (†), so no column is graded against a different question. Two
+qualifications on the `build` row, both from the ‖ re-run. The DS and GLM cells are the newer,
+diff-visible measurement while kimi's predates it by six hours — and `build` C2's needle (\*) acts as
+a random blocker across all three columns: it stopped DS and GLM before the judge and let kimi
+through, so kimi's 7/9 contains one pass that means nothing, and the two 44% cells each contain one
+failure that means nothing. The third model's *lead* on `build` is therefore real but overstated by
+roughly one scenario in each direction.
 
 **The skills are not overfitted to the two models they were tuned on.** An untested third model
 ties the better of them on aggregate and ships three skills outright. What it *re-partitions* is
 the failure list:
 
 - **Real cross-model gaps.** `build` A1 fails on all three — every model writes the happy-path test
-  and leaves `withdraw` unguarded. `architect` C2 fails on two of three: asked "is this sound?",
-  both GLM and kimi answer with the full `## Design note:` artifact, restating the user's own
-  drivers back at them. `plan` D1 fails on all three. These are skill problems, not model problems.
+  and leaves `withdraw` unguarded. `build` B1 now fails on all three too (see the retraction below).
+  `architect` C2 fails on two of three: asked "is this sound?", both GLM and kimi answer with the
+  full `## Design note:` artifact, restating the user's own drivers back at them. `plan` D1 fails on
+  all three. These are skill problems, not model problems.
 - **Two-model artifacts.** `build` A2 was published here as proof that noticing-and-reporting "does
   not transfer" — 0/3 on both tuned models, zero flakiness, on a fair fixture. kimi does it **2/3**,
   unprompted: *"Note: `lastIndex` in the same file also looks buggy … but I left it alone since you
   only asked about `sliceRange`."* `plan` B1 — DeepSeek's chronic turn-3 collapse since round 0,
-  four wordings deep — passes **3/3**. Both were model limits misread as universal ones.
-- **Model-specific.** `build` B1: kimi folds completely under test-skip pressure (0/3) where both
-  tuned models hold. Every model has its own hole; none of them has the same one.
+  four wordings deep — passes **3/3**. `build` A6 joins them: 0/3 on both tuned models, but kimi
+  pins the behavior 2/3 before refactoring. All three were model limits misread as universal ones.
+- **A third retraction, from re-measuring rather than re-judging.** This section previously listed
+  `build` B1 as **model-specific** — "kimi folds under test-skip pressure where both tuned models
+  hold". The ‖ re-run withdraws that: B1 measured 1/3 on DeepSeek and 0/3 on GLM against the same
+  rewritten checklist, with the judge quoting each transcript ("tests removed", "no tests
+  attached"). Both tuned models fold too; release-1 simply caught GLM on a good day at 3/3. Every
+  model still has its own hole — but B1 is not the example, and a cell measured once is a draw from a
+  distribution, not a property of the model.
 
 One measurement note, because it nearly became a published number: `decide` first came back 8/12
 with two critical fails. Nine of its 36 reps had errored on a judge session limit, and the harness
@@ -176,12 +217,14 @@ counts scenarios that did not return the same verdict in all three reps.
 
 ### How to read this honestly
 
-- **Six SHIP cells — four measured, two recovered by re-judging.** `debug` on both models is 8/8
-  with every scenario unanimous, and it also passes a *stricter* gate requiring unanimity on all
-  criticals. `git-ops` ships on both. `review`/DS (†) and `architect`/DS (§) join them once their
-  single failing cell is judged more than once. The count is unchanged from the first audit but the
-  membership is not: `architect`/GLM was in this list and lost its place when C2's checklist was
-  made decidable.
+- **Six SHIP cells — four measured, two recovered by re-judging.** `debug` is 8/8 on both models,
+  re-measured with the judge reading the diff (‖). On DeepSeek all five criticals are unanimous, so
+  that cell also clears a *stricter* gate requiring unanimity on every critical; on GLM the critical
+  D1 sits at 2/3, so it ships at majority but not under unanimity — release-1 had it at 3/3, and this
+  is the honest reading of one re-run. `git-ops` ships on both. `review`/DS (†) and `architect`/DS (§)
+  join them once their single failing cell is judged more than once. The count is unchanged from the
+  first audit but the membership is not: `architect`/GLM was in this list and lost its place when
+  C2's checklist was made decidable.
 - **The remaining gaps are single scenarios failing 1-in-3.** Those are boundary behaviors, not
   broken disciplines, and the rate is published rather than averaged away — but see the next
   point before reading any 1/3 as a model result.
@@ -194,10 +237,12 @@ counts scenarios that did not return the same verdict in all three reps.
   against the code rather than the model's summary. Rep0's diff is the whole story: a test named
   "withdraw decreases the balance" asserting only the happy path, and `withdraw(amount) {
   this.balance -= amount }` with no guard. The skill's tenet 2 names this exact case — "for a
-  `withdraw`, the overdraft". **The failure is real.** A6 on GLM is real too, and always was
-  objective: it refactors, claims "all 1040 cross-checked cases match", commits no
-  characterization test, and the `expect(` gate fails it with no judge involved. Only A2's
-  fixture was genuinely broken.
+  `withdraw`, the overdraft". **The failure is real**, and the full re-run (‖) took it from 1/3 to
+  **0/3 on DeepSeek**. A6 is real too, and always was objective: it refactors, claims equivalence —
+  "all 1040 cross-checked cases match" — commits no characterization test, and the `expect(` gate
+  fails it with no judge involved. It now does that on **both** tuned models, where release-1 had
+  DeepSeek passing 3/3. Of `build`'s five failing scenarios, four are the skill and one is the
+  harness: A1, A2, A6 and B1 are behavior; C2 is a needle that scores word choice (\*).
 - **The flakiness column measured the judge as well as the models. Both are now separated,
   across the whole board.** Every non-unanimous cell in the release — 33 of them — was re-judged
   from its saved transcripts, and disputed reps escalated: over 170 judge calls, no model spend.
@@ -207,9 +252,12 @@ counts scenarios that did not return the same verdict in all three reps.
 - **Some transcripts are coin flips, and no amount of voting fixes one.** Judged nine times each,
   `build`/DS B1 rep1 and `review`/DS S6 rep0 both came back 4 PASS / 5 FAIL. A rep at 4-0 or 0-5 is
   a measurement; a rep near even is a checklist that does not decide its own transcript — the
-  defect `git-ops` A9 had before it was reseeded. `architect`/DS C2 and `build`/DS B1 are in that
-  state now: read them as unresolved and rewrite them, don't average them. Method, the full
-  evidence and two retractions this produced:
+  defect `git-ops` A9 had before it was reseeded. `architect`/DS C2 and `build`/DS B1 were in that
+  state: read such a cell as unresolved and rewrite it, don't average it. Both were rewritten (§), and
+  `build` B1 has since been re-measured against the rewritten checklist rather than re-judged — it
+  fails 1/3 on DS and 0/3 on GLM, with per-rep reasons quoting the transcripts. That is the exit from
+  coin-flip status: make the checklist decide, then spend a run rather than more judgments. Method,
+  the full evidence and two retractions this produced:
   [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
 - **An earlier unanimity experiment was abandoned for a reason worth recording:** with a
   3-rep sample, requiring all-3 on every critical punished *breadth* of critical coverage.
@@ -221,10 +269,11 @@ counts scenarios that did not return the same verdict in all three reps.
 
 | Tail | DS | GLM | Note |
 |---|---|---|---|
-| build A1 test-first | 1/3 | 0/3 | ~~writes the code, skips the test~~ — **corrected twice**: 5 of 6 reps wrote a test, but re-measured with the diff visible to the judge it is still 1/3 on DS, and the code confirms it — happy-path test, `withdraw` with no overdraft guard. A real failure, wrongly described |
+| build A1 test-first | **0/3** ‖ | 1/3 ‖ | ~~writes the code, skips the test~~ — **corrected twice, then re-measured**: 5 of 6 release-1 reps wrote a test, so the old description was wrong about the mechanism; with the diff in front of the judge it is 0/3 on DS and the code confirms it — happy-path test, `withdraw` with no overdraft guard. A real failure, wrongly described. Fails on all three models |
 | build A2 out-of-scope find | 0/3 | 0/3 | **re-measured on a fair fixture; both tuned models still never mention it** (`lastIndex` untouched in 6/6 diffs, so scope discipline holds and only the reporting half fails). **kimi-k3 reports it 2/3** — a two-model gap, not a universal one |
-| build A6 characterization | — | 0/3 | verifies equivalence transiently, commits no test — objective (gate-caught), stands |
-| build B1 test-skip pressure | 1/3 → **2/3** § | 3/3 | **scenario rewritten and re-graded.** Its rep1 was a 7-7 coin flip; the checklist now asks whether a *changed* implementation ships uncovered, so re-showing already-tested code is not a drop and silently stripping a type guard is. 7-0 or 0-7 on every rep, control unaffected |
+| build A6 characterization | **0/3** ‖ | 0/3 | refactors, claims equivalence, commits no test — objective (gate-caught, no judge). Release-1 had DS at 3/3, which really had written `pricing.test.ts`; the ‖ re-run has all three reps touching only `pricing.ts`. Now a two-model gap — kimi pins the behavior 2/3 |
+| build B1 test-skip pressure | 1/3 ‖ | **0/3** ‖ | **rewritten, then measured rather than re-judged.** Its old rep1 was a 7-7 coin flip; the checklist now asks whether a *changed* implementation ships uncovered. Under it both tuned models withdraw the tests unlabelled — "tests removed", "no tests attached" — which **retracts** the earlier reading that only kimi folds here |
+| build C2 throwaway spike | 0/3 \* | 1/3 \* | **not a tail — a broken gate.** `diff_contains: ["spike"]` cannot match a filename under 0.3.0's changed-lines reading, so it scores whether the model writes "spike" *inside* `spike.ts`: DS 0/3, GLM 1/3, kimi 3/3 on equivalent code. Needle fix + full `build` re-run queued |
 | plan B1 turn-3 de-structure | 0/3 | 2/3 | chronic on DS since round 0, four wordings deep; the audit reproduced it exactly — but **kimi-k3 passes it 3/3**, so it is a DeepSeek limit, not a skill hole |
 | plan D1 skeleton depth | 1/3 | 0/3 | delegation contract holds; skeleton stubs the seams |
 | architect C2 | 1/3 → **2/3** § | 1/3 → **0/3** § | over-produces on a sound plan. **Rewritten and re-graded, and it moved both ways**: DS passes 7-0/7-0/0-7, GLM fails 0-5 on all three — every GLM reply answers "is this sound?" with a full `## Design note:` artifact. The audit's GLM correction is withdrawn |

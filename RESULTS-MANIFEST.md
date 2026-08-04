@@ -29,7 +29,38 @@ decide C1 hatch-invariant fix and its verify · **release-1** = the first releas
 (08-03/04): all 7 skills × both models × `--reps 3` = 528 rep-executions. Executed under a
 unanimous-critical gate, then re-scored to the published majority policy with
 `skill-harness rescore` (rep data is the measurement, the threshold is policy). git-ops/DS was
-re-judged from saved transcripts after the judge hit a session limit mid-run.
+re-judged from saved transcripts after the judge hit a session limit mid-run ·
+**release-2-gitops** = full git-ops re-run on both models (08-04) after A9 was reseeded ·
+**kimi-k3-probe** = the whole board on an untested third model (08-04), recorded as a probe and
+never a scorecard column · **post-diff-remeasure-full** = build and debug re-run on both models
+(08-04) because skill-harness 0.3.0 changed how `mode: seeded` scenarios are gated and graded.
+
+**Why post-diff-remeasure-full exists.** Three 0.3.0 commits change what a seeded verdict is
+measured from: `f6a5f6c` (11:36Z) shows the judge the staged diff, `d4fa526` (11:54Z) adds
+`assert.diff_excludes`/`assert.post_test`, and `3b10473` (12:49Z) makes `assert.diff_contains`
+read changed lines rather than context. All three touch `mode: seeded` only, and only `build`
+(8 of 9 scenarios) and `debug` (5 of 8) have any — so those four release-1 cells were graded
+from the model's *description* of its work instead of the code, and no re-judge of their saved
+transcripts can fix it (the diff isn't in them). The other ten current cells contain zero seeded
+scenarios and stand as measured; git-ops seeds via `workspace: "fixture:…"`, which is a different
+mechanism, and its release-2-gitops runs postdate all three commits anyway. Scoping analysis:
+`~/prepos/skill-check/docs/re-measurement-2026-08-04.md`.
+
+**Two cautions for whoever measures next.**
+
+1. **Pin the CLI.** A globally installed `skill-harness` 0.1.0 shadows the current release on
+   `PATH`. Run 0.3.0+ explicitly — `npx @skill-harness/cli@0.3.0` — or a seeded run silently
+   grades without the diff, which is the defect this round removes. The stale binary also
+   reports 38 spurious `consistency — effective_grade is stale` findings against `partial: true`
+   runs in this tree; 0.3.0 reports 0, and so does CI.
+2. **`lint` silence is not freshness.** `source_hashes` only gained `scenario:` and `fixture:`
+   keys in `40c207c` (08-04 12:02Z). The twelve current cells recorded before that carry no such
+   hashes, so the staleness gate has nothing to compare and stays quiet about them — `lint all`
+   reporting 0 findings means "nothing provably stale", not "everything verified fresh". The four
+   post-diff-remeasure-full runs close the gap for build and debug; the remaining eight
+   (architect, decide, plan, review × both models) stay uncovered by deliberate choice, since
+   closing it costs ~500 rep-executions and corrects no number. Queued for the next release run,
+   which re-runs them anyway.
 
 Rounds 5–8 are git-ops only. Their failures were graded on the same 13 scenarios
 throughout, but five of those scenarios moved from an empty temp cwd to a seeded repo in
@@ -130,10 +161,10 @@ it can now actually perform, which is why some verdicts move in both directions.
 | review | glm-5p2 | `2026-08-03T14-26-33-990Z` | P5 | A4 3/3, C1 3/3 | partial (p5-classify, reps 3) |
 | architect | deepseek-v4-pro | `2026-08-03T15-32-52-785Z` | release-1 | 13/14 · 93% · not ready | **current** (release, reps 3, 2 flaky, fails: C2) |
 | architect | glm-5p2 | `2026-08-04T08-55-00-434Z` | release-1 | 13/14 · 93% · not ready | **current** (release, reps 3, 2 flaky, fails: C2) |
-| build | deepseek-v4-pro | `2026-08-03T15-08-41-425Z` | release-1 | 6/9 · 67% · not ready | **current** (release, reps 3, 2 flaky, fails: A1, A2, B1) |
-| build | glm-5p2 | `2026-08-04T08-25-42-220Z` | release-1 | 5/9 · 56% · not ready | **current** (release, reps 3, 1 flaky, fails: A1, A2, A3, A6) |
-| debug | deepseek-v4-pro | `2026-08-03T14-55-38-747Z` | release-1 | 8/8 · 100% · **SHIP** | **current** (release, reps 3, 2 flaky) |
-| debug | glm-5p2 | `2026-08-04T08-08-15-263Z` | release-1 | 8/8 · 100% · **SHIP** | **current** (release, reps 3, 1 flaky) |
+| build | deepseek-v4-pro | `2026-08-03T15-08-41-425Z` | release-1 | 6/9 · 67% · not ready | superseded (graded before the judge saw the diff — see post-diff-remeasure-full) |
+| build | glm-5p2 | `2026-08-04T08-25-42-220Z` | release-1 | 5/9 · 56% · not ready | superseded (graded before the judge saw the diff — see post-diff-remeasure-full) |
+| debug | deepseek-v4-pro | `2026-08-03T14-55-38-747Z` | release-1 | 8/8 · 100% · **SHIP** | superseded (graded before the judge saw the diff — re-measured identically at 8/8) |
+| debug | glm-5p2 | `2026-08-04T08-08-15-263Z` | release-1 | 8/8 · 100% · **SHIP** | superseded (graded before the judge saw the diff — re-measured identically at 8/8) |
 | decide | deepseek-v4-pro | `2026-08-03T14-45-17-403Z` | release-1 | 11/12 · 92% · not ready | **current** (release, reps 3, 2 flaky, fails: C1) |
 | decide | glm-5p2 | `2026-08-04T07-55-56-958Z` | release-1 | 11/12 · 92% · not ready | **current** (release, reps 3, 2 flaky, fails: A5) |
 | git-ops | deepseek-v4-pro | `2026-08-03T15-55-57-859Z` | release-1 | 14/15 · 93% · **SHIP** | superseded (A9 measured in an empty cwd) |
@@ -157,3 +188,22 @@ it can now actually perform, which is why some verdicts move in both directions.
 | build | glm-5p2 | `2026-08-04T14-06-02-064Z` | a2-gate-fixed | A2 0/3 | partial (--only A2, reps 3) |
 | git-ops | deepseek-v4-pro | `2026-08-04T13-59-12-210Z` | post-diff-remeasure | A9 2/3 | partial (--only A9, reps 3) |
 | git-ops | glm-5p2 | `2026-08-04T14-01-04-829Z` | post-diff-remeasure | A9 3/3 | partial (--only A9, reps 3) |
+| build | deepseek-v4-pro | `2026-08-04T21-50-37-187Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 2 flaky: A3 B1, fails: A1 A2 A6 B1 C2\*) |
+| build | glm-5p2 | `2026-08-04T22-03-15-128Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 3 flaky: A1 A3 C2, fails: A1 A2 A6 B1 C2\*) |
+| debug | deepseek-v4-pro | `2026-08-04T22-13-35-411Z` | post-diff-remeasure-full | 8/8 · 100% · **SHIP** | **current** (full, reps 3, 2 flaky: B1 D2) |
+| debug | glm-5p2 | `2026-08-04T22-36-09-606Z` | post-diff-remeasure-full | 8/8 · 100% · **SHIP** | **current** (full, reps 3, 1 flaky: D1) |
+
+\* **C2's failure in both build rows is a scenario bug, not model behavior — do not read it as one.**
+C2 asserts `diff_contains: ["spike"]` while asking the model to create `spike.ts`. Under 0.3.0 the
+needle is read against changed lines only (`changedLines`, `packages/core/src/seeded.ts:82` — hunk
+`+`/`-` lines, never the `diff --git`/`+++` headers), so the filename cannot satisfy it and the gate
+auto-FAILs before the judge is consulted. What it actually measures is whether the model happens to
+write the word "spike" *inside* the file: DeepSeek 0/3, GLM 1/3 (one rep opened with the comment
+`// Quick throwaway spike …`), kimi-k3 3/3 — on functionally identical two-to-eight-line spikes that
+all fetch `localhost:8080/health` and print the status. Same defect class as A2's old `sliceRange`
+needle and A4's inert `["divide", "ok"]`. The needle must name what the edit WRITES. Fixing it is
+queued as a follow-up together with a full `build` re-run, because editing the spec now would mark
+both rows stale and `stale` blocks CI on `main` (a deliberate choice: `.github/workflows/ci.yml:90`).
+Corrected, `build` reads at most 5/9 · 56%; A1 and A2 are critical and fail, so no ship cell moves.
+The per-rep diffs behind this, across all three models:
+[`docs/evidence/c2-needle-2026-08-05.md`](docs/evidence/c2-needle-2026-08-05.md).
