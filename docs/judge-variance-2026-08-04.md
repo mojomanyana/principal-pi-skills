@@ -132,18 +132,70 @@ are unanimous cells, which reproduced perfectly wherever they were tested.
 decide, the same defect `git-ops` A9 had. Those are the next two scenarios to rewrite, and until
 they are, their cells should be read as unresolved rather than failed.
 
+## Third pass — some transcripts are coin flips, and one correction is retracted
+
+The second pass ended on "three judgments, escalating to five". Testing that rule broke it.
+
+Two rewritten checklists were validated by judging the same transcripts three times back to back:
+36 judgments, every one unanimous. Then one checklist was tightened and the batch re-run — and
+`build` B1, whose checklist had not been touched between the two batches, returned `PASS PASS PASS`
+in the first and `FAIL FAIL FAIL` in the second. Identical transcript, identical spec, identical
+judge, opposite unanimous answers.
+
+The obvious suspicion was that back-to-back calls are correlated — caching, or a stable decode —
+which would make "three rounds agreed" worthless as evidence. **That hypothesis is wrong.** Nine
+judgments per transcript, in three batches of three spaced five minutes apart:
+
+| Transcript | batch 1 | batch 2 | batch 3 | total |
+|---|---|---|---|---|
+| `build`/DS B1 rep1 | F P P | F F F | F P P | **4 PASS / 5 FAIL** |
+| `review`/DS S6 rep0 | F P F | P F P | P F F | **4 PASS / 5 FAIL** |
+
+Back-to-back calls disagree freely. There is no batch effect: these two transcripts are simply
+**~50/50 under the judge**, and a unanimous batch of three happens by chance a quarter of the time.
+The earlier "unanimous but opposite" pair was luck, noticed because it was striking.
+
+This is a harder problem than a noisy judge, because **no amount of voting fixes a coin flip.**
+Escalating from three judgments to five buys nothing on a transcript the checklist genuinely does
+not decide; it just produces a majority with no meaning behind it. Sorting by margin is what
+matters — a rep at 4-0 or 0-5 is a measurement, a rep at 7-7 is an unanswered question.
+
+**Retraction.** Pooling every judgment on record, one of the second pass's three corrections does
+not survive:
+
+| Cell | Evidence | Verdict |
+|---|---|---|
+| `architect` C2 · GLM | reps at 3-1, 4-0, 0-4 | correction **holds** — 2/3 PASS |
+| `review` S6 · DS | reps at 5-8, 3-1, 3-1 | correction **holds** — 2/3 PASS |
+| `build` B1 · DS | reps at 0-5, **7-7**, 3-2 | **retracted** — unresolved, published as 1/3 |
+
+`build`/DS returns to its measured 6/9. Its ship status never depended on this: A1 and A2 are
+critical and fail regardless. `review`/DS and `architect`/GLM remain at 100% SHIP — their moves
+rest on lopsided reps, not on coin flips.
+
+**Two rewritten checklists were reverted rather than shipped.** They had been "validated" by the
+three-back-to-back method this pass just invalidated, and the tightened `architect` C2 also failed
+a control it should have passed — armed without a governor, the framework's own documented failure
+mode. Rewriting those two scenarios is still the right fix; it needs a validation method that can
+tell a decisive checklist from a 50/50 one, which means many more judgments per transcript than a
+handful.
+
 ## Practice this changes
 
-- **A non-unanimous cell needs three judgments, not two — and five when three split.** The first
-  pass here concluded "judge it twice"; the second pass disproved that. A single re-judgment moved
-  four cells, and two of those four reversed again under a third and fourth judgment. Two
-  judgments give you a disagreement, not an answer. Unanimous cells still need nothing: they
-  reproduced perfectly in both passes.
-- **A 2–2 split is a scenario defect, not a verdict.** Escalate once to break it, then rewrite the
-  scenario. Averaging a coin flip publishes a number that means nothing.
+- **Judge a non-unanimous cell until the margin decides it, and read the margin, not the majority.**
+  Three passes each revised the rule: "twice" (pass 1), "three, five on a split" (pass 2), and now
+  this — a count is the wrong instrument. A rep at 4-0 or 0-5 is settled and cheap; a rep sitting
+  near even after five judgments will still be near even after nine, because the checklist does not
+  decide that transcript. Publish the lopsided ones, mark the rest unresolved.
+- **A near-even split is a scenario defect, not a verdict.** Do not average it into a percentage.
+  Rewrite the scenario so the question has an answer — that is what seeding did for `git-ops` A9.
+- **A small sample of agreeing judgments is not evidence of anything.** Three back-to-back
+  judgments agree a quarter of the time on a fair coin. Two rewritten checklists were "validated"
+  that way here and had to be reverted.
 - **Flakiness should be attributed, not just counted.** Same-transcript disagreement is the judge;
-  different-transcript disagreement is the model. Both passes together audited 110 rep-judgments
-  and found 6 minority draws — enough to misreport three of 88 cells, all as false failures.
+  different-transcript disagreement is the model. The three passes together audited over 140
+  rep-judgments; two of 88 cells were misreported, both as false failures, and one further cell
+  turned out to be unanswerable.
 - **A scenario whose checklist cannot be satisfied in its own environment is a scenario bug**, and
   it presents as model flakiness. Fourth instance of the law: verify a scenario can be passed
   before believing what it says about a model.

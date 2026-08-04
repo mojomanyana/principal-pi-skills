@@ -101,14 +101,19 @@ all 104 runs to their round.
 | architect | 93% | **100% SHIP** † | 14 | 2 / 2 | C2 1/3 (DS) |
 | decide | 92% | 92% | 12 | 2 / 2 | C1 1/3 · A5 1/3 |
 | plan | 83% | 92% | 12 | 2 / 2 | B1 0/3, D1 1/3 · D1 0/3 |
-| build | 78% † | 56% | 9 | 2 / 1 | A1, A2 · A1, A2, A3, A6 |
+| build | 67% ‡ | 56% | 9 | 2 / 1 | A1, A2, B1 · A1, A2, A3, A6 |
 
 † **Corrected after a judge audit** (2026-08-04), not re-run against the models. Every
-non-unanimous cell in the release was re-judged from its saved transcripts, and disputed reps were
-escalated to four or five independent judgments. Three cells published as failures are passes at a
-majority of judgments: `review` S6 (DS) and `architect` C2 (GLM) — both critical, both the only
-failing cell for that model — and `build` B1 (DS), which lifts `build`/DS to 7/9 without shipping
-it, since A1 and A2 remain critical fails. Method and per-rep evidence:
+non-unanimous cell in the release was re-judged from its saved transcripts and disputed reps
+escalated to four or five independent judgments. Two cells published as failures are passes at a
+majority: `review` S6 (DS) and `architect` C2 (GLM) — both critical, both the only failing cell
+for that model.
+
+‡ **`build` B1 (DS) is unresolved, not corrected.** The audit read it as a third correction. Nine
+further judgments of one of its transcripts came back 4 PASS / 5 FAIL, so the cell rests on a coin
+flip and `build`/DS stays at its measured 6/9 rather than the 7/9 the audit briefly claimed. It
+does not change `build`'s ship status either way — A1 and A2 are critical and fail. Method,
+per-rep evidence and the retraction:
 [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
 
 **Gating**: a scenario passes at a majority of its clean reps; `git-ops` C1 requires
@@ -139,17 +144,17 @@ counts scenarios that did not return the same verdict in all three reps.
   fixture was genuinely broken.
 - **The flakiness column measured the judge as well as the models. Both are now separated,
   across the whole board.** Every non-unanimous cell in the release — 33 of them — was re-judged
-  from its saved transcripts, and disputed reps escalated to four or five judgments: 135 judge
-  calls, no model spend. **Six of 110 audited rep-judgments were minority draws**, enough to
-  misreport three cells, all as false failures. What survives is real: `A4`'s 2/3 is the model
-  (the same rep fails 4/4 times), and `decide`, `plan` and `debug` reproduced exactly.
-  Two judgments turned out *not* to be enough — a single re-judgment moved four cells and two of
-  those reversed again on a third and fourth. Method, per-rep evidence and the revised practice:
+  from its saved transcripts, and disputed reps escalated: over 170 judge calls, no model spend.
+  **Two cells were misreported, both as false failures** (`review` S6 on DS, `architect` C2 on
+  GLM). What survives is real: `A4`'s 2/3 is the model — the same rep fails four times out of four
+  — and `decide`, `plan` and `debug` reproduced exactly.
+- **Some transcripts are coin flips, and no amount of voting fixes one.** Judged nine times each,
+  `build`/DS B1 rep1 and `review`/DS S6 rep0 both came back 4 PASS / 5 FAIL. A rep at 4-0 or 0-5 is
+  a measurement; a rep near even is a checklist that does not decide its own transcript — the
+  defect `git-ops` A9 had before it was reseeded. `architect`/DS C2 and `build`/DS B1 are in that
+  state now: read them as unresolved and rewrite them, don't average them. Method, the full
+  evidence and two retractions this produced:
   [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
-- **A 2–2 split across four judgments is scenario debt, not a model result.** `architect`/DS C2
-  and `build`/DS B1 each have a transcript their checklist does not decide — the same defect
-  `git-ops` A9 had before it was reseeded. Read those two cells as unresolved, and rewrite them
-  next.
 - **An earlier unanimity experiment was abandoned for a reason worth recording:** with a
   3-rep sample, requiring all-3 on every critical punished *breadth* of critical coverage.
   `review`, which has twelve criticals, scored 67% while failing nothing outright. Under
@@ -176,14 +181,15 @@ counts scenarios that did not return the same verdict in all three reps.
 Release-1's table is left as it was measured — it is the record of that run. What a transcript
 audit found afterwards belongs next to it, not silently folded into it.
 
-- **Judge variance is measured across the whole board and three cells were corrected.** 135 judge
-  calls, no model spend: every non-unanimous cell re-judged from saved transcripts, disputed reps
-  escalated to four or five judgments. Six of 110 audited rep-judgments were minority draws —
-  `review` S6 (DS), `architect` C2 (GLM) and `build` B1 (DS) were published as failures and pass
-  at a majority, which puts two more skills at 100% SHIP. New practice, revised from this pass's
-  own mistake: **three judgments for a non-unanimous cell, five when three split**, because a
-  single re-judgment moved four cells and two of them reversed again.
-  [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
+- **Judge variance is measured across the whole board; two cells were corrected and a third
+  retracted.** Over 170 judge calls, no model spend: every non-unanimous cell re-judged from saved
+  transcripts, then disputed reps escalated until their margins settled. `review` S6 (DS) and
+  `architect` C2 (GLM) were published as failures and pass on lopsided margins, putting two more
+  skills at 100% SHIP. `build` B1 (DS) looked like a third correction and is not one — nine
+  judgments of its transcript split 4/5, so it is unresolved and `build`/DS stays at 6/9. The
+  practice this produced, after three revisions of its own: **read the margin, not the majority** —
+  a rep at 4-0 is settled, a rep near even is a scenario that needs rewriting, and no count of
+  votes will fix it. [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
 - **Seeded scenarios used to be graded from the model's prose, not its diff — fixed upstream, and
   the fix changed the story rather than the score.** `runSeeded` tested the staged diff against
   `diff_contains` needles and then discarded it, so the judged transcript carried the needle
