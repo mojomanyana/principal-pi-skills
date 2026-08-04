@@ -205,3 +205,5 @@ needle and A4's inert `["divide", "ok"]`. The needle must name what the edit WRI
 queued as a follow-up together with a full `build` re-run, because editing the spec now would mark
 both rows stale and `stale` blocks CI on `main` (a deliberate choice: `.github/workflows/ci.yml:90`).
 Corrected, `build` reads at most 5/9 · 56%; A1 and A2 are critical and fail, so no ship cell moves.
+The per-rep diffs behind this, across all three models:
+[`docs/evidence/c2-needle-2026-08-05.md`](docs/evidence/c2-needle-2026-08-05.md).

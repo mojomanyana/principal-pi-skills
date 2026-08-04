@@ -147,10 +147,11 @@ on DeepSeek: all three reps refactored `pricing.ts` and committed no characteriz
 `expect(` gate failed with no judge involved — release-1's 3/3 had actually written
 `pricing.test.ts`. B1 is real on both models: GLM withdrew its tests unlabelled in all three reps
 ("tests removed", "no tests attached"), each verdict quoting the transcript. **C2 is neither — it is
-a broken gate**, and it is marked `*` in the table for that reason. See `RESULTS-MANIFEST.md` for the
-mechanism; in short, its needle asks for the word "spike" in a file named `spike.ts`, which changed
-lines never contain, so it scores word choice rather than behavior — DeepSeek 0/3, GLM 1/3, kimi-k3
-3/3, on functionally identical spikes. Corrected, `build` is at most 5/9 · 56%. It ships on neither
+a broken gate**, and it is marked `*` in the table for that reason. Its needle asks for the word
+"spike" in a file named `spike.ts`, which changed lines never contain, so it scores word choice
+rather than behavior — DeepSeek 0/3, GLM 1/3, kimi-k3 3/3, on functionally identical spikes, the
+whole difference being whether line 1 is a comment saying "throwaway spike". Per-rep diffs:
+[`docs/evidence/c2-needle-2026-08-05.md`](docs/evidence/c2-needle-2026-08-05.md). Corrected, `build` is at most 5/9 · 56%. It ships on neither
 model either way: A1 and A2 are critical and fail. The needle fix plus a full `build` re-run are
 queued as a follow-up rather than folded in here, because editing the spec now would mark these two
 rows stale, and `stale` is a warning on a branch but a failure on `main`.
