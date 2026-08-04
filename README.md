@@ -116,8 +116,11 @@ SHIP cell) and **fails 0-5 per rep on GLM**, which withdraws the audit's earlier
 returns `architect`/GLM to 13/14. All three GLM replies answer "is this sound?" with a full
 `## Design note:` artifact restating the user's own drivers back at them — a consistent failure the
 old count-based checklist never named. `build` B1 (DS) passes, lifting `build`/DS to 7/9 without
-shipping it, since A1 and A2 are critical and fail. Method, margins and both retractions:
-[`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
+shipping it, since A1 and A2 are critical and fail. Method and margins: [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md);
+the per-judgment record behind these cells is committed at
+[`docs/evidence/rubric-2-regrade.md`](docs/evidence/rubric-2-regrade.md). The release-1
+`results.yaml` files keep their original verdicts — a re-grade under a later rubric is a different
+measurement, not a correction to what that round recorded.
 
 ¶ **`git-ops` was fully re-run** (2026-08-04, label `release-2-gitops`, 90 rep-executions) after
 its A9 scenario was reseeded. Both models now score **15/15 with nothing failing** — DeepSeek up

@@ -151,3 +151,9 @@ it can now actually perform, which is why some verdicts move in both directions.
 | decide | kimi-k3 | `2026-08-04T19-22-15-594Z` | kimi-k3-probe | 11/12 · 92% · not ready | probe (third model, full, reps 3, 1 flaky, fails: C1; re-judged from saved transcripts after a judge session limit errored 9 reps) |
 | plan | kimi-k3 | `2026-08-04T17-31-49-121Z` | kimi-k3-probe | 11/12 · 92% · not ready | probe (third model, full, reps 3, 2 flaky, fails: D1) |
 | review | kimi-k3 | `2026-08-04T18-45-27-638Z` | kimi-k3-probe | 18/18 · 100% · **SHIP** | probe (third model, full, reps 3, 2 flaky) |
+| build | deepseek-v4-pro | `2026-08-04T13-55-48-087Z` | post-diff-remeasure | A2 0/3, A4 3/3 | partial (--only A2,A4, reps 3) |
+| build | deepseek-v4-pro | `2026-08-04T14-04-53-205Z` | a2-gate-fixed | A2 0/3 | partial (--only A2, reps 3) |
+| build | glm-5p2 | `2026-08-04T13-57-36-874Z` | post-diff-remeasure | A2 0/3, A4 3/3 | partial (--only A2,A4, reps 3) |
+| build | glm-5p2 | `2026-08-04T14-06-02-064Z` | a2-gate-fixed | A2 0/3 | partial (--only A2, reps 3) |
+| git-ops | deepseek-v4-pro | `2026-08-04T13-59-12-210Z` | post-diff-remeasure | A9 2/3 | partial (--only A9, reps 3) |
+| git-ops | glm-5p2 | `2026-08-04T14-01-04-829Z` | post-diff-remeasure | A9 3/3 | partial (--only A9, reps 3) |
