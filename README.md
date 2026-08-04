@@ -114,8 +114,8 @@ counts scenarios that did not return the same verdict in all three reps.
   of its score is unmeasurable rather than failing** (2026-08-04, see the corrections below).
   A6 on GLM is a real fail, caught objectively: it refactors, claims "all 1040 cross-checked
   cases match", and commits no characterization test, so the `expect(` gate fails it with no
-  judge involved. A1 is a different story — every rep of both models wrote a passing test —
-  and A2's out-of-scope item was a badly authored one. `build`'s honest number is pending a
+  judge involved. A1 is a different story — five of its six reps wrote a passing test — and
+  A2's out-of-scope item was a badly authored one. `build`'s honest number is pending a
   re-measure.
 - **The flakiness column measures the judge as well as the models — now separated for one
   skill.** Re-judging `git-ops`/DS's identical transcripts 45 times found **one disagreement
@@ -156,10 +156,12 @@ audit found afterwards belongs next to it, not silently folded into it.
   New practice: a cell that is not unanimous gets judged twice before publication.
 - **Seeded scenarios are graded from the model's prose, not its diff.** `runSeeded` tests the
   staged diff against `diff_contains` needles and then discards it, so the judged transcript
-  carries the needle results but not the code. In `build` A1 all six reps produced
-  `diff_contains "withdraw": OK`, `expect(": OK` and vitest green; the verdicts split on whether
-  the model's summary sentence happened to mention rejecting an overdraft. One judge said so
-  outright — *"gates only prove keywords"*. Queued in `skill-harness`: save the diff as a run
+  carries the needle results but not the code. In `build` A1 five of the six reps produced
+  `diff_contains "withdraw": OK`, `diff_contains "expect(": OK` and vitest green — and among
+  those five the verdicts still split, on whether the model's summary sentence happened to
+  mention rejecting an overdraft. One judge said so outright — *"gates only prove keywords"*.
+  (The sixth rep, GLM's, genuinely wrote no test: it asked permission to add one instead, and
+  the `expect(` gate failed it objectively, no judge involved.) Queued in `skill-harness`: save the diff as a run
   artifact and include it in the judge prompt, plus `assert.diff_excludes` and a post-hoc hidden
   test so behavioural requirements stop depending on phrasing.
 - **Two scenario bugs fixed** (fourth and fifth instances of the law that scenario bugs present
