@@ -1,0 +1,101 @@
+name: ci
+
+# The free guards: everything here is static and costs no model calls. Model runs
+# stay manual (they need a Fireworks key and an Opus judge on a subscription).
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  # `lint all` validates every spec (ship_bar arithmetic, critical ids, fixture
+  # paths), the committed results (recomputed grades, overrides carrying a note and
+  # a preserved transcript), and staleness — whether the newest full run per model
+  # still matches the current SKILL.md hash.
+  spec-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/checkout@v5
+        with:
+          repository: mojomanyana/skill-harness
+          ref: v0.2.0
+          path: .skill-harness
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: .skill-harness/package-lock.json
+
+      - name: Build skill-harness
+        run: npm ci && npm run build
+        working-directory: .skill-harness
+
+      # Two severities, because they mean different things. A spec/fixture/results
+      # finding is a defect and always blocks. `stale` means the skills moved and the
+      # published scorecard no longer measures them: a warning while iterating on a
+      # branch, a failure once it reaches main, where the README's numbers are a claim.
+      - name: Lint all seven specs
+        run: |
+          set -u
+          node .skill-harness/bin/skill-harness.js lint all \
+            --skills "$GITHUB_WORKSPACE" > lint.out 2>&1 || true
+          cat lint.out
+
+          total=$(grep -c '^✗ ' lint.out || true)
+          stale=$(grep -c ': stale — ' lint.out || true)
+          blocking=$((total - stale))
+
+          if [ "$blocking" -gt 0 ]; then
+            echo "::error title=skill-harness::$blocking spec/results finding(s) — see the annotations above"
+            exit 1
+          fi
+
+          if [ "$stale" -gt 0 ]; then
+            if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+              echo "::warning title=skill-harness::$stale skill(s) changed since their newest full run — re-run before this merges, or the README scorecard measures older text"
+            else
+              echo "::error title=skill-harness::$stale skill(s) on main have no current run — the published scorecard is stale"
+              exit 1
+            fi
+          fi
+
+  # agents/{plan,review,debug}.md are single-shot variants of their SKILL.md. When the
+  # interactive contract changes, the delegated one has to change with it — a drift here
+  # is how the D-scenarios ended up testing a contract no agent had been handed.
+  #
+  # One direction only: an agents/ file may change alone, because it carries rules that
+  # exist only for a subagent (no questions, the BLOCKED form, the caller sees one
+  # message). Label a PR `lockstep-exempt` to skip.
+  agents-lockstep:
+    if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'lockstep-exempt')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: A SKILL.md change requires its agents/ twin
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -eu
+          changed=$(git diff --name-only "origin/$BASE_REF...HEAD")
+          echo "changed files:"; echo "$changed" | sed 's/^/  /'
+
+          missing=""
+          for skill in plan review debug; do
+            if echo "$changed" | grep -qx "$skill/SKILL.md" \
+               && ! echo "$changed" | grep -qx "agents/$skill.md"; then
+              missing="$missing $skill"
+              echo "::error file=$skill/SKILL.md,title=agents lockstep::$skill/SKILL.md changed but agents/$skill.md did not — port the change or label the PR lockstep-exempt"
+            fi
+          done
+
+          if [ -n "$missing" ]; then
+            echo "lockstep violation:$missing"
+            exit 1
+          fi
+          echo "✓ lockstep holds"
