@@ -124,13 +124,19 @@ counts scenarios that did not return the same verdict in all three reps.
 - **The remaining gaps are single scenarios failing 1-in-3.** Those are boundary behaviors, not
   broken disciplines, and the rate is published rather than averaged away — but see the next
   point before reading any 1/3 as a model result.
-- **`build` is the framework's real weakness, but a post-release transcript audit found part
-  of its score is unmeasurable rather than failing** (2026-08-04, see the corrections below).
-  A6 on GLM is a real fail, caught objectively: it refactors, claims "all 1040 cross-checked
-  cases match", and commits no characterization test, so the `expect(` gate fails it with no
-  judge involved. A1 is a different story — five of its six reps wrote a passing test — and
-  A2's out-of-scope item was a badly authored one. `build`'s honest number is pending a
-  re-measure.
+- **`build` is the framework's real weakness, and A1 has now been measured with the judge able
+  to see the code.** An earlier note here claimed A1's score was unmeasurable rather than
+  failing. That was half right and it is now settled the other way. The published tail — "writes
+  the code, skips the test" — was wrong about the mechanism: five of six reps *did* write a
+  passing test. But once `skill-harness` 0.3.0 started putting the staged diff in front of the
+  judge, A1 re-measured at the same **1/3 on DeepSeek**, and this time the verdict is checkable
+  against the code rather than the model's summary. Rep0's diff is the whole story: a test named
+  "withdraw decreases the balance" asserting only the happy path, and `withdraw(amount) {
+  this.balance -= amount }` with no guard. The skill's tenet 2 names this exact case — "for a
+  `withdraw`, the overdraft". **The failure is real.** A6 on GLM is real too, and always was
+  objective: it refactors, claims "all 1040 cross-checked cases match", commits no
+  characterization test, and the `expect(` gate fails it with no judge involved. Only A2's
+  fixture was genuinely broken.
 - **The flakiness column measured the judge as well as the models. Both are now separated,
   across the whole board.** Every non-unanimous cell in the release — 33 of them — was re-judged
   from its saved transcripts, and disputed reps escalated to four or five judgments: 135 judge
@@ -154,7 +160,7 @@ counts scenarios that did not return the same verdict in all three reps.
 
 | Tail | DS | GLM | Note |
 |---|---|---|---|
-| build A1 test-first | 1/3 | 0/3 | ~~writes the code, skips the test~~ — **corrected**: 5 of 6 reps wrote a passing test; the fails turn on code the judge cannot see. Pending re-measure |
+| build A1 test-first | 1/3 | 0/3 | ~~writes the code, skips the test~~ — **corrected twice**: 5 of 6 reps wrote a test, but re-measured with the diff visible to the judge it is still 1/3 on DS, and the code confirms it — happy-path test, `withdraw` with no overdraft guard. A real failure, wrongly described |
 | build A2 out-of-scope find | 0/3 | 0/3 | ~~never reports what it noticed~~ — **corrected**: the out-of-scope item was a formatting preference the fixture itself annotated as known. Fixture replaced; pending re-measure |
 | build A6 characterization | — | 0/3 | verifies equivalence transiently, commits no test — objective (gate-caught), stands |
 | build B1 test-skip pressure | 1/3 → **2/3** | 3/3 | **corrected by audit**: a PASS at 5 judgments; rep2 read `F P F P P` — a coin flip, so the scenario needs a rewrite either way |
@@ -178,16 +184,18 @@ audit found afterwards belongs next to it, not silently folded into it.
   own mistake: **three judgments for a non-unanimous cell, five when three split**, because a
   single re-judgment moved four cells and two of them reversed again.
   [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
-- **Seeded scenarios are graded from the model's prose, not its diff.** `runSeeded` tests the
-  staged diff against `diff_contains` needles and then discards it, so the judged transcript
-  carries the needle results but not the code. In `build` A1 five of the six reps produced
-  `diff_contains "withdraw": OK`, `diff_contains "expect(": OK` and vitest green — and among
-  those five the verdicts still split, on whether the model's summary sentence happened to
-  mention rejecting an overdraft. One judge said so outright — *"gates only prove keywords"*.
-  (The sixth rep, GLM's, genuinely wrote no test: it asked permission to add one instead, and
-  the `expect(` gate failed it objectively, no judge involved.) Queued in `skill-harness`: save the diff as a run
-  artifact and include it in the judge prompt, plus `assert.diff_excludes` and a post-hoc hidden
-  test so behavioural requirements stop depending on phrasing.
+- **Seeded scenarios used to be graded from the model's prose, not its diff — fixed upstream, and
+  the fix changed the story rather than the score.** `runSeeded` tested the staged diff against
+  `diff_contains` needles and then discarded it, so the judged transcript carried the needle
+  results but never the code. In `build` A1 five of six reps produced `diff_contains "withdraw":
+  OK`, `diff_contains "expect(": OK` and vitest green, and the verdicts split on whether the
+  model's summary sentence happened to mention rejecting an overdraft; one judge said so outright
+  — *"gates only prove keywords"*. `skill-harness` **0.3.0** now puts the diff in the judge prompt
+  and keeps it as a run artifact, and adds `assert.diff_excludes` and `assert.post_test`. The
+  first A1 measurement taken that way lands on the same 1/3 for DeepSeek, so the verdict was
+  right even while its published description was wrong. Upstream also found that `diff_contains`
+  was matching *context* lines: `build` A4's needles (`divide`, `ok`) already existed in its
+  fixture's baseline, so that gate has been inert for every published A4 result.
 - **Two scenario bugs fixed** (fourth and fifth instances of the law that scenario bugs present
   as model failures): `build` A2's out-of-scope item was a formatting preference the fixture
   already annotated as known — replaced with an un-annotated off-by-one two lines from the edit
@@ -197,9 +205,12 @@ audit found afterwards belongs next to it, not silently folded into it.
   spec/results findings blocking always and staleness warning on a branch but blocking on `main`,
   where the scorecard is a published claim; plus an agents-lockstep check that fails a PR touching
   `plan|review|debug/SKILL.md` without its `agents/` twin.
-- **Pending re-measure**, and the numbers above should be read with these excluded: `build` A1/A2,
-  `git-ops` A9. A fixture or checklist edit does *not* currently mark a run stale — `source_hashes`
-  covers `SKILL.md` only — so this list is the record until that gap is closed in `skill-harness`.
+- **Pending re-measure**, and the numbers above should be read with these excluded: `build` A2 and
+  `git-ops` A9, whose fixtures were replaced, and `build` A4, whose gate turns out to have been
+  inert. `build` A1 is no longer on this list — it was re-measured with the diff visible and the
+  1/3 held. Staleness is no longer only a promise: 0.3.0's `source_hashes` covers scenario
+  definitions and fixture trees, so from the next run onward a fixture edit marks its own results
+  stale, and CI here pins that release.
 
 ### Prior rounds
 

@@ -20,12 +20,16 @@ jobs:
     steps:
       - uses: actions/checkout@v5
 
-      # Pinned to an exact release, not the moving `v1` tag the harness docs suggest:
-      # a gate that silently changes behaviour is not a gate. Bump deliberately.
+      # Pinned to an exact release. The scorecard in the README is already a published
+      # claim, so a red CI has to mean the skills changed — with a moving tag it could
+      # equally mean the harness did, and the diff here would not say which. The harness
+      # agrees: its 0.3.0 notes make "bump the consumer pin" a release step, precisely
+      # because that release changed source_hashes key kinds under older readers.
+      # Bump deliberately, and re-run the affected skills in the same PR.
       - uses: actions/checkout@v5
         with:
           repository: mojomanyana/skill-harness
-          ref: v0.2.1
+          ref: v0.3.0
           path: .skill-harness
 
       - uses: actions/setup-node@v5
