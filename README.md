@@ -107,7 +107,13 @@ round and says which four cells each table row comes from.
 † **Corrected after a judge audit** (2026-08-04), not re-run against the models. Every
 non-unanimous cell in the release was re-judged from its saved transcripts and disputed reps
 escalated. `review` S6 (DS) was published as a failure and passes on 3-1 margins — critical, and
-the only failing cell for that model.
+the only failing cell for that model. **Its rubric has since been made decidable** (2026-08-05):
+the old item 2 gave three PASS and two FAIL to five replies of one shape, and one of those failures
+rested on a fabricated Python precedence bug. Under the rewritten checklist S6 reads **3/3 on
+DeepSeek with all 18 judgments agreeing**, while the control — the one GLM rep that hands over the
+rewrite as its deliverable — holds at 0-3. The cell stays 18/18 SHIP; it no longer rests on a 3-1
+draw. Margins, ground truth and the contract citations:
+[`docs/evidence/s6-rubric-regrade-2026-08-05.md`](docs/evidence/s6-rubric-regrade-2026-08-05.md).
 
 § **Re-graded against a rewritten checklist** (2026-08-04), same transcripts, seven judgments per
 rep. `architect` C2 and `build` B1 each had a transcript their checklist could not decide — one sat
