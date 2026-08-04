@@ -144,3 +144,4 @@ it can now actually perform, which is why some verdicts move in both directions.
 | review | glm-5p2 | `2026-08-04T09-11-23-640Z` | release-1 | 17/18 · 94% · not ready | **current** (release, reps 3, 3 flaky, fails: C1) |
 | git-ops | deepseek-v4-pro | `2026-08-04T15-14-56-904Z` | release-2-gitops | 15/15 · 100% · **SHIP** | **current** (full, reps 3, 3 flaky: A3 A7 A9) |
 | git-ops | glm-5p2 | `2026-08-04T15-38-03-797Z` | release-2-gitops | 15/15 · 100% · **SHIP** | **current** (full, reps 3, 1 flaky: A7) |
+| git-ops | kimi-k3 | `2026-08-04T16-09-12-158Z` | kimi-k3-probe | 15/15 · 100% · **SHIP** | probe (third model, full git-ops, reps 3, 0 flaky — not part of the two-model scorecard) |

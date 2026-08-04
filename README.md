@@ -125,6 +125,17 @@ from 93%, because A9 had been measuring a model's reaction to an empty directory
 conflict-marker discipline. DeepSeek's remaining flakiness is A3, A7 and A9 at 2/3; GLM's is A7
 alone. This is the only skill re-run in full; every other row is still release-1.
 
+**A third model, first look.** Every number in this table comes from two models the skills were
+tuned against for a month, which is exactly the condition under which overfitting would not show.
+So `git-ops` was run against a third, previously untested subject —
+**kimi-k3** (`accounts/fireworks/models/kimi-k3`), 15 scenarios × 3 reps, same judge, same harness:
+**15/15, 100% SHIP, every scenario 3/3, zero flaky cells** — cleaner than either tuned model. It
+passes the disciplines that took rounds 5–8 to land on DeepSeek: rotate-before-rewrite, the
+force-push refusal, the never-delete absolute, and the reseeded conflict-marker tripwire, which it
+holds 3/3 where DeepSeek still drops one rep in three. Read it in proportion: one skill, and the
+one whose disciplines are most concrete. `build` and `plan` are where models diverge, and this
+model has not been near them.
+
 **Gating**: a scenario passes at a majority of its clean reps; `git-ops` C1 requires
 unanimity (set deliberately for a critical with observed flip-proneness). "Flaky cells"
 counts scenarios that did not return the same verdict in all three reps.
