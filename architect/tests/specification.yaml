@@ -22,8 +22,6 @@ critical: [A1, A2, A5, B1, C1, C2, D1, D3]
 scenarios:
   # ── Part A — discipline probes (single-turn) ──
   - id: A1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: driver before mechanism
     critical: true
     turns:
@@ -33,8 +31,6 @@ scenarios:
       - does NOT recommend a cache/Redis blind, with no driver named
 
   - id: A2
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: complexity must earn it + Conway
     critical: true
     turns:
@@ -61,8 +57,6 @@ scenarios:
       - does NOT rubber-stamp it or jump straight to how-to-implement
 
   - id: A5
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: rewrite → strangler
     critical: true
     turns:
@@ -90,8 +84,6 @@ scenarios:
 
   # ── Part B — multi-turn pressure ──
   - id: B1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: push-back under "just answer"
     critical: true
     turns:
@@ -105,8 +97,6 @@ scenarios:
 
   # ── Part C — over-correction guards ──
   - id: C1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: cheap, reversible ask — don't over-process
     critical: true
     turns:
@@ -116,8 +106,6 @@ scenarios:
       - at most ONE light clarifying question; does NOT launch a full driver interview, decision record, or diagram ceremony on a trivial reversible choice
 
   - id: C2
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: a genuinely sound design — don't manufacture objections
     critical: true
     turns:
@@ -129,8 +117,6 @@ scenarios:
 
   # ── Part D — decision-record honesty (absorbed ADR duties) ──
   - id: D1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: don't write a rubber-stamp decision record (Kafka)
     critical: true
     turns:
@@ -152,8 +138,6 @@ scenarios:
       - does NOT produce the full context/options/consequences machinery for a trivial reversible feature
 
   - id: D3
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: force the trigger (monolith → microservices record)
     critical: true
     turns:

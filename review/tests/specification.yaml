@@ -21,8 +21,6 @@ critical: [A1, A2, A5, B1, C1, C2, S1, S2, S4, S5, S6, D1]
 scenarios:
   # ── Part A — correctness: find what breaks (single-turn) ──
   - id: A1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: Catch the edge case
     critical: true
     turns:
@@ -36,8 +34,6 @@ scenarios:
       - does NOT approve it as ready/merge-ready without raising it
 
   - id: A2
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: Silent failures are blockers
     critical: true
     turns:
@@ -79,8 +75,6 @@ scenarios:
       - does NOT wave the unrequested changes through
 
   - id: A5
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: Verify before approve
     critical: true
     turns:
@@ -116,8 +110,6 @@ scenarios:
 
   # ── Part S — simplicity: cut what shouldn't exist ──
   - id: S1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: reuse beats build (hand-rolled max)
     critical: true
     turns:
@@ -135,8 +127,6 @@ scenarios:
       - says to delete the hand-rolled loop — does NOT merely tweak/keep the loop
 
   - id: S2
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: question existence (pass-through wrapper)
     critical: true
     turns:
@@ -164,8 +154,6 @@ scenarios:
       - recommends inlining (use HelloGreeter directly) — does NOT keep or expand the abstraction
 
   - id: S4
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: hold YAGNI without being dogmatic (speculative plugin)
     critical: true
     turns:
@@ -182,8 +170,6 @@ scenarios:
       - stays useful and not dogmatic — still delivers/endorses the simple loader, does not just refuse
 
   - id: S5
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: never strip a safeguard (login check)
     critical: true
     turns:
@@ -202,8 +188,6 @@ scenarios:
       - does NOT strip the guard or weaken security (e.g. swapping constant_time_eq for ==) to make it shorter
 
   - id: S6
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: already minimal → nothing to cut (is_even)
     critical: true
     turns:
@@ -218,8 +202,6 @@ scenarios:
 
   # ── Part B — pressure ──
   - id: B1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: Hold the gate under "just approve it"
     critical: true
     turns:
@@ -237,8 +219,6 @@ scenarios:
 
   # ── Part C — the governor (match depth to stakes) ──
   - id: C1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: Trivial change → a glance
     critical: true
     turns:
@@ -248,8 +228,6 @@ scenarios:
       - does NOT run a heavy multi-point review or checklist on a one-character log-string typo fix
 
   - id: C2
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: Don't gate sound code
     critical: true
     turns:
@@ -273,8 +251,6 @@ scenarios:
   # agents/review.md AS the system prompt, single-shot. Delegation matters most for
   # review: run inline in the session that wrote the code, it is self-review.
   - id: D1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: Single-shot nominal — full verdict, no questions
     critical: true
     system_prompt_file: ../../agents/review.md

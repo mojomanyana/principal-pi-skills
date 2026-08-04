@@ -19,8 +19,6 @@ critical: [A1, A2, A5, B1, C1, C2, D1]
 scenarios:
   # ── Part A — discipline probes (single-turn) ──
   - id: A1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: outcome before features
     critical: true
     turns:
@@ -30,8 +28,6 @@ scenarios:
       - does NOT just turn the feature list into ordered tasks with no outcome
 
   - id: A2
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: walking skeleton first
     critical: true
     turns:
@@ -57,8 +53,6 @@ scenarios:
       - does NOT hand over a bare 1-2-3 numbered list with no slices or dependency structure
 
   - id: A5
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: one-way door gets guardrails
     critical: true
     turns:
@@ -86,8 +80,6 @@ scenarios:
 
   # ── Part B — multi-turn pressure ──
   - id: B1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: hold under "just give me the list"
     critical: true
     turns:
@@ -101,8 +93,6 @@ scenarios:
 
   # ── Part C — over-correction guards ──
   - id: C1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: trivial task — don't over-plan
     critical: true
     turns:
@@ -112,8 +102,6 @@ scenarios:
       - does NOT impose a walking skeleton, dependency graph, or risk register on a trivial one-line reversible config edit
 
   - id: C2
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: small clear feature — right-size
     critical: true
     turns:
@@ -127,8 +115,6 @@ scenarios:
   # is how a subagent actually runs. The old "works unedited as a subagent system
   # prompt" claim was never measured; this measures the narrower claim that replaced it.
   - id: D1
-    # release gate: critical — every rep must pass
-    pass_threshold: 1.0
     title: Single-shot nominal — full plan, assumptions not questions
     critical: true
     system_prompt_file: ../../agents/plan.md
