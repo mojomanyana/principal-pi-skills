@@ -66,6 +66,10 @@ Six re-judgments passed it:
 
 > Halted, flagged `<<<<<<< HEAD` markers as needing resolution, committed/pushed nothing.
 
+Both readings, and the transcript they read, are committed verbatim under
+[`evidence/judge-variance-2026-08-04/`](evidence/judge-variance-2026-08-04/) so the claim can be
+checked without re-running anything.
+
 The checklist asked the model to point at the marker lines. **There were no files to point at.**
 A judge splitting on an impossible requirement is doing the best it can with a broken scenario.
 
@@ -80,14 +84,69 @@ act was able to *discuss* the right answer and pass.
 carries `reps: 3`. Its checklist now asks which files carry the markers — a question with an
 answer. Its release-1 cells are superseded and pending re-measurement.
 
+## Second pass — the whole board, and the first answer was too optimistic
+
+The experiment above covered four cells of one skill. This pass covered **every non-unanimous
+cell in release-1**: 33 cells across 7 skills × 2 models, one re-judgment each, 99 judge calls.
+Unanimous cells were skipped — they reproduced perfectly in the first pass, so there is nothing to
+buy there. Run against a **v0.2.1 clone pinned in a scratchpad**, because the harness repo had a
+feature branch checked out and a mid-pass rebuild would have mixed two graders in one measurement.
+
+One re-judgment disagreed with the published verdict on **6 of 98 comparable rep-judgments (6.1%)**
+— the 99th was `debug`/GLM D2 rep2, an objective gate failure that was never judged and is excluded.
+Those six disagreements moved four cell verdicts.
+
+**And then the escalation changed the answer twice.** Taking a second judgment as the truth would
+have been wrong: it is just another draw. The five disputed scenarios were judged twice more
+(30 calls) for four judgments per rep, which confirmed two moves, reversed two, and produced three
+**2–2 ties**. A fifth judgment on the two scenarios that tied (6 calls) settled it:
+
+| Cell | Published | 1 re-judge | Majority of 4 | Final (best of 5) |
+|---|---|---|---|---|
+| `architect` C2 · GLM | 1/3 FAIL | 2/3 PASS | 2/3 PASS | **2/3 PASS** ✔ moved |
+| `review` S6 · DS | 1/3 FAIL | 3/3 PASS | 2/3 PASS | **2/3 PASS** ✔ moved |
+| `build` B1 · DS | 1/3 FAIL | 2/3 PASS | 0/3 FAIL *(2 ties)* | **2/3 PASS** ✔ moved |
+| `architect` C2 · DS | 1/3 FAIL | 2/3 PASS | 1/3 FAIL *(1 tie)* | 1/3 FAIL — held |
+| `git-ops` A9 · DS | 1/3 FAIL | 0/3 FAIL | 0/3 FAIL | 0/3 FAIL — held |
+
+Per-rep, the churn is plainer. `architect`/DS C2 rep1 read `P P F F F`; `build`/DS B1 rep2 read
+`F P F P P`. Those are not verdicts, they are coin flips with a slight lean.
+
+### What it costs to be right, and what is actually wrong
+
+**Three of 88 published scenario cells (3.4%) were misreported**, all in the same direction — a
+FAIL that a majority of judgments calls a PASS. Corrected:
+
+- **`architect` on GLM → 14/14, 100% SHIP.** C2 was its only failing cell, and C2 is critical.
+- **`review` on DeepSeek → 18/18, 100% SHIP.** S6 was its only failing cell, and S6 is critical.
+- **`build` on DeepSeek → 7/9 (78%, was 67%).** Not a ship: A1 and A2 are critical and still fail.
+- `git-ops`/DS A9 and `architect`/DS C2 held. A9's cell is superseded anyway — the scenario has
+  since been reseeded.
+
+Counting everything audited across both passes, **6 minority draws in 110 audited rep-judgments**.
+As a share of all 264 published rep-verdicts that is 2.3% known-bad, and the unaudited remainder
+are unanimous cells, which reproduced perfectly wherever they were tested.
+
+**A 2–2 split after four judgments is not judge noise to be averaged away — it is scenario debt.**
+`architect`/DS C2 and `build`/DS B1 each have a transcript the checklist genuinely does not
+decide, the same defect `git-ops` A9 had. Those are the next two scenarios to rewrite, and until
+they are, their cells should be read as unresolved rather than failed.
+
 ## Practice this changes
 
-- **A cell that is not unanimous should be judged twice before it is published.** Unanimous cells
-  reproduced perfectly here, so there is nothing to buy by re-judging them; boundary cells are
-  where the judge's 2% lives, and re-judging one costs a single call.
-- **Flakiness should be attributed, not just counted.** Same-transcript disagreement is the
-  judge; different-transcript disagreement is the model. The published column still merges them
-  for every skill except this one.
+- **A non-unanimous cell needs three judgments, not two — and five when three split.** The first
+  pass here concluded "judge it twice"; the second pass disproved that. A single re-judgment moved
+  four cells, and two of those four reversed again under a third and fourth judgment. Two
+  judgments give you a disagreement, not an answer. Unanimous cells still need nothing: they
+  reproduced perfectly in both passes.
+- **A 2–2 split is a scenario defect, not a verdict.** Escalate once to break it, then rewrite the
+  scenario. Averaging a coin flip publishes a number that means nothing.
+- **Flakiness should be attributed, not just counted.** Same-transcript disagreement is the judge;
+  different-transcript disagreement is the model. Both passes together audited 110 rep-judgments
+  and found 6 minority draws — enough to misreport three of 88 cells, all as false failures.
 - **A scenario whose checklist cannot be satisfied in its own environment is a scenario bug**, and
   it presents as model flakiness. Fourth instance of the law: verify a scenario can be passed
   before believing what it says about a model.
+- **Pin the grader when measuring the grader.** This pass ran against a pinned v0.2.1 clone rather
+  than the working copy of the harness repo, which had a feature branch checked out. A rebuild
+  mid-pass would have split the measurement across two graders without leaving a trace.
