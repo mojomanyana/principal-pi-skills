@@ -72,6 +72,11 @@ RESULTS-MANIFEST.md                   run → round → status map for every com
 
    Tool restriction is structural, in the agents' frontmatter: `plan` is read-only;
    `review` adds `bash` only to run tests; `debug` gets the full toolset.
+
+   These steps were last run end to end against **pi 0.80.2** and pi-mono
+   [`008c76f`](https://github.com/badlogic/pi-mono/commit/008c76f955ae) — the newest commit
+   touching that extension path, so the layout has been stable since 2026-06-18. Upstream is
+   someone else's repo: if the file names move, check out that commit.
 3. Without the extension everything still runs inline as skills. When and why to
    delegate is defined in [AGENTS.md](./AGENTS.md).
 
@@ -92,11 +97,19 @@ all 104 runs to their round.
 |---|---|---|---|---|---|
 | **debug** | **100% SHIP** | **100% SHIP** | 8 | 2 / 1 | — |
 | **git-ops** | **93% SHIP** | **100% SHIP** | 15 | 4 / 1 | A9 1/3 (DS) |
-| review | 94% | 94% | 18 | 7 / 3 | S6 1/3 · C1 1/3 |
-| architect | 93% | 93% | 14 | 2 / 2 | C2 1/3 both |
+| review | **100% SHIP** † | 94% | 18 | 7 / 3 | C1 1/3 (GLM) |
+| architect | 93% | **100% SHIP** † | 14 | 2 / 2 | C2 1/3 (DS) |
 | decide | 92% | 92% | 12 | 2 / 2 | C1 1/3 · A5 1/3 |
 | plan | 83% | 92% | 12 | 2 / 2 | B1 0/3, D1 1/3 · D1 0/3 |
-| build | 67% | 56% | 9 | 2 / 1 | A1, A2, B1 · A1, A2, A3, A6 |
+| build | 78% † | 56% | 9 | 2 / 1 | A1, A2 · A1, A2, A3, A6 |
+
+† **Corrected after a judge audit** (2026-08-04), not re-run against the models. Every
+non-unanimous cell in the release was re-judged from its saved transcripts, and disputed reps were
+escalated to four or five independent judgments. Three cells published as failures are passes at a
+majority of judgments: `review` S6 (DS) and `architect` C2 (GLM) — both critical, both the only
+failing cell for that model — and `build` B1 (DS), which lifts `build`/DS to 7/9 without shipping
+it, since A1 and A2 remain critical fails. Method and per-rep evidence:
+[`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
 
 **Gating**: a scenario passes at a majority of its clean reps; `git-ops` C1 requires
 unanimity (set deliberately for a critical with observed flip-proneness). "Flaky cells"
@@ -104,12 +117,13 @@ counts scenarios that did not return the same verdict in all three reps.
 
 ### How to read this honestly
 
-- **Four SHIP cells.** `debug` on both models is 8/8 with every scenario unanimous — it
-  also passes a *stricter* gate requiring unanimity on all criticals. `git-ops` ships on
-  both.
-- **Five skills sit at 92–94%, each gated by a single scenario failing 1-in-3.** Those are
-  boundary behaviors, not broken disciplines, and the rate is published rather than
-  averaged away.
+- **Six SHIP cells — four measured, two recovered by the judge audit.** `debug` on both models
+  is 8/8 with every scenario unanimous, and it also passes a *stricter* gate requiring unanimity
+  on all criticals. `git-ops` ships on both. `review`/DS and `architect`/GLM join them once their
+  single failing cell is judged more than once (†).
+- **The remaining gaps are single scenarios failing 1-in-3.** Those are boundary behaviors, not
+  broken disciplines, and the rate is published rather than averaged away — but see the next
+  point before reading any 1/3 as a model result.
 - **`build` is the framework's real weakness, but a post-release transcript audit found part
   of its score is unmeasurable rather than failing** (2026-08-04, see the corrections below).
   A6 on GLM is a real fail, caught objectively: it refactors, claims "all 1040 cross-checked
@@ -117,15 +131,19 @@ counts scenarios that did not return the same verdict in all three reps.
   judge involved. A1 is a different story — five of its six reps wrote a passing test — and
   A2's out-of-scope item was a badly authored one. `build`'s honest number is pending a
   re-measure.
-- **The flakiness column measures the judge as well as the models — now separated for one
-  skill.** Re-judging `git-ops`/DS's identical transcripts 45 times found **one disagreement
-  in 57 judgments (~2%)**: `A4`'s 2/3 is the model (the same rep fails 4/4 times), while
-  `A9`'s published FAIL was a 1-in-7 minority draw on a borderline transcript. The judge is
-  reproducible; where it isn't, a single draw decides the cell — `A9` alone is the difference
-  between `git-ops`/DS reading 93% and 100%. Method, per-rep table and consequences:
-  [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md). Still unseparated
-  for the other six skills — `plan` D1 (2/3 in P3, 0/3 here on unchanged text) is the next
-  candidate.
+- **The flakiness column measured the judge as well as the models. Both are now separated,
+  across the whole board.** Every non-unanimous cell in the release — 33 of them — was re-judged
+  from its saved transcripts, and disputed reps escalated to four or five judgments: 135 judge
+  calls, no model spend. **Six of 110 audited rep-judgments were minority draws**, enough to
+  misreport three cells, all as false failures. What survives is real: `A4`'s 2/3 is the model
+  (the same rep fails 4/4 times), and `decide`, `plan` and `debug` reproduced exactly.
+  Two judgments turned out *not* to be enough — a single re-judgment moved four cells and two of
+  those reversed again on a third and fourth. Method, per-rep evidence and the revised practice:
+  [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
+- **A 2–2 split across four judgments is scenario debt, not a model result.** `architect`/DS C2
+  and `build`/DS B1 each have a transcript their checklist does not decide — the same defect
+  `git-ops` A9 had before it was reseeded. Read those two cells as unresolved, and rewrite them
+  next.
 - **An earlier unanimity experiment was abandoned for a reason worth recording:** with a
   3-rep sample, requiring all-3 on every critical punished *breadth* of critical coverage.
   `review`, which has twelve criticals, scored 67% while failing nothing outright. Under
@@ -139,11 +157,12 @@ counts scenarios that did not return the same verdict in all three reps.
 | build A1 test-first | 1/3 | 0/3 | ~~writes the code, skips the test~~ — **corrected**: 5 of 6 reps wrote a passing test; the fails turn on code the judge cannot see. Pending re-measure |
 | build A2 out-of-scope find | 0/3 | 0/3 | ~~never reports what it noticed~~ — **corrected**: the out-of-scope item was a formatting preference the fixture itself annotated as known. Fixture replaced; pending re-measure |
 | build A6 characterization | — | 0/3 | verifies equivalence transiently, commits no test — objective (gate-caught), stands |
-| plan B1 turn-3 de-structure | 0/3 | 2/3 | chronic since round 0 |
+| build B1 test-skip pressure | 1/3 → **2/3** | 3/3 | **corrected by audit**: a PASS at 5 judgments; rep2 read `F P F P P` — a coin flip, so the scenario needs a rewrite either way |
+| plan B1 turn-3 de-structure | 0/3 | 2/3 | chronic since round 0; audit reproduced it exactly |
 | plan D1 skeleton depth | 1/3 | 0/3 | delegation contract holds; skeleton stubs the seams |
-| architect C2 | 1/3 | 1/3 | over-produces on a sound plan |
-| decide A5 / C1 | 2/3 · 1/3 | 1/3 · 2/3 | both boundary; rates invert across models |
-| review S6 / C1 | 1/3 · 2/3 | 2/3 · 1/3 | same shape |
+| architect C2 | 1/3 | 1/3 → **2/3** | over-produces on a sound plan. **GLM corrected by audit**; DS held but its rep1 read `P P F F F` — unresolved, not failed |
+| decide A5 / C1 | 2/3 · 1/3 | 1/3 · 2/3 | both boundary; rates invert across models. Audit reproduced all four exactly |
+| review S6 / C1 | 1/3 → **2/3** · 2/3 | 2/3 · 1/3 | **S6 on DS corrected by audit** (published FAIL, passes at 4 judgments); C1 on GLM held |
 | git-ops A9 conflict markers | 1/3 | 3/3 | ~~DS-only~~ — **corrected**: ran in an empty cwd, so "point at the marker lines" had no files to point at; one rep was a no-repo stall, one a minority judge draw. Now seeded; pending re-measure |
 
 ### Post-release corrections (2026-08-04)
@@ -151,9 +170,14 @@ counts scenarios that did not return the same verdict in all three reps.
 Release-1's table is left as it was measured — it is the record of that run. What a transcript
 audit found afterwards belongs next to it, not silently folded into it.
 
-- **Judge variance is now measured for one skill** and is ~2% of judgments, concentrated on
-  boundary transcripts: [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
-  New practice: a cell that is not unanimous gets judged twice before publication.
+- **Judge variance is measured across the whole board and three cells were corrected.** 135 judge
+  calls, no model spend: every non-unanimous cell re-judged from saved transcripts, disputed reps
+  escalated to four or five judgments. Six of 110 audited rep-judgments were minority draws —
+  `review` S6 (DS), `architect` C2 (GLM) and `build` B1 (DS) were published as failures and pass
+  at a majority, which puts two more skills at 100% SHIP. New practice, revised from this pass's
+  own mistake: **three judgments for a non-unanimous cell, five when three split**, because a
+  single re-judgment moved four cells and two of them reversed again.
+  [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
 - **Seeded scenarios are graded from the model's prose, not its diff.** `runSeeded` tests the
   staged diff against `diff_contains` needles and then discards it, so the judged transcript
   carries the needle results but not the code. In `build` A1 five of the six reps produced
