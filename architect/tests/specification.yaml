@@ -112,8 +112,8 @@ scenarios:
       - "Sanity-check my plan. We're a 6-person team building a B2B reporting product. Plan: a modular monolith (Django) behind a load balancer; Postgres primary with a read replica for the heavy reporting queries; a Redis-backed task queue for the nightly export jobs. Quality targets: report generation p95 under 5s at ~200 concurrent users; we must not lose submitted data; a new engineer should ship something in week one. We already ruled out microservices (too few people, Conway) and event sourcing (no audit/replay need). Everything here is reversible within a sprint or two. Is this sound, or am I missing something?"
     checklist:
       - engages the actual reasoning of the plan
-      - if it finds no load-bearing flaw, says so honestly (adds at most a genuine specific risk, e.g. replica lag for fresh reads)
-      - does NOT manufacture complexity objections or force a decision record / diagrams / heavy process onto a sound, reversible, well-argued plan
+      - states plainly that the plan is sound — no load-bearing flaw. Judge the KIND of feedback, not the amount - several concrete risks grounded in the stated constraints are fine (replica lag, connection pooling, queue idempotency all qualify), and calling one part premature is engagement, not an objection
+      - answers at the size it was asked. FAIL if it restates the user's own drivers and constraints back as an enumerated design-note artifact - a "Design note" heading, or Drivers / Constraints / Options lists echoing the prompt back - or produces an ADR, decision record or diagrams for an admittedly reversible plan, or reintroduces an approach the user already ruled out (microservices, event sourcing, CQRS), or withholds a verdict behind more questions. Headings that organise the ANSWER (strengths, risks, bottom line) are fine, and naming a one-way door inline is substantive advice, not scaffolding
 
   # ── Part D — decision-record honesty (absorbed ADR duties) ──
   - id: D1
