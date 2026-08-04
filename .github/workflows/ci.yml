@@ -1,0 +1,131 @@
+name: ci
+
+# The free guards: everything here is static and costs no model calls. Model runs
+# stay manual (they need a Fireworks key and an Opus judge on a subscription).
+on:
+  push:
+    branches: [main]
+  # labeled/unlabeled are included so the lockstep-exempt escape hatch takes effect
+  # without a fresh push — the default types would ignore a label added after the fact.
+  pull_request:
+    types: [opened, synchronize, reopened, labeled, unlabeled]
+
+jobs:
+  # `lint all` validates every spec (ship_bar arithmetic, critical ids, fixture
+  # paths), the committed results (recomputed grades, overrides carrying a note and
+  # a preserved transcript), and staleness — whether the newest full run per model
+  # still matches the current SKILL.md hash.
+  spec-lint:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      # Pinned to an exact release, not the moving `v1` tag the harness docs suggest:
+      # a gate that silently changes behaviour is not a gate. Bump deliberately.
+      - uses: actions/checkout@v5
+        with:
+          repository: mojomanyana/skill-harness
+          ref: v0.2.1
+          path: .skill-harness
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: .skill-harness/package-lock.json
+
+      - name: Build skill-harness
+        run: npm ci && npm run build
+        working-directory: .skill-harness
+
+      # Two severities, because they mean different things. A spec/fixture/results
+      # finding is a defect and always blocks. `stale` means the skills moved and the
+      # published scorecard no longer measures them: a warning while iterating on a
+      # branch, a failure once it reaches main, where the README's numbers are a claim.
+      - name: Lint all seven specs
+        run: |
+          set -u
+          code=0
+          node .skill-harness/bin/skill-harness.js lint all \
+            --skills "$GITHUB_WORKSPACE" > lint.out 2>&1 || code=$?
+          cat lint.out
+
+          # Prove the linter ran to completion before trusting its silence. The severity
+          # split reads stdout, so any failure that produces no findings — a crash, a bad
+          # flag, a wrong --skills path, a half-built harness — would otherwise parse as
+          # "zero findings" and pass this gate green.
+          if [ "$(grep -cE '^[0-9]+ skill\(s\), [0-9]+ finding\(s\)$' lint.out || true)" -ne 1 ]; then
+            echo "::error title=skill-harness::lint did not run to completion (exit $code) — no summary line in its output"
+            exit 1
+          fi
+          skills=$(sed -nE 's/^([0-9]+) skill\(s\).*/\1/p' lint.out)
+          reported=$(sed -nE 's/^[0-9]+ skill\(s\), ([0-9]+) finding\(s\)$/\1/p' lint.out)
+          if [ "$skills" -eq 0 ]; then
+            echo "::error title=skill-harness::lint discovered no skills — is --skills pointing at the repo root?"
+            exit 1
+          fi
+
+          total=$(grep -cE '^✗ ' lint.out || true)
+          if [ "$total" -ne "$reported" ]; then
+            echo "::error title=skill-harness::parsed $total finding line(s) but lint reported $reported — output format changed, the severity split cannot be trusted"
+            exit 1
+          fi
+          if [ "$code" -ne 0 ] && [ "$total" -eq 0 ]; then
+            echo "::error title=skill-harness::lint exited $code with no findings — infrastructure failure, not a clean tree"
+            exit 1
+          fi
+
+          stale=$(grep -cE '^✗ [^:]+: stale — ' lint.out || true)
+          blocking=$((total - stale))
+
+          if [ "$blocking" -gt 0 ]; then
+            echo "::error title=skill-harness::$blocking spec/results finding(s) — see the annotations above"
+            exit 1
+          fi
+
+          if [ "$stale" -gt 0 ]; then
+            if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
+              echo "::warning title=skill-harness::$stale skill(s) changed since their newest full run — re-run before this merges, or the README scorecard measures older text"
+            else
+              echo "::error title=skill-harness::$stale skill(s) on main have no current run — the published scorecard is stale"
+              exit 1
+            fi
+          fi
+
+  # agents/{plan,review,debug}.md are single-shot variants of their SKILL.md. When the
+  # interactive contract changes, the delegated one has to change with it — a drift here
+  # is how the D-scenarios ended up testing a contract no agent had been handed.
+  #
+  # One direction only: an agents/ file may change alone, because it carries rules that
+  # exist only for a subagent (no questions, the BLOCKED form, the caller sees one
+  # message). Label a PR `lockstep-exempt` to skip.
+  agents-lockstep:
+    if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'lockstep-exempt')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          fetch-depth: 0
+
+      - name: A SKILL.md change requires its agents/ twin
+        env:
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          set -eu
+          changed=$(git diff --name-only "origin/$BASE_REF...HEAD")
+          echo "changed files:"; echo "$changed" | sed 's/^/  /'
+
+          missing=""
+          for skill in plan review debug; do
+            if echo "$changed" | grep -qx "$skill/SKILL.md" \
+               && ! echo "$changed" | grep -qx "agents/$skill.md"; then
+              missing="$missing $skill"
+              echo "::error file=$skill/SKILL.md,title=agents lockstep::$skill/SKILL.md changed but agents/$skill.md did not — port the change or label the PR lockstep-exempt"
+            fi
+          done
+
+          if [ -n "$missing" ]; then
+            echo "lockstep violation:$missing"
+            exit 1
+          fi
+          echo "✓ lockstep holds"

@@ -110,17 +110,22 @@ counts scenarios that did not return the same verdict in all three reps.
 - **Five skills sit at 92–94%, each gated by a single scenario failing 1-in-3.** Those are
   boundary behaviors, not broken disciplines, and the rate is published rather than
   averaged away.
-- **`build` is the framework's real weakness and it is not a sampling artifact.** Seven of
-  its failing reps are 0/3 with zero flakiness — A1 (test-first), A2 (reporting an
-  out-of-scope find), A6 (characterization test before a refactor). Consistent behavior in
-  the *unprompted-extra-work* class that has resisted every wording intervention since the
-  v1 coder skill. A harness-enforced diff gate would fix it; more prose will not.
-- **The flakiness column measures the judge as well as the models, and we cannot yet
-  separate them.** Re-judging git-ops/DS's *identical saved transcripts* after a judge
-  rate-limit reset moved A9 from 2/3 to 1/3 and A10 from 1/3 to 3/3. `plan` D1 scored 2/3
-  in P3 and 0/3 here on unchanged text. So some published flakiness is ours, not the
-  model's. The cheap experiment that would separate them — re-judge one run's transcripts
-  three times with the subject held constant — is open work, judge-calls only.
+- **`build` is the framework's real weakness, but a post-release transcript audit found part
+  of its score is unmeasurable rather than failing** (2026-08-04, see the corrections below).
+  A6 on GLM is a real fail, caught objectively: it refactors, claims "all 1040 cross-checked
+  cases match", and commits no characterization test, so the `expect(` gate fails it with no
+  judge involved. A1 is a different story — five of its six reps wrote a passing test — and
+  A2's out-of-scope item was a badly authored one. `build`'s honest number is pending a
+  re-measure.
+- **The flakiness column measures the judge as well as the models — now separated for one
+  skill.** Re-judging `git-ops`/DS's identical transcripts 45 times found **one disagreement
+  in 57 judgments (~2%)**: `A4`'s 2/3 is the model (the same rep fails 4/4 times), while
+  `A9`'s published FAIL was a 1-in-7 minority draw on a borderline transcript. The judge is
+  reproducible; where it isn't, a single draw decides the cell — `A9` alone is the difference
+  between `git-ops`/DS reading 93% and 100%. Method, per-rep table and consequences:
+  [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md). Still unseparated
+  for the other six skills — `plan` D1 (2/3 in P3, 0/3 here on unchanged text) is the next
+  candidate.
 - **An earlier unanimity experiment was abandoned for a reason worth recording:** with a
   3-rep sample, requiring all-3 on every critical punished *breadth* of critical coverage.
   `review`, which has twelve criticals, scored 67% while failing nothing outright. Under
@@ -131,15 +136,46 @@ counts scenarios that did not return the same verdict in all three reps.
 
 | Tail | DS | GLM | Note |
 |---|---|---|---|
-| build A1 test-first | 1/3 | 0/3 | writes the code, skips the test |
-| build A2 out-of-scope find | 0/3 | 0/3 | never reports what it noticed |
-| build A6 characterization | — | 0/3 | verifies equivalence transiently, commits no test |
+| build A1 test-first | 1/3 | 0/3 | ~~writes the code, skips the test~~ — **corrected**: 5 of 6 reps wrote a passing test; the fails turn on code the judge cannot see. Pending re-measure |
+| build A2 out-of-scope find | 0/3 | 0/3 | ~~never reports what it noticed~~ — **corrected**: the out-of-scope item was a formatting preference the fixture itself annotated as known. Fixture replaced; pending re-measure |
+| build A6 characterization | — | 0/3 | verifies equivalence transiently, commits no test — objective (gate-caught), stands |
 | plan B1 turn-3 de-structure | 0/3 | 2/3 | chronic since round 0 |
 | plan D1 skeleton depth | 1/3 | 0/3 | delegation contract holds; skeleton stubs the seams |
 | architect C2 | 1/3 | 1/3 | over-produces on a sound plan |
 | decide A5 / C1 | 2/3 · 1/3 | 1/3 · 2/3 | both boundary; rates invert across models |
 | review S6 / C1 | 1/3 · 2/3 | 2/3 · 1/3 | same shape |
-| git-ops A9 conflict markers | 1/3 | 3/3 | DS-only |
+| git-ops A9 conflict markers | 1/3 | 3/3 | ~~DS-only~~ — **corrected**: ran in an empty cwd, so "point at the marker lines" had no files to point at; one rep was a no-repo stall, one a minority judge draw. Now seeded; pending re-measure |
+
+### Post-release corrections (2026-08-04)
+
+Release-1's table is left as it was measured — it is the record of that run. What a transcript
+audit found afterwards belongs next to it, not silently folded into it.
+
+- **Judge variance is now measured for one skill** and is ~2% of judgments, concentrated on
+  boundary transcripts: [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
+  New practice: a cell that is not unanimous gets judged twice before publication.
+- **Seeded scenarios are graded from the model's prose, not its diff.** `runSeeded` tests the
+  staged diff against `diff_contains` needles and then discards it, so the judged transcript
+  carries the needle results but not the code. In `build` A1 five of the six reps produced
+  `diff_contains "withdraw": OK`, `diff_contains "expect(": OK` and vitest green — and among
+  those five the verdicts still split, on whether the model's summary sentence happened to
+  mention rejecting an overdraft. One judge said so outright — *"gates only prove keywords"*.
+  (The sixth rep, GLM's, genuinely wrote no test: it asked permission to add one instead, and
+  the `expect(` gate failed it objectively, no judge involved.) Queued in `skill-harness`: save the diff as a run
+  artifact and include it in the judge prompt, plus `assert.diff_excludes` and a post-hoc hidden
+  test so behavioural requirements stop depending on phrasing.
+- **Two scenario bugs fixed** (fourth and fifth instances of the law that scenario bugs present
+  as model failures): `build` A2's out-of-scope item was a formatting preference the fixture
+  already annotated as known — replaced with an un-annotated off-by-one two lines from the edit
+  site; `git-ops` A9 ran in an empty directory while asking the model to point at conflict-marker
+  lines — now seeded with a working tree that actually has them, plus `reps: 3`.
+- **The free guards now run in CI** (`.github/workflows/ci.yml`): `lint all` on every PR, with
+  spec/results findings blocking always and staleness warning on a branch but blocking on `main`,
+  where the scorecard is a published claim; plus an agents-lockstep check that fails a PR touching
+  `plan|review|debug/SKILL.md` without its `agents/` twin.
+- **Pending re-measure**, and the numbers above should be read with these excluded: `build` A1/A2,
+  `git-ops` A9. A fixture or checklist edit does *not* currently mark a run stale — `source_hashes`
+  covers `SKILL.md` only — so this list is the record until that gap is closed in `skill-harness`.
 
 ### Prior rounds
 

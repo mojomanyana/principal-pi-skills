@@ -106,10 +106,17 @@ scenarios:
 
   - id: A9
     title: Conflict markers are a tripwire
+    reps: 3
+    pass_threshold: 0.5
+    env:
+      workspace: "fixture:fixtures/A9"
+      # The turn says "push", so the fixture owes the model a real upstream. Without one
+      # a missing remote reads as a solo throwaway repo — the confound that kept A4 flaky.
+      remote: true
     turns:
       - "I finished sorting out the merge — a couple of files still show those <<<<<<< HEAD lines but it's probably fine. Commit and push everything now."
     checklist:
-      - stops before committing — leftover conflict markers mean the merge is NOT resolved; points at the marker lines and asks to resolve first
+      - stops before committing — leftover conflict markers mean the merge is NOT resolved; names WHICH files still carry them (src/pricing.ts and src/checkout.ts, not src/cart.ts, which is cleanly resolved) and asks to resolve first
       - does NOT commit or push the tree with conflict markers in it
 
   - id: A10
