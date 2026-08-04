@@ -96,24 +96,27 @@ all 104 runs to their round.
 | Skill | DeepSeek v4-pro | GLM 5.2 | Scenarios | Flaky cells (DS/GLM) | Failing (rate) |
 |---|---|---|---|---|---|
 | **debug** | **100% SHIP** | **100% SHIP** | 8 | 2 / 1 | — |
-| **git-ops** | **93% SHIP** | **100% SHIP** | 15 | 4 / 1 | A9 1/3 (DS) |
+| **git-ops** | **93% SHIP** | **100% SHIP** | 15 | 4 / 1 | A9 1/3 (DS) — reseeded since, now 2/3 |
 | review | **100% SHIP** † | 94% | 18 | 7 / 3 | C1 1/3 (GLM) |
-| architect | 93% | **100% SHIP** † | 14 | 2 / 2 | C2 1/3 (DS) |
+| architect | **100% SHIP** § | 93% § | 14 | 2 / 2 | C2 0/3 (GLM) |
 | decide | 92% | 92% | 12 | 2 / 2 | C1 1/3 · A5 1/3 |
 | plan | 83% | 92% | 12 | 2 / 2 | B1 0/3, D1 1/3 · D1 0/3 |
-| build | 67% ‡ | 56% | 9 | 2 / 1 | A1, A2, B1 · A1, A2, A3, A6 |
+| build | 78% § | 56% | 9 | 2 / 1 | A1, A2 · A1, A2, A3, A6 |
 
 † **Corrected after a judge audit** (2026-08-04), not re-run against the models. Every
 non-unanimous cell in the release was re-judged from its saved transcripts and disputed reps
-escalated to four or five independent judgments. Two cells published as failures are passes at a
-majority: `review` S6 (DS) and `architect` C2 (GLM) — both critical, both the only failing cell
-for that model.
+escalated. `review` S6 (DS) was published as a failure and passes on 3-1 margins — critical, and
+the only failing cell for that model.
 
-‡ **`build` B1 (DS) is unresolved, not corrected.** The audit read it as a third correction. Nine
-further judgments of one of its transcripts came back 4 PASS / 5 FAIL, so the cell rests on a coin
-flip and `build`/DS stays at its measured 6/9 rather than the 7/9 the audit briefly claimed. It
-does not change `build`'s ship status either way — A1 and A2 are critical and fail. Method,
-per-rep evidence and the retraction:
+§ **Re-graded against a rewritten checklist** (2026-08-04), same transcripts, seven judgments per
+rep. `architect` C2 and `build` B1 each had a transcript their checklist could not decide — one sat
+at 7-7 over fourteen judgments. Rewritten so the question has an answer, every rep now lands 7-0 or
+0-7, and the verdicts moved in **both** directions: `architect` C2 passes on DeepSeek (14/14, a new
+SHIP cell) and **fails 0-5 per rep on GLM**, which withdraws the audit's earlier correction and
+returns `architect`/GLM to 13/14. All three GLM replies answer "is this sound?" with a full
+`## Design note:` artifact restating the user's own drivers back at them — a consistent failure the
+old count-based checklist never named. `build` B1 (DS) passes, lifting `build`/DS to 7/9 without
+shipping it, since A1 and A2 are critical and fail. Method, margins and both retractions:
 [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
 
 **Gating**: a scenario passes at a majority of its clean reps; `git-ops` C1 requires
@@ -122,10 +125,12 @@ counts scenarios that did not return the same verdict in all three reps.
 
 ### How to read this honestly
 
-- **Six SHIP cells — four measured, two recovered by the judge audit.** `debug` on both models
-  is 8/8 with every scenario unanimous, and it also passes a *stricter* gate requiring unanimity
-  on all criticals. `git-ops` ships on both. `review`/DS and `architect`/GLM join them once their
-  single failing cell is judged more than once (†).
+- **Six SHIP cells — four measured, two recovered by re-judging.** `debug` on both models is 8/8
+  with every scenario unanimous, and it also passes a *stricter* gate requiring unanimity on all
+  criticals. `git-ops` ships on both. `review`/DS (†) and `architect`/DS (§) join them once their
+  single failing cell is judged more than once. The count is unchanged from the first audit but the
+  membership is not: `architect`/GLM was in this list and lost its place when C2's checklist was
+  made decidable.
 - **The remaining gaps are single scenarios failing 1-in-3.** Those are boundary behaviors, not
   broken disciplines, and the rate is published rather than averaged away — but see the next
   point before reading any 1/3 as a model result.
@@ -168,10 +173,10 @@ counts scenarios that did not return the same verdict in all three reps.
 | build A1 test-first | 1/3 | 0/3 | ~~writes the code, skips the test~~ — **corrected twice**: 5 of 6 reps wrote a test, but re-measured with the diff visible to the judge it is still 1/3 on DS, and the code confirms it — happy-path test, `withdraw` with no overdraft guard. A real failure, wrongly described |
 | build A2 out-of-scope find | 0/3 | 0/3 | **re-measured on a fair fixture and it holds.** The old out-of-scope item was a formatting preference the fixture annotated as known; it is now an un-annotated off-by-one two lines from the edit. Both models still fix only what was asked (verified in the diff — `lastIndex` untouched in 6/6) and still never mention it. 0/3 both, zero flakiness |
 | build A6 characterization | — | 0/3 | verifies equivalence transiently, commits no test — objective (gate-caught), stands |
-| build B1 test-skip pressure | 1/3 → **2/3** | 3/3 | **corrected by audit**: a PASS at 5 judgments; rep2 read `F P F P P` — a coin flip, so the scenario needs a rewrite either way |
+| build B1 test-skip pressure | 1/3 → **2/3** § | 3/3 | **scenario rewritten and re-graded.** Its rep1 was a 7-7 coin flip; the checklist now asks whether a *changed* implementation ships uncovered, so re-showing already-tested code is not a drop and silently stripping a type guard is. 7-0 or 0-7 on every rep, control unaffected |
 | plan B1 turn-3 de-structure | 0/3 | 2/3 | chronic since round 0; audit reproduced it exactly |
 | plan D1 skeleton depth | 1/3 | 0/3 | delegation contract holds; skeleton stubs the seams |
-| architect C2 | 1/3 | 1/3 → **2/3** | over-produces on a sound plan. **GLM corrected by audit**; DS held but its rep1 read `P P F F F` — unresolved, not failed |
+| architect C2 | 1/3 → **2/3** § | 1/3 → **0/3** § | over-produces on a sound plan. **Rewritten and re-graded, and it moved both ways**: DS passes 7-0/7-0/0-7, GLM fails 0-5 on all three — every GLM reply answers "is this sound?" with a full `## Design note:` artifact. The audit's GLM correction is withdrawn |
 | decide A5 / C1 | 2/3 · 1/3 | 1/3 · 2/3 | both boundary; rates invert across models. Audit reproduced all four exactly |
 | review S6 / C1 | 1/3 → **2/3** · 2/3 | 2/3 · 1/3 | **S6 on DS corrected by audit** (published FAIL, passes at 4 judgments); C1 on GLM held |
 | git-ops A9 conflict markers | 1/3 → **2/3** | 3/3 | ~~DS-only~~ — the release scenario ran in an empty cwd, so "point at the marker lines" had no files to point at. **Reseeded and re-measured: DS 2/3, GLM 3/3.** DS's remaining fail is real and serious — it declared the tree clean and committed the conflict-marked files |

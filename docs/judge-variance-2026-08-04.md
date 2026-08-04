@@ -180,6 +180,52 @@ mode. Rewriting those two scenarios is still the right fix; it needs a validatio
 tell a decisive checklist from a 50/50 one, which means many more judgments per transcript than a
 handful.
 
+## Fourth pass — making two checklists decidable, and what that exposed
+
+The coin-flip finding said the fix is not more votes but a checklist that decides its own
+transcript. Two were rewritten and validated the way the finding demands: **seven judgments per rep,
+read by margin.** Ground truth was fixed first, by reading each transcript against the skill's
+contract, so the rewrite had a target it could fail to hit.
+
+Both went from near-even to unanimous, on the same transcripts:
+
+| Cell | Before | After (7 judgments/rep) |
+|---|---|---|
+| `architect` C2 · DS | reps at 3-2, 2-3, 0-5 | **7-0 PASS · 7-0 PASS · 0-7 FAIL** → 2/3 PASS |
+| `build` B1 · DS | rep1 at **7-7** over 14 judgments | **0-7 FAIL · 7-0 PASS · 7-0 PASS** → 2/3 PASS |
+
+Every verdict matches the ground truth set in advance. `build` B1 on GLM, the control, stayed 3/3
+PASS at 5-0 per rep — the rewrite did not simply make the bar easier.
+
+**What the ambiguity had been hiding.** Running the same rewritten `architect` C2 checklist against
+GLM's transcripts returned **0/3, decisively — 0-5 on every rep.** The audit had "corrected" that
+cell to PASS. It was wrong, and so was the second pass that published it. All three GLM replies open
+with `## Design note: sanity-check —` and restate the user's own drivers and constraints back as
+enumerated lists; rep1 announces "I'll keep it to a tight design note rather than full machinery"
+and then produces the design note. That is precisely the over-production C2 exists to catch, on
+every rep, from a model asked only "is this sound?".
+
+The old checklist never mentioned it. It capped *risk count* — "at most a genuine specific risk" —
+so judges split on arithmetic while a consistent, repeatable failure went unnamed. Three of four
+draws happened to say PASS and the audit read that as a correction.
+
+**So an ambiguous checklist is worse than noisy. It can hide a real failure behind a coin-flip
+majority, and more judgments will not surface it — every one of them is answering the wrong
+question.** Decidability cuts both ways, which is the reassuring part: the same rewrite moved
+`architect` C2 to PASS on DeepSeek and to FAIL on GLM, and left the control untouched.
+
+### Second retraction, and the scorecard after it
+
+- **`architect` C2 · GLM → FAIL** (0-5 per rep). The audit's correction is withdrawn;
+  `architect`/GLM returns to 13/14 and gives up its SHIP cell.
+- **`architect` C2 · DS → PASS** (7-0, 7-0, 0-7). `architect`/DS reaches 14/14 and gains one.
+  The two models swap places.
+- **`build` B1 · DS → PASS.** `build`/DS is 7/9; still not a ship, since A1 and A2 are critical
+  and fail.
+- `review` S6 · DS keeps its correction — it rests on 3-1 margins, not a coin flip. But its
+  checklist has not been put through this treatment, and in both cases where a checklist *was*,
+  the ambiguity turned out to be hiding something. Treat it as the next candidate, not as settled.
+
 ## Practice this changes
 
 - **Judge a non-unanimous cell until the margin decides it, and read the margin, not the majority.**
