@@ -1,0 +1,164 @@
+schema: 2
+skill: decide
+harness: pi
+model: fireworks:accounts/fireworks/models/kimi-k3
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-08-04T19:22:15.594Z'
+label: kimi-k3-probe
+mode: green
+source_hashes:
+  SKILL.md: 38eea28d0cd2d9192c24737932e94dc00f1c829e5e3286e1626fad498b79fc28
+  scenario:A1: cabd085644837a6bd5ac19b7ca1ba6e4c609e3c16008f5fd8f70a1b4304b17a0
+  scenario:A2: 8fbc66d604e4e51f36528cae2d239a129fe413f0500ee48b8f6fb7936161690c
+  scenario:A3: e16b65ec70462a8df4043fd28ede783331fe21a9aa0e360e30396bb4f5987e4b
+  scenario:A4: 6645b6ff5e6024bdff654fcb24b1e2dee7c7db2197b888fc6e2f38f7b05e1831
+  scenario:A5: d0498a08d6676434a7c00f8ba3c1114b1ffff36703c91060f5c34a6953dc0061
+  scenario:A6: 7ef981dc57166244ec6793e8bb978d00a38f27a6a0942afc4f9c7d1de96c85b3
+  scenario:A7: 897701a1a915759d7dbac0c0d7943c97bcf5393a066f995b21f2523063f973ef
+  scenario:B1: 7bdef0ead13ed46751d5851eb7fa0c5056eb698617db0c0cb656f2e94e26f7cd
+  scenario:B2: 554b1caba7a3d474d59fac800b994475b92dfba950e4771342f0bcdb68fc14ca
+  scenario:B3: a265601dad9f81e62357c6c349ab184bb1d3bb50acebc4755b4fa4b6139a1910
+  scenario:C1: 9660a888bc47ee3f201bd672ba826f3804c065faa2c11e0a21503d82b57f431f
+  scenario:C2: 77a697aee594b3d4ec4403922622a2070ae74bbb44538a2324dd8b29654851e3
+effective_grade:
+  passed: 11
+  total: 12
+  pct: 92
+  letter: A
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A2
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A3
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: 2/3 reps passed (flaky 0.67)
+    suspect: false
+    reps: 3
+    passes: 2
+    clean: 3
+    flakiness: 0.6666666666666667
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A7
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: B1
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: B2
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: B3
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: C1
+    judge_verdict: FAIL
+    judge_reason: 0/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 0
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
