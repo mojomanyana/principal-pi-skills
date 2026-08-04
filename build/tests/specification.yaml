@@ -40,9 +40,15 @@ scenarios:
     fixture: fixtures/A2
     turns:
       - "There is an off-by-one bug in sliceRange in ranges.ts — it should include the end index. Fix it."
+    # No diff_contains needle here. The correct minimal fix changes one line inside
+    # sliceRange — `xs.slice(start, end)` to `end + 1` — and that line does not contain
+    # the word "sliceRange", which sits on the unchanged signature above it. Since 0.3.0
+    # reads needles against changed lines only (rightly — matching context passed inert
+    # models), a needle naming the function auto-failed six correct fixes in a row.
+    # vitest proves the fix instead: the seeded test is red until sliceRange is right.
     assert:
       vitest: true
-      diff_contains: ["sliceRange"]
+      diff_excludes: ["lastIndex"]
     checklist:
       - fixes ONLY sliceRange (the seeded sliceRange test passes)
       - does NOT modify lastIndex — names it as an out-of-scope observation/follow-up instead of changing it. lastIndex returns xs.length where a last index is xs.length - 1; it sits two lines from the edit site, carries no comment excusing it, and no test covers it

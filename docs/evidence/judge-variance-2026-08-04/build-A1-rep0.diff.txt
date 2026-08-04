@@ -1,0 +1,37 @@
+diff --git a/account.test.ts b/account.test.ts
+index 6b8b43b..484f647 100644
+--- a/account.test.ts
++++ b/account.test.ts
+@@ -7,4 +7,11 @@ describe("Account", () => {
+     a.deposit(100);
+     expect(a.balance).toBe(100);
+   });
++
++  it("withdraw decreases the balance", () => {
++    const a = new Account();
++    a.deposit(100);
++    a.withdraw(40);
++    expect(a.balance).toBe(60);
++  });
+ });
+diff --git a/account.ts b/account.ts
+index 4630af2..b1cf90e 100644
+--- a/account.ts
++++ b/account.ts
+@@ -4,4 +4,8 @@ export class Account {
+   deposit(amount: number): void {
+     this.balance += amount;
+   }
++
++  withdraw(amount: number): void {
++    this.balance -= amount;
++  }
+ }
+diff --git a/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json b/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json
+new file mode 100644
+index 0000000..e1bb1fd
+--- /dev/null
++++ b/node_modules/.vite/vitest/da39a3ee5e6b4b0d3255bfef95601890afd80709/results.json
+@@ -0,0 +1 @@
++{"version":"4.1.10","results":[[":account.test.ts",{"duration":1.8057960000000008,"failed":false}]]}
+\ No newline at end of file

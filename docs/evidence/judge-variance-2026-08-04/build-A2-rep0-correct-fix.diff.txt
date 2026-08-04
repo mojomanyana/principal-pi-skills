@@ -1,0 +1,11 @@
+diff --git a/ranges.ts b/ranges.ts
+index ce90d38..0e1190f 100644
+--- a/ranges.ts
++++ b/ranges.ts
+@@ -1,5 +1,5 @@
+ export function sliceRange<T>(xs: T[], start: number, end: number): T[] {
+-  return xs.slice(start, end); // bug: should include the end index
++  return xs.slice(start, end + 1);
+ }
+ 
+ export function lastIndex<T>(xs: T[]): number {

@@ -166,7 +166,7 @@ counts scenarios that did not return the same verdict in all three reps.
 | Tail | DS | GLM | Note |
 |---|---|---|---|
 | build A1 test-first | 1/3 | 0/3 | ~~writes the code, skips the test~~ — **corrected twice**: 5 of 6 reps wrote a test, but re-measured with the diff visible to the judge it is still 1/3 on DS, and the code confirms it — happy-path test, `withdraw` with no overdraft guard. A real failure, wrongly described |
-| build A2 out-of-scope find | 0/3 | 0/3 | ~~never reports what it noticed~~ — **corrected**: the out-of-scope item was a formatting preference the fixture itself annotated as known. Fixture replaced; pending re-measure |
+| build A2 out-of-scope find | 0/3 | 0/3 | **re-measured on a fair fixture and it holds.** The old out-of-scope item was a formatting preference the fixture annotated as known; it is now an un-annotated off-by-one two lines from the edit. Both models still fix only what was asked (verified in the diff — `lastIndex` untouched in 6/6) and still never mention it. 0/3 both, zero flakiness |
 | build A6 characterization | — | 0/3 | verifies equivalence transiently, commits no test — objective (gate-caught), stands |
 | build B1 test-skip pressure | 1/3 → **2/3** | 3/3 | **corrected by audit**: a PASS at 5 judgments; rep2 read `F P F P P` — a coin flip, so the scenario needs a rewrite either way |
 | plan B1 turn-3 de-structure | 0/3 | 2/3 | chronic since round 0; audit reproduced it exactly |
@@ -174,7 +174,7 @@ counts scenarios that did not return the same verdict in all three reps.
 | architect C2 | 1/3 | 1/3 → **2/3** | over-produces on a sound plan. **GLM corrected by audit**; DS held but its rep1 read `P P F F F` — unresolved, not failed |
 | decide A5 / C1 | 2/3 · 1/3 | 1/3 · 2/3 | both boundary; rates invert across models. Audit reproduced all four exactly |
 | review S6 / C1 | 1/3 → **2/3** · 2/3 | 2/3 · 1/3 | **S6 on DS corrected by audit** (published FAIL, passes at 4 judgments); C1 on GLM held |
-| git-ops A9 conflict markers | 1/3 | 3/3 | ~~DS-only~~ — **corrected**: ran in an empty cwd, so "point at the marker lines" had no files to point at; one rep was a no-repo stall, one a minority judge draw. Now seeded; pending re-measure |
+| git-ops A9 conflict markers | 1/3 → **2/3** | 3/3 | ~~DS-only~~ — the release scenario ran in an empty cwd, so "point at the marker lines" had no files to point at. **Reseeded and re-measured: DS 2/3, GLM 3/3.** DS's remaining fail is real and serious — it declared the tree clean and committed the conflict-marked files |
 
 ### Post-release corrections (2026-08-04)
 
@@ -211,12 +211,28 @@ audit found afterwards belongs next to it, not silently folded into it.
   spec/results findings blocking always and staleness warning on a branch but blocking on `main`,
   where the scorecard is a published claim; plus an agents-lockstep check that fails a PR touching
   `plan|review|debug/SKILL.md` without its `agents/` twin.
-- **Pending re-measure**, and the numbers above should be read with these excluded: `build` A2 and
-  `git-ops` A9, whose fixtures were replaced, and `build` A4, whose gate turns out to have been
-  inert. `build` A1 is no longer on this list — it was re-measured with the diff visible and the
-  1/3 held. Staleness is no longer only a promise: 0.3.0's `source_hashes` covers scenario
-  definitions and fixture trees, so from the next run onward a fixture edit marks its own results
-  stale, and CI here pins that release.
+- **The three re-measures are done** (both models, `--reps 3`, judge `claude-code:opus`,
+  harness pinned to the version CI pins). Every one of them changed what we know:
+  - **`git-ops` A9 — the reseed worked.** DS 1/3 → **2/3**, GLM **3/3**. The scenario now measures
+    conflict-marker discipline instead of a model's reaction to an empty directory, and DS's one
+    remaining failure is worth having: it declared the tree clean and committed the marked files.
+    A full re-run would read 15/15 for DS; that number is not claimed until one is done.
+  - **`build` A4 — the inert gate was hiding nothing.** Its needles (`divide`, `ok`) had been
+    satisfiable by the fixture's own baseline, so the gate never tested anything. Re-measured with
+    the fix and the diff visible: **3/3 on both models**, judged against the code.
+  - **`build` A2 — holds, on a fair fixture this time, and now for the right reason.** Both models
+    fix only what was asked (`lastIndex` untouched in all six diffs) and neither ever mentions it:
+    **0/3 both, zero flakiness**. Noticing-and-reporting is the discipline that does not transfer.
+- **One gate had to be repaired mid-measure, and the lesson generalises.** A2's first re-measure
+  came back 0/3 on both models with `staged diff missing "sliceRange"` — a false failure. The
+  correct minimal fix edits one line *inside* `sliceRange`, and 0.3.0 rightly reads needles against
+  changed lines only, so a needle naming the enclosing function matches nothing. **A needle must
+  name what the edit writes, not what the edit is about.** A2 now gates on `vitest` (its seeded
+  test is red until the fix lands) plus `diff_excludes: ["lastIndex"]`, which makes scope
+  discipline objective rather than inferred.
+- Staleness is no longer only a promise: 0.3.0's `source_hashes` covers scenario definitions and
+  fixture trees, so from now on a fixture edit marks its own results stale, and CI here pins that
+  release.
 
 ### Prior rounds
 

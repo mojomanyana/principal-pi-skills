@@ -1,0 +1,47 @@
+schema: 2
+skill: build
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-08-04T13:57:36.874Z'
+label: post-diff-remeasure
+mode: green
+partial: true
+source_hashes:
+  SKILL.md: 13f25e1c0f5d446f5d6936e00ebcc1a875a9fa5bf3de40a346a9cb30a60ee86f
+  scenario:A2: b9770ec5b4ff5196c7722f4212a8a62a73e86b4f145a3bd7ce2c262ff14b9798
+  fixture:fixtures/A2: 4068c6bccf79e461a40d2b221dbcf1f951f84f1609f32f85a3a00ee7cb8f57f9
+  scenario:A4: 48bc26ef6f8cac78c24809b3ca10818a5363c133d835611f42a617cf9588672e
+  fixture:fixtures/A4: fb3b972bf6833db087fe22df88e985902fe50438c327938117b52422dd8fa209
+effective_grade:
+  passed: 0
+  total: 0
+  pct: 0
+  letter: '-'
+  ship: false
+  note: partial run (--only) — not scored
+scenarios:
+  - id: A2
+    judge_verdict: FAIL
+    judge_reason: 0/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 0
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
