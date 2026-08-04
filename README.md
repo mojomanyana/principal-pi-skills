@@ -96,7 +96,7 @@ all 104 runs to their round.
 | Skill | DeepSeek v4-pro | GLM 5.2 | Scenarios | Flaky cells (DS/GLM) | Failing (rate) |
 |---|---|---|---|---|---|
 | **debug** | **100% SHIP** | **100% SHIP** | 8 | 2 / 1 | — |
-| **git-ops** | **93% SHIP** | **100% SHIP** | 15 | 4 / 1 | A9 1/3 (DS) — reseeded since, now 2/3 |
+| **git-ops** | **100% SHIP** ¶ | **100% SHIP** ¶ | 15 | 3 / 1 | — |
 | review | **100% SHIP** † | 94% | 18 | 7 / 3 | C1 1/3 (GLM) |
 | architect | **100% SHIP** § | 93% § | 14 | 2 / 2 | C2 0/3 (GLM) |
 | decide | 92% | 92% | 12 | 2 / 2 | C1 1/3 · A5 1/3 |
@@ -118,6 +118,12 @@ returns `architect`/GLM to 13/14. All three GLM replies answer "is this sound?" 
 old count-based checklist never named. `build` B1 (DS) passes, lifting `build`/DS to 7/9 without
 shipping it, since A1 and A2 are critical and fail. Method, margins and both retractions:
 [`docs/judge-variance-2026-08-04.md`](docs/judge-variance-2026-08-04.md).
+
+¶ **`git-ops` was fully re-run** (2026-08-04, label `release-2-gitops`, 90 rep-executions) after
+its A9 scenario was reseeded. Both models now score **15/15 with nothing failing** — DeepSeek up
+from 93%, because A9 had been measuring a model's reaction to an empty directory rather than its
+conflict-marker discipline. DeepSeek's remaining flakiness is A3, A7 and A9 at 2/3; GLM's is A7
+alone. This is the only skill re-run in full; every other row is still release-1.
 
 **Gating**: a scenario passes at a majority of its clean reps; `git-ops` C1 requires
 unanimity (set deliberately for a critical with observed flip-proneness). "Flaky cells"
@@ -179,7 +185,7 @@ counts scenarios that did not return the same verdict in all three reps.
 | architect C2 | 1/3 → **2/3** § | 1/3 → **0/3** § | over-produces on a sound plan. **Rewritten and re-graded, and it moved both ways**: DS passes 7-0/7-0/0-7, GLM fails 0-5 on all three — every GLM reply answers "is this sound?" with a full `## Design note:` artifact. The audit's GLM correction is withdrawn |
 | decide A5 / C1 | 2/3 · 1/3 | 1/3 · 2/3 | both boundary; rates invert across models. Audit reproduced all four exactly |
 | review S6 / C1 | 1/3 → **2/3** · 2/3 | 2/3 · 1/3 | **S6 on DS corrected by audit** (published FAIL, passes at 4 judgments); C1 on GLM held |
-| git-ops A9 conflict markers | 1/3 → **2/3** | 3/3 | ~~DS-only~~ — the release scenario ran in an empty cwd, so "point at the marker lines" had no files to point at. **Reseeded and re-measured: DS 2/3, GLM 3/3.** DS's remaining fail is real and serious — it declared the tree clean and committed the conflict-marked files |
+| git-ops A9 conflict markers | ~~1/3~~ **2/3** | **3/3** | **resolved.** The release scenario ran in an empty cwd, so "point at the marker lines" had nothing to point at. Reseeded with real markers and a real upstream, then re-run in full: DS 2/3, GLM 3/3. DS's remaining fail is worth having — it declared the tree clean and committed the marked files |
 
 ### Post-release corrections (2026-08-04)
 

@@ -136,9 +136,11 @@ it can now actually perform, which is why some verdicts move in both directions.
 | debug | glm-5p2 | `2026-08-04T08-08-15-263Z` | release-1 | 8/8 · 100% · **SHIP** | **current** (release, reps 3, 1 flaky) |
 | decide | deepseek-v4-pro | `2026-08-03T14-45-17-403Z` | release-1 | 11/12 · 92% · not ready | **current** (release, reps 3, 2 flaky, fails: C1) |
 | decide | glm-5p2 | `2026-08-04T07-55-56-958Z` | release-1 | 11/12 · 92% · not ready | **current** (release, reps 3, 2 flaky, fails: A5) |
-| git-ops | deepseek-v4-pro | `2026-08-03T15-55-57-859Z` | release-1 | 14/15 · 93% · **SHIP** | **current** (release, reps 3, 4 flaky, fails: A9) |
-| git-ops | glm-5p2 | `2026-08-04T09-25-21-120Z` | release-1 | 15/15 · 100% · **SHIP** | **current** (release, reps 3, 1 flaky) |
+| git-ops | deepseek-v4-pro | `2026-08-03T15-55-57-859Z` | release-1 | 14/15 · 93% · **SHIP** | superseded (A9 measured in an empty cwd) |
+| git-ops | glm-5p2 | `2026-08-04T09-25-21-120Z` | release-1 | 15/15 · 100% · **SHIP** | superseded (same A9 defect) |
 | plan | deepseek-v4-pro | `2026-08-03T15-17-52-663Z` | release-1 | 10/12 · 83% · not ready | **current** (release, reps 3, 2 flaky, fails: B1, D1) |
 | plan | glm-5p2 | `2026-08-04T08-35-40-925Z` | release-1 | 11/12 · 92% · not ready | **current** (release, reps 3, 2 flaky, fails: D1) |
 | review | deepseek-v4-pro | `2026-08-03T15-44-12-143Z` | release-1 | 17/18 · 94% · not ready | **current** (release, reps 3, 7 flaky, fails: S6) |
 | review | glm-5p2 | `2026-08-04T09-11-23-640Z` | release-1 | 17/18 · 94% · not ready | **current** (release, reps 3, 3 flaky, fails: C1) |
+| git-ops | deepseek-v4-pro | `2026-08-04T15-14-56-904Z` | release-2-gitops | 15/15 · 100% · **SHIP** | **current** (full, reps 3, 3 flaky: A3 A7 A9) |
+| git-ops | glm-5p2 | `2026-08-04T15-38-03-797Z` | release-2-gitops | 15/15 · 100% · **SHIP** | **current** (full, reps 3, 1 flaky: A7) |
