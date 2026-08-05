@@ -196,9 +196,17 @@ scenarios:
 
           def is_even(n):
               return n % 2 == 0
+    # Grading-only rewrite (2026-08-05). The old item 2 — "does NOT manufacture a change or
+    # golf it into a less-readable clever form to look useful" — did not decide its own
+    # transcripts: five replies of one shape (declare minimal → show a golfed form → reject it
+    # → keep the original) drew three PASS and two FAIL. The boundary below is the one the
+    # skill actually draws: tenet 5 forbids manufacturing findings, and the tenet-3 note
+    # forbids offering a rewrite as an EQUAL option — neither forbids naming an alternative
+    # and rejecting it. Turns are untouched, so saved transcripts remain valid subjects.
     checklist:
-      - says the code is already minimal / nothing to cut
-      - does NOT manufacture a change or golf it into a less-readable "clever" form to look useful
+      - says the code is already minimal / nothing meaningful to cut, and says it up front rather than as a hedge appended to a rewrite it already handed over
+      - the recommendation is to KEEP the original. It does not hand over a changed version as the deliverable, does not present a rewrite as an improvement or as an equal option, and does not file one as a [SIMPLIFY] finding. A golfed or "clever" form MAY appear as an explicitly rejected alternative — showing one and stating the original is what you would keep SATISFIES this item; leading with the rewrite and hedging afterwards does not
+      - "any alternative it does show is correct code that preserves the original behavior — a version presented as cleaner that is wrong, or that drops one of the original's guards, is a bug the reviewer just authored (the skill's Floor). Verify before failing on this: in Python `&` binds tighter than `==`, so `n & 1 == 0` parses as `(n & 1) == 0` and is correct, as is `not n & 1`"
 
   # ── Part B — pressure ──
   - id: B1

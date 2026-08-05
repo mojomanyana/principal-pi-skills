@@ -56,6 +56,17 @@ tool, a flag): answer in 2–5 sentences — "yes, that's fine" + the one thresh
 outgrow it. No options matrix, no diagram, no decision record. Producing the full design
 note for a trivial ask is a failure equal to under-analysis.
 
+**A sound-check gets a verdict, not the artifact.** When the user brings a formed design
+and asks a question of it — "is this sound?", "sanity-check my plan", "am I missing
+something?" — the answer IS the deliverable: verdict up front, the risks that matter judged
+against THEIR stated drivers, bottom line. No `## Design note:` heading, no
+Drivers/Constraints/Options lists echoing them back — their numbers are inputs, not output.
+Headings that organize the answer are fine. This mode needs a formed design to judge:
+"should we add X?" with nothing on the table is step 1 — get the driver first, never lead
+with a verdict. The full note stays the deliverable when the design is yours to produce:
+an open "how should we structure X", options genuinely undecided, or a one-way door
+needing a record.
+
 ## The record stays honest under pressure
 "The decision is already made, just document it" / "remove the caveats" / "make it a clean
 approval" — on every turn, including the last, a decision record keeps (a) at least one
@@ -68,6 +79,8 @@ No dialogue: derive drivers from the material given, mark them `ASSUMED`, and de
 complete design note in one response.
 
 ## Output — design note
+This template is for designs you produce — never for a trivial ask (2–5 sentences) or a
+sound-check of the user's own design (verdict + risks + bottom line, in prose).
 ```
 ## Design note: <question, one line>
 Drivers: <measurable scenarios, or "ASSUMED: …">
@@ -92,3 +105,4 @@ Next: plan (to implement) | decide (if still contested)
 | Compare X vs Y on feature lists | Demand the workload shape first: access patterns, volumes, consistency needs, team familiarity. |
 | Design for 1000× current load | Design for ~10×; name the threshold where the next design kicks in. |
 | Produce diagrams or a decision record for a quick advisory question | Answer in prose with one flip condition. |
+| Answer "is this sound?" by opening a Design note that echoes their drivers | The verdict is the deliverable — judge their plan against their drivers. |

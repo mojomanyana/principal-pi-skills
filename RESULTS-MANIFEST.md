@@ -188,6 +188,14 @@ it can now actually perform, which is why some verdicts move in both directions.
 | build | glm-5p2 | `2026-08-04T14-06-02-064Z` | a2-gate-fixed | A2 0/3 | partial (--only A2, reps 3) |
 | git-ops | deepseek-v4-pro | `2026-08-04T13-59-12-210Z` | post-diff-remeasure | A9 2/3 | partial (--only A9, reps 3) |
 | git-ops | glm-5p2 | `2026-08-04T14-01-04-829Z` | post-diff-remeasure | A9 3/3 | partial (--only A9, reps 3) |
+| architect | glm-5p2 | `2026-08-05T08-25-19-214Z` | p7-verify | A1 3/3, C1 3/3, C2 3/3 | partial (--only, reps 3; C2 fix round 1) |
+| architect | deepseek-v4-pro | `2026-08-05T08-31-59-847Z` | p7-verify | A1 1/3, C1 3/3, C2 3/3 | partial (--only, reps 3; A1 control caught governor leak) |
+| plan | glm-5p2 | `2026-08-05T08-37-09-235Z` | p7-verify | D1 1/3, D2 3/3 | partial (--only, reps 3; skeleton fixed, questions defect exposed) |
+| plan | deepseek-v4-pro | `2026-08-05T08-42-26-319Z` | p7-verify | D1 2/3, D2 3/3 | partial (--only, reps 3) |
+| architect | deepseek-v4-pro | `2026-08-05T08-49-24-985Z` | p7-verify2 | A1 2/3, C2 3/3 | partial (--only, reps 3; boundary sentence recovered A1) |
+| architect | glm-5p2 | `2026-08-05T08-52-54-785Z` | p7-verify2 | A1 3/3, C2 3/3 | partial (--only, reps 3) |
+| plan | glm-5p2 | `2026-08-05T08-58-17-872Z` | p7-verify2 | D1 3/3, D2 3/3 | partial (--only, reps 3, flaky 0.00; was 0/3 at release) |
+| plan | deepseek-v4-pro | `2026-08-05T09-03-28-019Z` | p7-verify2 | D1 3/3, D2 3/3 | partial (--only, reps 3, flaky 0.00; was 1/3 at release) |
 | build | deepseek-v4-pro | `2026-08-04T21-50-37-187Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 2 flaky: A3 B1, fails: A1 A2 A6 B1 C2\*) |
 | build | glm-5p2 | `2026-08-04T22-03-15-128Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 3 flaky: A1 A3 C2, fails: A1 A2 A6 B1 C2\*) |
 | debug | deepseek-v4-pro | `2026-08-04T22-13-35-411Z` | post-diff-remeasure-full | 8/8 · 100% · **SHIP** | **current** (full, reps 3, 2 flaky: B1 D2) |

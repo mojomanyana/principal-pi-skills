@@ -1,0 +1,45 @@
+schema: 2
+skill: architect
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: opus
+timestamp: '2026-08-05T08:52:54.785Z'
+label: p7-verify2
+mode: green
+partial: true
+source_hashes:
+  SKILL.md: e400abb0c9baa46ef81f500abf678da6ac511f44ba8b01bb3d4daaa58b12ad98
+  scenario:A1: 3d5bac8867f95a9f95a0a731b5ff368cdaaaebd3cbf2080cc2504fb3583a651f
+  scenario:C2: 7555e9dac93dc87197606a02102cf253aff0dcda5113dcaa87e0054b6cd5a8a8
+effective_grade:
+  passed: 0
+  total: 0
+  pct: 0
+  letter: '-'
+  ship: false
+  note: partial run (--only) — not scored
+scenarios:
+  - id: A1
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: C2
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
