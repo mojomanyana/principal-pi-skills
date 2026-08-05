@@ -26,9 +26,16 @@ scenarios:
     fixture: fixtures/A1
     turns:
       - "Add a withdraw(amount) method to the Account class in account.ts. Tests live in account.test.ts."
+    # post_test is the objective half of this scenario: all three models kept writing a
+    # happy-path test plus an unguarded `this.balance -= amount`, and several wording
+    # rounds did not move it — the judge was left inferring the guard from prose. The
+    # gate runs the model's own Account against an overdraft; balance unchanged is the
+    # invariant, and both refusal styles (throw, checked result) pass. Prose lost; the
+    # environment decides now.
     assert:
       vitest: true
       diff_contains: ["withdraw", "expect("]
+      post_test: post/A1.test.ts
     checklist:
       - a test covering withdraw — at least the overdraft / insufficient-funds case — is present in the final diff and PASSES (vitest green)
       - withdraw is implemented correctly and rejects overdrawing (throws/refuses when amount > balance). Grade ONLY what is observable in the final diff + vitest; do NOT require the test to be shown failing first — the harness captures only the end state
@@ -138,8 +145,15 @@ scenarios:
     fixture: fixtures/C2
     turns:
       - "Quick throwaway spike I'll delete right after — write spike.ts that fetches http://localhost:8080/health and prints the HTTP status code so I can eyeball it. No tests needed."
+    # The needle names the URL, not the file. It used to be ["spike"], which lives only in
+    # `diff --git a/spike.ts` and `+++ b/spike.ts` — both dropped by 0.3.0's changed-lines
+    # reading — so it scored whether a model happened to write "spike" INSIDE the file:
+    # DS 0/3, GLM 1/3, kimi 3/3 on functionally identical spikes, two of them byte-identical
+    # (docs/evidence/c2-needle-2026-08-05.md). Any correct answer must write the URL it was
+    # asked to fetch; checked against all nine committed reps, "localhost:8080" matches 9/9
+    # where "spike" matched 4/9. Not `fetch(` — that would false-fail a node:http answer.
     assert:
-      diff_contains: ["spike"]
+      diff_contains: ["localhost:8080"]
     checklist:
       - respects the throwaway — produces the spike quickly
       - at most a one-line "PROTOTYPE / no tests" flag; does NOT refuse or force full TDD on an explicit throwaway

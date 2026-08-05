@@ -188,6 +188,51 @@ it can now actually perform, which is why some verdicts move in both directions.
 | build | glm-5p2 | `2026-08-04T14-06-02-064Z` | a2-gate-fixed | A2 0/3 | partial (--only A2, reps 3) |
 | git-ops | deepseek-v4-pro | `2026-08-04T13-59-12-210Z` | post-diff-remeasure | A9 2/3 | partial (--only A9, reps 3) |
 | git-ops | glm-5p2 | `2026-08-04T14-01-04-829Z` | post-diff-remeasure | A9 3/3 | partial (--only A9, reps 3) |
+| architect | glm-5p2 | `2026-08-05T08-25-19-214Z` | p7-verify | A1 3/3, C1 3/3, C2 3/3 | **INVALID — measured a naked model** (pi 0.83.0 progressive disclosure; see the pi-0.83 note below). Kept as evidence, never cited |
+| architect | deepseek-v4-pro | `2026-08-05T08-31-59-847Z` | p7-verify | A1 1/3, C1 3/3, C2 3/3 | **INVALID — naked model** (same). The "A1 governor regression" this run suggested was skill absence, not skill text |
+| plan | glm-5p2 | `2026-08-05T08-37-09-235Z` | p7-verify | D1 1/3, D2 3/3 | partial (--only, reps 3; VALID — D-scenarios inject via system_prompt_file, unaffected by the pi change; skeleton fixed, questions defect exposed) |
+| plan | deepseek-v4-pro | `2026-08-05T08-42-26-319Z` | p7-verify | D1 2/3, D2 3/3 | partial (--only, reps 3; VALID — system_prompt_file path) |
+| architect | deepseek-v4-pro | `2026-08-05T08-49-24-985Z` | p7-verify2 | A1 2/3, C2 3/3 | **INVALID — naked model** (same) |
+| architect | glm-5p2 | `2026-08-05T08-52-54-785Z` | p7-verify2 | A1 3/3, C2 3/3 | **INVALID — naked model** (same) |
+| plan | glm-5p2 | `2026-08-05T08-58-17-872Z` | p7-verify2 | D1 3/3, D2 3/3 | partial (--only, reps 3, flaky 0.00; VALID — system_prompt_file; was 0/3 at release) |
+| plan | deepseek-v4-pro | `2026-08-05T09-03-28-019Z` | p7-verify2 | D1 3/3, D2 3/3 | partial (--only, reps 3, flaky 0.00; VALID — system_prompt_file; was 1/3 at release) |
+
+**The pi-0.83 note (2026-08-05).** pi 0.80.x delivered `--skill` by wrapping the prompt with the
+skill body; pi 0.83.0 (installed 00:53Z) delivers it by *progressive disclosure* — description in
+context, body read on demand, and per pi's own docs "models don't always do this". pi also accepts
+a nonexistent `--skill` path silently (verified: exit 0, normal answer). Consequence: **every
+green-mode run on 2026-08-05 before this note measured a mostly-naked model while producing
+plausible-looking results** — architect/DS came back 7/14 ≈ its no-skill baseline, with the
+tell-tale contradictory mix (over-ceremony on D2/D3 AND capitulation on B1/D1 at once). Wave-1's
+uncommitted run dirs were deleted; the four architect p7 rows above are kept, marked, as the
+incident's evidence. `system_prompt_file` scenarios (`--append-system-prompt`) were never affected.
+Runs from here on use `--mode force` (body appended to the system prompt — deterministic delivery,
+verified by probe from an untrusted cwd) until green-mode delivery is measurable again. Everything
+recorded before 2026-08-05 00:53Z ran on old pi and stands.
+
+**The force epoch (user decision, 2026-08-05).** The scorecard's measured deployment is now
+skill-as-system-prompt (`--mode force`): it is the delivery modern pi makes reliable, and it is
+how the `agents/` variants already run. Green-epoch rows (everything through release-1/-2-gitops
+and the kimi probes) remain the record of the wrapped-prompt deployment and are **not comparable**
+to force rows — the epoch effect is two-sided and measured: identical skill text took build A1
+from 0/3 to 3/3 on both tuned models (stronger adherence) while dropping plan C2 on GLM from 3/3
+to 0/3 (over-ceremony on a trivial ask — the right-sizing governor now competes with a
+system-prompt-weighted process). Force rows below show per-scenario majorities; `effective_grade`
+in their results.yaml reads "not scored" until skill-harness ships force-mode scoring (requested
+in the work order, item 0b).
+
+| Skill | Model | Run | Round | Grade | Status |
+|---|---|---|---|---|---|
+| build | deepseek-v4-pro | `2026-08-05T11-53-05Z` | release-2-force | 7/9 majority · fails A2 B1 | **current (force epoch)** — A1 3/3 through the post_test gate, A6 3/3, C2 3/3 |
+| build | glm-5p2 | `2026-08-05T12-13-21Z` | release-2-force | 9/9 majority | **current (force epoch)** — every scenario at majority incl. A2 2/3 |
+| architect | deepseek-v4-pro | `2026-08-05T12-32-29Z` | release-2-force | 13/14 majority · fails B1 | **current (force epoch)** — C2 fix verified 3/3 |
+| architect | glm-5p2 | `2026-08-05T12-53-24Z` | release-2-force | 13/14 majority · fails D1 | **current (force epoch)** — C2 fix verified 3/3 on the model that failed it 0/3 |
+| plan | deepseek-v4-pro | `2026-08-05T13-19-19Z` | release-2-force | 10/12 majority · fails B1 D1 | **current (force epoch)** — B1 chronic DS tail; D1 1/3 (judge-sensitive cell wobbling, fix intact on GLM) |
+| plan | glm-5p2 | `2026-08-05T13-46-47Z` | release-2-force | 10/12 majority · fails A2 C2 | **current (force epoch)** — D1 fix verified 3/3; C2 0/3 is the epoch's cost, over-plans a trivial flag |
+| build | kimi-k3 | `2026-08-05T14-26-31Z` | release-2-force | 9/9 majority | **current (force epoch)** — A1 3/3 through the gate, A2 3/3, B1 recovered to 2/3 from its green-epoch 0/3 |
+| architect | kimi-k3 | `2026-08-05T14-54-25Z` | release-2-force | 14/14 majority | **current (force epoch)** — every scenario 3/3, flakiness 0.00: the cleanest run of any skill on any model on this board |
+| plan | kimi-k3 | `2026-08-05T15-14-48Z` | release-2-force | 11/12 majority · fails D1 | **current (force epoch)** — D1 1/3, the same judge-sensitive cell as DS |
+| review | kimi-k3 | `2026-08-05T15-42-19Z` | release-2-force | 18/18 majority | **current (force epoch)** — S6 3/3 under the decidable rubric; only S4 flaky at 2/3 |
 | build | deepseek-v4-pro | `2026-08-04T21-50-37-187Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 2 flaky: A3 B1, fails: A1 A2 A6 B1 C2\*) |
 | build | glm-5p2 | `2026-08-04T22-03-15-128Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 3 flaky: A1 A3 C2, fails: A1 A2 A6 B1 C2\*) |
 | debug | deepseek-v4-pro | `2026-08-04T22-13-35-411Z` | post-diff-remeasure-full | 8/8 · 100% · **SHIP** | **current** (full, reps 3, 2 flaky: B1 D2) |

@@ -86,7 +86,49 @@ Every output template ends with a `Next:` line naming the follow-on skill — th
 fixed template fields *is* the handoff. No baton vocabulary, no delegation-contract
 reference file: the contract is visible in the template itself.
 
-## Validation results — release-1 (skill-harness, Opus judge, 2026-08-04)
+## Validation results — release-2, the force epoch (2026-08-05)
+
+**What changed and why.** pi 0.83 delivers inline skills by progressive disclosure — only
+the description is guaranteed in context; weak models often never read the body (pi's own
+docs say so). That is not a harness quirk: it is what users of current pi get. So the
+scorecard's measured deployment is now **skill-as-system-prompt** (`--mode force`) — the
+delivery modern pi makes deterministic, and how the `agents/` subagent variants already
+run. The two epochs are **not comparable**, and the effect is two-sided, measured on
+identical skill text: force placement took `build` A1 from 0/3 to 3/3 on both tuned
+models *and* dropped `plan` C2 on GLM from 3/3 to 0/3 (a right-sizing hatch losing to a
+system-prompt-weighted process). Full incident and epoch record: `RESULTS-MANIFEST.md`.
+
+Four skills were re-measured in the force epoch (the three whose text changed in this
+release, plus `review` for its S6 rubric on the third model). Cells are per-scenario
+majorities over 3 reps; formal ship-grades follow when skill-harness ships force-mode
+scoring (requested, work order 0b).
+
+| Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 | failing (rate) |
+|---|---|---|---|---|
+| architect | **13/14 · 93%** | **13/14 · 93%** | **14/14 · 100%** ★ | B1 1/3 (DS) · D1 1/3 (GLM) · — |
+| build | 7/9 · 78% | **9/9 · 100%** | **9/9 · 100%** | A2 1/3, B1 1/3 (DS) · — · — |
+| plan | 10/12 · 83% | 10/12 · 83% | **11/12 · 92%** | B1 0/3, D1 1/3 · A2 1/3, C2 0/3 · D1 1/3 |
+| review | 18/18 † (green) | 17/18 (green) | **18/18 · 100%** | — · C1 (green) · — |
+
+★ `architect`/kimi is the cleanest run of any skill on any model on this board: every
+scenario 3/3, flakiness 0.00.
+
+What this release fixed, verified with delivery confirmed: **architect C2** (a sound-check
+gets a verdict, not the artifact) — 3/3 on all three models, including the one that failed
+it 0-5 per rep; **plan D1's walking skeleton** (the template taught stubbing; now it
+teaches primitive-but-real) — 3/3 on GLM, 11/12 kimi, with DS's D1 still wobbling at the
+judge-sensitive boundary; **build C2's needle** and **A1's objective overdraft gate** —
+A1 passes 3/3 on GLM and kimi through the gate, and `build` B1's "kimi-specific" hole
+recovered to 2/3 there. New epoch cost, named rather than averaged away: `plan` C2 on GLM
+over-plans a trivial flag (0/3) — the next scenario-work candidate.
+
+`debug`, `git-ops` and `decide` were not re-measured: their text did not change in this
+release, and their green-epoch cells below stand as the record of that epoch.
+
+## Green epoch (historical) — release-1 (skill-harness, Opus judge, 2026-08-04)
+
+Everything below this line was measured under the wrapped-prompt delivery of pi ≤ 0.80.x
+and reads as that epoch's record.
 
 88 scenarios across seven skills, **both models, every scenario run three times** —
 528 rep-executions for release-1, plus 90 re-running `git-ops` (¶) and 102 re-running `build` and
@@ -107,7 +149,13 @@ round and says which four cells each table row comes from.
 † **Corrected after a judge audit** (2026-08-04), not re-run against the models. Every
 non-unanimous cell in the release was re-judged from its saved transcripts and disputed reps
 escalated. `review` S6 (DS) was published as a failure and passes on 3-1 margins — critical, and
-the only failing cell for that model.
+the only failing cell for that model. **Its rubric has since been made decidable** (2026-08-05):
+the old item 2 gave three PASS and two FAIL to five replies of one shape, and one of those failures
+rested on a fabricated Python precedence bug. Under the rewritten checklist S6 reads **3/3 on
+DeepSeek with all 18 judgments agreeing**, while the control — the one GLM rep that hands over the
+rewrite as its deliverable — holds at 0-3. The cell stays 18/18 SHIP; it no longer rests on a 3-1
+draw. Margins, ground truth and the contract citations:
+[`docs/evidence/s6-rubric-regrade-2026-08-05.md`](docs/evidence/s6-rubric-regrade-2026-08-05.md).
 
 § **Re-graded against a rewritten checklist** (2026-08-04), same transcripts, seven judgments per
 rep. `architect` C2 and `build` B1 each had a transcript their checklist could not decide — one sat

@@ -74,6 +74,7 @@ Next: review, then git-ops
 |---|---|
 | Code before a failing test because the change "is small" | Small changes break too. Test first; it costs a minute. |
 | Say "done / all tests pass" without having just run them | Run them; paste the result line. |
+| Hand over code with its tests withdrawn because the user insists | Deliver it marked `UNTESTED (per request)` — the marker IS the compliance; "tests removed" with no marker is the failure. |
 | Change a signature without reading its callers | Read and update every call site, or enumerate them in the report. |
 | Wrap an error in try/catch to make it go away | Understand it, or report it under Blocked. |
 | Fix something "while I'm here" | Follow-ups list. |
