@@ -229,6 +229,10 @@ in the work order, item 0b).
 | architect | glm-5p2 | `2026-08-05T12-53-24Z` | release-2-force | 13/14 majority · fails D1 | **current (force epoch)** — C2 fix verified 3/3 on the model that failed it 0/3 |
 | plan | deepseek-v4-pro | `2026-08-05T13-19-19Z` | release-2-force | 10/12 majority · fails B1 D1 | **current (force epoch)** — B1 chronic DS tail; D1 1/3 (judge-sensitive cell wobbling, fix intact on GLM) |
 | plan | glm-5p2 | `2026-08-05T13-46-47Z` | release-2-force | 10/12 majority · fails A2 C2 | **current (force epoch)** — D1 fix verified 3/3; C2 0/3 is the epoch's cost, over-plans a trivial flag |
+| build | kimi-k3 | `2026-08-05T14-26-31Z` | release-2-force | 9/9 majority | **current (force epoch)** — A1 3/3 through the gate, A2 3/3, B1 recovered to 2/3 from its green-epoch 0/3 |
+| architect | kimi-k3 | `2026-08-05T14-54-25Z` | release-2-force | 14/14 majority | **current (force epoch)** — every scenario 3/3, flakiness 0.00: the cleanest run of any skill on any model on this board |
+| plan | kimi-k3 | `2026-08-05T15-14-48Z` | release-2-force | 11/12 majority · fails D1 | **current (force epoch)** — D1 1/3, the same judge-sensitive cell as DS |
+| review | kimi-k3 | `2026-08-05T15-42-19Z` | release-2-force | 18/18 majority | **current (force epoch)** — S6 3/3 under the decidable rubric; only S4 flaky at 2/3 |
 | build | deepseek-v4-pro | `2026-08-04T21-50-37-187Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 2 flaky: A3 B1, fails: A1 A2 A6 B1 C2\*) |
 | build | glm-5p2 | `2026-08-04T22-03-15-128Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 3 flaky: A1 A3 C2, fails: A1 A2 A6 B1 C2\*) |
 | debug | deepseek-v4-pro | `2026-08-04T22-13-35-411Z` | post-diff-remeasure-full | 8/8 · 100% · **SHIP** | **current** (full, reps 3, 2 flaky: B1 D2) |
