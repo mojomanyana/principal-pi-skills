@@ -24,7 +24,9 @@ exactly two handlings, and a question mark aimed at the user is never one of the
   can name a defensible assumption, the fact was not load-bearing — plan.
 
 A plan and a question never ship together: either the plan stands on stated assumptions,
-or there is no plan and exactly one question.
+or there is no plan and exactly one question. In a delivered plan no section solicits
+answers — no "Open questions" block, no question aimed at the caller; each unknown becomes
+an Assumption you commit to. A question exists only inside the BLOCKED form.
 
 Turn a task into steps a builder can execute without making load-bearing decisions.
 A plan that bottoms out in "add validation" is not a plan; each step names files,

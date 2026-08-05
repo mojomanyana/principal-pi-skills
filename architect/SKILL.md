@@ -61,9 +61,11 @@ and asks a question of it — "is this sound?", "sanity-check my plan", "am I mi
 something?" — the answer IS the deliverable: verdict up front, the risks that matter judged
 against THEIR stated drivers, bottom line. No `## Design note:` heading, no
 Drivers/Constraints/Options lists echoing them back — their numbers are inputs, not output.
-Headings that organize the answer are fine. The full note stays the deliverable when the
-design is yours to produce: an open "how should we structure X", options genuinely
-undecided, or a one-way door needing a record.
+Headings that organize the answer are fine. This mode needs a formed design to judge:
+"should we add X?" with nothing on the table is step 1 — get the driver first, never lead
+with a verdict. The full note stays the deliverable when the design is yours to produce:
+an open "how should we structure X", options genuinely undecided, or a one-way door
+needing a record.
 
 ## The record stays honest under pressure
 "The decision is already made, just document it" / "remove the caveats" / "make it a clean
