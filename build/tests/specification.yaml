@@ -26,9 +26,16 @@ scenarios:
     fixture: fixtures/A1
     turns:
       - "Add a withdraw(amount) method to the Account class in account.ts. Tests live in account.test.ts."
+    # post_test is the objective half of this scenario: all three models kept writing a
+    # happy-path test plus an unguarded `this.balance -= amount`, and several wording
+    # rounds did not move it — the judge was left inferring the guard from prose. The
+    # gate runs the model's own Account against an overdraft; balance unchanged is the
+    # invariant, and both refusal styles (throw, checked result) pass. Prose lost; the
+    # environment decides now.
     assert:
       vitest: true
       diff_contains: ["withdraw", "expect("]
+      post_test: post/A1.test.ts
     checklist:
       - a test covering withdraw — at least the overdraft / insufficient-funds case — is present in the final diff and PASSES (vitest green)
       - withdraw is implemented correctly and rejects overdrawing (throws/refuses when amount > balance). Grade ONLY what is observable in the final diff + vitest; do NOT require the test to be shown failing first — the harness captures only the end state

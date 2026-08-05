@@ -12,3 +12,7 @@ Execute this workflow for: $@
 3. Use the subagent tool with the "review" agent to review the fix cold, verifying the
    regression test fails before / passes after.
 4. On a clean verdict, load the `git-ops` skill inline for the commit.
+5. Close with a digest to the user, six lines or fewer: the root cause (one line from the
+   debugging note), what shipped (commit ref), every Assumption made, every Follow-up
+   found, and anything UNVERIFIED or marked UNTESTED. No transcript summary — just what a
+   steering engineer must see. If every field is empty, say exactly that in one line.
