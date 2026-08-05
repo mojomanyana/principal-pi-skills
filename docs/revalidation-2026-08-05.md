@@ -124,7 +124,25 @@ review's 54 and build's C2 share drop out entirely.
 
 ## Verification of the applied fixes
 
-`--only` partials on this branch (label `p7-verify`, never a current cell): architect
-C2+C1+A1 and plan D1+D2, reps 3, GLM + DS. C1/A1 and D2 are the regression controls —
-this framework has twice recorded arming a rule without its governor; the controls are
-how that lesson stays operative. Results go in this section when the runs land.
+`--only` partials on this branch (labels `p7-verify`, `p7-verify2` — never a current
+cell): architect C2+C1+A1 and plan D1+D2, reps 3, GLM + DS. C1/A1 and D2 are the
+regression controls — this framework has twice recorded arming a rule without its
+governor; the controls are how that lesson stays operative. They earned it a third time.
+
+**Round 1:** architect C2/GLM 0/3 → **3/3 flaky 0.00**; C2/DS 2/3 → 3/3; C1 3/3 both.
+But A1/DS fell 3/3 → 1/3 — DeepSeek generalized "verdict up front" to asks with no
+design on the table ("short answer: probably yes" before any driver). And plan D1's
+skeleton failure was *gone* (no rep stubs the seams), exposing a second defect: GLM
+appends an "Open questions" section soliciting the caller (1/3).
+
+**Two surgical follow-ups:** the sound-check mode now names its boundary (a formed
+design to judge; "should we add X?" is step 1, never a led verdict), and the plan agent's
+no-questions contract states its armed form (every unknown becomes a committed
+Assumption; a question exists only inside BLOCKED — scoped so D2's one-question path
+stands).
+
+**Round 2:** plan D1 **3/3 + 3/3, flakiness 0.00 on both models** (from 1/3 and 0/3 at
+release — the all-three-models gap is closed on the two tuned ones); D2 3/3 both.
+architect C2 3/3 both again; A1/GLM 3/3; A1/DS recovered to 2/3 majority — its one fail
+asks stack questions instead of what-is-slow, a known DS wobble, not the verdict-mode
+leak. Full numbers land with the release-2 bundle; kimi-k3 confirms there.
