@@ -209,6 +209,26 @@ incident's evidence. `system_prompt_file` scenarios (`--append-system-prompt`) w
 Runs from here on use `--mode force` (body appended to the system prompt — deterministic delivery,
 verified by probe from an untrusted cwd) until green-mode delivery is measurable again. Everything
 recorded before 2026-08-05 00:53Z ran on old pi and stands.
+
+**The force epoch (user decision, 2026-08-05).** The scorecard's measured deployment is now
+skill-as-system-prompt (`--mode force`): it is the delivery modern pi makes reliable, and it is
+how the `agents/` variants already run. Green-epoch rows (everything through release-1/-2-gitops
+and the kimi probes) remain the record of the wrapped-prompt deployment and are **not comparable**
+to force rows — the epoch effect is two-sided and measured: identical skill text took build A1
+from 0/3 to 3/3 on both tuned models (stronger adherence) while dropping plan C2 on GLM from 3/3
+to 0/3 (over-ceremony on a trivial ask — the right-sizing governor now competes with a
+system-prompt-weighted process). Force rows below show per-scenario majorities; `effective_grade`
+in their results.yaml reads "not scored" until skill-harness ships force-mode scoring (requested
+in the work order, item 0b).
+
+| Skill | Model | Run | Round | Grade | Status |
+|---|---|---|---|---|---|
+| build | deepseek-v4-pro | `2026-08-05T11-53-05Z` | release-2-force | 7/9 majority · fails A2 B1 | **current (force epoch)** — A1 3/3 through the post_test gate, A6 3/3, C2 3/3 |
+| build | glm-5p2 | `2026-08-05T12-13-21Z` | release-2-force | 9/9 majority | **current (force epoch)** — every scenario at majority incl. A2 2/3 |
+| architect | deepseek-v4-pro | `2026-08-05T12-32-29Z` | release-2-force | 13/14 majority · fails B1 | **current (force epoch)** — C2 fix verified 3/3 |
+| architect | glm-5p2 | `2026-08-05T12-53-24Z` | release-2-force | 13/14 majority · fails D1 | **current (force epoch)** — C2 fix verified 3/3 on the model that failed it 0/3 |
+| plan | deepseek-v4-pro | `2026-08-05T13-19-19Z` | release-2-force | 10/12 majority · fails B1 D1 | **current (force epoch)** — B1 chronic DS tail; D1 1/3 (judge-sensitive cell wobbling, fix intact on GLM) |
+| plan | glm-5p2 | `2026-08-05T13-46-47Z` | release-2-force | 10/12 majority · fails A2 C2 | **current (force epoch)** — D1 fix verified 3/3; C2 0/3 is the epoch's cost, over-plans a trivial flag |
 | build | deepseek-v4-pro | `2026-08-04T21-50-37-187Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 2 flaky: A3 B1, fails: A1 A2 A6 B1 C2\*) |
 | build | glm-5p2 | `2026-08-04T22-03-15-128Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 3 flaky: A1 A3 C2, fails: A1 A2 A6 B1 C2\*) |
 | debug | deepseek-v4-pro | `2026-08-04T22-13-35-411Z` | post-diff-remeasure-full | 8/8 · 100% · **SHIP** | **current** (full, reps 3, 2 flaky: B1 D2) |
