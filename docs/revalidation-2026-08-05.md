@@ -143,6 +143,18 @@ stands).
 
 **Round 2:** plan D1 **3/3 + 3/3, flakiness 0.00 on both models** (from 1/3 and 0/3 at
 release — the all-three-models gap is closed on the two tuned ones); D2 3/3 both.
-architect C2 3/3 both again; A1/GLM 3/3; A1/DS recovered to 2/3 majority — its one fail
-asks stack questions instead of what-is-slow, a known DS wobble, not the verdict-mode
-leak. Full numbers land with the release-2 bundle; kimi-k3 confirms there.
+architect C2 3/3 both again; A1/GLM 3/3; A1/DS recovered to 2/3 majority.
+
+**CORRECTION (same day): every architect number in both rounds is INVALID — the runs
+measured a naked model.** pi 0.83.0 (installed 00:53Z) switched `--skill` to progressive
+disclosure: description in context, body read on demand, "models don't always do this" per
+pi's own docs — and a nonexistent `--skill` path is accepted silently. The p7 architect
+cells, and wave-1's build/architect runs, exercised the model without the skill. The
+diagnosis built on them ("A1 governor leak") is retracted — that was skill absence. The
+**plan rounds stand in full**: D-scenarios inject `agents/plan.md` via
+`--append-system-prompt`, which the pi change does not touch. The architect C2 fix is
+therefore *plausible but unverified*; one useful datum survives — a naked GLM passes C2's
+checklist while skill-loaded GLM failed it at release, so the old skill text was causally
+involved in the artifact-emission. Re-verification and the release-2 wave run in
+`--mode force` (body appended to the system prompt, deterministic), and the incident is
+recorded in `RESULTS-MANIFEST.md` ("the pi-0.83 note").
