@@ -1,5 +1,5 @@
 schema: 2
-harness_version: 0.4.0
+harness_version: 0.5.0
 skill: architect
 harness: pi
 model: fireworks:accounts/fireworks/models/glm-5p2
@@ -55,12 +55,12 @@ source_hashes:
   rubric:D4: e4f826e046c68e7cd9d8f9c9407d0a7ece9172d342337f604270123f78a9ce7f
   policy:D4: 6f560a14d20f3276edfde176f80f165682878ac278399a645532f5aa402d2276
 effective_grade:
-  passed: 0
-  total: 0
-  pct: 0
-  letter: '-'
+  passed: 13
+  total: 14
+  pct: 93
+  letter: A
   ship: false
-  note: mode=force (not scored)
+  note: 'gated: 1 critical fail'
 scenarios:
   - id: A1
     judge_verdict: PASS

@@ -99,28 +99,34 @@ models *and* dropped `plan` C2 on GLM from 3/3 to 0/3 (a right-sizing hatch losi
 system-prompt-weighted process). Full incident and epoch record: `RESULTS-MANIFEST.md`.
 
 Four skills were re-measured in the force epoch (the three whose text changed in this
-release, plus `review` for its S6 rubric on the third model). Cells are per-scenario
-majorities over 3 reps; formal ship-grades follow when skill-harness ships force-mode
-scoring (requested, work order 0b).
+release, plus `review` for its S6 rubric on the third model). Every cell is a formal
+skill-harness grade (0.5.0 scores force runs; majority gate over 3 reps).
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 | failing (rate) |
 |---|---|---|---|---|
-| architect | **13/14 · 93%** | **13/14 · 93%** | **14/14 · 100%** ★ | B1 1/3 (DS) · D1 1/3 (GLM) · — |
-| build | 7/9 · 78% | **9/9 · 100%** | **9/9 · 100%** | A2 1/3, B1 1/3 (DS) · — · — |
-| plan | 10/12 · 83% | 10/12 · 83% | **11/12 · 92%** | B1 0/3, D1 1/3 · A2 1/3, C2 0/3 · D1 1/3 |
-| review | 18/18 † (green) | 17/18 (green) | **18/18 · 100%** | — · C1 (green) · — |
+| architect | 13/14 · 93% | 13/14 · 93% | **14/14 · 100% SHIP** ★ | B1 1/3 (DS) · D1 1/3 (GLM) · — |
+| build | 7/9 · 78% | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | A2 1/3, B1 1/3 (DS) · — · — |
+| plan | 10/12 · 83% | 10/12 · 83% | **12/12 · 100% SHIP** | A5 0/3, B1 0/3 · A2 0/3, C2 1/3 · — |
+| review | 18/18 † (green) | 17/18 (green) | **18/18 · 100% SHIP** | — · C1 (green) · — |
 
-★ `architect`/kimi is the cleanest run of any skill on any model on this board: every
-scenario 3/3, flakiness 0.00.
+★ `architect`/kimi and `plan`/kimi are perfect runs — every scenario 3/3, flakiness
+0.00 — and **kimi-k3 ships five of five force-measured skills** (its green-epoch `debug`
+and `git-ops` were already 100%).
 
 What this release fixed, verified with delivery confirmed: **architect C2** (a sound-check
 gets a verdict, not the artifact) — 3/3 on all three models, including the one that failed
 it 0-5 per rep; **plan D1's walking skeleton** (the template taught stubbing; now it
-teaches primitive-but-real) — 3/3 on GLM, 11/12 kimi, with DS's D1 still wobbling at the
-judge-sensitive boundary; **build C2's needle** and **A1's objective overdraft gate** —
-A1 passes 3/3 on GLM and kimi through the gate, and `build` B1's "kimi-specific" hole
-recovered to 2/3 there. New epoch cost, named rather than averaged away: `plan` C2 on GLM
-over-plans a trivial flag (0/3) — the next scenario-work candidate.
+teaches primitive-but-real) — 3/3 on DS and kimi, 2/3 GLM; **plan C2's right-sizing hatch**
+made to survive system-prompt placement (step 3's risk absolute scoped to multi-step work;
+the middle form states its own invariants) — 3/3 DS and kimi, and on GLM an unstable
+boundary improved from unanimous 0/3 to 3-of-6 reps across two runs, published at its
+rate; **build C2's needle** and **A1's objective overdraft gate** — A1 passes 3/3 on GLM
+and kimi through the gate, and `build` B1's "kimi-specific" hole recovered to 2/3 there.
+
+One measurement lesson from the landing run, recorded in the manifest: DS's boundary
+cells (A5⇄D1) swapped unanimous verdicts between consecutive full runs — **within-run
+flakiness 0.00 is not stability**, and single-run cells on boundary scenarios should be
+read with that in mind.
 
 `debug`, `git-ops` and `decide` were not re-measured: their text did not change in this
 release, and their green-epoch cells below stand as the record of that epoch.

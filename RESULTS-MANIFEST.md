@@ -48,8 +48,8 @@ mechanism, and its release-2-gitops runs postdate all three commits anyway. Scop
 
 **Two cautions for whoever measures next.**
 
-1. **Pin the CLI.** A globally installed `skill-harness` 0.1.0 shadows the current release on
-   `PATH`. Run 0.3.0+ explicitly — `npx @skill-harness/cli@0.3.0` — or a seeded run silently
+1. **Never the bare global binary.** A globally installed `skill-harness` 0.1.0 shadows the
+   current release on `PATH`. Run `npx -y skill-harness@latest` explicitly — or a seeded run silently
    grades without the diff, which is the defect this round removes. The stale binary also
    reports 38 spurious `consistency — effective_grade is stale` findings against `partial: true`
    runs in this tree; 0.3.0 reports 0, and so does CI.
@@ -217,22 +217,27 @@ and the kimi probes) remain the record of the wrapped-prompt deployment and are 
 to force rows — the epoch effect is two-sided and measured: identical skill text took build A1
 from 0/3 to 3/3 on both tuned models (stronger adherence) while dropping plan C2 on GLM from 3/3
 to 0/3 (over-ceremony on a trivial ask — the right-sizing governor now competes with a
-system-prompt-weighted process). Force rows below show per-scenario majorities; `effective_grade`
-in their results.yaml reads "not scored" until skill-harness ships force-mode scoring (requested
-in the work order, item 0b).
+system-prompt-weighted process). Force rows carry formal grades: skill-harness 0.5.0 scores
+force runs directly (work-order item 0b, delivered same-day) and the twelve force dirs were
+rescored free with zero verdicts moved.
 
 | Skill | Model | Run | Round | Grade | Status |
 |---|---|---|---|---|---|
-| build | deepseek-v4-pro | `2026-08-05T11-53-05Z` | release-2-force | 7/9 majority · fails A2 B1 | **current (force epoch)** — A1 3/3 through the post_test gate, A6 3/3, C2 3/3 |
-| build | glm-5p2 | `2026-08-05T12-13-21Z` | release-2-force | 9/9 majority | **current (force epoch)** — every scenario at majority incl. A2 2/3 |
-| architect | deepseek-v4-pro | `2026-08-05T12-32-29Z` | release-2-force | 13/14 majority · fails B1 | **current (force epoch)** — C2 fix verified 3/3 |
-| architect | glm-5p2 | `2026-08-05T12-53-24Z` | release-2-force | 13/14 majority · fails D1 | **current (force epoch)** — C2 fix verified 3/3 on the model that failed it 0/3 |
-| plan | deepseek-v4-pro | `2026-08-05T13-19-19Z` | release-2-force | 10/12 majority · fails B1 D1 | **current (force epoch)** — B1 chronic DS tail; D1 1/3 (judge-sensitive cell wobbling, fix intact on GLM) |
-| plan | glm-5p2 | `2026-08-05T13-46-47Z` | release-2-force | 10/12 majority · fails A2 C2 | **current (force epoch)** — D1 fix verified 3/3; C2 0/3 is the epoch's cost, over-plans a trivial flag |
-| build | kimi-k3 | `2026-08-05T14-26-31Z` | release-2-force | 9/9 majority | **current (force epoch)** — A1 3/3 through the gate, A2 3/3, B1 recovered to 2/3 from its green-epoch 0/3 |
-| architect | kimi-k3 | `2026-08-05T14-54-25Z` | release-2-force | 14/14 majority | **current (force epoch)** — every scenario 3/3, flakiness 0.00: the cleanest run of any skill on any model on this board |
-| plan | kimi-k3 | `2026-08-05T15-14-48Z` | release-2-force | 11/12 majority · fails D1 | **current (force epoch)** — D1 1/3, the same judge-sensitive cell as DS |
-| review | kimi-k3 | `2026-08-05T15-42-19Z` | release-2-force | 18/18 majority | **current (force epoch)** — S6 3/3 under the decidable rubric; only S4 flaky at 2/3 |
+| build | deepseek-v4-pro | `2026-08-05T11-53-05Z` | release-2-force | 7/9 · 78% · not ready (A1 critical clears; A2 critical fails) | **current (force epoch)** — A1 3/3 through the post_test gate, A6 3/3, C2 3/3 |
+| build | glm-5p2 | `2026-08-05T12-13-21Z` | release-2-force | 9/9 · 100% · **SHIP** | **current (force epoch)** — every scenario at majority incl. A2 2/3 |
+| architect | deepseek-v4-pro | `2026-08-05T12-32-29Z` | release-2-force | 13/14 · 93% · not ready (B1 critical) | **current (force epoch)** — C2 fix verified 3/3 |
+| architect | glm-5p2 | `2026-08-05T12-53-24Z` | release-2-force | 13/14 · 93% · not ready (D1 critical) | **current (force epoch)** — C2 fix verified 3/3 on the model that failed it 0/3 |
+| plan | deepseek-v4-pro | `2026-08-05T13-19-19Z` | release-2-force | 10/12 · 83% · not ready | superseded (pre-C2-hatch-fix text) |
+| plan | glm-5p2 | `2026-08-05T13-46-47Z` | release-2-force | 10/12 · 83% · not ready | superseded (pre-C2-hatch-fix text) |
+| build | kimi-k3 | `2026-08-05T14-26-31Z` | release-2-force | 9/9 · 100% · **SHIP** | **current (force epoch)** — A1 3/3 through the gate, A2 3/3, B1 recovered to 2/3 from its green-epoch 0/3 |
+| architect | kimi-k3 | `2026-08-05T14-54-25Z` | release-2-force | 14/14 · 100% · **SHIP** | **current (force epoch)** — every scenario 3/3, flakiness 0.00: the cleanest run of any skill on any model on this board |
+| plan | kimi-k3 | `2026-08-05T15-14-48Z` | release-2-force | 11/12 · 92% · not ready | superseded (pre-C2-hatch-fix text) |
+| plan | glm-5p2 | `2026-08-06T07-08-18-295Z` | c2-hatch-verify | C1 3/3, C2 2/3 | partial (--only, reps 3, force; the hatch fix's verify round — C2 0/3→2/3) |
+| plan | deepseek-v4-pro | `2026-08-06T07-10-41-813Z` | c2-hatch-verify | C1 3/3, C2 2/3 | partial (--only, reps 3, force) |
+| plan | deepseek-v4-pro | `2026-08-06T07-47-42Z` | release-2-force | 10/12 · 83% · not ready | **current (force epoch)** — C2 3/3 and D1 3/3; fails A5 0/3 + B1 0/3. A5⇄D1 swapped verdicts between consecutive full runs, each unanimous within its run: DS's boundary cells wobble at run level, and within-run flakiness 0.00 is not stability |
+| plan | glm-5p2 | `2026-08-06T08-15-53Z` | release-2-force | 10/12 · 83% · not ready | **current (force epoch)** — fails A2 0/3 + C2 1/3. Post-fix C2 aggregates 3/6 reps across two runs vs 0/3 before: a real improvement to an unstable boundary, published at its rate, not chased |
+| plan | kimi-k3 | `2026-08-06T08-41-51Z` | release-2-force | 12/12 · 100% · **SHIP** | **current (force epoch)** — every scenario 3/3, flakiness 0.00; the second perfect force run on kimi (architect was first) |
+| review | kimi-k3 | `2026-08-05T15-42-19Z` | release-2-force | 18/18 · 100% · **SHIP** | **current (force epoch)** — S6 3/3 under the decidable rubric; only S4 flaky at 2/3 |
 | build | deepseek-v4-pro | `2026-08-04T21-50-37-187Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 2 flaky: A3 B1, fails: A1 A2 A6 B1 C2\*) |
 | build | glm-5p2 | `2026-08-04T22-03-15-128Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 3 flaky: A1 A3 C2, fails: A1 A2 A6 B1 C2\*) |
 | debug | deepseek-v4-pro | `2026-08-04T22-13-35-411Z` | post-diff-remeasure-full | 8/8 · 100% · **SHIP** | **current** (full, reps 3, 2 flaky: B1 D2) |

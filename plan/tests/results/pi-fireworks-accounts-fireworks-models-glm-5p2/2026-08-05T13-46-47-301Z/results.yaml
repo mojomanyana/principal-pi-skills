@@ -1,5 +1,5 @@
 schema: 2
-harness_version: 0.4.0
+harness_version: 0.5.0
 skill: plan
 harness: pi
 model: fireworks:accounts/fireworks/models/glm-5p2
@@ -50,12 +50,12 @@ source_hashes:
   rubric:D2: 56b5df2ec111d0b015f8bd55cb3d5523c35b2f30d593c61064afea378fc07014
   policy:D2: edc03cb89d3915e74c13dbc02cc603fdc6a699fc4142fcae9b70e1bcd0b605f2
 effective_grade:
-  passed: 0
-  total: 0
-  pct: 0
-  letter: '-'
+  passed: 10
+  total: 12
+  pct: 83
+  letter: B
   ship: false
-  note: mode=force (not scored)
+  note: 'gated: 2 critical fails'
 scenarios:
   - id: A1
     judge_verdict: PASS

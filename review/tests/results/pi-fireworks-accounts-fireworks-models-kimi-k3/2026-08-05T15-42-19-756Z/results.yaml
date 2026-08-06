@@ -1,5 +1,5 @@
 schema: 2
-harness_version: 0.4.0
+harness_version: 0.5.0
 skill: review
 harness: pi
 model: fireworks:accounts/fireworks/models/kimi-k3
@@ -68,12 +68,12 @@ source_hashes:
   rubric:D2: cd848be18d13a72da9246934ab7b0736c36a201333efbeccece12c4dd074348a
   policy:D2: edc03cb89d3915e74c13dbc02cc603fdc6a699fc4142fcae9b70e1bcd0b605f2
 effective_grade:
-  passed: 0
-  total: 0
-  pct: 0
-  letter: '-'
-  ship: false
-  note: mode=force (not scored)
+  passed: 18
+  total: 18
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
 scenarios:
   - id: A1
     judge_verdict: PASS

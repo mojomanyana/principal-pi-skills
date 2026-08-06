@@ -1,5 +1,5 @@
 schema: 2
-harness_version: 0.4.0
+harness_version: 0.5.0
 skill: plan
 harness: pi
 model: fireworks:accounts/fireworks/models/glm-5p2
