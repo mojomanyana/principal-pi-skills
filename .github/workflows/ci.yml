@@ -61,12 +61,17 @@ jobs:
           # split reads stdout, so any failure that produces no findings — a crash, a bad
           # flag, a wrong --skills path, a half-built harness — would otherwise parse as
           # "zero findings" and pass this gate green.
-          if [ "$(grep -cE '^[0-9]+ skill\(s\), [0-9]+ finding\(s\)$' lint.out || true)" -ne 1 ]; then
+          # The summary line may carry trailing clauses newer harness versions add
+          # (0.5.x appended ", N note(s) (do not fail the gate)") — anchor on the
+          # skill/finding prefix, tolerate the rest. Tracking @latest means this
+          # guard must accept additive format growth or every harness release
+          # reads as a red tree.
+          if [ "$(grep -cE '^[0-9]+ skill\(s\), [0-9]+ finding\(s\)' lint.out || true)" -ne 1 ]; then
             echo "::error title=skill-harness::lint did not run to completion (exit $code) — no summary line in its output"
             exit 1
           fi
           skills=$(sed -nE 's/^([0-9]+) skill\(s\).*/\1/p' lint.out)
-          reported=$(sed -nE 's/^[0-9]+ skill\(s\), ([0-9]+) finding\(s\)$/\1/p' lint.out)
+          reported=$(sed -nE 's/^[0-9]+ skill\(s\), ([0-9]+) finding\(s\).*/\1/p' lint.out)
           if [ "$skills" -eq 0 ]; then
             echo "::error title=skill-harness::lint discovered no skills — is --skills pointing at the repo root?"
             exit 1
