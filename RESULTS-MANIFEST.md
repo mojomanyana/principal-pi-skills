@@ -238,6 +238,18 @@ rescored free with zero verdicts moved.
 | plan | glm-5p2 | `2026-08-06T08-15-53Z` | release-2-force | 10/12 · 83% · not ready | **current (force epoch)** — fails A2 0/3 + C2 1/3. Post-fix C2 aggregates 3/6 reps across two runs vs 0/3 before: a real improvement to an unstable boundary, published at its rate, not chased |
 | plan | kimi-k3 | `2026-08-06T08-41-51Z` | release-2-force | 12/12 · 100% · **SHIP** | **current (force epoch)** — every scenario 3/3, flakiness 0.00; the second perfect force run on kimi (architect was first) |
 | review | kimi-k3 | `2026-08-05T15-42-19Z` | release-2-force | 18/18 · 100% · **SHIP** | **current (force epoch)** — S6 3/3 under the decidable rubric; only S4 flaky at 2/3 |
+| build | deepseek-v4-pro | `2026-08-06T09-31-25Z` | red-baseline | 5/9 majority (unscored control) | red baseline — naked model, no skill |
+| build | glm-5p2 | `2026-08-06T09-46-51Z` | red-baseline | 5/9 majority (unscored control) | red baseline |
+| build | kimi-k3 | `2026-08-06T09-58-09Z` | red-baseline | 6/9 majority (unscored control) | red baseline |
+| architect | deepseek-v4-pro | `2026-08-06T10-13-06Z` | red-baseline | 7/14 majority (unscored control) | red baseline — naked DS red-fails the same set the pi-0.83 incident produced: the incident run was a red baseline wearing a green label, now proven by control |
+| architect | glm-5p2 | `2026-08-06T10-39-57Z` | red-baseline | 10/14 majority (unscored control) | red baseline |
+| architect | kimi-k3 | `2026-08-06T11-08-02Z` | red-baseline | 12/14 majority (unscored control) | red baseline — even the strongest naked model fails D1/D2, the decision-record disciplines |
+| plan | deepseek-v4-pro | `2026-08-06T12-16-59Z` | red-baseline | 3/12 majority (unscored control) | red baseline — the widest naked gap on the board |
+| plan | glm-5p2 | `2026-08-06T12-48-07Z` | red-baseline | 6/12 majority (unscored control) | red baseline |
+| plan | kimi-k3 | `2026-08-06T13-13-22Z` | red-baseline | 4/12 majority (unscored control) | red baseline — naked kimi plans WORSE than naked GLM yet is perfect with the skill: skill-responsiveness ≠ naked capability |
+| review | deepseek-v4-pro | `2026-08-06T13-36-32Z` | red-baseline | 16/18 majority (unscored control) | red baseline — banked for a future force review run; comparing it to the green-epoch cell would cross epochs |
+| review | glm-5p2 | `2026-08-06T13-59-55Z` | red-baseline | 13/18 majority (unscored control) | red baseline — banked, same caveat |
+| review | kimi-k3 | `2026-08-06T14-26-10Z` | red-baseline | 15/18 majority (unscored control) | red baseline — vs force 18/18: lift +3 |
 | build | deepseek-v4-pro | `2026-08-04T21-50-37-187Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 2 flaky: A3 B1, fails: A1 A2 A6 B1 C2\*) |
 | build | glm-5p2 | `2026-08-04T22-03-15-128Z` | post-diff-remeasure-full | 4/9 · 44% · not ready | **current** (full, reps 3, 3 flaky: A1 A3 C2, fails: A1 A2 A6 B1 C2\*) |
 | debug | deepseek-v4-pro | `2026-08-04T22-13-35-411Z` | post-diff-remeasure-full | 8/8 · 100% · **SHIP** | **current** (full, reps 3, 2 flaky: B1 D2) |

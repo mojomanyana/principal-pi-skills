@@ -131,6 +131,44 @@ read with that in mind.
 `debug`, `git-ops` and `decide` were not re-measured: their text did not change in this
 release, and their green-epoch cells below stand as the record of that epoch.
 
+### What the skills add — red baselines and lift (2026-08-06)
+
+Every force cell above answers "how good is the skill on this model?" — none of them
+answered "what does the skill *add*?" So the same scenarios ran with **no skill at all**
+(`--mode red`, 477 rep-executions, reps 3 — like-for-like with the scored cells, which is
+what the harness's lift comparison requires). Red baselines are unscored controls; the
+delta is the point:
+
+| skill | DeepSeek: naked → skilled | GLM: naked → skilled | kimi-k3: naked → skilled |
+|---|---|---|---|
+| plan | 3/12 → 10/12 **(+7)** | 6/12 → 10/12 **(+4)** | 4/12 → 12/12 **(+8)** |
+| architect | 7/14 → 13/14 **(+6)** | 10/14 → 13/14 **(+3)** | 12/14 → 14/14 **(+2)** |
+| build | 5/9 → 7/9 **(+2)** | 5/9 → 9/9 **(+4)** | 6/9 → 9/9 **(+3)** |
+| review | (banked\*) | (banked\*) | 15/18 → 18/18 **(+3)** |
+| **aggregate (35 scen.)** | **15 → 30 (+15)** | **21 → 32 (+11)** | **22 → 35 (+13)** |
+
+\* `review`'s skilled DS/GLM cells are green-epoch; a red-vs-green lift would cross
+epochs, so those baselines are banked until review is force-measured.
+
+Three findings the deltas carry:
+
+- **Lift concentrates where models are weakest.** Naked models are already decent
+  reviewers (13–16/18) and poor planners (3–6/12); the skills add the most exactly where
+  the model has the least. `plan` — the skill carrying the most structure — is worth +7
+  to +8 scenarios on two of three models.
+- **Skill-responsiveness is not naked capability.** Naked kimi plans *worse* than naked
+  GLM (4/12 vs 6/12), yet skilled kimi is perfect where skilled GLM is 10/12. Which model
+  benefits most from the framework cannot be predicted from how it performs without it.
+- **Some disciplines exist only under the skill, on every model.** Characterization tests
+  before refactoring (build A6): 0/3 naked on all three, 3/3 skilled on all three.
+  Decision-record honesty (architect D-block): even the strongest naked model fails it.
+  These are not improvements on native behavior — they are behavior that does not
+  otherwise occur.
+
+One controlled confirmation for the record: naked DeepSeek red-fails the same architect
+set the pi-0.83 delivery incident produced (7/14 both times) — that incident run really
+was a red baseline wearing a green label, and now there is a control proving it.
+
 ## Green epoch (historical) — release-1 (skill-harness, Opus judge, 2026-08-04)
 
 Everything below this line was measured under the wrapped-prompt delivery of pi ≤ 0.80.x
