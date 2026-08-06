@@ -27,8 +27,8 @@ behavior, and the test that proves it.
    plan is the response, with open questions listed at its end where answers would
    refine it.
 3. **List risks and unknowns first.** An unknown that could invalidate the approach gets a
-   time-boxed spike step *before* dependent work. A plan with zero risks listed is
-   incomplete.
+   time-boxed spike step *before* dependent work. A multi-step plan with zero risks listed
+   is incomplete; the middle form (below) omits the field entirely.
 4. **Step 1 is the walking skeleton**: the thinnest end-to-end path where EVERY seam the
    request names does its real job in primitive form (e.g. fetch → parse → persist →
    report — none deferred, none faked). Thin means primitive, not fake: a hardcoded
@@ -77,8 +77,9 @@ than asking.
 This template is for multi-step work. A trivial reversible change never gets it — its
 entire plan is three lines: the change, the test, done. Small clear work (one flag, one
 helper, one endpoint) gets the middle form: two or three slices with a done-signal each,
-and the Risks / [ONE-WAY] / Parallel-safe fields appear ONLY if a real one exists — an
-empty field is omitted, never padded with a spike, a graph, or ceremony to look complete.
+and nothing else — no Risks block, no spike, no [after:]/parallel annotations; the step
+numbers are the order. Not knowing the codebase is an Assumptions line, not a risk. A
+real [ONE-WAY] is the one field that always survives.
 ```
 ## Plan: <outcome, one sentence>
 Conventions observed: <naming / error / test patterns found in the codebase>

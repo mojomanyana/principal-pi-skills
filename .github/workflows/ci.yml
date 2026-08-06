@@ -29,7 +29,10 @@ jobs:
       - uses: actions/checkout@v5
         with:
           repository: mojomanyana/skill-harness
-          ref: v0.4.0
+          # `latest` is the harness's moving release tag (user decision 2026-08-06:
+          # track it everywhere). Its ordering guarantee — CI at least as new as
+          # whatever wrote the committed results.yaml — is what the lint rule needs.
+          ref: latest
           path: .skill-harness
 
       - uses: actions/setup-node@v5
