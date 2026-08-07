@@ -216,10 +216,11 @@ skill-as-system-prompt (`--mode force`): it is the delivery modern pi makes reli
 how the `agents/` variants already run. Green-epoch rows (everything through release-1/-2-gitops
 and the kimi probes) remain the record of the wrapped-prompt deployment and are **not comparable**
 to force rows — the epoch effect is two-sided and measured: identical skill text took build A1
-from 0/3 to 3/3 on DeepSeek and 1/3 to 3/3 on GLM (stronger adherence) while dropping plan C2 on GLM from 3/3
-to 0/3 (over-ceremony on a trivial ask — the right-sizing governor now competes with a
-system-prompt-weighted process). Where a skill × model carries a current row in both epochs,
-the force row is the published cell and the green row is the record of the earlier deployment.
+from 0/3 to 3/3 on DeepSeek and 1/3 to 3/3 on GLM (stronger adherence) while dropping plan
+C2 on GLM from 3/3 to 0/3 (over-ceremony on a trivial ask — the right-sizing governor now
+competes with a system-prompt-weighted process). Where a skill × model carries a current row
+in both epochs, the force row is the published cell and the green row is the record of the
+earlier deployment.
 Force rows carry formal grades: skill-harness 0.5.0 scores
 force runs directly (work-order item 0b, delivered same-day) and the twelve force dirs were
 rescored free with zero verdicts moved.
@@ -266,9 +267,12 @@ auto-FAILs before the judge is consulted. What it actually measures is whether t
 write the word "spike" *inside* the file: DeepSeek 0/3, GLM 1/3 (one rep opened with the comment
 `// Quick throwaway spike …`), kimi-k3 3/3 — on functionally identical two-to-eight-line spikes that
 all fetch `localhost:8080/health` and print the status. Same defect class as A2's old `sliceRange`
-needle and A4's inert `["divide", "ok"]`. The needle must name what the edit WRITES. Fixing it is
-queued as a follow-up together with a full `build` re-run, because editing the spec now would mark
-both rows stale and `stale` blocks CI on `main` (a deliberate choice: `.github/workflows/ci.yml:90`).
-Corrected, `build` reads at most 5/9 · 56%; A1 and A2 are critical and fail, so no ship cell moves.
+needle and A4's inert `["divide", "ok"]`. The needle must name what the edit WRITES. **Both the fix
+and the re-run have since landed**: the needle is now `diff_contains: ["localhost:8080"]`
+(`build/tests/specification.yaml`), and the force-epoch `build` runs score C2 **3/3 on all three
+models, flakiness 0.00**. The two green rows below are left as measured — they are the record of
+what that round scored under the old needle, not a claim about the skill.
+Corrected, `build` reads at most 5/9 · 56% in the green epoch; A1 and A2 are critical and fail
+there, so no green ship cell moves.
 The per-rep diffs behind this, across all three models:
 [`../evidence/c2-needle-2026-08-05.md`](../evidence/c2-needle-2026-08-05.md).
