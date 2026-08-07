@@ -57,7 +57,9 @@ prompts/{feature,bugfix}.md           /feature and /bugfix workflow templates
 <skill>/tests/fixtures/<ID>/          seeded repo for one scenario (git-ops, build, debug)
 <skill>/tests/results/…/results.yaml  committed run evidence (Opus-judged)
 AGENTS.md                             the routing + dispatch layer for the orchestrator
+CHANGELOG.md                          release history
 docs/validation/                      how the skills are measured — scorecard, run manifest
+docs/evidence/                        per-judgment and per-rep records behind the scorecard
 docs/demos/                           the chains running end to end, repo-verified
 ```
 
@@ -83,6 +85,10 @@ docs/demos/                           the chains running end to end, repo-verifi
    someone else's repo: if the file names move, check out that commit.
 3. Without the extension everything still runs inline as skills. When and why to
    delegate is defined in [AGENTS.md](./AGENTS.md).
+
+Once installed, a skill loads from what you ask for — the trigger phrases in the table
+above are the ones each skill's description matches on. For the two multi-step spines,
+type `/feature <task>` or `/bugfix <symptom>` and the orchestrator runs the chain.
 
 ## Shared contract
 
@@ -111,8 +117,9 @@ results are committed. The measurement: **88 scenarios across the seven skills, 
 subject models, every scenario run three times**, judged by `claude-code:opus`, with
 objective gates (vitest runs, diff assertions) decided before the judge is consulted. A
 scenario passes at a majority of its clean reps, so every cell below is a pass-rate rather
-than a single draw. The scored deployment is skill-as-system-prompt (`--mode force`), the
-delivery modern pi makes deterministic and the way the `agents/` variants already run.
+than a single draw. The scored deployment is skill-as-system-prompt (`--mode force`) — the delivery modern pi
+makes deterministic, and the way the `agents/` variants already run; cells not marked †
+below were measured that way.
 **kimi-k3 was never tuned against** — it is the control for overfitting.
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
@@ -128,6 +135,9 @@ delivery modern pi makes deterministic and the way the `agents/` variants alread
 † measured under pi ≤ 0.80.x's wrapped-prompt delivery; that skill's text has not changed
 since, so the cell stands. The two delivery modes are not comparable to each other —
 [VALIDATION.md](docs/validation/VALIDATION.md) explains why and what the difference costs.
+On those same three rows the kimi-k3 cells come from the third-model probe — a full run of
+the same board, three reps, same judge, recorded as a probe because the scorecard was
+two-model when it ran.
 
 ‡ `review` S6 on DeepSeek was published as a failure under a checklist that could not decide
 its own transcripts; a rewritten, decidable rubric re-grades it as a pass with all 18
@@ -142,8 +152,8 @@ kimi-k3 ships six of seven, against three each for the two models the skills wer
 ### What the skills add
 
 The table above says how good a skill is on a model, not what the skill *adds*. So the same
-scenarios ran again with **no skill at all** (477 rep-executions, same three reps, unscored
-controls). The delta is the point:
+scenarios ran again with **no skill at all** (477 rep-executions across four skills, same
+three reps, unscored controls). The three with same-epoch pairs on every model:
 
 | Skill | DeepSeek: naked → skilled | GLM: naked → skilled | kimi-k3: naked → skilled |
 |---|---|---|---|

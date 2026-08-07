@@ -75,10 +75,10 @@ until `review` is next re-run.
 | architect | 13/14 · 93% | 13/14 · 93% | **14/14 · 100% SHIP** | B1 1/3 (DS) · D1 1/3 (GLM) · — |
 | build | 7/9 · 78% | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | A2 1/3, B1 1/3 (DS) · — · — |
 | debug † | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** | — · — · — |
-| decide † | 11/12 · 92% | 11/12 · 92% | 11/12 · 92% | C1 1/3 · A5 1/3 · C1 |
+| decide † | 11/12 · 92% | 11/12 · 92% | 11/12 · 92% | C1 1/3 · A5 1/3 · C1 0/3 |
 | git-ops † | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** | — · — · — |
 | plan | 10/12 · 83% | 10/12 · 83% | **12/12 · 100% SHIP** | A5 0/3, B1 0/3 · A2 0/3, C2 1/3 · — |
-| review | **18/18 · 100% SHIP** †‡ | 17/18 · 94% † | **18/18 · 100% SHIP** | — · C1 · — |
+| review | **18/18 · 100% SHIP** †‡ | 17/18 · 94% † | **18/18 · 100% SHIP** | — · C1 1/3 · — |
 
 Counting current cells as they stand — which mixes the two epochs, so read it as a summary
 of the table and not as a measurement in its own right — that is **82/88 on DeepSeek,
@@ -125,7 +125,7 @@ Three findings the deltas carry:
   benefits most from a framework cannot be predicted from how it performs without one.
 - **Some disciplines exist only under the skill, on every model.** Characterization tests
   before refactoring (`build` A6): 0/3 naked on all three models, 3/3 skilled on all three.
-  Decision-record honesty (`architect` D-block): even the strongest naked model fails it.
+  Decision-record honesty (`architect` D1 and D2): even the strongest naked model fails both.
   These are not improvements on native behavior — they are behavior that does not otherwise
   occur.
 
@@ -140,7 +140,7 @@ surprise waiting to happen.
 | `build` B1, `plan` A5/B1, `architect` B1/D1 | single cells at 0/3–1/3 | Boundary behaviors on one model each, not broken disciplines. |
 | `plan` A5 ⇄ D1 on DeepSeek | run-level | Between consecutive full runs A5 went 3/3 → 0/3 and D1 went 1/3 → 3/3, each unanimous within the later run. **Within-run flakiness of 0.00 is not stability** — read a single-run boundary cell with that in mind. |
 | `review` on DS and GLM | green epoch | Text unchanged, so the cells stand, but a force re-measure would also unbank the two red baselines above. |
-| `decide` C1 / A5 | 1/3 each, inverting by model | Both boundary scenarios; the rates invert across models, which is the signature of a boundary rather than a hole. |
+| `decide` C1 / A5 | DS C1 1/3 · GLM A5 1/3 · kimi C1 0/3 | Both are boundary scenarios, and which one a model fails is not stable across models — DeepSeek and kimi-k3 both fail C1, GLM fails A5 instead. |
 
 ## Measurement lessons
 

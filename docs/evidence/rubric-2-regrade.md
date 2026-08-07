@@ -1,9 +1,12 @@
-# Evidence — the rewritten checklists (§ cells in the README)
+# Evidence — the rewritten checklists (the release-1 re-grades)
 
 `architect` C2 and `build` B1 were rewritten so their checklists decide their own transcripts;
-see [`judge-variance-2026-08-04.md`](judge-variance-2026-08-04.md) for why. The README's § cells
-are re-grades of the release-1 transcripts under those checklists, and this is the per-judgment
-record behind them — seven judgments per rep on DeepSeek, five on GLM.
+see [`judge-variance-2026-08-04.md`](judge-variance-2026-08-04.md) for why. The release-1 rows in
+[`../validation/RESULTS-MANIFEST.md`](../validation/RESULTS-MANIFEST.md) are the cells these
+re-grades applied to, and this is the per-judgment record behind them — seven judgments per
+rep on DeepSeek, five on GLM. The force epoch has since re-measured `architect` C2 directly
+(3/3 on both tuned models), which supersedes the re-grade for that cell; this file remains the
+record of how the checklists were made decidable.
 
 The release-1 `results.yaml` files still carry their original verdicts. They are kept that way on
 purpose: they are the evidence for that round, and a re-grade under a later rubric is a different

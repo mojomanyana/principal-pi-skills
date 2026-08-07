@@ -216,9 +216,11 @@ skill-as-system-prompt (`--mode force`): it is the delivery modern pi makes reli
 how the `agents/` variants already run. Green-epoch rows (everything through release-1/-2-gitops
 and the kimi probes) remain the record of the wrapped-prompt deployment and are **not comparable**
 to force rows — the epoch effect is two-sided and measured: identical skill text took build A1
-from 0/3 to 3/3 on both tuned models (stronger adherence) while dropping plan C2 on GLM from 3/3
+from 0/3 to 3/3 on DeepSeek and 1/3 to 3/3 on GLM (stronger adherence) while dropping plan C2 on GLM from 3/3
 to 0/3 (over-ceremony on a trivial ask — the right-sizing governor now competes with a
-system-prompt-weighted process). Force rows carry formal grades: skill-harness 0.5.0 scores
+system-prompt-weighted process). Where a skill × model carries a current row in both epochs,
+the force row is the published cell and the green row is the record of the earlier deployment.
+Force rows carry formal grades: skill-harness 0.5.0 scores
 force runs directly (work-order item 0b, delivered same-day) and the twelve force dirs were
 rescored free with zero verdicts moved.
 
