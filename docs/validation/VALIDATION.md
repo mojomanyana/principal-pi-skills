@@ -49,13 +49,15 @@ text.
   delivery modern pi makes deterministic, and how the `agents/` variants already run.
 
 The effect is real and two-sided, measured on unchanged skill text: force placement took
-`build` A1 from 0/3 to 3/3 on both tuned models, and dropped `plan` C2 on GLM from 3/3 to
+`build` A1 from 0/3 to 3/3 on DeepSeek and 1/3 to 3/3 on GLM, and dropped `plan` C2 on GLM from 3/3 to
 0/3 — a right-sizing hatch losing to a system-prompt-weighted process. **Do not compute a
 delta across the epoch boundary.**
 
-Cells below are force-epoch unless marked †. A † cell was measured in the green epoch and
-still stands because that skill's text has not changed since; when its text changes, it is
-re-measured.
+Cells below are force-epoch unless marked †. † measured under pi ≤ 0.80.x's wrapped-prompt
+delivery; that skill's text has not changed since, so the cell stands. On these same three
+rows the kimi-k3 cells come from the third-model probe — a full run of the same board, three
+reps, same judge, recorded as a probe because the scorecard was two-model when it ran.
+Publishing it as a third column is a change of scope, not of method.
 
 ## Current scorecard
 
@@ -79,7 +81,8 @@ Three things worth reading off it:
   92% everywhere, failing exactly one boundary scenario per model.
 - **The untuned model does best.** kimi-k3 ships six of seven, against three each for the
   two models the skills were tuned on. Whatever the framework is fitted to, it is not those
-  two models.
+  two models. Two of its six ships (debug, git-ops) come from that probe rather than from a
+  run certified current.
 - **`architect` and `plan` on kimi-k3 are perfect runs** — every scenario 3/3, flakiness
   0.00.
 
@@ -126,7 +129,7 @@ surprise waiting to happen.
 |---|---|---|
 | `build` A2 — reporting an out-of-scope find | DS 1/3 · GLM 2/3 · kimi 3/3 | Scope discipline is gated objectively — the scenario asserts the out-of-scope line stays out of the diff — so what wobbles is only the *reporting* half. Under force delivery it fails on DeepSeek alone; both other models report the find at majority, which says the skill text is adequate and the gap is the model's. |
 | `build` B1, `plan` A5/B1, `architect` B1/D1 | single cells at 0/3–1/3 | Boundary behaviors on one model each, not broken disciplines. |
-| `plan` A5 ⇄ D1 on DeepSeek | run-level | These two swapped unanimous verdicts between consecutive full runs. **Within-run flakiness of 0.00 is not stability** — read a single-run boundary cell with that in mind. |
+| `plan` A5 ⇄ D1 on DeepSeek | run-level | Between consecutive full runs A5 went 3/3 → 0/3 and D1 went 1/3 → 3/3, each unanimous within the later run. **Within-run flakiness of 0.00 is not stability** — read a single-run boundary cell with that in mind. |
 | `review` on DS and GLM | green epoch | Text unchanged, so the cells stand, but a force re-measure would also unbank the two red baselines above. |
 | `decide` C1 / A5 | 1/3 each, inverting by model | Both boundary scenarios; the rates invert across models, which is the signature of a boundary rather than a hole. |
 
