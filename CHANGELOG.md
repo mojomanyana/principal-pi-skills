@@ -21,7 +21,7 @@ are weakest, and some disciplines — characterization tests before refactoring,
 decision-record honesty — appear only under the skill, on every model.
 
 **Changed** — documentation restructured for public use. The README leads with the skills
-(646 lines to ~170); everything about measuring them consolidated into
+(646 lines to under 200); everything about measuring them consolidated into
 `docs/validation/VALIDATION.md` with the run manifest beside it. **Removed**
 `REVIEW-FINDINGS.md` (every item fixed, SHAs recorded in the file's own history) and
 `docs/revalidation-2026-08-05.md` (dated working notes). Both survive in git history.
@@ -46,9 +46,10 @@ some transcripts are coin flips, and no amount of voting fixes one — read the 
 the majority.
 
 **Changed** — three checklists rewritten to decide their own transcripts (`architect` C2,
-`build` B1, `review` S6), validated at seven judgments per rep. Decidability cut both ways:
-the same rewrite moved `architect` C2 to PASS on one model and to a decisive FAIL on
-another, exposing a consistent failure the old count-based checklist had never named.
+`build` B1, `review` S6), each validated by re-judging saved transcripts several times per
+rep and reading the margin rather than the majority. Decidability cut both ways: the same
+rewrite moved `architect` C2 to PASS on one model and to a decisive FAIL on another,
+exposing a consistent failure the old count-based checklist had never named.
 
 **Changed** — seeded scenarios are graded from the diff, not the model's prose. skill-harness
 0.3.0 puts the staged diff in front of the judge; `build` and `debug` were fully re-measured
@@ -95,7 +96,8 @@ templates; and `RESULTS-MANIFEST.md` mapping every committed run to its round an
 **Fixed** — the delegation contract, measured for the first time and then repaired. `BLOCKED`
 appeared in AGENTS.md, both prompt templates and six checklist items — and in none of the
 three agent definitions. The agents now carry the contract themselves; the starved-input
-scenario went from 0/2 across the board to majority-or-unanimous in every cell.
+scenario — which `plan` failed on both models and `debug` failed on GLM — now passes at
+majority or better in every agent × model cell.
 
 **Fixed** — coverage debt: `debug` D1 redesigned around a coherent single-cause bug (its old
 premise was false under its own bug), two over-refusal guards added to `git-ops` so the
