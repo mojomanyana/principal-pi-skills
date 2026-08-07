@@ -59,6 +59,15 @@ rows the kimi-k3 cells come from the third-model probe — a full run of the sam
 reps, same judge, recorded as a probe because the scorecard was two-model when it ran.
 Publishing it as a third column is a change of scope, not of method.
 
+‡ `review` S6 on DeepSeek was published as a failure under a checklist that could not decide
+its own transcripts — five replies of one shape drew three PASS and two FAIL, and one of those
+failures rested on a fabricated Python precedence bug. A rewritten, decidable rubric re-grades
+it as a pass with all 18 judgments agreeing. The committed `results.yaml` still records the
+original 17/18, because `grade` preserves a run's recorded hashes and rewriting them would mark
+the run stale; the correction is carried in
+[`../evidence/s6-rubric-regrade-2026-08-05.md`](../evidence/s6-rubric-regrade-2026-08-05.md)
+until `review` is next re-run.
+
 ## Current scorecard
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 | failing (rate) |
@@ -69,7 +78,7 @@ Publishing it as a third column is a change of scope, not of method.
 | decide † | 11/12 · 92% | 11/12 · 92% | 11/12 · 92% | C1 1/3 · A5 1/3 · C1 |
 | git-ops † | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** | — · — · — |
 | plan | 10/12 · 83% | 10/12 · 83% | **12/12 · 100% SHIP** | A5 0/3, B1 0/3 · A2 0/3, C2 1/3 · — |
-| review | **18/18 · 100% SHIP** † | 17/18 · 94% † | **18/18 · 100% SHIP** | — · C1 · — |
+| review | **18/18 · 100% SHIP** †‡ | 17/18 · 94% † | **18/18 · 100% SHIP** | — · C1 · — |
 
 Counting current cells as they stand — which mixes the two epochs, so read it as a summary
 of the table and not as a measurement in its own right — that is **82/88 on DeepSeek,

@@ -123,11 +123,17 @@ delivery modern pi makes deterministic and the way the `agents/` variants alread
 | decide † | 11/12 · 92% | 11/12 · 92% | 11/12 · 92% |
 | git-ops † | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** |
 | plan | 10/12 · 83% | 10/12 · 83% | **12/12 · 100% SHIP** |
-| review | **18/18 · 100% SHIP** † | 17/18 · 94% † | **18/18 · 100% SHIP** |
+| review | **18/18 · 100% SHIP** †‡ | 17/18 · 94% † | **18/18 · 100% SHIP** |
 
 † measured under pi ≤ 0.80.x's wrapped-prompt delivery; that skill's text has not changed
 since, so the cell stands. The two delivery modes are not comparable to each other —
 [VALIDATION.md](docs/validation/VALIDATION.md) explains why and what the difference costs.
+
+‡ `review` S6 on DeepSeek was published as a failure under a checklist that could not decide
+its own transcripts; a rewritten, decidable rubric re-grades it as a pass with all 18
+judgments agreeing. The committed `results.yaml` still records the original 17/18 — a
+re-grade cannot rewrite it without marking the run stale — so the correction lives in
+[the evidence](docs/evidence/s6-rubric-regrade-2026-08-05.md) until `review` is next re-run.
 
 Six of seven skills ship on at least one model; `decide` ships on none, holding at 92%
 everywhere with one boundary scenario failing per model. The untuned model does best —
