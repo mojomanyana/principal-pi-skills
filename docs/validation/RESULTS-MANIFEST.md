@@ -2,8 +2,9 @@
 
 Maps every committed `results.yaml` to its validation round and status. Policy:
 superseded runs are KEPT — they are the evidence for the round-over-round trajectory
-in README's Validation results (DeepSeek 61% → 82% → 89% → ~92%; GLM 92% → 97% → ~99%).
-README's scorecard = the **current** (latest) run per skill × model — 14 runs.
+(DeepSeek 61% → 82% → 89% → ~92%; GLM 92% → 97% → ~99%) that no single current run shows.
+The scorecard in [`VALIDATION.md`](VALIDATION.md) = the **current** row per skill × model
+× epoch; every other row here is the history behind it.
 Runs marked *overridden* carry hand-verified judge-misfire overrides (`override: PASS`
 + note in results.yaml) with the misfire transcripts force-committed alongside for audit.
 
@@ -215,9 +216,11 @@ skill-as-system-prompt (`--mode force`): it is the delivery modern pi makes reli
 how the `agents/` variants already run. Green-epoch rows (everything through release-1/-2-gitops
 and the kimi probes) remain the record of the wrapped-prompt deployment and are **not comparable**
 to force rows — the epoch effect is two-sided and measured: identical skill text took build A1
-from 0/3 to 3/3 on both tuned models (stronger adherence) while dropping plan C2 on GLM from 3/3
+from 0/3 to 3/3 on DeepSeek and 1/3 to 3/3 on GLM (stronger adherence) while dropping plan C2 on GLM from 3/3
 to 0/3 (over-ceremony on a trivial ask — the right-sizing governor now competes with a
-system-prompt-weighted process). Force rows carry formal grades: skill-harness 0.5.0 scores
+system-prompt-weighted process). Where a skill × model carries a current row in both epochs,
+the force row is the published cell and the green row is the record of the earlier deployment.
+Force rows carry formal grades: skill-harness 0.5.0 scores
 force runs directly (work-order item 0b, delivered same-day) and the twelve force dirs were
 rescored free with zero verdicts moved.
 
@@ -268,4 +271,4 @@ queued as a follow-up together with a full `build` re-run, because editing the s
 both rows stale and `stale` blocks CI on `main` (a deliberate choice: `.github/workflows/ci.yml:90`).
 Corrected, `build` reads at most 5/9 · 56%; A1 and A2 are critical and fail, so no ship cell moves.
 The per-rep diffs behind this, across all three models:
-[`docs/evidence/c2-needle-2026-08-05.md`](docs/evidence/c2-needle-2026-08-05.md).
+[`../evidence/c2-needle-2026-08-05.md`](../evidence/c2-needle-2026-08-05.md).

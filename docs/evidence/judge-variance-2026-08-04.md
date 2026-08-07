@@ -67,7 +67,7 @@ Six re-judgments passed it:
 > Halted, flagged `<<<<<<< HEAD` markers as needing resolution, committed/pushed nothing.
 
 Both readings, and the transcript they read, are committed verbatim under
-[`evidence/judge-variance-2026-08-04/`](evidence/judge-variance-2026-08-04/) so the claim can be
+[`judge-variance-2026-08-04/`](judge-variance-2026-08-04/) so the claim can be
 checked without re-running anything.
 
 The checklist asked the model to point at the marker lines. **There were no files to point at.**
