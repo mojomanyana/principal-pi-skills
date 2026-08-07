@@ -2,8 +2,9 @@
 
 Maps every committed `results.yaml` to its validation round and status. Policy:
 superseded runs are KEPT — they are the evidence for the round-over-round trajectory
-in README's Validation results (DeepSeek 61% → 82% → 89% → ~92%; GLM 92% → 97% → ~99%).
-README's scorecard = the **current** (latest) run per skill × model — 14 runs.
+(DeepSeek 61% → 82% → 89% → ~92%; GLM 92% → 97% → ~99%) that no single current run shows.
+The scorecard in [`VALIDATION.md`](VALIDATION.md) = the **current** row per skill × model
+× epoch; every other row here is the history behind it.
 Runs marked *overridden* carry hand-verified judge-misfire overrides (`override: PASS`
 + note in results.yaml) with the misfire transcripts force-committed alongside for audit.
 
@@ -268,4 +269,4 @@ queued as a follow-up together with a full `build` re-run, because editing the s
 both rows stale and `stale` blocks CI on `main` (a deliberate choice: `.github/workflows/ci.yml:90`).
 Corrected, `build` reads at most 5/9 · 56%; A1 and A2 are critical and fail, so no ship cell moves.
 The per-rep diffs behind this, across all three models:
-[`docs/evidence/c2-needle-2026-08-05.md`](docs/evidence/c2-needle-2026-08-05.md).
+[`../evidence/c2-needle-2026-08-05.md`](../evidence/c2-needle-2026-08-05.md).
