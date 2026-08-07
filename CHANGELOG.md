@@ -8,164 +8,111 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ## [Unreleased]
 
-### Item 0.1 — v2 promoted; v1 stack removed
+**Added** — the steering digest, dogfooded. `/feature` and `/bugfix` both driven end to end
+against a repo carrying a planted out-of-scope bug; the closing digest surfaced it as a
+Follow-up in both flows without either touching it, and caught one defect nobody planted.
+Recorded in `docs/demos/steering-digest-2026-08-06.md`. The `[ONE-WAY]` pause remains
+unexercised — no task in the run warranted a one-way step.
 
-**Changed** The seven v2 skills moved from `proposals/` to the repository root and are
-now the framework. **Removed** the ten v1 skill directories (`brainstorming`,
-`software-architect`, `adr`, `implementation-planner`, `coder`, `ponytail`,
-`code-review`, `debugging`, `project-git`, `using-principal-pi-skills`), `BATON.md`
-(v2 has no baton vocabulary), and the v1-era `README.md`/`AGENTS.md`, both rewritten
-around the v2 set; `package.json`'s `pi.skills` now registers the seven. The v1 stack —
-including its specs, fixtures, and Opus-judged baseline results — survives in git
-history at the commit before this one. Promotion also resolves the v1↔v2 fixture/spec
-byte-duplication flagged in PR #4 review (finding 6): the duplicated trees were deleted
-with the stack that owned them. Paths below in Item 0 read `proposals/…` as written at
-the time; drop the prefix for the promoted layout.
+**Added** — red baselines and lift. Every scenario re-run with no skill at all (477
+rep-executions, three models, three reps) to measure what the skills *add* rather than how
+well they score: aggregate +15 / +11 / +13 scenarios of 35. Lift concentrates where models
+are weakest, and some disciplines — characterization tests before refactoring,
+decision-record honesty — appear only under the skill, on every model.
 
-### Item 0 — `proposals/`: a validated 7-skill v2 redesign
+**Changed** — documentation restructured for public use. The README leads with the skills
+(646 lines to ~170); everything about measuring them consolidated into
+`docs/validation/VALIDATION.md` with the run manifest beside it. **Removed**
+`REVIEW-FINDINGS.md` (every item fixed, SHAs recorded in the file's own history) and
+`docs/revalidation-2026-08-05.md` (dated working notes). Both survive in git history.
 
-**Added** `proposals/` — a candidate replacement for the 10-skill stack, consolidating to 7
-dual-use skills (`decide`, `architect`, `plan`, `build`, `review`, `debug`, `git-ops`) that
-work unedited as loaded skills or as subagent system prompts. Each is ≤~900 words,
-self-contained (no reference trees), with an inline fill-in output template, an explicit
-delegated (single-shot) mode, and triggers-only descriptions. `review` merges
-code-review + ponytail into one two-axis pass; `architect` absorbs `adr` as a
-Decision-record output section; the routing-index skill is dropped (routing belongs to the
-orchestrator). Rationale, validation scorecard, and cross-model hardening lessons:
-`proposals/README.md`.
+**Fixed** — CI's lint-summary guard tolerates additive format growth in the harness output,
+so tracking the harness's moving `latest` tag stops turning its releases into red trees.
 
-**Added** adapted `tests/specification.yaml` per proposal skill (74 scenarios; seeded
-fixtures copied for `build`/`debug`) and the Opus-judged `results.yaml` evidence for three
-improvement rounds against DeepSeek v4-pro and GLM 5.2. Final: GLM ~99% aggregate (6/7
-SHIP at 100%), DeepSeek ~92% (vs the v1 baseline's 61%). Verified judge misfires (~2%,
-always FAIL-verdict-with-passing-reason) carry `override: PASS` + a note in the
-committed `results.yaml`.
+## [2.2.0] — 2026-08-06
 
-**Design note.** The v2 skills deliberately drop v1's baton vocabulary, per-skill governor
-tables, and reference trees; three validation rounds showed what had to come back in
-compressed form: pressure armor ("repetition doesn't change the answer — any turn,
-including the last"), hard right-sizing conditionals ("the minimal form IS the
-deliverable"), no-repo/no-codebase branches for grounded skills, and literal code anchors
-where prose rules don't land on weaker models. Known residue: `plan` on DeepSeek fails B1
-(turn-3 flat-list collapse) and C2 (over-plans a trivial flag) across three wordings —
-recorded as model tails, not design holes.
+The release that learned to distrust its own instruments.
 
-### Item 1 — Baton schema
+**Added** — a third subject model across the whole board. kimi-k3, never tuned against, run
+on all 88 scenarios (264 rep-executions) as the control for overfitting. It ties or beats
+both tuned models, which re-partitions the failure list: several published "universal"
+limits turn out to be two-model artifacts.
 
-**Added** `BATON.md` at repo root: canonical baton schema. Documents the nine-field common spine, the six primary transitions (brainstorming → any, architect → any, planner → tech-lead, tech-lead → coder, coder → project-git) plus the project-git return baton, the YAML frontmatter convention, validation rules, revision protocol, and an explicit "why no JSON Schema validator yet" rationale (premature complexity for a framework targeting orchestrator modes 1 and 2).
+**Added** — the judge-variance audit. Every non-unanimous cell re-judged from saved
+transcripts, then disputed reps escalated: over 170 judge calls, no model spend. Two cells
+were misreported as failures and corrected; a third correction was later **retracted** when
+nine judgments of the same transcript split 4–5. The finding that outlasted the numbers:
+some transcripts are coin flips, and no amount of voting fixes one — read the margin, not
+the majority.
 
-**Added** three previously-missing baton templates:
-- `brainstorming/assets/handoff-baton.md`
-- `software-architect/assets/handoff-baton.md`
-- `tech-lead/assets/handoff-baton.md`
+**Changed** — three checklists rewritten to decide their own transcripts (`architect` C2,
+`build` B1, `review` S6), validated at seven judgments per rep. Decidability cut both ways:
+the same rewrite moved `architect` C2 to PASS on one model and to a decisive FAIL on
+another, exposing a consistent failure the old count-based checklist had never named.
 
-**Updated** `implementation-planner/assets/handoff-baton.md` and `coder/assets/handoff-baton-to-git.md` to include YAML frontmatter aligned with the schema. Existing markdown body sections preserved unchanged — the YAML carries the machine-parseable spine, the prose body carries human-readable context.
+**Changed** — seeded scenarios are graded from the diff, not the model's prose. skill-harness
+0.3.0 puts the staged diff in front of the judge; `build` and `debug` were fully re-measured
+against it. `debug` held at 8/8 on both models. `build` fell to 44%, which is the honest
+number: three distinct causes, one of them a needle that scored word choice rather than
+behavior.
 
-**Updated** `AGENTS.md` §4: pointer to BATON.md, harmonized summary of the spine, list of all six baton templates.
+**Fixed** — scenario bugs, the fourth and fifth instances of the law that they present as
+model failures: `git-ops` A9 asked a model to point at conflict markers in an empty
+directory (reseeded; both models now 15/15 SHIP), and `build` A2's out-of-scope item was
+already annotated as known in its own fixture.
 
-#### Design notes
+**Added** — the release-2 bundle: `/feature` and `/bugfix` gain a `[ONE-WAY]` pause and a
+closing six-line digest; `build` A1 gets an objective overdraft gate and B1 a Checks row;
+`architect` gains a middle mode so a sound-check returns a verdict instead of the full
+artifact; `plan`'s walking skeleton teaches primitive-but-real instead of stubbed, and its
+right-sizing hatch survives system-prompt placement.
 
-The original opinion item called for *"one canonical baton shape (YAML or JSON), have every skill emit it."* Closer reading didn't support that — a coder→git baton legitimately needs different fields (branch state, commit SHAs, acceptance checks) than a planner→tech-lead baton (slice ID, acceptance criteria, tried/ruled-out). Forcing one shape would erase real signal. The fix became *"document the family"* — a common spine plus per-transition extensions, with YAML frontmatter for machine-parseability without forcing rigid uniformity.
+**Changed** — the measured deployment is now skill-as-system-prompt (`--mode force`). pi
+0.83 switched `--skill` to progressive disclosure and accepts a nonexistent skill path
+silently, so a day of runs measured naked models while producing plausible results. Those
+runs are marked INVALID and kept as the incident's evidence. Green-epoch and force-epoch
+cells are **not comparable**: on identical text, force placement took `build` A1 from 0/3 to
+3/3 on DeepSeek and 1/3 to 3/3 on GLM, and dropped `plan` C2 on GLM from 3/3 to 0/3.
 
-No formal JSON Schema validator is shipped. Building one before there's a consumer (the framework targets orchestrator modes 1 and 2 today; mode 3 is aspirational per AGENTS.md §1) would be the same kind of "premature complexity" that software-architect Mode I refuses. When a harness exists, validating against BATON.md is straightforward.
+**Added** — CI guards, all free: spec and results lint on every PR (staleness warns on a
+branch, blocks on `main`), plus an agents-lockstep check that fails a PR touching
+`plan|review|debug/SKILL.md` without its `agents/` twin.
 
-A coverage gap was uncovered during this item: three of the six skills had no baton template at all (brainstorming, software-architect, tech-lead). The originally-scoped fix would have left this gap unaddressed. Templates were added to close it.
+## [2.1.0] — 2026-08-04
 
-The two existing templates (planner, coder) were not restructured — only had YAML frontmatter prepended. The duplication between YAML fields and markdown body fields is intentional: humans read the markdown, harnesses parse the YAML.
+The v2 redesign, promoted and measured.
 
-### Item 6 — Brownfield architect modes
+**Changed** — the seven v2 skills moved from `proposals/` to the repository root and are now
+the framework. **Removed** the ten v1 skill directories, `BATON.md`, and the v1-era README
+and AGENTS.md. The v1 stack — specs, fixtures and Opus-judged baseline results — survives in
+git history at the commit before the promotion.
 
-**Added** three new modes to `software-architect/SKILL.md`:
+**Added** — the seven dual-use skills (`decide`, `architect`, `plan`, `build`, `review`,
+`debug`, `git-ops`), each working unedited as a loaded skill or a subagent system prompt;
+three hand-written single-shot variants in `agents/`; the `/feature` and `/bugfix` prompt
+templates; and `RESULTS-MANIFEST.md` mapping every committed run to its round and status.
 
-- **Mode G — Tech-debt triage.** For triaging an existing debt backlog. Produces a ranked action plan with impact × effort × reversibility scoring, an explicit do-never list, and a meta-recommendation when the debt list reveals organizational rather than technical gaps. Backing reference: `references/tech-debt-triage.md`.
-- **Mode H — Onboard to an unfamiliar architecture.** For joining a team or inheriting a codebase. Produces a reverse-engineered C4 map with `?`-annotated unknowns and a ranked question list for the team. Distinct from Mode C (review): Mode H produces questions, Mode C produces findings. Backing reference: `references/onboarding.md`.
-- **Mode I — Defend the current architecture.** For making the "don't change" case when pressured to migrate or modernize. Four-step structure: reframe to the problem, stress-test the change case, build the "do nothing" option seriously, name the trigger that would flip the recommendation. Inline, no backing reference.
+**Fixed** — the delegation contract, measured for the first time and then repaired. `BLOCKED`
+appeared in AGENTS.md, both prompt templates and six checklist items — and in none of the
+three agent definitions. The agents now carry the contract themselves; the starved-input
+scenario went from 0/2 across the board to majority-or-unanimous in every cell.
 
-**Added** two new reference files: `software-architect/references/tech-debt-triage.md` and `software-architect/references/onboarding.md`.
+**Fixed** — coverage debt: `debug` D1 redesigned around a coherent single-cause bug (its old
+premise was false under its own bug), two over-refusal guards added to `git-ops` so the
+safety absolutes are shown not to overshoot, and a characterization-test scenario added to
+`build`.
 
-**Updated** in `software-architect/SKILL.md`:
-- "Decision frameworks at a glance" section gained pointers to the two new references.
-- "Handoff cues" table gained rows for Mode G/H/I outputs.
+**Added** — release-1: 88 scenarios × two models × three reps, 528 rep-executions, judged by
+`claude-code:opus`, with the first live end-to-end runs of both chains against real repos
+(`docs/demos/`).
 
-#### Design notes
+## Pre-2.1.0
 
-The original review of this framework claimed Mode C (review existing architecture) was *"thinner and ends abruptly."* Closer reading didn't support that — Mode C has a clean 7-step structure and an appropriate scope for review work. The actual gap was missing *adjacent* modes for brownfield-specific activities (tech-debt triage, onboarding, status-quo defense), not a defect in Mode C itself. Item 6 adds those adjacent modes rather than rewriting Mode C.
-
-Mode I has slight conceptual overlap with Mode A (Advisory) — both can produce "don't change" outputs. The distinction: Mode A is general advisory landing on any answer; Mode I is specifically defensive, invoked when the user is being pressured to change. If the boundary proves blurry in practice, Mode I may fold into a Mode A subsection in a future revision.
-
-### Item 9 — Sharpen the tech-lead ↔ coder boundary
-
-**Added** to `coder/SKILL.md` Mode B: "The Mode B test" — five concrete criteria that decide whether a task qualifies for direct coder execution (single file, specified to the keystroke, no new interface, no load-bearing decisions, one-sentence description). Plus explicit mid-implementation escalation triggers.
-
-**Added** to `tech-lead/SKILL.md` line 117: forward pointer to the Mode B test plus a reflux note — tech-lead routes the user directly to coder when the ask satisfies all five criteria, without writing a spec.
-
-**Updated** `AGENTS.md` §3: forward pointer to the Mode B test in the "Tiny change" canonical chain entry.
-
-#### Design notes
-
-The five criteria are an opinionated proposal; criterion 5 (*"one-sentence description, no 'and'"*) is the most subjective and may evolve with use.
-
-A naming collision exists but was not fixed in this item: tech-lead Mode B is *"Spec from a direct user task"* (write a spec without planner upstream); coder Mode B is *"Direct task (no spec)"* (skip the spec entirely). Both have "direct" in the name. Contexts disambiguate within each skill, but cross-references could confuse. Logged for a future renaming pass.
-
-### Item 8 — Clarify the orchestrator model
-
-**Added** to `AGENTS.md` §1: definition of "orchestrator", names of the three orchestrator models (human-in-chat, agent-on-next-turn, programmatic harness), declaration that the framework targets modes 1 and 2 today and is extensible to mode 3.
-
-**Added** to `README.md` Design Philosophy: brief pointer to AGENTS.md §1 for the routing question.
-
-**Updated** per-skill phrasing in `project-git/SKILL.md` (L161, L234) and `implementation-planner/SKILL.md` (L266) — softened bare "orchestrator routes" to "user, agent, or orchestrator" where the context covers all routing modes.
-
-#### Design notes
-
-Four occurrences of bare "orchestrator" in `project-git/references/delegation-contract.md` and `project-git/SKILL.md` L155 were *not* changed — they live in mode-3-specific (delegated-mode) sections where "orchestrator" is correctly precise.
-
-The original sweep missed reference files; new protocol from this item onward is to sweep `SKILL.md` + references + assets before quoting effort.
-
-### Item 2 — Unify reversibility notation
-
-**Decided:** the framework uses *two tiers* at decision/design altitude (brainstorming, software-architect, implementation-planner) — prose-only *two-way door* / *one-way door* — and *three tiers* at code altitude (tech-lead, coder) — 🟢 *two-way* / 🟡 *costly* / 🔴 *one-way*. This is intentional, not an inconsistency.
-
-**Removed** all 🚪 / 🚪🚪 emoji from the framework (10 occurrences across `implementation-planner/SKILL.md`, three references, one asset, and two README mentions). Replaced with italic prose to match the rest of the design-altitude vocabulary.
-
-**Added** to `AGENTS.md` §5: a paragraph documenting the altitude split so future contributors understand it's intentional.
-
-**Updated** `README.md` Design Philosophy: rewrote the Reversibility paragraph to reflect the altitude split (the previous version claimed *"three skills tag decisions explicitly"* which was factually wrong after this item's edits).
-
-#### Design notes
-
-The original opinion item said *"pick one notation."* On closer inspection, two notations were tracking two genuinely different conceptual models (2-tier vs 3-tier), each appropriate for its altitude. The fix became *"document the why"* rather than *"unify."*
-
-Initial sweep underscoped: the 🚪 emoji appeared in 10 places, not just 1 SKILL.md mention. Caught during verification; the asset (the fillable implementation-plan template) was particularly important because plans generated from it inherit the notation.
-
-### Item 3 — De-duplicate shared tenets
-
-**Decided:** not to de-duplicate.
-
-#### Design notes
-
-The original opinion item claimed substantial duplicate tenet text across skills. Closer inspection showed the "duplications" were mostly *consistent naming of skill-specific implementations* — "Read before write" appears in three skills, but each is a fully different paragraph implementing the principle for its own domain (tech-lead reads files before spec; coder reads files before code; project-git reads git state before commit). Pulling these into a shared file would either break skill portability (if installed individually) or fail to address actual duplication (since the text isn't actually duplicated).
-
-True duplicated text totaled ~1.5% of the framework. Not worth the architectural cost.
-
-### Item 4 — Trim frontmatter descriptions; add Triggers section
-
-**Trimmed** the frontmatter `description` in all six `SKILL.md` files. Total reduction: ~5,800 → ~2,689 chars across all six (53.6% smaller on every turn).
-
-**Added** a `## Triggers` section in each `SKILL.md` body, preserving the full original trigger-phrase content. The content now loads only after the skill activates, not on every turn for trigger detection.
-
-**Removed** the Known Issues section from `README.md` (Zone.Identifier was deleted in Item 10, the only listed issue).
-
-### Item 10 — Operational fixes
-
-**Removed** `project-git/SKILL.md:Zone.Identifier` (Windows alternate-data-stream artifact, 25 bytes, no use to any agent).
-
-**Added** `.gitignore` covering OS noise (macOS / Windows / Linux), editor and IDE state, and agent harness directories (`.claude/`, `.codex/`, `.pi/`, etc.).
-
-**Added** `version: 0.1.0` to all six SKILL.md frontmatter as a tracking field for independent skill evolution.
-
-**Added** a parenthetical clarification in `README.md` intro that "pi" in the framework name reflects the origin of the `SKILL.md` convention in the Pi coding agent, not a Pi-specific requirement.
-
----
+The v1 ten-skill stack and its iteration — the baton schema, the brownfield architect modes,
+the tech-lead ↔ coder boundary, the orchestrator model, reversibility notation, frontmatter
+trimming — was removed when v2 was promoted. Those items described artifacts that no longer
+exist; the reasoning behind them is in git history and in the `[0.2.0]` entry below, which
+records the restructure that produced the stack v2 replaced.
 
 ## [0.2.0] — 2026-06-25
 
