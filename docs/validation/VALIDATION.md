@@ -49,9 +49,9 @@ text.
   delivery modern pi makes deterministic, and how the `agents/` variants already run.
 
 The effect is real and two-sided, measured on unchanged skill text: force placement took
-`build` A1 from 0/3 to 3/3 on DeepSeek and 1/3 to 3/3 on GLM, and dropped `plan` C2 on GLM from 3/3 to
-0/3 — a right-sizing hatch losing to a system-prompt-weighted process. **Do not compute a
-delta across the epoch boundary.**
+`build` A1 from 0/3 to 3/3 on DeepSeek and 1/3 to 3/3 on GLM, and dropped `plan` C2 on GLM
+from 3/3 to 0/3 — a right-sizing hatch losing to a system-prompt-weighted process. **Do not
+compute a delta across the epoch boundary.**
 
 Cells below are force-epoch unless marked †. † measured under pi ≤ 0.80.x's wrapped-prompt
 delivery; that skill's text has not changed since, so the cell stands. On these same three

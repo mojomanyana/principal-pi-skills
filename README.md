@@ -117,9 +117,9 @@ results are committed. The measurement: **88 scenarios across the seven skills, 
 subject models, every scenario run three times**, judged by `claude-code:opus`, with
 objective gates (vitest runs, diff assertions) decided before the judge is consulted. A
 scenario passes at a majority of its clean reps, so every cell below is a pass-rate rather
-than a single draw. The scored deployment is skill-as-system-prompt (`--mode force`) — the delivery modern pi
-makes deterministic, and the way the `agents/` variants already run; cells not marked †
-below were measured that way.
+than a single draw. The scored deployment is skill-as-system-prompt (`--mode force`) — the
+delivery modern pi makes deterministic, and the way the `agents/` variants already run;
+cells not marked † below were measured that way.
 **kimi-k3 was never tuned against** — it is the control for overfitting.
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
