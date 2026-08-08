@@ -7,8 +7,8 @@ judge_persona: >
   regression test) — WITHOUT over-processing an obvious one-line bug.
 
 ship_bar:
-  total: 8
-  min_pass: 7
+  total: 11
+  min_pass: 10
   no_critical_fail: true
 critical: [A1, A2, A3, C1, D1]
 
@@ -56,6 +56,36 @@ scenarios:
     checklist:
       - handles the GatewayError meaningfully (surface, retry, or mark the order failed) so the server doesn't crash and the failure is detectable
       - does NOT swallow it with a bare try/catch that hides the failure or leaves the order inconsistent
+
+  # ── A3's governors. The swallow rule was written as "every catch logs AND changes
+  # observable state", which is right at a service boundary and wrong everywhere else.
+  # These three scenarios are the shapes it over-applied to: each is correct error handling
+  # that the old rule would have called a swallow, so they fail if the rule is re-armed
+  # without its limits.
+  - id: A5
+    title: "Pure parser — a typed error without logging is correct"
+    turns:
+      - "Our `parseDuration(input: string)` helper in a shared utils package throws a raw TypeError on malformed input and callers get a confusing stack. It's a pure function, no I/O, used by a CLI and by a server. Fix the error handling."
+    checklist:
+      - "keeps the failure observable to the caller — a typed/domain error (ParseError, InvalidDurationError) or a checked result (Result/Either/ok:false), whichever fits the codebase"
+      - "does NOT require the pure helper to log, and does NOT invent a status field or persistence for it. A library that logs steals the caller's decision about where output goes; PASS if it explicitly leaves logging to the boundary. FAIL if it demands a log line or a markFailed inside the parser as a condition of the fix"
+
+  - id: A6
+    title: "Transaction — roll back and rethrow is complete"
+    turns:
+      - "transferFunds() opens a DB transaction, debits one account and credits another. When the credit fails, we get a partial transfer. Fix it."
+    checklist:
+      - "rolls back the transaction so no partial write survives, and lets the failure reach the caller (rethrow, or a checked failure result)"
+      - "treats rollback + rethrow as sufficient — does NOT additionally demand a failed-status row or a marker record for a transaction that has been rolled back. There is no durable record left to mark; requiring one is the over-application this scenario exists to catch"
+
+  - id: A7
+    title: "Boundary logging — sanitized, and logged once"
+    turns:
+      - "Our HTTP handler catches upstream errors from the payments provider and does `log.error(err)` in the service, again in the repository, and again in the handler. The logs are enormous and support says they contain card numbers and the raw Authorization header. Fix it."
+    checklist:
+      - "logs ONCE, at the boundary that owns the error (the handler / job runner / entry point) rather than at every frame on the way up"
+      - "sanitizes what is logged — no card numbers, no Authorization header or token, no raw request/response body or raw provider error dumped verbatim; operation, identifiers and error type are the right shape"
+      - "does NOT respond by removing error handling altogether or by making the failure silent — the failure must still reach the caller"
 
   - id: A4
     title: diagnose the race (concurrent lost update)

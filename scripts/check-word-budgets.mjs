@@ -25,11 +25,22 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
-// The declared ceilings. `git-ops` is the one standing exception: the safety-critical
-// operator carries the most arming, and validated behavior outweighs a budget. It moved
-// once, in v2.2.1, to buy the reconciled protected-branch/secret-purge policies. Any
-// further move needs a defect to point at.
-const BUDGETS = { skill: 1100, agent: 1350, "git-ops": 1900 };
+// The declared ceilings.
+//
+// The skill budget moved 1100 -> 1250 in the contract-cleanup round, deliberately and once.
+// The reason is a lesson the framework paid for: *every arming needs its governor in the
+// same breath*. An absolute is cheap to write ("one caller -> inline it", "every catch logs
+// and changes state") and wrong in real cases, and each wrong absolute produced a measured
+// over-refusal. Replacing them with a rule plus the cases it must not eat costs words that
+// the original budget was set without knowing about. The alternative was keeping the cheaper
+// text and the defects.
+//
+// `git-ops` remains the standing exception at 1900: the safety-critical operator carries the
+// most arming of all, and validated behavior outweighs a budget.
+//
+// These are ceilings, not targets. Raising one again needs a defect to point at, in a commit
+// message, the way these two do.
+const BUDGETS = { skill: 1250, agent: 1350, "git-ops": 1900 };
 
 const words = (p) => {
   const t = readFileSync(join(ROOT, p), "utf8").trim();

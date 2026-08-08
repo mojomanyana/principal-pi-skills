@@ -34,6 +34,11 @@ reasoning, so it cannot be surprised by it. When review runs inline, say so in t
    then review again. **Two repair rounds at most.** If findings remain after the second,
    stop and hand the user what is still outstanding rather than looping. A third round means
    the plan was wrong, not the code.
+   If Build instead returns `Next: debug` — it hit a failure whose cause it could not
+   identify — run the `principal-debug` agent (or the `debug` skill inline) on that failure,
+   then resume at Build with the diagnosis. Guessing at an unexplained failure inside a
+   repair round is how a feature ships with a bug nobody diagnosed. If Build returns
+   `Next: blocked`, stop and surface what it named under `Blocked:`.
 6. **Commit** — on APPROVE or APPROVE-WITH-NITS, load the `git-ops` skill inline. Never
    delegate git operations: they need this session's working-tree state, and destructive
    operations require a consequence-acceptance no subagent can obtain.

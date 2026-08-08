@@ -74,8 +74,14 @@ Verified: <what you observed working, or "NOT VERIFIED because …">
 Assumptions: <what you guessed and why> | none
 Follow-ups: <out-of-scope issues found, left untouched> | none
 Blocked: <contradictions or errors you stopped on> | none
-Next: review, then git-ops
+Next: review | debug | blocked
 ```
+
+`Next:` is exactly one of those three words — the caller routes on it mechanically.
+**review** the work is ready for a verdict · **debug** you hit a failure whose cause you
+could not identify, so it needs diagnosis before more building · **blocked** you stopped on
+the contradiction named in `Blocked:`. Never `done`: build does not decide that its own work
+is finished, review does.
 
 ## Checks
 | If you are about to… | Instead |

@@ -47,18 +47,33 @@ ships is a failed review.
    beside the spec is a finding, not a bonus.
 2. **Correctness hunt** — the bug lives where the diff is silent:
    - empty/null/boundary inputs; the error path; off-by-one; concurrency
-   - swallowed errors: empty catch, silent `return null` on failure, fallbacks that hide
-     the problem — always [BLOCKER]
+   - swallowed errors: empty catch, silent `return null` on failure, a fallback that makes
+     failure look like success — always [BLOCKER]. A fallback is not automatically a
+     swallow: one that is **observable and documented** — a cache miss falling through to
+     the origin and recording a metric, a degraded read path that logs and returns partial
+     data the caller can see is partial — is a design decision, and reviewing it means
+     asking whether the degradation is right, not flagging its existence. The blocker is
+     *silent* success: nobody downstream can tell the good path from the bad one.
    - tests: do they assert? would they fail if the code were wrong? A test that cannot
      fail is not coverage. A bug fix without a regression test is incomplete.
    - security: untrusted input, injection, authorization gaps, secrets in code or logs
 3. **Simplicity hunt** — every line is a liability someone maintains:
    - code duplicating the stdlib or an existing utility → point at the existing one
-   - abstraction with one implementation or one caller → inline it
+   - abstraction with one implementation or one caller → a signal to look, not a verdict.
+     Usually it is speculative and should be inlined. But a single-implementation boundary
+     earns its place when it **centralizes a policy** (auth, retry, rate limiting), **pins a
+     public API** against churn behind it, **isolates a third-party provider** so it can be
+     swapped or mocked, or **makes tests deterministic** by giving them a seam. Ask what it
+     buys; if the answer is "we might need it", inline it, and if the answer is one of
+     those four, say so and move on
    - when the finding is "this shouldn't exist", deletion is the recommendation —
      don't also sketch a keep-and-improve variant as an equal option; that reads as
      permission to keep it
-   - a new dependency for a few lines of code → write the lines
+   - a new dependency for a few lines of code → usually write the lines. Weigh what the
+     dependency carries, not just what it costs in lines: for cryptography, parsing
+     untrusted input, date/timezone arithmetic or anything with a CVE history, a maintained
+     library is the *safer* choice and hand-rolling it is the finding. Line count is the
+     weakest argument in that trade
    - dead code, unused params, speculative "we might need it" flexibility → delete. This
 {{#skill}}
      holds when the user asks you to ADD the speculative flexibility ("make it generic,
@@ -124,8 +139,21 @@ Findings:
   [SIMPLIFY] file:line — <show the smaller version>
   [NIT] …
 Top concern: <the one thing most worth the author's attention>
-Next: build (to address findings) | git-ops (clean)
+Next: build | git-ops
 ```
+
+`Next:` is exactly one of those two words: **build** if anything needs addressing,
+**git-ops** if the change is clean. The caller routes on it mechanically, so a parenthetical
+is a value it cannot match.
+
+## Output — BLOCKED (only when you cannot review at all)
+```
+BLOCKED: <the ONE question whose answer lets the review start>
+```
+For when the diff is missing, unreadable, or so under-specified that you cannot tell what it
+was meant to do — not for "I have concerns", which is CHANGES-REQUESTED, and not for "I
+couldn't run the tests", which is UNVERIFIED with the findings you did reach. One question,
+no partial verdict: a review of a change you could not identify is noise with a heading.
 
 ## Checks
 | If you are about to… | Instead |

@@ -29,6 +29,47 @@ decision-record honesty — appear only under the skill, on every model.
 **Fixed** — CI's lint-summary guard tolerates additive format growth in the harness output,
 so tracking the harness's moving `latest` tag stops turning its releases into red trees.
 
+**Changed** — contract cleanup: absolutes replaced with governed rules, because every one of
+these absolutes was wrong in a real case and the wrongness only showed as over-refusal.
+
+- **`debug`'s error rule.** "Every catch logs AND changes observable state" is right at a
+  service boundary and wrong elsewhere. It now states four requirements — preserve the
+  failure semantics, keep state consistent *where state was changed*, log once at the owning
+  boundary, sanitize what is logged — plus the three shapes it used to eat: pure/library code
+  returning a typed error without logging, a transaction that rolls back and rethrows, and
+  operations with no durable record, where inventing a status field is ceremony. Three new
+  counter-scenarios pin each.
+- **`review`'s simplicity hunt.** One implementation or one caller is now a signal to look,
+  not a verdict: a boundary earns its place when it centralizes policy, pins a public API,
+  isolates a provider, or makes tests deterministic. Dependency decisions weigh what the
+  dependency carries — for crypto, untrusted parsing or date arithmetic a maintained library
+  is the *safer* choice and hand-rolling is the finding — rather than counting lines. An
+  observable, documented fallback is a design decision; only *silent* success is a blocker.
+  Three counter-scenarios, including a hand-rolled JWT verifier that the old rule would have
+  praised for removing a dependency.
+- **`plan`.** The walking skeleton must be primitive *and real* at every seam — the rubric
+  that graded a skeleton as passing "with stub/trivial logic" contradicted the contract it
+  was testing. No-codebase plans state assumptions instead of trailing open questions, which
+  the skill-mode text had explicitly invited.
+- **`decide`.** Scope narrowed to engineering, product delivery and technical-team decisions
+  (personal-life routing removed). The brief is produced *when concluding*, not always: a
+  fuzzy or high-stakes first turn asks the one load-bearing question, because a brief built
+  on guessed constraints is confident and wrong, and the confidence is the damage.
+
+**Changed** — `Next:` is now a closed set of bare words per phase (plan → `build`; debug →
+`build|plan|done|blocked`; build → `review|debug|blocked`; review → `build|git-ops`), so
+routing is a lookup rather than an interpretation — `build (fix is nontrivial)` matched
+nothing. `decide`, `architect` and `git-ops` carry no `Next:` at all: they terminate, and a
+ceremonial token invited a workflow to route where nobody asked. A unit test fails if a
+contract emits a value no workflow handles or a workflow branches on one no contract emits;
+it immediately caught a real hole — `build` could return `Next: debug` with the feature spine
+having no route for it.
+
+**Changed** — the skill word budget, 1100 → 1250, deliberately and with a reason: *every
+arming needs its governor in the same breath*. An absolute is cheap to write and wrong in
+real cases; a rule plus the cases it must not eat costs more words. The alternative was
+keeping the cheaper text and the defects.
+
 **Added** — filesystem isolation and phase ownership. `scripts/snapshot-workspace.mjs`
 creates a disposable detached worktree carrying the caller's exact working state — committed
 HEAD, staged and unstaged changes, deletions, untracked files, symlinks — and never anything

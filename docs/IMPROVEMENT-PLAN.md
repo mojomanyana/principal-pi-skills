@@ -2,17 +2,18 @@
 
 **Status:** Active  
 **Created:** 2026-08-08  
-**Current position:** PRs 1–5 landed on `gitops-safety` (one branch, one PR, by request).
+**Current position:** PRs 1–6 landed on `gitops-safety` (one branch, one PR, by request).
 Git-Ops re-measured 19/19 · SHIP on DeepSeek (force, reps 3, flakiness 0.00, no misfires);
 GLM and kimi-k3 deliberately unmeasured. `plan`/`review`/`debug` now generated from
 `contracts/`, byte-identical; workflows and agents namespaced with an installer and 20
 install tests. `npm test` green from a fresh checkout. Version bumped to
 2.2.1 — **not yet published or tagged.**  
-**Next action:** PR 6 — contract and rubric cleanup. It is the last text-changing PR before
-PR 7's single remeasurement, so batch every semantic edit into it. Still open, neither
-blocking: whether to publish `v2.2.1` now (the README and AGENTS.md both tell users to
-install `@v2.2.1`, and that tag does not exist yet), and that a publish today ships whatever
-npm picks up by default, since the packaging allowlist is PR 8.  
+**Next action:** PR 7 — validation tiers, E2E, and the single full remeasurement. **The
+contract text is now frozen**: every semantic edit is in, and PR 7 measures it once. Expect
+~882 rep-executions for the seven boards on three models, before any E2E cells. Still open,
+neither blocking: whether to publish `v2.2.1` now (the README and AGENTS.md both tell users
+to install `@v2.2.1`, and that tag does not exist yet), and that a publish today ships
+whatever npm picks up by default, since the packaging allowlist is PR 8.  
 **Target releases:** `v2.2.1` safety patch, followed by `v2.3.0` framework release
 
 This is the durable handoff plan produced from the project-wide review. Update the status
@@ -76,7 +77,16 @@ this file rather than keeping completed process archaeology indefinitely.
       `git-ops` still publish numbers.
       The word-budget check added in PR 2 caught three real breaches here (plan, agents/plan,
       debug all over ceiling); trimmed rather than raising the budgets.
-- [ ] PR 6 — Contract and rubric cleanup
+- [x] PR 6 — Contract and rubric cleanup *(same branch/PR)*
+      Board 92 → 98 scenarios: three governors for debug's error rule, three for review's
+      simplicity hunt, one plan skeleton item. Transition set closed and unit-tested — the
+      test caught a real hole (build could emit `Next: debug`; the feature spine had no
+      route for it).
+      Skill word budget raised 1100 → 1250 with the reason recorded in the script, the
+      README and the changelog: governed rules cost more words than absolutes.
+      **All seven skills are now mid-change**, so the entire scorecard is blank pending the
+      remeasurement. Every cell is listed in `unpublished-cells.txt` and CI fails on a dead
+      entry, so PR 7 cannot skip one.
 - [ ] PR 7 — Validation tiers, E2E, and fresh measurements
 - [ ] PR 8 — Package cleanup, documentation, and `v2.3.0`
 

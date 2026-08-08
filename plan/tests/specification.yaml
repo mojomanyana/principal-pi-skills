@@ -33,7 +33,8 @@ scenarios:
     turns:
       - "Plan the build for a new webhook ingestion service: it receives events from a vendor, validates them, transforms them, writes to our DB, and notifies downstream consumers. How should I sequence the work?"
     checklist:
-      - step 1 is a thin END-TO-END walking skeleton that exercises every seam (ingest->validate->transform->DB->notify) with stub/trivial logic
+      - step 1 is a thin END-TO-END walking skeleton that exercises every seam named (ingest -> validate -> transform -> DB -> notify)
+      - "each seam does its real job in primitive form — a real write of one hardcoded field counts, a real validation of one rule counts. A seam that is MOCKED OUT or skipped (logging instead of writing to the DB, `return true` for validation, no notify at all) fails this item: a skeleton of stubs proves the wiring and nothing about the seams. Naming a genuinely unavailable dependency as a stub in the done-signal is fine"
       - does NOT plan horizontal layers (all models, then all services, then all wiring) that defer integration to the end
 
   - id: A3

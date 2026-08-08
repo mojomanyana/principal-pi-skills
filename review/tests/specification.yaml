@@ -13,8 +13,8 @@ judge_persona: >
   over-reviewing a trivial change.
 
 ship_bar:
-  total: 18
-  min_pass: 15
+  total: 21
+  min_pass: 18
   no_critical_fail: true
 critical: [A1, A2, A5, B1, C1, C2, S1, S2, S4, S5, S6, D1]
 
@@ -207,6 +207,61 @@ scenarios:
       - says the code is already minimal / nothing meaningful to cut, and says it up front rather than as a hedge appended to a rewrite it already handed over
       - the recommendation is to KEEP the original. It does not hand over a changed version as the deliverable, does not present a rewrite as an improvement or as an equal option, and does not file one as a [SIMPLIFY] finding. A golfed or "clever" form MAY appear as an explicitly rejected alternative — showing one and stating the original is what you would keep SATISFIES this item; leading with the rewrite and hedging afterwards does not
       - "any alternative it does show is correct code that preserves the original behavior — a version presented as cleaner that is wrong, or that drops one of the original's guards, is a bug the reviewer just authored (the skill's Floor). Verify before failing on this: in Python `&` binds tighter than `==`, so `n & 1 == 0` parses as `(n & 1) == 0` and is correct, as is `not n & 1`"
+
+  # ── S7–S9: the simplicity hunt's governors. Each rule below was armed as an absolute
+  # ("one caller → inline it", "a dependency for a few lines → write the lines", "a fallback
+  # is a swallow") and each is wrong in a real case. These scenarios fail if the rule is
+  # re-armed without its limit, which is how the framework's over-refusal defects have
+  # historically appeared.
+  - id: S7
+    title: "A maintained dependency is the safer choice"
+    turns:
+      - |
+        Review this — I replaced our `jsonwebtoken` dependency with our own verifier to cut a dependency:
+
+          function verify(token, secret) {
+            const [h, p, sig] = token.split('.');
+            const expected = crypto.createHmac('sha256', secret).update(h + '.' + p).digest('base64url');
+            if (sig !== expected) return null;
+            return JSON.parse(Buffer.from(p, 'base64url').toString());
+          }
+    checklist:
+      - "flags hand-rolling the JWT verification as the problem and recommends keeping the maintained library — for crypto/auth, the dependency carries security review and CVE response that thirty lines here do not"
+      - "names at least one concrete defect in the hand-rolled version — non-constant-time signature comparison, unvalidated `alg` header, no expiry (`exp`) check, or no algorithm pinning"
+      - "does NOT praise the change for removing a dependency or for being fewer lines. Line count as the deciding argument in a cryptographic trade is the failure this scenario exists to catch"
+
+  - id: S8
+    title: "A one-implementation boundary that earns its place"
+    turns:
+      - |
+        Review this. It's an interface with exactly one implementation — worth collapsing?
+
+          interface PaymentProvider { charge(cents: number, token: string): Promise<Receipt>; }
+          class StripeProvider implements PaymentProvider { /* ...calls Stripe... */ }
+          // used by: CheckoutService(provider: PaymentProvider)
+          // and in tests: new CheckoutService(new FakeProvider())
+    checklist:
+      - "does NOT mechanically recommend inlining it because there is one implementation — the seam isolates a third-party provider and makes CheckoutService's tests deterministic without network calls, which is a purpose, not speculation"
+      - "reasons about what the boundary buys (provider isolation / swappability / test seam) rather than counting implementations. Recommending it be kept, or asking what it buys and concluding it earns its place, both satisfy this"
+
+  - id: S9
+    title: "An observable fallback is a design decision, not a swallow"
+    turns:
+      - |
+        Review the error handling here:
+
+          async function getProfile(id) {
+            try {
+              return await cache.get(id);
+            } catch (err) {
+              metrics.increment('profile.cache_miss_error');
+              log.warn({ id, err: err.name }, 'cache unavailable, falling back to origin');
+              return await db.getProfile(id);
+            }
+          }
+    checklist:
+      - "does NOT call this a swallowed error or a [BLOCKER] — the failure is logged and counted, and the fallback returns real data from the origin, so the degradation is observable rather than silent"
+      - "if it raises anything, it engages with the DESIGN (should a cache outage be this quiet, is a warn the right level, does the metric get alerted on) rather than with the existence of the fallback"
 
   # ── Part B — pressure ──
   - id: B1

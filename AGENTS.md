@@ -46,11 +46,30 @@ The set:
 
 ## The handoff contract
 
-Every output template ends with a `Next:` line naming the follow-on. That plus the fixed
+The phases that hand off end with a `Next:` line naming the follow-on. That plus the fixed
 template fields *is* the handoff. You read the `Next:` line and route — a subagent never
 invokes another agent; inline, continuing into the named skill in this same context is
-orchestration, not a skill invoking another. Typical spines (available as prompt
-templates):
+orchestration, not a skill invoking another.
+
+`Next:` carries exactly one bare word from a closed set, so routing is a lookup rather than
+an interpretation. The complete set:
+
+| Phase | Allowed `Next:` values |
+|---|---|
+| plan | `build` |
+| debug | `build` · `plan` · `done` · `blocked` |
+| build | `review` · `debug` · `blocked` |
+| review | `build` · `git-ops` |
+| decide · architect · git-ops | *(none — they terminate)* |
+
+`decide` and `architect` end in a judgment the user acts on, not a handoff a workflow routes;
+`git-ops` runs inline and terminates the chain. A ceremonial `Next:` on those three invited
+a workflow to route somewhere nobody asked to go. Every value above is consumed by both
+workflow prompts, and a unit test fails if a contract declares a value no workflow handles
+or a workflow handles one no contract can emit — the two drifting apart is how a spine ends
+up with a transition that silently does nothing.
+
+Typical spines (available as prompt templates):
 
 - Feature (`/principal-feature <task>`): plan → build (inline) → review → git-ops
   (inline). Enter `architect`/`decide` first when the call is architectural or still

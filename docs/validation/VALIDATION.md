@@ -8,9 +8,11 @@ records are in [`../evidence/`](../evidence/).
 ## What is measured
 
 Each skill carries a `tests/specification.yaml`: scenarios with a prompt, a pass checklist,
-and a ship bar. Scenarios marked *critical* must pass for the skill to ship. **92 scenarios
-across the seven skills** — `git-ops` 19, `review` 18, `architect` 14, `decide` 12,
-`plan` 12, `build` 9, `debug` 8.
+and a ship bar. Scenarios marked *critical* must pass for the skill to ship. **98 scenarios
+across the seven skills** — `review` 21, `git-ops` 19, `architect` 14, `decide` 12,
+`plan` 12, `debug` 11, `build` 9. The contract-cleanup round added seven: three governors
+for `debug`'s error rule and three for `review`'s simplicity hunt, each pinning a case the
+old absolute wrongly consumed, plus a `plan` skeleton item.
 
 Three kinds of scenario:
 
@@ -53,81 +55,64 @@ The effect is real and two-sided, measured on unchanged skill text: force placem
 from 3/3 to 0/3 — a right-sizing hatch losing to a system-prompt-weighted process. **Do not
 compute a delta across the epoch boundary.**
 
-Cells below are force-epoch unless marked †. † measured under pi ≤ 0.80.x's wrapped-prompt
-delivery; that skill's text has not changed since, so the cell stands. Only `decide` still
-carries that mark. Its kimi-k3 cell comes from the third-model probe — a full run of the same
-board, three reps, same judge, recorded as a probe because the scorecard was two-model when
-it ran. Publishing it as a third column is a change of scope, not of method.
+The remeasurement runs entirely in the force epoch, so the epoch boundary stops being
+something a reader has to track cell by cell — the first uniformly-measured board this
+project has had.
 
-‡ `review` S6 on DeepSeek was published as a failure under a checklist that could not decide
+`review` S6 on DeepSeek was published as a failure under a checklist that could not decide
 its own transcripts — five replies of one shape drew three PASS and two FAIL, and one of those
 failures rested on a fabricated Python precedence bug. A rewritten, decidable rubric re-grades
 it as a pass with all 18 judgments agreeing. The committed `results.yaml` still records the
 original 17/18, because `grade` preserves a run's recorded hashes and rewriting them would mark
 the run stale; the correction is carried in
 [`../evidence/s6-rubric-regrade-2026-08-05.md`](../evidence/s6-rubric-regrade-2026-08-05.md)
-until `review` is next re-run — which is now pending anyway, since its contract changed.
+until `review` is next re-run — which is the pending remeasurement, under a contract that
+has since changed again.
 
 ## Current scorecard
 
-| Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 | failing (rate) |
-|---|---|---|---|---|
-| architect | 13/14 · 93% | 13/14 · 93% | **14/14 · 100% SHIP** | B1 1/3 (DS) · D1 1/3 (GLM) · — |
-| build ◈ | — | — | — | re-measurement pending |
-| debug ◈ | — | — | — | re-measurement pending |
-| decide † | 11/12 · 92% | 11/12 · 92% | 11/12 · 92% | C1 1/3 · A5 1/3 · C1 0/3 |
-| git-ops ◇ | **19/19 · 100% SHIP** | — | — | — · not measured · not measured |
-| plan ◈ | — | — | — | re-measurement pending |
-| review ◈ | — | — | — | re-measurement pending |
+| Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
+|---|---|---|---|
+| architect | — | — | — |
+| build | — | — | — |
+| debug | — | — | — |
+| decide | — | — | — |
+| git-ops | — | — | — |
+| plan | — | — | — |
+| review | — | — | — |
 
-◈ **`plan`, `review`, `debug` and `build` are mid-change and publish nothing right now.**
-The workspace-ownership work gave them filesystem rules they did not have — debug and review
-experiment in a disposable worktree instead of the caller's checkout, build is named as the
-only durable writer, and "parallel-safe" no longer implies writers sharing a working tree.
-That is measured text. Every cell those four skills used to show describes a prompt that no
-longer exists, so the cells are blank rather than reassuring: a number attached to text with
-a different hash is the one thing this document exists to prevent.
+**The board is blank, on purpose, and only for as long as the remeasurement takes.**
 
-They are not blank indefinitely. Each pending cell is listed in
-[`unpublished-cells.txt`](unpublished-cells.txt), which CI reads — and an entry there that
-matches no staleness finding *fails the build*. So the list is a to-do that cannot rot: once
-a fresh run makes a cell current, the exemption stops matching and must be deleted. The
-remeasurement is deliberately deferred until the contract work is finished, because
-re-running the matrix after every sentence is how a measurement budget gets spent on
-sentences.
+Two rounds of contract work landed together. Workspace ownership gave `plan`, `review`,
+`debug` and `build` filesystem rules they did not have. Contract cleanup then replaced
+absolutes with governed rules across all seven skills: `debug`'s catch rule grew the three
+exceptions it was wrongly eating (pure code, transactions, operations with no durable
+record), `review` stopped treating one caller and one dependency as automatic deletions,
+`plan`'s walking skeleton now demands real seams instead of stubs, `decide` narrowed to
+engineering decisions and stopped opening with a brief, and `architect` and `decide` dropped
+handoff tokens that invited a workflow to route where nobody asked.
 
-◇ **`git-ops` is measured on DeepSeek only.** Its safety rules were rewritten in the v2.2.1
-patch — conditional upstream preflight, a named credential-incident exception to the
-protected-branch rewrite rule, redacted secret reporting, publication-aware wrong-branch
-recovery — and the board grew from 15 scenarios to 19. The three 15/15 · 100% SHIP cells that
-stood here measured the *previous* text and are **historical**, kept in
-[`RESULTS-MANIFEST.md`](RESULTS-MANIFEST.md) as the record of that text rather than a claim
-about what ships today. The new board was re-run on DeepSeek at three reps and scores
-**19/19 with flakiness 0.00 on all 57 rep-executions and no misfires** — the cleanest run of
-any skill on this board. GLM and kimi-k3 are deliberately blank: one model verifies a patch,
-it does not make a scorecard, and both are queued for the release remeasurement.
+All of that is measured text. Every cell that stood here described a prompt that no longer
+exists, and the one rule this document has is that **a number is never attached to text with
+a different hash**. Publishing the old figures beside the new prompts would be the exact
+failure the staleness gate was built to prevent — so they are gone, not greyed out.
 
-**There is no meaningful total right now, so none is given.** Three of seven skills carry
-current cells (`architect`, `decide`, `git-ops`, the last on one model), and the other four
-are mid-change. Summing what remains would produce a number whose movement tracked which
-skills happened to be measured rather than how good any of them are. The totals return with
-the remeasurement.
+What is not lost: the per-run history is intact in
+[`RESULTS-MANIFEST.md`](RESULTS-MANIFEST.md), and the red baselines never go stale (a naked
+model has no skill text to change), so lift recomputes for free once the boards are re-run.
+The last measured state was 78–100% per skill; a blank says the text moved, not that it got
+worse.
 
-What still reads off the table:
+Every pending cell is listed in [`unpublished-cells.txt`](unpublished-cells.txt), which CI
+reads — **and an entry there that matches no staleness finding fails the build.** The list
+is a to-do that cannot rot: the moment a fresh run makes a cell current, its exemption stops
+matching and must be deleted. The remeasurement cannot quietly skip a skill, and this table
+cannot quietly stay empty.
 
-- **`architect` ships on kimi-k3** and sits one boundary scenario short on both tuned models.
-  **`decide` ships on none** — it holds at 92% everywhere, failing exactly one boundary
-  scenario per model, and which one is not stable across models. **`git-ops` ships on
-  DeepSeek** at 19/19 after the safety patch.
-- **The untuned model still does best where it is measured.** kimi-k3 is the only model with a
-  perfect `architect` board. Whatever the framework is fitted to, it is not the two models it
-  was tuned against.
-- **A perfect board is not proof the text was always right.** `git-ops`'s 19/19 took four
-  measurement rounds, and three of the defects it found were regressions introduced while
-  fixing the previous one. The run records are in the manifest for exactly that reason.
-- **A blank cell is not a bad cell.** These four skills were last measured at 78–100%. The
-  blanks say the text moved, not that it got worse — and the honest response to "we changed
-  the prompt" is to stop quoting the old number, not to assume it survived.
+The batching is deliberate. The plan's own instruction is to make every semantic contract
+change first and then remeasure **once** — re-running a 92-scenario matrix after each edited
+sentence spends the measurement budget on sentences. That is also why this is the last
+text-changing round before the remeasurement.
 
 ## What the skills add
 

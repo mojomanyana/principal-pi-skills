@@ -16,15 +16,29 @@
 git-ops  glm-5p2   # v2.2.1 safety patch verified on DeepSeek only; retired by the release remeasurement (PR 7)
 git-ops  kimi-k3   # same — the old 15/15 probe measured text that no longer exists
 
-# --- Workspace-ownership change (PR 5). ---------------------------------------------
-# plan, review, debug and build gained filesystem-ownership rules: debug and review now
-# experiment in a disposable worktree instead of the caller's checkout, build is named as
-# the only durable writer, and "parallel-safe" no longer implies shared-cwd writers. That is
-# measured text, so every cell behind it now describes a prompt that no longer exists.
+# --- Contract cleanup: every skill is mid-change. -----------------------------------
+# Two rounds landed together. Workspace ownership gave plan/review/debug/build filesystem
+# rules (experiments in a disposable worktree; build the only durable writer). Contract
+# cleanup then replaced absolutes with governed rules across all seven: debug's catch rule
+# grew its three legitimate exceptions, review's simplicity hunt stopped treating one caller
+# and one dependency as automatic deletions, plan's skeleton demands real seams, decide
+# narrowed to engineering decisions and stopped opening with a brief, architect and decide
+# dropped their ceremonial handoff tokens.
+#
+# So the whole board is stale at once. That is the deliberate shape of it: the plan batches
+# every semantic edit before ONE remeasurement, because re-running the matrix after each
+# sentence spends the budget on sentences.
 #
 # These are NOT permanent exemptions. They are the remeasurement to-do list, and CI enforces
 # that: the moment a fresh run makes one of these cells current, its entry here matches
-# nothing and the build fails until the line is deleted. PR 7 cannot quietly skip a skill.
+# nothing and the build fails until the line is deleted. The remeasurement cannot quietly
+# skip a skill.
+architect deepseek-v4-pro
+architect glm-5p2
+architect kimi-k3
+decide   deepseek-v4-pro
+decide   glm-5p2
+decide   kimi-k3
 plan     deepseek-v4-pro
 plan     glm-5p2
 plan     kimi-k3
