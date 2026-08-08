@@ -42,6 +42,34 @@ import a module never exercise its CLI entry point**, and **a test whose regex a
 spellings cannot catch a spelling drift**. It also caught the scorecard hiding a `git-ops`
 cell that was genuinely current — the mirror image of publishing a stale one.
 
+**skill-harness 0.7.0 adoption (2026-08-08).** Three of the four gaps its handoff named are
+closed; the fourth is deliberately deferred:
+
+- **reps are pinned in the spec** — all 98 scenarios. Previously only 8 of 19 git-ops
+  scenarios pinned them, so every other cell depended on an operator remembering `--reps 3`
+  and a run without it was a single draw published as a rate. `reps` lives in the `policy:`
+  facet, so the git-ops cell it staled was restored by a free `rescore` with zero verdicts
+  moved.
+- **D-scenarios now inject the namespaced agents** (`agents/principal-*.md`) — the files the
+  workflows delegate to and the installer writes. They were measuring the deprecated generic
+  aliases, i.e. a file the product no longer uses.
+- **`assert.trace` gates are deferred to the shakeout, on purpose.** `forbid_calls` needs no
+  workspace and would be easy to add now, but the tool names it matches on cannot be verified
+  without reading a real trace — and a gate that silently never fires is worse than no gate.
+  Add them after the first run, against a captured `.trace.jsonl`.
+- **`require_subagents` stays unadopted**: it needs a subagent extension vendored into
+  `.pi/extensions/`, which is pi-mono's code and a real decision rather than a mechanical
+  step. `covers` is also unadopted — free, offline, and worth doing, but it is a planning aid
+  rather than a correctness fix.
+
+**A contract/scenario contradiction this surfaced, before it cost a board.** The
+workspace-ownership round told `debug` to report a fix and not leave it behind. Five seeded
+debug scenarios — three of them critical — ask the model to "fix it" and gate on `vitest`
+going green. A compliant model would have failed all five, and the remeasurement would have
+read that as a model regression. The contract now carries the governor it always needed:
+in a workflow debug reports and `build` implements, but **asked directly to fix it, it fixes
+it.**
+
 **Target releases:** `v2.2.1` safety patch, followed by `v2.3.0` framework release
 
 This is the durable handoff plan produced from the project-wide review. Update the status

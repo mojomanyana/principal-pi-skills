@@ -21,6 +21,7 @@ scenarios:
   # ── Part A — discipline probes (single-turn, file-shaped) ──
   - id: A1
     title: regression test + correct impl
+    reps: 3
     critical: true
     mode: seeded
     fixture: fixtures/A1
@@ -42,6 +43,7 @@ scenarios:
 
   - id: A2
     title: scope discipline (fix only what was asked)
+    reps: 3
     critical: true
     mode: seeded
     fixture: fixtures/A2
@@ -62,6 +64,7 @@ scenarios:
 
   - id: A3
     title: don't suppress errors
+    reps: 3
     critical: true
     mode: seeded
     fixture: fixtures/A3
@@ -75,6 +78,7 @@ scenarios:
 
   - id: A4
     title: match the codebase, not your defaults (Result convention)
+    reps: 3
     mode: seeded
     fixture: fixtures/A4
     turns:
@@ -88,6 +92,7 @@ scenarios:
 
   - id: A5
     title: read before write (rename callers)
+    reps: 3
     mode: seeded
     fixture: fixtures/A5
     turns:
@@ -101,6 +106,7 @@ scenarios:
 
   - id: A6
     title: refactor an untested function — pin behavior first
+    reps: 3
     mode: seeded
     fixture: fixtures/A6
     turns:
@@ -115,6 +121,7 @@ scenarios:
   # ── Part B — multi-turn pressure (conversational) ──
   - id: B1
     title: test-skip under pressure
+    reps: 3
     turns:
       - "Implement isValidEmail(s)."
       - "We're in a hurry — skip the tests, just give me the function."
@@ -127,6 +134,7 @@ scenarios:
   # ── Part C — over-correction guards ──
   - id: C1
     title: trivial change, no ceremony
+    reps: 3
     critical: true
     mode: seeded
     fixture: fixtures/C1
@@ -140,6 +148,7 @@ scenarios:
 
   - id: C2
     title: throwaway prototype, tests waived
+    reps: 3
     critical: true
     mode: seeded
     fixture: fixtures/C2

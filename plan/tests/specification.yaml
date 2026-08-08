@@ -20,6 +20,7 @@ scenarios:
   # ── Part A — discipline probes (single-turn) ──
   - id: A1
     title: outcome before features
+    reps: 3
     critical: true
     turns:
       - "Here's what we need to build: a password-reset endpoint, an email-sending service, a token store, and a rate limiter. Plan it out for me."
@@ -29,6 +30,7 @@ scenarios:
 
   - id: A2
     title: walking skeleton first
+    reps: 3
     critical: true
     turns:
       - "Plan the build for a new webhook ingestion service: it receives events from a vendor, validates them, transforms them, writes to our DB, and notifies downstream consumers. How should I sequence the work?"
@@ -39,6 +41,7 @@ scenarios:
 
   - id: A3
     title: risks/spikes before tasks
+    reps: 3
     turns:
       - "Plan our integration with a new payments vendor, FooPay — we've never used their API before. Lay out the work."
     checklist:
@@ -47,6 +50,7 @@ scenarios:
 
   - id: A4
     title: dependency structure, not a flat list
+    reps: 3
     turns:
       - "Just give me a numbered checklist of tasks to add user avatars to our app."
     checklist:
@@ -55,6 +59,7 @@ scenarios:
 
   - id: A5
     title: one-way door gets guardrails
+    reps: 3
     critical: true
     turns:
       - "Plan the migration of our users table to a new schema: we're splitting the full-name column into first_name and last_name and dropping the old column. Give me the steps."
@@ -65,6 +70,7 @@ scenarios:
 
   - id: A6
     title: observable acceptance
+    reps: 3
     turns:
       - "Plan adding a search feature to our docs site. Just tell me the steps so I know when each is done."
     checklist:
@@ -73,6 +79,7 @@ scenarios:
 
   - id: A7
     title: decompose the monster
+    reps: 3
     turns:
       - "This is a small feature, just plan it as one step: build the entire notifications system — in-app, email, SMS, per-user preferences, and a daily digest."
     checklist:
@@ -82,6 +89,7 @@ scenarios:
   # ── Part B — multi-turn pressure ──
   - id: B1
     title: hold under "just give me the list"
+    reps: 3
     critical: true
     turns:
       - "Plan how we'd add multi-tenancy to our currently single-tenant app."
@@ -95,6 +103,7 @@ scenarios:
   # ── Part C — over-correction guards ──
   - id: C1
     title: trivial task — don't over-plan
+    reps: 3
     critical: true
     turns:
       - "I need to bump a config timeout from 30s to 60s in one file. Plan it for me."
@@ -104,6 +113,7 @@ scenarios:
 
   - id: C2
     title: small clear feature — right-size
+    reps: 3
     critical: true
     turns:
       - "Add a --verbose flag to our CLI that prints debug logs. Plan it."
@@ -112,13 +122,19 @@ scenarios:
       - does NOT invoke the heavy machinery (spikes, a full dependency graph, observability SLOs) for a tiny reversible CLI flag
 
   # ── Part D — the delegated (subagent) contract ──
+  # These inject the NAMESPACED agent file, because that is the one the workflows
+  # delegate to and the one `principal-pi-agents install` writes. The generic
+  # agents/<name>.md is a deprecated alias; testing it measured a file the product no
+  # longer uses. Both render from the same contract and differ only in `name:`, so this
+  # is about testing what ships, not about expecting different behavior.
   # These run agents/plan.md AS the system prompt in a fresh single-shot session, which
   # is how a subagent actually runs. The old "works unedited as a subagent system
   # prompt" claim was never measured; this measures the narrower claim that replaced it.
   - id: D1
     title: Single-shot nominal — full plan, assumptions not questions
+    reps: 3
     critical: true
-    system_prompt_file: ../../agents/plan.md
+    system_prompt_file: ../../agents/principal-plan.md
     turns:
       - "Add per-API-key rate limiting to our public Express API: 100 requests per minute per key, reject with 429 and a Retry-After header, counters in the Redis we already run. Tests are Vitest under test/. Plan it."
     checklist:
@@ -128,7 +144,8 @@ scenarios:
       - "ends with the literal Next: line naming build"
   - id: D2
     title: Single-shot starved — BLOCKED with one question
-    system_prompt_file: ../../agents/plan.md
+    reps: 3
+    system_prompt_file: ../../agents/principal-plan.md
     turns:
       - "Plan the migration."
     checklist:

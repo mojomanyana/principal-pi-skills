@@ -20,6 +20,7 @@ critical: [A1, A2, A3, C1, D1]
 scenarios:
   - id: A1
     title: diagnose the cause (accumulator overwrite)
+    reps: 3
     critical: true
     mode: seeded
     fixture: fixtures/A1
@@ -33,6 +34,7 @@ scenarios:
 
   - id: A2
     title: cause vs symptom (undefined from a missed lookup)
+    reps: 3
     critical: true
     mode: seeded
     fixture: fixtures/A2
@@ -46,6 +48,7 @@ scenarios:
 
   - id: A3
     title: don't swallow (gateway error crashes request)
+    reps: 3
     critical: true
     mode: seeded
     fixture: fixtures/A3
@@ -64,6 +67,7 @@ scenarios:
   # without its limits.
   - id: A5
     title: "Pure parser — a typed error without logging is correct"
+    reps: 3
     turns:
       - "Our `parseDuration(input: string)` helper in a shared utils package throws a raw TypeError on malformed input and callers get a confusing stack. It's a pure function, no I/O, used by a CLI and by a server. Fix the error handling."
     checklist:
@@ -72,6 +76,7 @@ scenarios:
 
   - id: A6
     title: "Transaction — roll back and rethrow is complete"
+    reps: 3
     turns:
       - "transferFunds() opens a DB transaction, debits one account and credits another. When the credit fails, we get a partial transfer. Fix it."
     checklist:
@@ -80,6 +85,7 @@ scenarios:
 
   - id: A7
     title: "Boundary logging — sanitized, and logged once"
+    reps: 3
     turns:
       - "Our HTTP handler catches upstream errors from the payments provider and does `log.error(err)` in the service, again in the repository, and again in the handler. The logs are enormous and support says they contain card numbers and the raw Authorization header. Fix it."
     checklist:
@@ -89,6 +95,7 @@ scenarios:
 
   - id: A4
     title: diagnose the race (concurrent lost update)
+    reps: 3
     mode: seeded
     fixture: fixtures/A4
     turns:
@@ -102,6 +109,7 @@ scenarios:
   # ── Part B — multi-turn pressure (conversational) ──
   - id: B1
     title: knowing when to stop (flaky CI)
+    reps: 3
     turns:
       - "A flaky integration test fails about 30% of the time in CI but never on my machine. Help me fix it."
       - "I already tried adding sleeps and bumping the timeouts — still flaky."
@@ -114,6 +122,7 @@ scenarios:
   # ── Part C — over-process governor ──
   - id: C1
     title: over-process governor (trivial one-liner)
+    reps: 3
     critical: true
     mode: seeded
     fixture: fixtures/C1
@@ -126,17 +135,23 @@ scenarios:
       - does NOT run a heavy reproduce/isolate/hypothesize ceremony on a trivial, obvious bug
 
   # ── Part D — the delegated (subagent) contract ──
+  # These inject the NAMESPACED agent file, because that is the one the workflows
+  # delegate to and the one `principal-pi-agents install` writes. The generic
+  # agents/<name>.md is a deprecated alias; testing it measured a file the product no
+  # longer uses. Both render from the same contract and differ only in `name:`, so this
+  # is about testing what ships, not about expecting different behavior.
   # agents/debug.md AS the system prompt, single-shot — the form used to keep a noisy
   # reproduction loop out of the parent context.
   - id: D1
     title: Single-shot nominal — note filled to where it verifiably got
+    reps: 3
     # This agent has the full toolset, so it may work across several messages — but a
     # delegating parent receives only the FINAL one. The note therefore has to be IN
     # that final message. The scenario is seeded (cart.ts + passing tests for non-empty
     # carts) so reproduction is one command away — an empty cwd made weak models
     # armchair-guess instead of reproducing.
     critical: true
-    system_prompt_file: ../../agents/debug.md
+    system_prompt_file: ../../agents/principal-debug.md
     env:
       workspace: "fixture:fixtures/D1"
     turns:
@@ -148,7 +163,8 @@ scenarios:
       - "states assumptions rather than asking the user anything — no question directed at the user"
   - id: D2
     title: Single-shot starved — NOT REPRODUCED, not a speculative fix
-    system_prompt_file: ../../agents/debug.md
+    reps: 3
+    system_prompt_file: ../../agents/principal-debug.md
     turns:
       - "Checkout is broken in production sometimes. Fix it."
     checklist:

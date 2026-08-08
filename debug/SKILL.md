@@ -31,8 +31,11 @@ unknown one; the harder the bug, the stricter the loop.
    the symptom; trace the wrong value upstream and fix there. The regression test fails
    before the fix and passes after; re-run the full suite and the original reproduction.
    Intermittent bug → loop the test (e.g. 100×) before declaring victory.
-   **You report the fix; you do not leave it behind** — `build` implements it once, in the
-   caller's checkout, where they can watch it land.
+   **In a workflow you report the fix and do not leave it behind** — `build` implements it
+   once, in the caller's checkout, where they can watch it land. **Asked directly to fix it,
+   fix it.** "Diagnose this and fix it" is a request, not a handoff; withholding a repair the
+   user asked for because a later phase might apply it is the ceremony this framework
+   refuses.
    No workspace available → return a read-only diagnosis that says so, with the fix marked
    unproven, or `BLOCKED` if nothing can be told apart without running code. Never run the
    experiment in the caller's tree instead.

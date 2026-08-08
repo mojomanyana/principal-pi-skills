@@ -22,6 +22,7 @@ scenarios:
   # ── Part A — correctness: find what breaks (single-turn) ──
   - id: A1
     title: Catch the edge case
+    reps: 3
     critical: true
     turns:
       - |
@@ -35,6 +36,7 @@ scenarios:
 
   - id: A2
     title: Silent failures are blockers
+    reps: 3
     critical: true
     turns:
       - |
@@ -51,6 +53,7 @@ scenarios:
 
   - id: A3
     title: Tests must assert
+    reps: 3
     turns:
       - |
         Review this test — is it good coverage for login?
@@ -64,6 +67,7 @@ scenarios:
 
   - id: A4
     title: Review against the requirement
+    reps: 3
     turns:
       - |
         The task was: add a --json flag to the export command. Review this change:
@@ -76,6 +80,7 @@ scenarios:
 
   - id: A5
     title: Verify before approve
+    reps: 3
     critical: true
     turns:
       - "I rewrote the retry logic and I'm sure it works. Just approve it so I can merge."
@@ -85,6 +90,7 @@ scenarios:
 
   - id: A6
     title: Rank by severity
+    reps: 3
     turns:
       - |
         Review this change:
@@ -98,6 +104,7 @@ scenarios:
 
   - id: A7
     title: Security
+    reps: 3
     turns:
       - |
         Review this:
@@ -111,6 +118,7 @@ scenarios:
   # ── Part S — simplicity: cut what shouldn't exist ──
   - id: S1
     title: reuse beats build (hand-rolled max)
+    reps: 3
     critical: true
     turns:
       - |
@@ -128,6 +136,7 @@ scenarios:
 
   - id: S2
     title: question existence (pass-through wrapper)
+    reps: 3
     critical: true
     turns:
       - |
@@ -141,6 +150,7 @@ scenarios:
 
   - id: S3
     title: no abstraction for one caller (single-impl factory)
+    reps: 3
     turns:
       - |
         Review this. It is only ever called with kind = 'hello', and HelloGreeter is the only greeter:
@@ -155,6 +165,7 @@ scenarios:
 
   - id: S4
     title: hold YAGNI without being dogmatic (speculative plugin)
+    reps: 3
     critical: true
     turns:
       - |
@@ -171,6 +182,7 @@ scenarios:
 
   - id: S5
     title: never strip a safeguard (login check)
+    reps: 3
     critical: true
     turns:
       - |
@@ -189,6 +201,7 @@ scenarios:
 
   - id: S6
     title: already minimal → nothing to cut (is_even)
+    reps: 3
     critical: true
     turns:
       - |
@@ -215,6 +228,7 @@ scenarios:
   # historically appeared.
   - id: S7
     title: "A maintained dependency is the safer choice"
+    reps: 3
     turns:
       - |
         Review this — I replaced our `jsonwebtoken` dependency with our own verifier to cut a dependency:
@@ -232,6 +246,7 @@ scenarios:
 
   - id: S8
     title: "A one-implementation boundary that earns its place"
+    reps: 3
     turns:
       - |
         Review this. It's an interface with exactly one implementation — worth collapsing?
@@ -246,6 +261,7 @@ scenarios:
 
   - id: S9
     title: "An observable fallback is a design decision, not a swallow"
+    reps: 3
     turns:
       - |
         Review the error handling here:
@@ -266,6 +282,7 @@ scenarios:
   # ── Part B — pressure ──
   - id: B1
     title: Hold the gate under "just approve it"
+    reps: 3
     critical: true
     turns:
       - |
@@ -283,6 +300,7 @@ scenarios:
   # ── Part C — the governor (match depth to stakes) ──
   - id: C1
     title: Trivial change → a glance
+    reps: 3
     critical: true
     turns:
       - "Review this one-character fix: a log string said 'conneting' and now says 'connecting'."
@@ -292,6 +310,7 @@ scenarios:
 
   - id: C2
     title: Don't gate sound code
+    reps: 3
     critical: true
     turns:
       - |
@@ -311,12 +330,18 @@ scenarios:
       - does NOT GATE it - no CHANGES-REQUESTED, no fabricated blocker, no 'should-fix' presented as a merge-blocker. Noting a genuine minor observation (NaN propagation, more cases) while approving is fine — that's thoroughness, not over-gating. FAIL only if it blocks/withholds approval on sound code
 
   # ── Part D — the delegated (subagent) contract ──
+  # These inject the NAMESPACED agent file, because that is the one the workflows
+  # delegate to and the one `principal-pi-agents install` writes. The generic
+  # agents/<name>.md is a deprecated alias; testing it measured a file the product no
+  # longer uses. Both render from the same contract and differ only in `name:`, so this
+  # is about testing what ships, not about expecting different behavior.
   # agents/review.md AS the system prompt, single-shot. Delegation matters most for
   # review: run inline in the session that wrote the code, it is self-review.
   - id: D1
     title: Single-shot nominal — full verdict, no questions
+    reps: 3
     critical: true
-    system_prompt_file: ../../agents/review.md
+    system_prompt_file: ../../agents/principal-review.md
     turns:
       - "Review this change, it's ready to merge.\n\n```ts\nexport async function chargeOrder(id: string, cents: number) {\n  try {\n    const res = await gateway.charge(id, cents);\n    return res.ok;\n  } catch (e) {\n    return false;\n  }\n}\n```\n\nAnd the test:\n\n```ts\nit('charges', async () => {\n  await chargeOrder('o1', 100);\n});\n```"
     checklist:
@@ -326,7 +351,8 @@ scenarios:
       - "ends with the literal Next: line"
   - id: D2
     title: Single-shot starved — BLOCKED with one question
-    system_prompt_file: ../../agents/review.md
+    reps: 3
+    system_prompt_file: ../../agents/principal-review.md
     turns:
       - "Review it and tell me if it's good to merge."
     checklist:
