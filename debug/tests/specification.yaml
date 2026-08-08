@@ -20,6 +20,7 @@ critical: [A1, A2, A3, C1, D1]
 scenarios:
   - id: A1
     title: diagnose the cause (accumulator overwrite)
+    covers: ["../SKILL.md#the-loop"]
     reps: 3
     critical: true
     mode: seeded
@@ -34,6 +35,7 @@ scenarios:
 
   - id: A2
     title: cause vs symptom (undefined from a missed lookup)
+    covers: ["../SKILL.md#the-loop"]
     reps: 3
     critical: true
     mode: seeded
@@ -48,6 +50,7 @@ scenarios:
 
   - id: A3
     title: don't swallow (gateway error crashes request)
+    covers: ["../SKILL.md#error-handling-rule"]
     reps: 3
     critical: true
     mode: seeded
@@ -67,24 +70,40 @@ scenarios:
   # without its limits.
   - id: A5
     title: "Pure parser — a typed error without logging is correct"
+    covers: ["../SKILL.md#error-handling-rule"]
     reps: 3
+    # Seeded, like A1-A4. The first draft described the code in prose and handed the model an
+    # empty workspace, so a contract-following model correctly answered NOT REPRODUCED —
+    # debug's loop starts at reproduce. Grading that as failure measured the scenario, not the
+    # skill. If a checklist asserts on a fix, ship the code to fix.
+    mode: seeded
+    fixture: fixtures/A5
+    assert:
+      vitest: true
     turns:
-      - "Our `parseDuration(input: string)` helper in a shared utils package throws a raw TypeError on malformed input and callers get a confusing stack. It's a pure function, no I/O, used by a CLI and by a server. Fix the error handling."
+      - "parseDuration in duration.ts throws a raw TypeError on malformed input and callers get a confusing stack — the test in duration.test.ts is red. It is a pure function, no I/O, used by a CLI and by a server. Fix the error handling."
     checklist:
       - "keeps the failure observable to the caller — a typed/domain error (ParseError, InvalidDurationError) or a checked result (Result/Either/ok:false), whichever fits the codebase"
       - "does NOT require the pure helper to log, and does NOT invent a status field or persistence for it. A library that logs steals the caller's decision about where output goes; PASS if it explicitly leaves logging to the boundary. FAIL if it demands a log line or a markFailed inside the parser as a condition of the fix"
 
   - id: A6
     title: "Transaction — roll back and rethrow is complete"
+    covers: ["../SKILL.md#error-handling-rule"]
     reps: 3
+    # Seeded for the same reason as A5.
+    mode: seeded
+    fixture: fixtures/A6
+    assert:
+      vitest: true
     turns:
-      - "transferFunds() opens a DB transaction, debits one account and credits another. When the credit fails, we get a partial transfer. Fix it."
+      - "transferFunds() in transfer.ts debits one account and credits another inside a transaction. When the credit fails we get a partial transfer — the test in transfer.test.ts is red. Fix it."
     checklist:
       - "rolls back the transaction so no partial write survives, and lets the failure reach the caller (rethrow, or a checked failure result)"
       - "treats rollback + rethrow as sufficient — does NOT additionally demand a failed-status row or a marker record for a transaction that has been rolled back. There is no durable record left to mark; requiring one is the over-application this scenario exists to catch"
 
   - id: A7
     title: "Boundary logging — sanitized, and logged once"
+    covers: ["../SKILL.md#error-handling-rule"]
     reps: 3
     turns:
       - "Our HTTP handler catches upstream errors from the payments provider and does `log.error(err)` in the service, again in the repository, and again in the handler. The logs are enormous and support says they contain card numbers and the raw Authorization header. Fix it."
@@ -95,6 +114,7 @@ scenarios:
 
   - id: A4
     title: diagnose the race (concurrent lost update)
+    covers: ["../SKILL.md#the-loop"]
     reps: 3
     mode: seeded
     fixture: fixtures/A4
@@ -109,6 +129,7 @@ scenarios:
   # ── Part B — multi-turn pressure (conversational) ──
   - id: B1
     title: knowing when to stop (flaky CI)
+    covers: ["../SKILL.md#when-stuck-1-hour-or-the-user-says-still-failing"]
     reps: 3
     turns:
       - "A flaky integration test fails about 30% of the time in CI but never on my machine. Help me fix it."
@@ -122,6 +143,7 @@ scenarios:
   # ── Part C — over-process governor ──
   - id: C1
     title: over-process governor (trivial one-liner)
+    covers: ["../SKILL.md#right-sizing"]
     reps: 3
     critical: true
     mode: seeded
@@ -144,6 +166,7 @@ scenarios:
   # reproduction loop out of the parent context.
   - id: D1
     title: Single-shot nominal — note filled to where it verifiably got
+    covers: ["../SKILL.md#output-debugging-note", "../SKILL.md#delegated-mode-running-as-a-subagent"]
     reps: 3
     # This agent has the full toolset, so it may work across several messages — but a
     # delegating parent receives only the FINAL one. The note therefore has to be IN
@@ -163,6 +186,7 @@ scenarios:
       - "states assumptions rather than asking the user anything — no question directed at the user"
   - id: D2
     title: Single-shot starved — NOT REPRODUCED, not a speculative fix
+    covers: ["../SKILL.md#output-debugging-note", "../SKILL.md#delegated-mode-running-as-a-subagent"]
     reps: 3
     system_prompt_file: ../../agents/principal-debug.md
     turns:

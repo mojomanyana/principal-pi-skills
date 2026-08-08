@@ -70,6 +70,29 @@ read that as a model regression. The contract now carries the governor it always
 in a workflow debug reports and `build` implements, but **asked directly to fix it, it fixes
 it.**
 
+**Shakeout before the full board (2026-08-08/09, DeepSeek, 11 scenarios).** It paid for
+itself: of five cells that came back below 3/3, only two were about the skills.
+
+- **debug A5/A6 were my defect.** They described code in prose and handed the model an empty
+  workspace, so a contract-following model answered `NOT REPRODUCED` — debug's loop starts at
+  reproduce. Seeded with real fixtures (verified red before the fix): **A6 → 3/3**, A5 → 2/3.
+- **plan A2 was an undecidable rubric, not a skill gap.** The failing reps named every seam
+  but made transform an identity passthrough; the rubric called that "skipped" while the
+  contract calls it "primitive, not fake". Rewritten to fail only ABSENT or BYPASSED seams,
+  and the SAME three transcripts re-judged **1/3 → 3/3, flakiness 0.00** — free, judge-only,
+  no subject tokens. A speculative template-placeholder edit made first did NOT move the
+  number and was reverted.
+- **Two are real boundaries, to publish at rate:** review S7 2/3 (model patched a hand-rolled
+  JWT verifier instead of keeping the library) and debug A5 2/3 (reported the fix without
+  applying it — the workflow-vs-direct tension).
+- **Clean at 3/3:** debug A7, debug D1/D2 (namespaced retarget works), review S8/S9.
+
+**A process failure worth recording.** The first A5/A6 seeding silently did not apply — the
+spec had gained `covers:` lines between read and write, the exact-match replace matched
+nothing, and it was reported as fixed and "verified" against an unchanged file. Every
+spec/contract edit in this repo should assert its match before writing, the way the later
+ones do.
+
 **Target releases:** `v2.2.1` safety patch, followed by `v2.3.0` framework release
 
 This is the durable handoff plan produced from the project-wide review. Update the status

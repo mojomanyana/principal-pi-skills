@@ -22,6 +22,7 @@ scenarios:
   # ── Part A — correctness: find what breaks (single-turn) ──
   - id: A1
     title: Catch the edge case
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     critical: true
     turns:
@@ -36,6 +37,7 @@ scenarios:
 
   - id: A2
     title: Silent failures are blockers
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     critical: true
     turns:
@@ -53,6 +55,7 @@ scenarios:
 
   - id: A3
     title: Tests must assert
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     turns:
       - |
@@ -67,6 +70,7 @@ scenarios:
 
   - id: A4
     title: Review against the requirement
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     turns:
       - |
@@ -80,6 +84,7 @@ scenarios:
 
   - id: A5
     title: Verify before approve
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     critical: true
     turns:
@@ -90,6 +95,7 @@ scenarios:
 
   - id: A6
     title: Rank by severity
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     turns:
       - |
@@ -104,6 +110,7 @@ scenarios:
 
   - id: A7
     title: Security
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     turns:
       - |
@@ -118,6 +125,7 @@ scenarios:
   # ── Part S — simplicity: cut what shouldn't exist ──
   - id: S1
     title: reuse beats build (hand-rolled max)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     critical: true
     turns:
@@ -136,6 +144,7 @@ scenarios:
 
   - id: S2
     title: question existence (pass-through wrapper)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     critical: true
     turns:
@@ -150,6 +159,7 @@ scenarios:
 
   - id: S3
     title: no abstraction for one caller (single-impl factory)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     turns:
       - |
@@ -165,6 +175,7 @@ scenarios:
 
   - id: S4
     title: hold YAGNI without being dogmatic (speculative plugin)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     critical: true
     turns:
@@ -182,6 +193,7 @@ scenarios:
 
   - id: S5
     title: never strip a safeguard (login check)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     critical: true
     turns:
@@ -201,6 +213,7 @@ scenarios:
 
   - id: S6
     title: already minimal → nothing to cut (is_even)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     critical: true
     turns:
@@ -228,6 +241,7 @@ scenarios:
   # historically appeared.
   - id: S7
     title: "A maintained dependency is the safer choice"
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     turns:
       - |
@@ -246,6 +260,7 @@ scenarios:
 
   - id: S8
     title: "A one-implementation boundary that earns its place"
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     turns:
       - |
@@ -261,6 +276,7 @@ scenarios:
 
   - id: S9
     title: "An observable fallback is a design decision, not a swallow"
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
     reps: 3
     turns:
       - |
@@ -282,6 +298,7 @@ scenarios:
   # ── Part B — pressure ──
   - id: B1
     title: Hold the gate under "just approve it"
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff", "../SKILL.md#output-review-verdict"]
     reps: 3
     critical: true
     turns:
@@ -300,6 +317,7 @@ scenarios:
   # ── Part C — the governor (match depth to stakes) ──
   - id: C1
     title: Trivial change → a glance
+    covers: ["../SKILL.md#right-sizing"]
     reps: 3
     critical: true
     turns:
@@ -310,6 +328,7 @@ scenarios:
 
   - id: C2
     title: Don't gate sound code
+    covers: ["../SKILL.md#output-review-verdict"]
     reps: 3
     critical: true
     turns:
@@ -339,6 +358,7 @@ scenarios:
   # review: run inline in the session that wrote the code, it is self-review.
   - id: D1
     title: Single-shot nominal — full verdict, no questions
+    covers: ["../SKILL.md#output-review-verdict", "../SKILL.md#delegated-mode-running-as-a-subagent"]
     reps: 3
     critical: true
     system_prompt_file: ../../agents/principal-review.md
@@ -351,6 +371,7 @@ scenarios:
       - "ends with the literal Next: line"
   - id: D2
     title: Single-shot starved — BLOCKED with one question
+    covers: ["../SKILL.md#output-blocked-only-when-you-cannot-review-at-all", "../SKILL.md#delegated-mode-running-as-a-subagent"]
     reps: 3
     system_prompt_file: ../../agents/principal-review.md
     turns:

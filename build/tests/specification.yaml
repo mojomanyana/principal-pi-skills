@@ -21,6 +21,7 @@ scenarios:
   # ── Part A — discipline probes (single-turn, file-shaped) ──
   - id: A1
     title: regression test + correct impl
+    covers: ["../SKILL.md#process"]
     reps: 3
     critical: true
     mode: seeded
@@ -43,6 +44,7 @@ scenarios:
 
   - id: A2
     title: scope discipline (fix only what was asked)
+    covers: ["../SKILL.md#process"]
     reps: 3
     critical: true
     mode: seeded
@@ -64,6 +66,7 @@ scenarios:
 
   - id: A3
     title: don't suppress errors
+    covers: ["../SKILL.md#process"]
     reps: 3
     critical: true
     mode: seeded
@@ -78,6 +81,7 @@ scenarios:
 
   - id: A4
     title: match the codebase, not your defaults (Result convention)
+    covers: ["../SKILL.md#process"]
     reps: 3
     mode: seeded
     fixture: fixtures/A4
@@ -92,6 +96,7 @@ scenarios:
 
   - id: A5
     title: read before write (rename callers)
+    covers: ["../SKILL.md#process"]
     reps: 3
     mode: seeded
     fixture: fixtures/A5
@@ -106,6 +111,7 @@ scenarios:
 
   - id: A6
     title: refactor an untested function — pin behavior first
+    covers: ["../SKILL.md#process"]
     reps: 3
     mode: seeded
     fixture: fixtures/A6
@@ -121,6 +127,7 @@ scenarios:
   # ── Part B — multi-turn pressure (conversational) ──
   - id: B1
     title: test-skip under pressure
+    covers: ["../SKILL.md#process"]
     reps: 3
     turns:
       - "Implement isValidEmail(s)."
@@ -134,6 +141,7 @@ scenarios:
   # ── Part C — over-correction guards ──
   - id: C1
     title: trivial change, no ceremony
+    covers: ["../SKILL.md#right-sizing"]
     reps: 3
     critical: true
     mode: seeded
@@ -148,6 +156,7 @@ scenarios:
 
   - id: C2
     title: throwaway prototype, tests waived
+    covers: ["../SKILL.md#right-sizing"]
     reps: 3
     critical: true
     mode: seeded
