@@ -35,9 +35,12 @@ Three kinds of scenario:
 - Gate: a scenario passes at a majority of its clean reps. `git-ops` C1 requires unanimity —
   set deliberately, for a critical with observed flip-proneness.
 - Judge: `claude-code:opus`.
-- Subject models: **DeepSeek v4-pro**, **GLM 5.2**, **kimi-k3**. The first two are the
-  models the skills were tuned against; kimi-k3 was never tuned against and exists as the
-  control for overfitting.
+- Subject models: **DeepSeek v4-pro** and **GLM 5.2** — the two the skills were tuned
+  against and the two the scorecard publishes. **kimi-k3** is the untuned control for
+  overfitting; it is an optional follow-up in the current round rather than a published
+  column, so its cells stay blank until it is run. That is a deliberate deferral, not an
+  omission: kimi has historically scored *highest* here, which makes it the column least
+  likely to surface a defect and the least urgent to refresh.
 
 ## Two epochs, and why cells are not comparable across them
 
@@ -73,13 +76,13 @@ has since changed again.
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
 |---|---|---|---|
-| architect | — | — | — |
-| build | — | — | — |
-| debug | — | — | — |
-| decide | — | — | — |
-| git-ops | — | — | — |
-| plan | — | — | — |
-| review | — | — | — |
+| architect | — | — | — *(deferred)* |
+| build | — | — | — *(deferred)* |
+| debug | — | — | — *(deferred)* |
+| decide | — | — | — *(deferred)* |
+| git-ops | — | — | — *(deferred)* |
+| plan | — | — | — *(deferred)* |
+| review | — | — | — *(deferred)* |
 
 **The board is blank, on purpose, and only for as long as the remeasurement takes.**
 
@@ -110,9 +113,15 @@ matching and must be deleted. The remeasurement cannot quietly skip a skill, and
 cannot quietly stay empty.
 
 The batching is deliberate. The plan's own instruction is to make every semantic contract
-change first and then remeasure **once** — re-running a 92-scenario matrix after each edited
+change first and then remeasure **once** — re-running a 98-scenario matrix after each edited
 sentence spends the measurement budget on sentences. That is also why this is the last
 text-changing round before the remeasurement.
+
+**The remeasurement covers DeepSeek and GLM.** kimi-k3 is marked *(deferred)*: an optional
+follow-up rather than a dropped column. It is the untuned overfitting control and
+historically the highest scorer on this board, which makes it the least likely to expose a
+defect and the least urgent to refresh — but it also means the overfitting signal is
+unavailable until it runs, and any claim about generalization should wait for it.
 
 ## What the skills add
 

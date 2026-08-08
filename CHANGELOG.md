@@ -6,7 +6,18 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
-## [Unreleased]
+## [2.3.0] — unreleased
+
+The release that made the installed product real: namespaced commands and agents, generated
+contracts, filesystem isolation between phases, and a contract cleanup that replaced
+absolutes with governed rules.
+
+**The scorecard is blank in this release.** Every skill's text changed, so no cell survives —
+a number is never attached to text with a different hash. The remeasurement is pending and
+covers DeepSeek and GLM; kimi-k3 is an optional follow-up. Until it lands, this release
+carries verified *structure* (98 scenarios, 65 static tests, a clean-home install test) and
+no verified *scores* beyond `git-ops`'s 19/19 on DeepSeek, which is itself pre-cleanup.
+Treat it accordingly.
 
 **Added** — the steering digest, dogfooded. `/feature` and `/bugfix` both driven end to end
 against a repo carrying a planted out-of-scope bug; the closing digest surfaced it as a
@@ -140,7 +151,13 @@ which can be true while they disagree; and once the contracts became generated i
 failed correct skill-only edits, the sort of false positive that gets routed around with an
 exempt label until the gate stops being read.
 
-## [2.2.1] — 2026-08-08
+## [2.2.1] — never released separately
+
+The git-ops safety patch. It was version-bumped and fully measured (19/19 · SHIP on
+DeepSeek) but never published or tagged before the rest of this milestone landed, so it
+ships **inside 2.3.0**. Kept as its own section because the work is a coherent unit and the
+changelog is the record of the framework's thinking, not only of its tags — but there is no
+`v2.2.1` to install.
 
 A safety patch. `git-ops` carried rules that contradicted each other or leaked the thing
 they existed to protect, and none of it was visible in a passing 15/15 board — because no

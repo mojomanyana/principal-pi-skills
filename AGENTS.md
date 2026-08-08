@@ -32,7 +32,7 @@ The set:
 | Exploring a decision, not executing one ("should I…", "what are my options", "I'm stuck") | `decide` | inline — the dialogue is the value |
 | A system to design or a significant/irreversible choice ("design X", "Postgres or DynamoDB") | `architect` | inline — drivers come from asking |
 | A task needing order of work and code-level specs ("plan this", "break this down") | `plan` | **subagent** — it opens every file it names; keep that out of this context |
-| Code to write ("implement", "fix this", "make the test pass") | `build` | inline — the main work; parallel-safe plan steps may fan out as parallel subagent tasks |
+| Code to write ("implement", "fix this", "make the test pass") | `build` | inline — the main work, and the only phase that writes durably. Never fan parallel writers into one working tree: "parallel-safe" is a claim about which steps need each other's output |
 | A change to judge before landing ("review this", "ready to merge?") | `review` | **subagent, always when available** — a fresh context judging the diff cold beats self-review; inline review of code you just wrote is anchored on its own reasoning |
 | An unknown failure to diagnose ("why is this failing", "find the bug") | `debug` | **subagent** when reproduction is noisy (flaky loops, bisects); inline when the user is driving |
 | A git or GitHub operation ("commit", "push", "open a PR", "I leaked a secret") | `git-ops` | inline, never delegated — needs this session's working-tree state, and rule-6 destructive ops require user consequence-acceptance no subagent can obtain |
@@ -86,24 +86,31 @@ Typical spines (available as prompt templates):
 A delegated step returning `BLOCKED` stops the chain: surface its one question to the
 user; don't answer it yourself and keep going.
 
-## Maintenance rule (no generator, by design)
+## Maintenance rule — the contracts are generated
 
-`plan`, `review`, `debug` exist twice: `<name>/SKILL.md` (interactive contract) and
-`agents/<name>.md` (single-shot contract — no dialogue, no multi-turn rules, tools in
-frontmatter). They are different artifacts, not copies. Any change to SHARED behavior
-(the process, the disciplines, the output template's fields) is edited ONCE, in
-`contracts/<name>.md.tmpl`, and both files are regenerated with `npm run generate`. Editing
-a generated file directly is reverted by the next run and fails `npm run generate:check`.
-Hand-mirroring is no longer a reviewer's job, because it was never reliably done. Single-shot mechanics — the BLOCKED form, the
-assumptions-not-questions rule, the final-message-only rule — exist only in `agents/`
-and have no SKILL.md counterpart; interactive-dialogue rules likewise exist only in
-SKILL.md.
+`plan`, `review` and `debug` exist three times: `<name>/SKILL.md` (interactive contract),
+`agents/principal-<name>.md` (the single-shot contract subagents get) and
+`agents/<name>.md` (its deprecated generic-name alias). They are different artifacts, not
+copies — but 74–84% of each pair is identical, and that shared majority is where they used
+to drift.
+
+All three are generated from `contracts/<name>.md.tmpl`. Change shared behavior ONCE, there,
+then `npm run generate`. Editing a generated file directly is reverted by the next run and
+fails `npm run generate:check` in CI. Hand-mirroring used to be a reviewer's job and was
+never reliably done — which is how the D-scenarios once measured a contract no subagent had
+been handed.
+
+Deliberate divergences are marked in the template: `{{#skill}}` for interactive-dialogue
+rules, `{{#agent}}` for single-shot mechanics — the BLOCKED form, the
+assumptions-not-questions rule, the final-message-only rule. Anything outside a block goes
+to every output.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v2.2.1` — registers the
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v2.3.0` — registers the
    skills and the `/principal-feature` + `/principal-bugfix` commands via the `pi`
-   manifest. Install a tag, not a branch.
+   manifest. Install a tag, not a branch. (`v2.3.0` is not tagged yet — until the release
+   is cut, `main` is the only option and it moves.)
 2. Subagents need pi-mono's subagent extension (`examples/extensions/subagent`) and the
    agent definitions installed once: `npx principal-pi-agents install`. It copies real
    files into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses to overwrite

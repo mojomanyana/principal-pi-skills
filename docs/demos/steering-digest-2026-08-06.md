@@ -1,6 +1,6 @@
 # Dogfood: the steering digest, end to end (2026-08-06)
 
-> **Recorded before v2.2.1's workspace-ownership and namespacing changes.** It is kept as
+> **Recorded before 2.3.0's workspace-ownership and namespacing changes.** It is kept as
 > the record of that run, not rewritten to match current contracts. Two things would differ
 > today: the commands are `/principal-feature` and `/principal-bugfix` (the bare names are now deprecated aliases), and any
 > destructive verification — reverting a fix to watch its regression test go red — happens in

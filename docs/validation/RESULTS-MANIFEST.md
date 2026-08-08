@@ -47,7 +47,8 @@ scenarios and stand as measured; git-ops seeds via `workspace: "fixture:…"`, w
 mechanism, and its release-2-gitops runs postdate all three commits anyway. Scoping analysis:
 `~/prepos/skill-check/docs/re-measurement-2026-08-04.md`.
 
-**The git-ops safety patch (v2.2.1).** Four safety defects were repaired in `git-ops/SKILL.md`
+**The git-ops safety patch (shipped in 2.3.0; version-bumped as 2.2.1, never released
+separately).** Four safety defects were repaired in `git-ops/SKILL.md`
 together: the pre-flight fetched `@{u}` unconditionally and so failed on a branch with no
 upstream; rule 2's protected-branch absolute and rule 4's leaked-secret playbook contradicted
 each other (one forbade rewriting `main`, the other required it), now reconciled as a *named*

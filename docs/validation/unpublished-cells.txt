@@ -33,6 +33,14 @@ git-ops  kimi-k3   # same — the old 15/15 probe measured text that no longer e
 # that: the moment a fresh run makes one of these cells current, its entry here matches
 # nothing and the build fails until the line is deleted. The remeasurement cannot quietly
 # skip a skill.
+#
+# SCOPE (user decision, 2026-08-08): the remeasurement runs DeepSeek and GLM only. The
+# kimi-k3 rows below are an OPTIONAL FOLLOW-UP and will outlive the others by design — they
+# are not forgotten, they are deferred. kimi is the untuned overfitting control and
+# historically the strongest model here, so it is the column least likely to expose a defect.
+# Until it runs, kimi publishes nothing rather than stale numbers. Retire these rows with:
+#   npx -y skill-harness@latest run all --skills "$PWD" --reps 3 --mode force \
+#     --model fireworks:accounts/fireworks/models/kimi-k3
 architect deepseek-v4-pro
 architect glm-5p2
 architect kimi-k3

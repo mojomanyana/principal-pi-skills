@@ -16,9 +16,11 @@ around.
 
 ## Three constraints
 
-1. **Dual-use.** Each file works as a loaded skill *and* as a subagent system prompt with
-   zero editing. That forces single-shot-safe behavior, an explicit delegated mode, and a
-   literal output template.
+1. **Dual-use.** `plan`, `review` and `debug` each serve as a loaded skill *and* as a
+   subagent system prompt. Both forms are rendered from one contract, so the shared
+   behavior cannot drift between them, and the differences — single-shot mechanics, the
+   BLOCKED form, no-dialogue rules — are marked rather than remembered. That constraint is
+   what forces single-shot-safe behavior and a literal output template.
 2. **Model-agnostic.** Written for the weakest model that will run it (DeepSeek, GLM,
    Sonnet-class), not the strongest: imperative numbered steps, literal fill-in templates,
    plain-text tags (`[ONE-WAY]`, `[BLOCKER]`) instead of an emoji schema, no aphorisms
@@ -80,13 +82,15 @@ docs/demos/                           the chains running end to end, repo-verifi
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v2.2.1
+   pi install git:github.com/mojomanyana/principal-pi-skills@v2.3.0
    ```
 
    The `pi` manifest registers the seven skills and the `/principal-feature` and
    `/principal-bugfix` commands (plus the deprecated `/feature` and `/bugfix` aliases).
+   **`v2.3.0` is not tagged yet** — this is the intended command once the release is cut.
+   Until then, install from `main` and expect it to move.
    Unpinned `main` moves under you: the skills' behavior is what the committed scorecard
-   measured, and a tag is what keeps those two the same thing. Drop the `@v2.2.1` only if
+   measured, and a tag is what keeps those two the same thing. Drop the `@v2.3.0` only if
    you want whatever `main` currently holds, measured or not.
 2. **Subagents (optional).** Install pi-mono's subagent extension
    (`packages/coding-agent/examples/extensions/subagent` — symlink its `index.ts` and
@@ -140,7 +144,7 @@ verify both files had been *touched*, never that they still agreed.
 
 `git-ops` is the exception
 and carries no template: it runs inline and terminates a chain, so a handoff token would
-have nothing to hand to. Its delegated block was removed in v2.2.1 as dead ceremony.
+have nothing to hand to. Its delegated block was removed in 2.3.0 as dead ceremony.
 
 ## See it run
 
@@ -159,17 +163,18 @@ the model's own account:
 ## Validation
 
 Every skill carries a `tests/specification.yaml` of scenarios with pass criteria, and the
-results are committed. The measurement: **98 scenarios across the seven skills, three
-subject models, every scenario run three times**, judged by `claude-code:opus`, with
+results are committed. The measurement: **98 scenarios across the seven skills, every
+scenario run three times** on DeepSeek v4-pro and GLM 5.2, judged by `claude-code:opus`, with
 objective gates (vitest runs, diff assertions) decided before the judge is consulted. A
 scenario passes at a majority of its clean reps, so a cell is a pass-rate rather than a
 single draw. The scored deployment is skill-as-system-prompt (`--mode force`) — the delivery
 modern pi makes deterministic, and the way the `agents/` variants already run.
-**kimi-k3 was never tuned against** — it is the control for overfitting.
+**kimi-k3 was never tuned against** — it is the control for overfitting, and is an optional
+follow-up rather than a published column in the current round.
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
 |---|---|---|---|
-| all seven | — | — | — |
+| all seven | — | — | — *(deferred)* |
 
 **The board is blank on purpose, and only until the remeasurement lands.** Two rounds of
 contract work changed every skill's text: filesystem-ownership rules for `plan`, `review`,

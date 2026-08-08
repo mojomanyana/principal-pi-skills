@@ -4,7 +4,7 @@
  *
  * The README states budgets as decisions rather than aspirations and says every count in
  * its table is checkable with `wc -w`. That is only true if something checks it: during the
- * v2.2.1 safety patch the git-ops figure went stale three times in one sitting, because the
+ * git-ops safety patch the figure went stale three times in one sitting, because the
  * skill was edited and the table was not. A number that documents itself wrongly is worse
  * than no number — it reads as verified.
  *
