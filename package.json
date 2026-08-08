@@ -21,11 +21,12 @@
         "node": ">=20"
     },
     "scripts": {
-        "test": "npm run generate:check && npm run test:unit && npm run lint:skills",
+        "test": "npm run generate:check && npm run test:unit && npm run test:install && npm run lint:skills",
         "test:unit": "node --test tests/unit/*.test.mjs && node scripts/check-word-budgets.mjs",
         "generate": "node scripts/generate-contracts.mjs",
         "generate:check": "node scripts/generate-contracts.mjs --check",
-        "lint:skills": "node scripts/lint-skills.mjs"
+        "lint:skills": "node scripts/lint-skills.mjs",
+        "test:install": "node --test tests/install/*.test.mjs"
     },
     "pi": {
         "skills": [
@@ -40,5 +41,8 @@
         "prompts": [
             "./prompts"
         ]
+    },
+    "bin": {
+        "principal-pi-agents": "./scripts/install-agents.mjs"
     }
 }

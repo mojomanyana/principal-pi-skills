@@ -45,7 +45,28 @@ import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const CONTRACTS = ["plan", "review", "debug"];
-const MODES = { skill: (s) => `${s}/SKILL.md`, agent: (s) => `agents/${s}.md` };
+
+/**
+ * Three outputs per contract:
+ *
+ *   skill            <skill>/SKILL.md          the interactive contract
+ *   agent            agents/<skill>.md         the subagent contract, generic name
+ *   agent-namespaced agents/principal-<skill>.md  the same, under a collision-proof name
+ *
+ * The namespaced pair exists because agent names are a flat global registry in the pi
+ * agents directory: a bare `plan.md` from this package and a `plan.md` from anywhere else
+ * are the same slot, and whichever lands second wins silently. `principal-*` is what the
+ * workflows delegate to; the generic names stay as deprecated aliases and are only
+ * installed behind an explicit compatibility flag.
+ *
+ * It is generated rather than copied for the reason PR 3 exists: a hand-maintained third
+ * copy of an 80%-shared contract is a third chance to drift.
+ */
+export const MODES = {
+  skill: { block: "skill", path: (s) => `${s}/SKILL.md`, name: (s) => s },
+  agent: { block: "agent", path: (s) => `agents/${s}.md`, name: (s) => s },
+  "agent-namespaced": { block: "agent", path: (s) => `agents/principal-${s}.md`, name: (s) => `principal-${s}` },
+};
 
 const OPEN = /^\{\{#(skill|agent)\}\}$/;
 const CLOSE = /^\{\{\/(skill|agent)\}\}$/;
@@ -56,10 +77,15 @@ const COMMENT = /^\{\{!/;
  * Line-based on purpose: a marker owns its whole line, so rendering can never leave a
  * fragment behind or split a line that carries prompt text.
  */
-export function render(template, mode, source = "<template>") {
+export function render(template, mode, source = "<template>", vars = {}) {
   const out = [];
   let open = null;
   let openLine = 0;
+  const subst = (line) =>
+    line.replace(/\{\{([a-z]+)\}\}/g, (whole, key) => {
+      if (!(key in vars)) throw new Error(`${source}: unknown template variable ${whole}`);
+      return vars[key];
+    });
 
   template.split("\n").forEach((line, i) => {
     if (COMMENT.test(line)) return;
@@ -77,7 +103,7 @@ export function render(template, mode, source = "<template>") {
       open = null;
       return;
     }
-    if (open === null || open === mode) out.push(line);
+    if (open === null || open === mode) out.push(subst(line));
   });
 
   if (open) throw new Error(`${source}: {{#${open}}} opened at line ${openLine} is never closed`);
@@ -100,9 +126,9 @@ for (const contract of CONTRACTS) {
   const rel = `contracts/${contract}.md.tmpl`;
   const template = readFileSync(join(ROOT, rel), "utf8");
 
-  for (const [mode, target] of Object.entries(MODES)) {
-    const path = target(contract);
-    const rendered = render(template, mode, rel);
+  for (const mode of Object.values(MODES)) {
+    const path = mode.path(contract);
+    const rendered = render(template, mode.block, rel, { name: mode.name(contract) });
 
     if (check) {
       let current;
@@ -139,7 +165,7 @@ if (check) {
     );
     process.exit(1);
   }
-  console.log(`✓ ${CONTRACTS.length * 2} generated contracts match their templates`);
+  console.log(`✓ ${CONTRACTS.length * Object.keys(MODES).length} generated contracts match their templates`);
 } else {
   console.log(`✓ wrote ${written} file(s) from ${CONTRACTS.length} template(s)`);
 }

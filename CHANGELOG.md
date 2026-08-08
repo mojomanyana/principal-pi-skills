@@ -29,6 +29,34 @@ decision-record honesty — appear only under the skill, on every model.
 **Fixed** — CI's lint-summary guard tolerates additive format growth in the harness output,
 so tracking the harness's moving `latest` tag stops turning its releases into red trees.
 
+**Added** — namespaced workflows and agents. `/principal-feature` and `/principal-bugfix`
+are the supported commands, and the spines delegate to `principal-plan`,
+`principal-review` and `principal-debug`. Agent and command names are a flat global
+registry: a bare `plan` or `feature` is a slot any installed package can claim, and the last
+one loaded wins silently. `/feature`, `/bugfix` and the unprefixed agents remain as
+deprecated aliases; the generic agents install only under `--with-generic-aliases`.
+
+**Added** — both spines now state their fallback explicitly. If the subagent tool is absent
+or reports an unknown agent, that phase runs its skill inline and the digest says so —
+a supported configuration, not a degradation, with the honest caveat that inline review is
+self-review and cannot be surprised by reasoning it produced. Fallback happens on *absence*
+only; any other agent failure stops the workflow. Build↔review repair loops are capped at
+two rounds.
+
+**Added** — `principal-pi-agents install | check | uninstall`. It copies real files into
+`${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`, replacing the documented
+`ln -sf "$(pwd)"/agents/*.md` — a symlink that broke the moment the checkout moved, and
+broke silently, since pi then reports an unknown agent and the workflow quietly falls back
+to inline. It refuses to overwrite files it does not own, refuses to write through a
+symlink, and on uninstall removes only its own unmodified files; anything you edited is
+yours and is kept.
+
+**Added** — `tests/install/`, 20 tests including a clean-home run that packs the tarball,
+installs it into a throwaway HOME, runs the shipped installer, verifies pi resolves and
+materializes every declared resource, and asserts the developer's real home was untouched.
+Also covers the collision case: preseeded foreign `plan`/`review`/`feature` files are left
+alone while the namespaced agents install regardless.
+
 **Added** — `plan`, `review` and `debug` are generated from `contracts/<skill>.md.tmpl`.
 Each existed twice, as a loaded skill and as a subagent system prompt, 74–84% identical. That
 shared majority now lives in one file, with the deliberate divergences marked `{{#skill}}` /

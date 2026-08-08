@@ -4,8 +4,8 @@
 [pi coding agent](https://github.com/badlogic/pi-mono) — four inline skills and three
 that double as subagents.** Dialogue and session state run inline (`decide`,
 `architect`, `build`, `git-ops`); heavy reading, cold judgment, and noisy loops delegate
-to isolated contexts (`plan`, `review`, `debug` — hand-written single-shot variants in
-`agents/`). The files follow the [Agent Skills](https://agentskills.io/specification)
+to isolated contexts (`plan`, `review`, `debug` — single-shot variants in `agents/`,
+generated from the same contract as the skill). The files follow the [Agent Skills](https://agentskills.io/specification)
 standard, so other harnesses can consume the skills, but pi is the supported target.
 
 The set is built for **one principal engineer steering at a high level while skills and
@@ -41,10 +41,10 @@ around.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 671 |
 | `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1097 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/plan.md`, 1315) or inline | 1072 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1315) or inline | 1072 |
 | `build` | Test-first implementation — code proven by a test you watched fail | inline | 800 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/review.md`, 784) or inline | 752 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/debug.md`, 1060) or inline | 933 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 784) or inline | 752 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1060) or inline | 933 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1895 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
@@ -55,11 +55,12 @@ layer, and it is the one file an agent should read at session start.
 
 ```
 <skill>/SKILL.md                      the interactive contract — nothing else is required reading
-agents/{plan,review,debug}.md         single-shot subagent variants (tools in frontmatter)
-contracts/{plan,review,debug}.md.tmpl the SOURCE for both of the above — edit here, run `npm run generate`
-scripts/                              generator + the zero-model checks behind `npm test`
-tests/unit/                           unit tests (node:test, no dependencies)
-prompts/{feature,bugfix}.md           /feature and /bugfix workflow templates
+agents/principal-{plan,review,debug}.md  subagent definitions the workflows delegate to
+agents/{plan,review,debug}.md         deprecated generic-name aliases
+contracts/{plan,review,debug}.md.tmpl the SOURCE for all of the above — edit here, run `npm run generate`
+prompts/principal-{feature,bugfix}.md the two workflow spines (/feature, /bugfix are aliases)
+scripts/                              generator, agent installer, and the checks behind `npm test`
+tests/{unit,install}/                 unit + clean-home install tests (node:test, no dependencies)
 <skill>/tests/specification.yaml      skill-harness scenarios (ship bar, critical gates)
 <skill>/tests/fixtures/<ID>/          seeded repo for one scenario (git-ops, build, debug)
 <skill>/tests/results/…/results.yaml  committed run evidence (Opus-judged)
@@ -78,32 +79,46 @@ docs/demos/                           the chains running end to end, repo-verifi
    pi install git:github.com/mojomanyana/principal-pi-skills@v2.2.1
    ```
 
-   The `pi` manifest registers the skills and the `/feature` and `/bugfix` templates.
+   The `pi` manifest registers the seven skills and the `/principal-feature` and
+   `/principal-bugfix` commands (plus the deprecated `/feature` and `/bugfix` aliases).
    Unpinned `main` moves under you: the skills' behavior is what the committed scorecard
    measured, and a tag is what keeps those two the same thing. Drop the `@v2.2.1` only if
    you want whatever `main` currently holds, measured or not.
-2. **Subagents**: install pi-mono's subagent extension
+2. **Subagents (optional).** Install pi-mono's subagent extension
    (`packages/coding-agent/examples/extensions/subagent` — symlink its `index.ts` and
-   `agents.ts` into `~/.pi/agent/extensions/subagent/`), then link the agent
-   definitions once:
+   `agents.ts` into `~/.pi/agent/extensions/subagent/`), then install the agent definitions:
 
    ```
-   mkdir -p ~/.pi/agent/agents && ln -sf "$(pwd)"/agents/*.md ~/.pi/agent/agents/
+   npx principal-pi-agents install     # → ${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents
+   npx principal-pi-agents check       # verify they are present and current
    ```
+
+   It installs `principal-plan`, `principal-review` and `principal-debug` as **real files,
+   not symlinks** — a symlink into a checkout breaks the moment that directory moves, and
+   breaks silently, since pi just reports an unknown agent. It refuses to overwrite anything
+   it did not install, and `uninstall` removes only its own unmodified files. The generic
+   `plan` / `review` / `debug` names are deprecated aliases and install only under
+   `--with-generic-aliases`.
 
    Tool restriction is structural, in the agents' frontmatter: `plan` is read-only;
    `review` adds `bash` only to run tests; `debug` gets the full toolset.
 
-   These steps were last run end to end against **pi 0.80.2** and pi-mono
+   The extension steps were last run end to end against **pi 0.80.2** and pi-mono
    [`008c76f`](https://github.com/badlogic/pi-mono/commit/008c76f955ae) — the newest commit
    touching that extension path, so the layout has been stable since 2026-06-18. Upstream is
    someone else's repo: if the file names move, check out that commit.
-3. Without the extension everything still runs inline as skills. When and why to
-   delegate is defined in [AGENTS.md](./AGENTS.md).
+3. **Without the extension everything still works.** The workflows detect that delegation is
+   unavailable and run each phase inline instead. That is a supported configuration, not a
+   degraded one — with one honest caveat: inline review is *self-review*. It sees the
+   session's own reasoning, so it cannot be surprised by it the way a cold subagent read can.
+   When and why to delegate is defined in [AGENTS.md](./AGENTS.md).
 
 Once installed, a skill loads from what you ask for — the trigger phrases in the table
-above are the ones each skill's description matches on. For the two multi-step spines,
-type `/feature <task>` or `/bugfix <symptom>` and the orchestrator runs the chain.
+above are the ones each skill's description matches on. For the two multi-step spines, type
+`/principal-feature <task>` or `/principal-bugfix <symptom>` and the orchestrator runs the
+chain. `/feature` and `/bugfix` still work as deprecated aliases; prefer the namespaced
+names, because a bare `feature` is a command any installed package can claim and the last
+one loaded wins silently.
 
 ## Shared contract
 

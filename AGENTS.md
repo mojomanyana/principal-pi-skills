@@ -18,9 +18,12 @@ judgment, and noisy loops get delegated.
 The set:
 
 - Skills (inline only): `decide`, `architect`, `build`, `git-ops`.
-- Agents (delegate when the subagent tool is available): `plan`, `review`, `debug` —
-  defined in `agents/`. Each also has a SKILL.md for interactive use when delegation is
-  unavailable or the user wants to work through it conversationally.
+- Agents (delegate when the subagent tool is available): `principal-plan`,
+  `principal-review`, `principal-debug` — defined in `agents/`. Delegate to the
+  `principal-*` names: agent names are a flat global registry, so a bare `plan` is a slot
+  any package can claim and the last one loaded wins silently. The unprefixed names remain
+  as deprecated aliases. Each contract also has a SKILL.md for interactive use when
+  delegation is unavailable or the user wants to work through it conversationally.
 
 ## Routing — pick by what the input looks like
 
@@ -49,11 +52,15 @@ invokes another agent; inline, continuing into the named skill in this same cont
 orchestration, not a skill invoking another. Typical spines (available as prompt
 templates):
 
-- Feature (`/feature <task>`): plan (subagent) → build (inline) → review (subagent) →
-  git-ops (inline). Enter `architect`/`decide` first when the call is architectural or
-  still contested.
-- Bug (`/bugfix <symptom>`): debug (subagent) → build (inline) → review (subagent) →
-  git-ops (inline). If debug's note says design flaw, stop and surface it.
+- Feature (`/principal-feature <task>`): plan → build (inline) → review → git-ops
+  (inline). Enter `architect`/`decide` first when the call is architectural or still
+  contested.
+- Bug (`/principal-bugfix <symptom>`): debug → build (inline) → review → git-ops (inline).
+  If debug's note says design flaw, stop and surface it.
+- Either spine, when the subagent tool is missing or reports an unknown agent: run that
+  phase's skill inline instead and say so in the digest. Fall back on *absence* only —
+  any other agent failure stops the workflow. Build↔review repair loops stop after two
+  rounds; a third means the plan or the diagnosis was wrong, not the code.
 - Tiny change: build → git-ops, both inline — every contract carries a Right-sizing
   rule; don't add ceremony the file itself would refuse.
 
@@ -65,19 +72,22 @@ user; don't answer it yourself and keep going.
 `plan`, `review`, `debug` exist twice: `<name>/SKILL.md` (interactive contract) and
 `agents/<name>.md` (single-shot contract — no dialogue, no multi-turn rules, tools in
 frontmatter). They are different artifacts, not copies. Any change to SHARED behavior
-(the process, the disciplines, the output template's fields) MUST be mirrored by hand
-into the other file in the same commit; reviewers should reject a PR that changes shared
-behavior in one without the other. Single-shot mechanics — the BLOCKED form, the
+(the process, the disciplines, the output template's fields) is edited ONCE, in
+`contracts/<name>.md.tmpl`, and both files are regenerated with `npm run generate`. Editing
+a generated file directly is reverted by the next run and fails `npm run generate:check`.
+Hand-mirroring is no longer a reviewer's job, because it was never reliably done. Single-shot mechanics — the BLOCKED form, the
 assumptions-not-questions rule, the final-message-only rule — exist only in `agents/`
 and have no SKILL.md counterpart; interactive-dialogue rules likewise exist only in
 SKILL.md.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills` — registers the skills
-   and the `/feature` + `/bugfix` prompt templates via the `pi` manifest.
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v2.2.1` — registers the
+   skills and the `/principal-feature` + `/principal-bugfix` commands via the `pi`
+   manifest. Install a tag, not a branch.
 2. Subagents need pi-mono's subagent extension (`examples/extensions/subagent`) and the
-   agent definitions linked once:
-   `mkdir -p ~/.pi/agent/agents && ln -sf "$(pwd)"/agents/*.md ~/.pi/agent/agents/`
+   agent definitions installed once: `npx principal-pi-agents install`. It copies real
+   files into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses to overwrite
+   anything it did not install.
 3. Without the extension, everything runs inline via the skills; the How column above
    simply collapses to "inline".

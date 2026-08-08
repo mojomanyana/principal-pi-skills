@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { render } from "../../scripts/generate-contracts.mjs";
+import { render, MODES } from "../../scripts/generate-contracts.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
@@ -64,25 +64,33 @@ test("errors name the template and line so a failure is actionable", () => {
   assert.throws(() => render("a\nb\n{{/skill}}", "skill", "contracts/x.tmpl"), /contracts\/x\.tmpl:3:/);
 });
 
+// Driven off the generator's own MODES table rather than a second list here: a mode added
+// to the generator and forgotten here would ship an unchecked file, which is precisely the
+// class of drift this whole mechanism exists to remove.
 for (const contract of ["plan", "review", "debug"]) {
-  test(`${contract}: both committed contracts match the template`, () => {
-    const template = read(`contracts/${contract}.md.tmpl`);
-    assert.equal(
-      read(`${contract}/SKILL.md`),
-      render(template, "skill"),
-      `${contract}/SKILL.md drifted — edit contracts/${contract}.md.tmpl and run \`npm run generate\``
-    );
-    assert.equal(
-      read(`agents/${contract}.md`),
-      render(template, "agent"),
-      `agents/${contract}.md drifted — edit contracts/${contract}.md.tmpl and run \`npm run generate\``
-    );
-  });
+  for (const [mode, spec] of Object.entries(MODES)) {
+    test(`${contract}: ${spec.path(contract)} matches the template (${mode})`, () => {
+      const template = read(`contracts/${contract}.md.tmpl`);
+      assert.equal(
+        read(spec.path(contract)),
+        render(template, spec.block, `contracts/${contract}.md.tmpl`, { name: spec.name(contract) }),
+        `${spec.path(contract)} drifted — edit contracts/${contract}.md.tmpl and run \`npm run generate\``
+      );
+    });
+  }
 
-  test(`${contract}: the two modes actually differ`, () => {
+  test(`${contract}: the skill and agent renderings actually differ`, () => {
     // Guards against a template that lost its blocks and now renders one file twice —
     // which would pass every drift check above while silently merging two contracts.
     const template = read(`contracts/${contract}.md.tmpl`);
-    assert.notEqual(render(template, "skill"), render(template, "agent"));
+    const vars = { name: contract };
+    assert.notEqual(render(template, "skill", "t", vars), render(template, "agent", "t", vars));
+  });
+
+  test(`${contract}: the namespaced agent differs from the generic one only in its name`, () => {
+    const template = read(`contracts/${contract}.md.tmpl`);
+    const generic = render(template, "agent", "t", { name: contract });
+    const namespaced = render(template, "agent", "t", { name: `principal-${contract}` });
+    assert.equal(namespaced.replace(`name: principal-${contract}`, `name: ${contract}`), generic);
   });
 }

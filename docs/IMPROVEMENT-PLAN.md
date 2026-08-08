@@ -2,15 +2,16 @@
 
 **Status:** Active  
 **Created:** 2026-08-08  
-**Current position:** PRs 1–3 landed on `gitops-safety` (one branch, one PR, by request).
+**Current position:** PRs 1–4 landed on `gitops-safety` (one branch, one PR, by request).
 Git-Ops re-measured 19/19 · SHIP on DeepSeek (force, reps 3, flakiness 0.00, no misfires);
 GLM and kimi-k3 deliberately unmeasured. `plan`/`review`/`debug` now generated from
-`contracts/`, byte-identical. `npm test` green from a fresh checkout. Version bumped to
+`contracts/`, byte-identical; workflows and agents namespaced with an installer and 20
+install tests. `npm test` green from a fresh checkout. Version bumped to
 2.2.1 — **not yet published or tagged.**  
-**Next action:** PR 4 — namespaced workflows and the agent installer. Two things still open
-and neither blocks PR 4: whether to publish `v2.2.1` now (the README already tells users to
-install `@v2.2.1`, and that tag does not exist), and that a publish today ships whatever npm
-picks up by default, since the packaging allowlist is PR 8.  
+**Next action:** PR 5 — workspace isolation and phase ownership. Still open, neither
+blocking: whether to publish `v2.2.1` now (the README and AGENTS.md both tell users to
+install `@v2.2.1`, and that tag does not exist yet), and that a publish today ships whatever
+npm picks up by default, since the packaging allowlist is PR 8.  
 **Target releases:** `v2.2.1` safety patch, followed by `v2.3.0` framework release
 
 This is the durable handoff plan produced from the project-wide review. Update the status
@@ -50,7 +51,18 @@ this file rather than keeping completed process archaeology indefinitely.
       the enforcement lives in `generate:check`, which is stronger than a comment anyway.
       Also **removed the agents-lockstep CI job**: now superseded, and it would have started
       failing correct skill-only edits.
-- [ ] PR 4 — Namespaced workflows and agent installer
+- [x] PR 4 — Namespaced workflows and agent installer *(same branch/PR)*
+      Namespaced agents are **generated** from the same contracts as the other two variants
+      rather than hand-copied — a third copy of an 80%-shared contract is a third chance to
+      drift, which is what PR 3 exists to stop.
+      One plan item could not be done as written: "ask Pi for discovered commands". pi 0.83
+      exposes no scriptable listing — `pi list` echoes the package source and `pi config -l`
+      is an interactive TUI. The test asserts the strongest verifiable thing instead: pi
+      accepts the tarball, records it in settings.json, and materializes a tree containing
+      every path the `pi` manifest declares. Discovery *inputs*, not the loader itself,
+      which only the live E2E cells in PR 7 can exercise.
+      Noted for PR 8: the tarball currently ships `docs/`, `tests/`, `contracts/` and
+      `scripts/`, and npm warns there is no `.npmignore`.
 - [ ] PR 5 — Workspace isolation and phase ownership
 - [ ] PR 6 — Contract and rubric cleanup
 - [ ] PR 7 — Validation tiers, E2E, and fresh measurements
