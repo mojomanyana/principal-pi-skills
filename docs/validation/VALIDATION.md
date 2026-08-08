@@ -198,17 +198,28 @@ each one cost a wrong published number to learn.
 - `<skill>/tests/specification.yaml` — the scenarios themselves.
 - `<skill>/tests/results/…/results.yaml` — committed run output, per skill × model × run.
 - [`../demos/`](../demos/) — the skills executing end to end, repo-verified.
-- `npm test` is the zero-model gate and passes from a fresh checkout: word budgets checked
-  against the README table (`scripts/check-word-budgets.mjs`), then spec and results lint
-  under this repo's severity policy (`scripts/lint-skills.mjs`). CI runs that same command
-  rather than reimplementing it, so a green local tree and a green CI tree cannot disagree.
+- `npm test` is the zero-model gate and passes from a fresh checkout: generated-contract
+  drift (`npm run generate:check`), unit tests, word budgets checked against the README
+  table, then spec and results lint under this repo's severity policy. CI runs that same
+  command rather than reimplementing it, so a green local tree and a green CI tree cannot
+  disagree.
+- **`plan`, `review` and `debug` are generated** from `contracts/<skill>.md.tmpl`, which
+  holds the 74–84% those contracts share in one place. This matters for measurement, not
+  just tidiness: a rule edited in the skill but not its agent twin used to mean the
+  D-scenarios measured a contract no subagent had been handed. The drift check makes that
+  unmergeable. The generated files carry no "generated" banner on purpose — every byte of
+  them is measured text, and a banner would stale nine published cells to say something
+  `generate:check` already enforces.
 - **Staleness blocks a pull request**, not merely `main` — but only for cells the scorecard
   actually publishes. A cell publishing no number has no claim to protect; those are declared
   in [`unpublished-cells.txt`](unpublished-cells.txt) and report as notices. That file is
   itself gated: an entry matching no finding fails the build, so an exemption is deleted when
   its reason expires instead of quietly covering a cell someone later publishes. Today it
   holds exactly `git-ops × {glm-5p2, kimi-k3}`, retired by the release remeasurement.
-- CI also runs an agents-lockstep check that fails a PR changing `plan|review|debug/SKILL.md`
-  without its `agents/` twin. Third-party actions are pinned to immutable commit SHAs; the
+- The agents-lockstep CI rule is retired, superseded by the drift check above. It asked
+  whether both files had changed, which is answerable "yes" while they disagree — and once
+  the contracts became generated it would also have failed correct skill-only edits, the
+  kind of false positive that gets routed around with an exempt label until nobody reads the
+  gate. Third-party actions are pinned to immutable commit SHAs; the
   harness deliberately is not, because tracking its moving `latest` tag is what guarantees CI
   is at least as new as whatever wrote the committed `results.yaml`.

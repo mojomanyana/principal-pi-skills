@@ -55,7 +55,10 @@ layer, and it is the one file an agent should read at session start.
 
 ```
 <skill>/SKILL.md                      the interactive contract — nothing else is required reading
-agents/{plan,review,debug}.md         single-shot subagent variants (tools in frontmatter) — edited in lockstep with their SKILL.md
+agents/{plan,review,debug}.md         single-shot subagent variants (tools in frontmatter)
+contracts/{plan,review,debug}.md.tmpl the SOURCE for both of the above — edit here, run `npm run generate`
+scripts/                              generator + the zero-model checks behind `npm test`
+tests/unit/                           unit tests (node:test, no dependencies)
 prompts/{feature,bugfix}.md           /feature and /bugfix workflow templates
 <skill>/tests/specification.yaml      skill-harness scenarios (ship bar, critical gates)
 <skill>/tests/fixtures/<ID>/          seeded repo for one scenario (git-ops, build, debug)
@@ -106,7 +109,17 @@ type `/feature <task>` or `/bugfix <symptom>` and the orchestrator runs the chai
 
 Every output template ends with a `Next:` line naming the follow-on skill — that plus the
 fixed template fields *is* the handoff. No baton vocabulary, no delegation-contract
-reference file: the contract is visible in the template itself. `git-ops` is the exception
+reference file: the contract is visible in the template itself.
+
+`plan`, `review` and `debug` exist twice — once as a loaded skill, once as a subagent system
+prompt — and the two are 74–84% identical. That shared majority is now written once, in
+`contracts/<skill>.md.tmpl`, with the deliberate divergences marked `{{#skill}}` /
+`{{#agent}}`. Both files are generated, committed, and checked: `npm run generate:check`
+fails if either stops matching its template, so changing a shared rule in one representation
+and not the other is no longer possible to merge. It replaced a CI rule that could only
+verify both files had been *touched*, never that they still agreed.
+
+`git-ops` is the exception
 and carries no template: it runs inline and terminates a chain, so a handoff token would
 have nothing to hand to. Its delegated block was removed in v2.2.1 as dead ceremony.
 

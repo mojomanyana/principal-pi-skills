@@ -57,40 +57,16 @@ jobs:
           SKILL_HARNESS_CMD: node .skill-harness/bin/skill-harness.js
         run: npm test
 
-  # agents/{plan,review,debug}.md are single-shot variants of their SKILL.md. When the
-  # interactive contract changes, the delegated one has to change with it — a drift here
-  # is how the D-scenarios ended up testing a contract no agent had been handed.
+  # The agents-lockstep job that used to live here is gone, replaced by `generate:check`
+  # inside `npm test` — see contracts/*.md.tmpl.
   #
-  # One direction only: an agents/ file may change alone, because it carries rules that
-  # exist only for a subagent (no questions, the BLOCKED form, the caller sees one
-  # message). Label a PR `lockstep-exempt` to skip.
-  agents-lockstep:
-    if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'lockstep-exempt')
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-        with:
-          fetch-depth: 0
-
-      - name: A SKILL.md change requires its agents/ twin
-        env:
-          BASE_REF: ${{ github.base_ref }}
-        run: |
-          set -eu
-          changed=$(git diff --name-only "origin/$BASE_REF...HEAD")
-          echo "changed files:"; echo "$changed" | sed 's/^/  /'
-
-          missing=""
-          for skill in plan review debug; do
-            if echo "$changed" | grep -qx "$skill/SKILL.md" \
-               && ! echo "$changed" | grep -qx "agents/$skill.md"; then
-              missing="$missing $skill"
-              echo "::error file=$skill/SKILL.md,title=agents lockstep::$skill/SKILL.md changed but agents/$skill.md did not — port the change or label the PR lockstep-exempt"
-            fi
-          done
-
-          if [ -n "$missing" ]; then
-            echo "lockstep violation:$missing"
-            exit 1
-          fi
-          echo "✓ lockstep holds"
+  # Lockstep asked "did both files change?", which is a proxy for the real question and
+  # answers it wrongly in both directions: two files can both change and still disagree,
+  # and — now that plan/review/debug are generated — a legitimate edit inside a
+  # {{#skill}} block changes only SKILL.md, which lockstep would have reported as drift.
+  # A gate that fails on correct changes gets routed around with its own exempt label
+  # until nobody reads it.
+  #
+  # `generate:check` asks the real question: does each committed file still equal what its
+  # template renders? It cannot be satisfied by touching a file, and it has no escape
+  # hatch, because there is no legitimate reason to hand-edit generated output.

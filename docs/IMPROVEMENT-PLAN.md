@@ -2,13 +2,15 @@
 
 **Status:** Active  
 **Created:** 2026-08-08  
-**Current position:** PRs 1 and 2 landed on `gitops-safety` (one branch, one PR, by request).
+**Current position:** PRs 1–3 landed on `gitops-safety` (one branch, one PR, by request).
 Git-Ops re-measured 19/19 · SHIP on DeepSeek (force, reps 3, flakiness 0.00, no misfires);
-GLM and kimi-k3 deliberately unmeasured. `npm test` green from a fresh checkout. Version
-bumped to 2.2.1 — **not yet published or tagged.**  
-**Next action:** PR 3 — byte-identical contract generator. Before it: decide whether to
-publish `v2.2.1` now (npm + annotated tag) or hold the release until more of the milestone
-lands, since the README already tells users to install `@v2.2.1`.  
+GLM and kimi-k3 deliberately unmeasured. `plan`/`review`/`debug` now generated from
+`contracts/`, byte-identical. `npm test` green from a fresh checkout. Version bumped to
+2.2.1 — **not yet published or tagged.**  
+**Next action:** PR 4 — namespaced workflows and the agent installer. Two things still open
+and neither blocks PR 4: whether to publish `v2.2.1` now (the README already tells users to
+install `@v2.2.1`, and that tag does not exist), and that a publish today ships whatever npm
+picks up by default, since the packaging allowlist is PR 8.  
 **Target releases:** `v2.2.1` safety patch, followed by `v2.3.0` framework release
 
 This is the durable handoff plan produced from the project-wide review. Update the status
@@ -36,7 +38,18 @@ this file rather than keeping completed process archaeology indefinitely.
       `test:install` and `check:pack` are forward references to PRs 3, 4 and 8 and are wired
       in as those land.
       **Not done — needs a human:** the actual `npm publish` and the `v2.2.1` tag.
-- [ ] PR 3 — Byte-identical contract generator
+- [x] PR 3 — Byte-identical contract generator *(same branch/PR)*
+      All six files render byte-identical to what was committed, verified by checksum, so
+      no text moved. Templates were *derived* from the existing pairs by diff rather than
+      retyped — byte-identity by construction, not by care.
+      One deliberate deviation: **no generated-notice in the rendered files.** The plan asked
+      for both a notice and byte-identity, which cannot both hold. Byte-identity won because
+      these files are measured prompts: a banner would stale nine published cells (3 skills ×
+      3 models) and cost ~500 rep-executions to restore numbers that would not have moved.
+      The warning lives in the templates (via `{{!` comments, which reach neither output) and
+      the enforcement lives in `generate:check`, which is stronger than a comment anyway.
+      Also **removed the agents-lockstep CI job**: now superseded, and it would have started
+      failing correct skill-only edits.
 - [ ] PR 4 — Namespaced workflows and agent installer
 - [ ] PR 5 — Workspace isolation and phase ownership
 - [ ] PR 6 — Contract and rubric cleanup

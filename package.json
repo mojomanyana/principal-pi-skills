@@ -21,8 +21,10 @@
         "node": ">=20"
     },
     "scripts": {
-        "test": "npm run test:unit && npm run lint:skills",
-        "test:unit": "node scripts/check-word-budgets.mjs",
+        "test": "npm run generate:check && npm run test:unit && npm run lint:skills",
+        "test:unit": "node --test tests/unit/*.test.mjs && node scripts/check-word-budgets.mjs",
+        "generate": "node scripts/generate-contracts.mjs",
+        "generate:check": "node scripts/generate-contracts.mjs --check",
         "lint:skills": "node scripts/lint-skills.mjs"
     },
     "pi": {
