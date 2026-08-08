@@ -80,14 +80,23 @@ has since changed again.
 | build | — | — | — *(deferred)* |
 | debug | — | — | — *(deferred)* |
 | decide | — | — | — *(deferred)* |
-| git-ops | — | — | — *(deferred)* |
+| git-ops | **19/19 · 100% SHIP** | — | — *(deferred)* |
 | plan | — | — | — *(deferred)* |
 | review | — | — | — *(deferred)* |
 
-**The board is blank, on purpose, and only for as long as the remeasurement takes.**
+**The board is blank apart from `git-ops` on DeepSeek, on purpose, and only for as long as
+the remeasurement takes.**
 
-Two rounds of contract work landed together. Workspace ownership gave `plan`, `review`,
-`debug` and `build` filesystem rules they did not have. Contract cleanup then replaced
+`git-ops` is the exception because its text genuinely has not moved since it was measured:
+the safety patch landed first, was re-run against the frozen text at 19/19 with flakiness
+0.00 across 57 rep-executions, and none of the later contract work touched it. `lint`
+confirms zero staleness for that cell, which is also why it *cannot* be declared in
+`unpublished-cells.txt` — a non-stale entry there is a dead exemption and fails CI. Blanking
+it would have been the mirror-image error of publishing a stale number: hiding a result that
+is current.
+
+For the other six, two rounds of contract work landed together. Workspace ownership gave
+`plan`, `review`, `debug` and `build` filesystem rules they did not have. Contract cleanup then replaced
 absolutes with governed rules across all seven skills: `debug`'s catch rule grew the three
 exceptions it was wrongly eating (pure code, transactions, operations with no durable
 record), `review` stopped treating one caller and one dependency as automatic deletions,
@@ -95,8 +104,8 @@ record), `review` stopped treating one caller and one dependency as automatic de
 engineering decisions and stopped opening with a brief, and `architect` and `decide` dropped
 handoff tokens that invited a workflow to route where nobody asked.
 
-All of that is measured text. Every cell that stood here described a prompt that no longer
-exists, and the one rule this document has is that **a number is never attached to text with
+All of that is measured text. Every remaining cell that stood here described a prompt that no
+longer exists, and the one rule this document has is that **a number is never attached to text with
 a different hash**. Publishing the old figures beside the new prompts would be the exact
 failure the staleness gate was built to prevent — so they are gone, not greyed out.
 

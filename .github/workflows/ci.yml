@@ -5,10 +5,12 @@ name: ci
 on:
   push:
     branches: [main]
-  # labeled/unlabeled are included so the lockstep-exempt escape hatch takes effect
-  # without a fresh push — the default types would ignore a label added after the fact.
+  # No labeled/unlabeled: those existed only so the agents-lockstep `lockstep-exempt` label
+  # took effect without a push. That job is gone and `generate:check` has no escape hatch, so
+  # keeping them meant every label change re-ran the whole suite — `npm pack` and a live
+  # skill-harness lint included — for nothing.
   pull_request:
-    types: [opened, synchronize, reopened, labeled, unlabeled]
+    types: [opened, synchronize, reopened]
 
 jobs:
   # `lint all` validates every spec (ship_bar arithmetic, critical ids, fixture

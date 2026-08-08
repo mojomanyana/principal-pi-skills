@@ -192,13 +192,17 @@ follow-up rather than a published column in the current round.
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
 |---|---|---|---|
-| all seven | — | — | — *(deferred)* |
+| git-ops | **19/19 · 100% SHIP** | — | — *(deferred)* |
+| the other six | — | — | — *(deferred)* |
 
-**The board is blank on purpose, and only until the remeasurement lands.** Two rounds of
-contract work changed every skill's text: filesystem-ownership rules for `plan`, `review`,
+**The board is blank on purpose, and only until the remeasurement lands** — apart from
+`git-ops`, whose text has not moved since it was measured at 19/19 (flakiness 0.00 across 57
+rep-executions) and which `lint` confirms is current. Two rounds of contract work changed the
+other six skills' text: filesystem-ownership rules for `plan`, `review`,
 `debug` and `build`, then a cleanup that replaced absolutes with governed rules across all
-seven. Every cell that stood here measured a prompt that no longer exists, and the one rule
-this project holds to is that a number is never attached to text with a different hash.
+six. Every remaining cell measured a prompt that no longer exists, and the one rule this
+project holds to is that a number is never attached to text with a different hash — which
+cuts both ways, so a result that IS current gets published rather than hidden.
 
 The last measured state was 78–100% per skill, and the per-run history is intact in
 [RESULTS-MANIFEST.md](docs/validation/RESULTS-MANIFEST.md). A blank says the text moved, not

@@ -37,7 +37,7 @@
  */
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, copyFileSync, symlinkSync, readlinkSync, lstatSync, existsSync, rmSync, writeFileSync } from "node:fs";
+import { mkdtempSync, mkdirSync, copyFileSync, symlinkSync, readlinkSync, lstatSync, existsSync, rmSync, writeFileSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -130,7 +130,9 @@ export function createSnapshot(repo = process.cwd()) {
 function main(argv) {
   const repoFlag = argv.indexOf("--repo");
   const repo = repoFlag === -1 ? process.cwd() : resolve(argv[repoFlag + 1] ?? ".");
-  const args = argv.filter((a, i) => a !== "--repo" && i !== repoFlag + 1);
+  // Guard on repoFlag !== -1: with no --repo, repoFlag + 1 === 0 and the subcommand itself
+  // gets filtered out, so every invocation without --repo fell through to usage.
+  const args = argv.filter((a, i) => repoFlag === -1 || (i !== repoFlag && i !== repoFlag + 1));
   const [cmd, arg] = args;
 
   try {
@@ -169,5 +171,16 @@ function main(argv) {
   return 2;
 }
 
-const invokedDirectly = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+// realpathSync, not a bare compare: npm installs bins as symlinks
+// (node_modules/.bin/<name> -> ../<pkg>/scripts/<file>.mjs), so argv[1] is the .bin path
+// while import.meta.url is already resolved. Comparing them unresolved makes this false for
+// every installed user — the CLI silently does nothing and exits 0, which reads as success.
+const invokedDirectly = (() => {
+  if (!process.argv[1]) return false;
+  try {
+    return fileURLToPath(import.meta.url) === realpathSync(process.argv[1]);
+  } catch {
+    return false;
+  }
+})();
 if (invokedDirectly) process.exit(main(process.argv.slice(2)));

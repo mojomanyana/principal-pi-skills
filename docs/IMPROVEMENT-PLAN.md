@@ -33,6 +33,15 @@ rather than showing stale numbers. Retire them by running:
 Still open, neither blocking: whether to publish and tag `v2.3.0` (README and AGENTS.md both
 tell users to install `@v2.3.0`, and that tag does not exist yet), and that a publish before
 PR 8 ships whatever npm picks up by default, since the packaging allowlist is PR 8.  
+**Independent review (2026-08-08).** A full review of the branch found four HIGH defects in
+the new scripts, all verified empirically and all fixed with regression tests: both CLIs were
+silent no-ops when installed (symlinked-bin main-module guard), `snapshot-workspace` dropped
+its subcommand without `--repo`, `install --force` wrote through symlinks, and both spines
+branched on a verdict token review never emits. Two lessons worth keeping: **unit tests that
+import a module never exercise its CLI entry point**, and **a test whose regex accepts both
+spellings cannot catch a spelling drift**. It also caught the scorecard hiding a `git-ops`
+cell that was genuinely current — the mirror image of publishing a stale one.
+
 **Target releases:** `v2.2.1` safety patch, followed by `v2.3.0` framework release
 
 This is the durable handoff plan produced from the project-wide review. Update the status

@@ -120,6 +120,39 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   rmSync(home, { recursive: true, force: true });
 });
 
+test("the installed bins actually run — not a silent exit 0", () => {
+  // npm installs bins as symlinks into node_modules/.bin, so a main-module guard that
+  // compares import.meta.url against an unresolved argv[1] is false for every real user:
+  // the CLI does nothing and exits 0, which is indistinguishable from success. Both bins
+  // shipped that way. Exercise them through .bin, the path a user takes.
+  const { tarball } = pack();
+  const home = scratch("ppa-home-");
+  const proj = join(home, "proj");
+  mkdirSync(proj, { recursive: true });
+  writeFileSync(join(proj, "package.json"), JSON.stringify({ name: "consumer", private: true }) + "\n");
+  const env = { ...process.env, HOME: home, PI_CODING_AGENT_DIR: join(home, ".pi", "agent"), npm_config_cache: join(home, ".npm") };
+  execFileSync("npm", ["install", "--no-audit", "--no-fund", tarball], { cwd: proj, env, stdio: "pipe" });
+
+  const agentsBin = join(proj, "node_modules", ".bin", "principal-pi-agents");
+  const wsBin = join(proj, "node_modules", ".bin", "principal-pi-workspace");
+  assert.ok(existsSync(agentsBin) && existsSync(wsBin), "both bins must be linked");
+
+  const out = execFileSync(agentsBin, ["install"], { cwd: proj, env, encoding: "utf8" });
+  assert.match(out, /installed|current/, "the installer must report what it did, not print nothing");
+  assert.ok(
+    existsSync(join(home, ".pi", "agent", "agents", "principal-plan.md")),
+    "and it must actually write the agents"
+  );
+
+  // The workspace bin needs a repo; prove it parses its subcommand with no --repo flag,
+  // which is the documented invocation and used to fall through to usage.
+  execFileSync("git", ["init", "-q", "-b", "main"], { cwd: proj });
+  execFileSync("git", ["-c", "user.email=t@l", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "base"], { cwd: proj });
+  const path = execFileSync(wsBin, ["create"], { cwd: proj, env, encoding: "utf8" }).trim();
+  assert.ok(path.length > 0 && existsSync(path), `create must print a real worktree path, got ${JSON.stringify(path)}`);
+  execFileSync(wsBin, ["remove", path], { cwd: proj, env, stdio: "pipe" });
+});
+
 test("preseeded generic resources do not shadow the namespaced ones", () => {
   const { tarball } = pack();
   const home = scratch("ppa-home-");

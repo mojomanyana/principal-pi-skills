@@ -141,7 +141,11 @@ for (const contract of CONTRACTS) {
       if (current !== rendered) {
         const c = current.split("\n");
         const r = rendered.split("\n");
-        const at = c.findIndex((l, i) => l !== r[i]);
+        // findIndex returns -1 when every committed line matches and the render is simply
+        // longer — the common case, a rule appended to a template. Without this the message
+        // says "line 0" and prints <eof> twice, reporting drift while hiding what drifted.
+        const first = c.findIndex((l, i) => l !== r[i]);
+        const at = first === -1 ? Math.min(c.length, r.length) : first;
         drift.push(
           `${path}: differs from ${rel} at line ${at + 1}\n` +
             `    committed: ${JSON.stringify(c[at] ?? "<eof>")}\n` +

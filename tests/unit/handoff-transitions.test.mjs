@@ -41,6 +41,14 @@ const SOURCES = {
 
 const WORKFLOWS = ["prompts/principal-feature.md", "prompts/principal-bugfix.md"];
 
+/** Verdicts review can actually return, read from the contract rather than restated here. */
+const REVIEW_VERDICTS = readFileSync(join(ROOT, "contracts/review.md.tmpl"), "utf8")
+  .split("\n")
+  .find((l) => l.startsWith("Verdict:"))
+  .replace("Verdict:", "")
+  .split("|")
+  .map((v) => v.trim());
+
 /** The `Next:` line inside the output template, not prose mentioning it. */
 function declaredValues(text) {
   const line = text.split("\n").find((l) => /^Next:/.test(l));
@@ -89,11 +97,28 @@ test("both workflows handle BLOCKED and the one-way pause explicitly", () => {
   for (const wf of WORKFLOWS) {
     const text = read(wf);
     assert.match(text, /BLOCKED|blocked/, `${wf} must say what happens on a blocked phase`);
-    assert.match(text, /repair|REQUEST-CHANGES|CHANGES-REQUESTED/i, `${wf} must define the repair loop`);
+    // Match the EXACT token review emits. The old alternation accepted either spelling, so
+    // the workflows branched on REQUEST-CHANGES while review returns CHANGES-REQUESTED —
+    // precisely the drift this test exists to catch, waved through by its own regex.
+    assert.match(text, /CHANGES-REQUESTED/, `${wf} must branch on the verdict review actually emits`);
+    assert.doesNotMatch(text, /REQUEST-CHANGES/, `${wf} uses a verdict token no contract emits`);
     assert.match(text, /two|2 rounds|twice/i, `${wf} must bound the repair loop`);
     assert.match(text, /UNVERIFIED/, `${wf} must say what an unverified review means`);
   }
   assert.match(read("prompts/principal-feature.md"), /\[ONE-WAY\]/, "the feature spine must pause on a one-way step");
+});
+
+test("every verdict a workflow names is one review can emit", () => {
+  for (const wf of WORKFLOWS) {
+    const text = read(wf);
+    for (const token of text.match(/\b[A-Z][A-Z-]{4,}\b/g) ?? []) {
+      if (!/^(APPROVE|APPROVE-WITH-NITS|CHANGES-REQUESTED|UNVERIFIED|REQUEST-CHANGES)/.test(token)) continue;
+      assert.ok(
+        REVIEW_VERDICTS.includes(token),
+        `${wf} mentions verdict \`${token}\`, which review never returns (it emits: ${REVIEW_VERDICTS.join(", ")})`
+      );
+    }
+  }
 });
 
 test("terminal phases carry no Next: line", () => {

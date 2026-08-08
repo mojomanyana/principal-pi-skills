@@ -28,7 +28,7 @@
  * Exit codes: 0 success / satisfied, 1 refusal or drift, 2 usage error.
  */
 
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync, existsSync, lstatSync } from "node:fs";
+import { readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync, existsSync, lstatSync, realpathSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { homedir } from "node:os";
@@ -110,6 +110,10 @@ function install({ dir, wanted, force }) {
   for (const a of actions) {
     if (a.kind === "current") continue;
     if (a.kind === "refuse" && !force) continue;
+    // Remove first. Writing to a path that is a symlink writes THROUGH it, editing whatever
+    // it points at — which is why plan() refuses links at all. --force means "replace the
+    // thing in my agents directory", never "overwrite an arbitrary file elsewhere".
+    rmSync(join(dir, a.file), { force: true });
     writeFileSync(join(dir, a.file), a.content);
     manifest.files[a.file] = sha(a.content);
     wrote++;
@@ -200,5 +204,16 @@ export function run(argv, env = process.env) {
   }
 }
 
-const invokedDirectly = process.argv[1] && fileURLToPath(import.meta.url) === process.argv[1];
+// realpathSync, not a bare compare: npm installs bins as symlinks
+// (node_modules/.bin/<name> -> ../<pkg>/scripts/<file>.mjs), so argv[1] is the .bin path
+// while import.meta.url is already resolved. Comparing them unresolved makes this false for
+// every installed user — the CLI silently does nothing and exits 0, which reads as success.
+const invokedDirectly = (() => {
+  if (!process.argv[1]) return false;
+  try {
+    return fileURLToPath(import.meta.url) === realpathSync(process.argv[1]);
+  } catch {
+    return false;
+  }
+})();
 if (invokedDirectly) process.exit(run(process.argv.slice(2)));

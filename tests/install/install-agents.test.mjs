@@ -111,6 +111,23 @@ test("refuses to write through a symlink", () => {
   assert.equal(readFileSync(victim, "utf8"), "untouched\n", "must not write through the link");
 });
 
+test("--force replaces the link, never writes through it", () => {
+  // The refusal path guarded this; the force path did not, and wrote the agent contract
+  // straight into whatever the symlink pointed at — corrupting an unrelated file and then
+  // recording it in the manifest, so a later uninstall would delete the link and leave the
+  // damage behind.
+  const { env, dir, base } = fresh();
+  mkdirSync(dir, { recursive: true });
+  const victim = join(base, "important.txt");
+  writeFileSync(victim, "IMPORTANT USER FILE\n");
+  symlinkSync(victim, join(dir, "principal-plan.md"));
+
+  assert.equal(quiet(() => run(["install", "--force"], env)), 0);
+  assert.equal(readFileSync(victim, "utf8"), "IMPORTANT USER FILE\n", "the link target must be untouched");
+  assert.ok(!lstatSync(join(dir, "principal-plan.md")).isSymbolicLink(), "the link is replaced by a real file");
+  assert.match(readFileSync(join(dir, "principal-plan.md"), "utf8"), /^name: principal-plan$/m);
+});
+
 test("check reports missing, stale, and satisfied states distinctly", () => {
   const { env, dir } = fresh();
   assert.equal(quiet(() => run(["check"], env)), 1, "missing directory is not satisfied");

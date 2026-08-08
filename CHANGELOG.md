@@ -40,6 +40,30 @@ decision-record honesty — appear only under the skill, on every model.
 **Fixed** — CI's lint-summary guard tolerates additive format growth in the harness output,
 so tracking the harness's moving `latest` tag stops turning its releases into red trees.
 
+**Fixed** — four defects found by an independent review of this branch, all of which made a
+documented command silently do nothing or do damage:
+
+- **Both CLIs were no-ops when installed.** The main-module guard compared
+  `import.meta.url` against an unresolved `process.argv[1]`. npm links bins as symlinks, so
+  for every real user the comparison was false: `npx principal-pi-agents install` printed
+  nothing and exited 0, and so did `npx principal-pi-workspace create`. Exit 0 with no output
+  reads as success, so the agents never installed and debug/review got an empty path where a
+  worktree should be — silently losing the isolation this release is built around.
+- **`snapshot-workspace` dropped its own subcommand** whenever `--repo` was absent: the
+  argument filter used `repoFlag + 1`, which is index 0 when the flag is missing. The
+  documented invocation could not work by either route.
+- **`install --force` wrote *through* a symlink**, overwriting whatever it pointed at
+  anywhere on the filesystem, leaving the link in place and recording it in the manifest — so
+  a later `uninstall` would delete the link and leave the damaged file behind. The refusal
+  path had always guarded this; the force path did not.
+- **Both workflow spines branched on `REQUEST-CHANGES`** while review emits
+  `CHANGES-REQUESTED`, so a review asking for changes routed nowhere and the spine fell
+  through to the commit step. The transition test accepted either spelling and waved through
+  the exact drift it existed to catch.
+
+Each now has a regression test, including one that runs both bins through `node_modules/.bin`
+after a real install rather than importing them.
+
 **Changed** — the package ships 24 files and 166 kB instead of 287 files and ~1 MB. A `files`
 allowlist replaces npm's default sweep, which was shipping every fixture, every committed
 `results.yaml`, the evidence directory, CI config and the contract templates — none of which

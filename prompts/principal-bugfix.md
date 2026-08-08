@@ -34,7 +34,7 @@ reasoning, so it cannot be surprised by it. When review runs inline, say so in t
    checkout. A verdict without that check is UNVERIFIED, and UNVERIFIED is not an approval;
    when review reports `Workspace: none`, treat it as a gap to close rather than a verdict
    to accept.
-5. **Repair loop** — if the verdict is REQUEST-CHANGES, return to Build with the findings,
+5. **Repair loop** — if the verdict is CHANGES-REQUESTED, return to Build with the findings,
    then review again. **Two repair rounds at most.** If findings remain after the second,
    stop and hand the user what is still outstanding rather than looping. A third round means
    the diagnosis was wrong, not the code.

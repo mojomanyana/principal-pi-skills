@@ -30,7 +30,7 @@ reasoning, so it cannot be surprised by it. When review runs inline, say so in t
    in a disposable workspace (`npx principal-pi-workspace`), never in this checkout —
    when it reports `Workspace: none`, expect UNVERIFIED and treat that as a gap to close,
    not a verdict to accept.
-5. **Repair loop** — if the verdict is REQUEST-CHANGES, return to Build with the findings,
+5. **Repair loop** — if the verdict is CHANGES-REQUESTED, return to Build with the findings,
    then review again. **Two repair rounds at most.** If findings remain after the second,
    stop and hand the user what is still outstanding rather than looping. A third round means
    the plan was wrong, not the code.
