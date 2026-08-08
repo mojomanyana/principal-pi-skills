@@ -41,10 +41,10 @@ around.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 671 |
 | `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1097 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1315) or inline | 1072 |
-| `build` | Test-first implementation — code proven by a test you watched fail | inline | 800 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 784) or inline | 752 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1060) or inline | 933 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1335) or inline | 1092 |
+| `build` | Test-first implementation — code proven by a test you watched fail | inline | 900 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 934) or inline | 906 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1186) or inline | 1059 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1895 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
@@ -167,15 +167,15 @@ cells not marked † below were measured that way.
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
 |---|---|---|---|
 | architect | 13/14 · 93% | 13/14 · 93% | **14/14 · 100% SHIP** |
-| build | 7/9 · 78% | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** |
-| debug † | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** |
+| build ◈ | — | — | — |
+| debug ◈ | — | — | — |
 | decide † | 11/12 · 92% | 11/12 · 92% | 11/12 · 92% |
 | git-ops ◇ | **19/19 · 100% SHIP** | — | — |
-| plan | 10/12 · 83% | 10/12 · 83% | **12/12 · 100% SHIP** |
-| review | **18/18 · 100% SHIP** †‡ | 17/18 · 94% † | **18/18 · 100% SHIP** |
+| plan ◈ | — | — | — |
+| review ◈ | — | — | — |
 
 † measured under pi ≤ 0.80.x's wrapped-prompt delivery; that skill's text has not changed
-since, so the cell stands. The two delivery modes are not comparable to each other —
+since, so the cell stands. Only `decide` still carries it. The two delivery modes are not comparable to each other —
 [VALIDATION.md](docs/validation/VALIDATION.md) explains why and what the difference costs.
 On those same two rows the kimi-k3 cells come from the third-model probe — a full run of
 the same board, three reps, same judge, recorded as a probe because the scorecard was
@@ -195,10 +195,17 @@ judgments agreeing. The committed `results.yaml` still records the original 17/1
 re-grade cannot rewrite it without marking the run stale — so the correction lives in
 [the evidence](docs/evidence/s6-rubric-regrade-2026-08-05.md) until `review` is next re-run.
 
-Six of seven skills ship on at least one model; `decide` ships on none, holding at 92%
-everywhere with one boundary scenario failing per model. The untuned model does best —
-kimi-k3 ships five of the six skills it currently has cells for, against three for DeepSeek
-and two for GLM.
+◈ `plan`, `review`, `debug` and `build` publish nothing right now. They gained filesystem
+ownership rules — debug and review experiment in a disposable worktree instead of your
+checkout, build is the only durable writer — and that is measured text, so the cells they
+used to show describe prompts that no longer exist. They were last measured at 78–100%; a
+blank says the text moved, not that it got worse. The pending cells are tracked in
+[unpublished-cells.txt](docs/validation/unpublished-cells.txt), and CI fails if an entry
+there outlives its reason, so the re-measurement cannot be quietly skipped.
+
+Of the skills with current cells: `architect` ships on kimi-k3, `git-ops` ships on DeepSeek
+at 19/19, and `decide` ships on none — it holds at 92% everywhere, failing exactly one
+boundary scenario per model.
 
 ### What the skills add
 

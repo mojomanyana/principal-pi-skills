@@ -29,6 +29,30 @@ decision-record honesty — appear only under the skill, on every model.
 **Fixed** — CI's lint-summary guard tolerates additive format growth in the harness output,
 so tracking the harness's moving `latest` tag stops turning its releases into red trees.
 
+**Added** — filesystem isolation and phase ownership. `scripts/snapshot-workspace.mjs`
+creates a disposable detached worktree carrying the caller's exact working state — committed
+HEAD, staged and unstaged changes, deletions, untracked files, symlinks — and never anything
+git ignores. Debug probes hypotheses and proves candidate fixes there; review runs its
+destructive checks there (reverting a fix to confirm the regression test goes red is the
+strongest verification available and the most damaging place to do it in someone's live
+tree). Build is named as the only phase that writes durably, and it writes where the user can
+see it.
+
+The exclusion of `.env`, credentials and caches is structural rather than a denylist: the
+snapshot is built from `git diff HEAD` and `git ls-files --others --exclude-standard`,
+neither of which can see an ignored file. A denylist would have to anticipate every name a
+secret might have; this cannot miss one because it never looks at them.
+
+When no workspace can be created, debug returns a read-only diagnosis with the fix marked
+unproven (or `BLOCKED`), and review returns `UNVERIFIED`. Neither falls back to mutating the
+caller's checkout — the fallback for "I cannot verify safely" is to say so, not to verify
+unsafely. Both contracts gained a `Workspace:` output field so the caller can see which
+happened.
+
+**Removed** — permission to fan parallel writers into one working tree. "Parallel-safe" in a
+plan is a claim about which steps need each other's output; it was being read as a licence
+for concurrent writers sharing a checkout. Parallel *analysis* remains fine.
+
 **Added** — namespaced workflows and agents. `/principal-feature` and `/principal-bugfix`
 are the supported commands, and the spines delegate to `principal-plan`,
 `principal-review` and `principal-debug`. Agent and command names are a flat global

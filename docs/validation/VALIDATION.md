@@ -54,10 +54,10 @@ from 3/3 to 0/3 — a right-sizing hatch losing to a system-prompt-weighted proc
 compute a delta across the epoch boundary.**
 
 Cells below are force-epoch unless marked †. † measured under pi ≤ 0.80.x's wrapped-prompt
-delivery; that skill's text has not changed since, so the cell stands. On these same two
-rows the kimi-k3 cells come from the third-model probe — a full run of the same board, three
-reps, same judge, recorded as a probe because the scorecard was two-model when it ran.
-Publishing it as a third column is a change of scope, not of method.
+delivery; that skill's text has not changed since, so the cell stands. Only `decide` still
+carries that mark. Its kimi-k3 cell comes from the third-model probe — a full run of the same
+board, three reps, same judge, recorded as a probe because the scorecard was two-model when
+it ran. Publishing it as a third column is a change of scope, not of method.
 
 ‡ `review` S6 on DeepSeek was published as a failure under a checklist that could not decide
 its own transcripts — five replies of one shape drew three PASS and two FAIL, and one of those
@@ -66,19 +66,35 @@ it as a pass with all 18 judgments agreeing. The committed `results.yaml` still 
 original 17/18, because `grade` preserves a run's recorded hashes and rewriting them would mark
 the run stale; the correction is carried in
 [`../evidence/s6-rubric-regrade-2026-08-05.md`](../evidence/s6-rubric-regrade-2026-08-05.md)
-until `review` is next re-run.
+until `review` is next re-run — which is now pending anyway, since its contract changed.
 
 ## Current scorecard
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 | failing (rate) |
 |---|---|---|---|---|
 | architect | 13/14 · 93% | 13/14 · 93% | **14/14 · 100% SHIP** | B1 1/3 (DS) · D1 1/3 (GLM) · — |
-| build | 7/9 · 78% | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | A2 1/3, B1 1/3 (DS) · — · — |
-| debug † | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** | — · — · — |
+| build ◈ | — | — | — | re-measurement pending |
+| debug ◈ | — | — | — | re-measurement pending |
 | decide † | 11/12 · 92% | 11/12 · 92% | 11/12 · 92% | C1 1/3 · A5 1/3 · C1 0/3 |
 | git-ops ◇ | **19/19 · 100% SHIP** | — | — | — · not measured · not measured |
-| plan | 10/12 · 83% | 10/12 · 83% | **12/12 · 100% SHIP** | A5 0/3, B1 0/3 · A2 0/3, C2 1/3 · — |
-| review | **18/18 · 100% SHIP** †‡ | 17/18 · 94% † | **18/18 · 100% SHIP** | — · C1 1/3 · — |
+| plan ◈ | — | — | — | re-measurement pending |
+| review ◈ | — | — | — | re-measurement pending |
+
+◈ **`plan`, `review`, `debug` and `build` are mid-change and publish nothing right now.**
+The workspace-ownership work gave them filesystem rules they did not have — debug and review
+experiment in a disposable worktree instead of the caller's checkout, build is named as the
+only durable writer, and "parallel-safe" no longer implies writers sharing a working tree.
+That is measured text. Every cell those four skills used to show describes a prompt that no
+longer exists, so the cells are blank rather than reassuring: a number attached to text with
+a different hash is the one thing this document exists to prevent.
+
+They are not blank indefinitely. Each pending cell is listed in
+[`unpublished-cells.txt`](unpublished-cells.txt), which CI reads — and an entry there that
+matches no staleness finding *fails the build*. So the list is a to-do that cannot rot: once
+a fresh run makes a cell current, the exemption stops matching and must be deleted. The
+remeasurement is deliberately deferred until the contract work is finished, because
+re-running the matrix after every sentence is how a measurement budget gets spent on
+sentences.
 
 ◇ **`git-ops` is measured on DeepSeek only.** Its safety rules were rewritten in the v2.2.1
 patch — conditional upstream preflight, a named credential-incident exception to the
@@ -91,24 +107,27 @@ about what ships today. The new board was re-run on DeepSeek at three reps and s
 any skill on this board. GLM and kimi-k3 are deliberately blank: one model verifies a patch,
 it does not make a scorecard, and both are queued for the release remeasurement.
 
-Counting current cells as they stand — which mixes the two epochs, so read it as a summary of
-the table and not as a measurement in its own right — that is **86/92 on DeepSeek**, and
-**68/73 on GLM, 72/73 on kimi-k3** with `git-ops` excluded from those two. The three columns
-no longer cover the same denominator; that is the honest shape of it until the remeasurement.
+**There is no meaningful total right now, so none is given.** Three of seven skills carry
+current cells (`architect`, `decide`, `git-ops`, the last on one model), and the other four
+are mid-change. Summing what remains would produce a number whose movement tracked which
+skills happened to be measured rather than how good any of them are. The totals return with
+the remeasurement.
 
-Three things worth reading off it:
+What still reads off the table:
 
-- **Six of seven skills ship on at least one model.** `decide` ships on none: it holds at 92%
-  everywhere, failing exactly one boundary scenario per model.
-- **The untuned model does best.** kimi-k3 ships five of the six skills it currently has cells
-  for, against three for DeepSeek and two for GLM. Whatever the framework is fitted to, it is
-  not those two models. One of its ships (debug) comes from that probe rather than from a run
-  certified current.
+- **`architect` ships on kimi-k3** and sits one boundary scenario short on both tuned models.
+  **`decide` ships on none** — it holds at 92% everywhere, failing exactly one boundary
+  scenario per model, and which one is not stable across models. **`git-ops` ships on
+  DeepSeek** at 19/19 after the safety patch.
+- **The untuned model still does best where it is measured.** kimi-k3 is the only model with a
+  perfect `architect` board. Whatever the framework is fitted to, it is not the two models it
+  was tuned against.
 - **A perfect board is not proof the text was always right.** `git-ops`'s 19/19 took four
   measurement rounds, and three of the defects it found were regressions introduced while
   fixing the previous one. The run records are in the manifest for exactly that reason.
-- **`architect` and `plan` on kimi-k3 are perfect runs** — every scenario 3/3, flakiness
-  0.00.
+- **A blank cell is not a bad cell.** These four skills were last measured at 78–100%. The
+  blanks say the text moved, not that it got worse — and the honest response to "we changed
+  the prompt" is to stop quoting the old number, not to assume it survived.
 
 ## What the skills add
 
@@ -116,6 +135,13 @@ The scorecard says how good a skill is on a model. It does not say what the skil
 So the same scenarios ran again with **no skill at all** — `--mode red`, 477 rep-executions,
 three reps, like-for-like with the scored cells. Red baselines are unscored controls; the
 delta is the point.
+
+**These deltas measure the text as it stood before the workspace-ownership change.** For
+`plan`, `build` and `review` the "skilled" side is the superseded prompt, so read the table
+as the lift that text produced, not as a current claim. The red baselines are unaffected —
+a naked model has no skill text to go stale — so they stand and the lift recomputes for free
+once the four skills are re-measured. The findings below are about the *shape* of lift, which
+is what survives a prompt edit; the exact numbers are not.
 
 | Skill | DeepSeek: naked → skilled | GLM: naked → skilled | kimi-k3: naked → skilled |
 |---|---|---|---|
@@ -147,7 +173,9 @@ Three findings the deltas carry:
 ## Open items
 
 Published as measured rates rather than averaged away. Each is a known limit, not a
-surprise waiting to happen.
+surprise waiting to happen. Rows naming `plan`, `build`, `review` or `debug` describe the
+pre-workspace-ownership text and are carried forward as things to re-check, not as current
+state.
 
 | Item | Where | State |
 |---|---|---|

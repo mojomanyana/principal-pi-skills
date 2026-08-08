@@ -1,5 +1,13 @@
 # Dogfood: the steering digest, end to end (2026-08-06)
 
+> **Recorded before v2.2.1's workspace-ownership and namespacing changes.** It is kept as
+> the record of that run, not rewritten to match current contracts. Two things would differ
+> today: the commands are `/principal-feature` and `/principal-bugfix` (the bare names are now deprecated aliases), and any
+> destructive verification — reverting a fix to watch its regression test go red — happens in
+> a disposable worktree rather than the caller's checkout. The observed behavior and verdicts
+> below are unchanged.
+
+
 The P1 additions to `/feature` and `/bugfix` — the [ONE-WAY] pause and the closing
 digest — shipped in release 2 without ever having been executed. This run closes that
 gap: both spines driven end to end by pi (GLM 5.2 orchestrating, pi 0.83, prompts and

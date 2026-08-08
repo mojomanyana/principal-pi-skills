@@ -21,12 +21,21 @@ unknown one; the harder the bug, the stricter the loop.
 3. **Hypothesize testably.** First read the error message word by word — it usually names
    the file, line, and cause. Then write 2–3 hypotheses in the form "the bug is at
    file:line because <observed evidence> implies <cause>"; test the cheapest first.
-4. **Probe.** One smallest experiment per hypothesis — a log line, an assertion, a
-   narrowed test. One change at a time. Probes are temporary: remove them when done.
-5. **Fix at the root cause and verify.** The stack trace points at the symptom; trace the
-   wrong value upstream to where it originated and fix there. The regression test fails
+4. **Probe — in a workspace you own.** One smallest experiment per hypothesis: a log line,
+   an assertion, a narrowed test. One change at a time. Probing edits code, so do it in a
+   disposable copy, never the caller's checkout: `node scripts/snapshot-workspace.mjs create`
+   prints a throwaway worktree holding their exact working state (minus anything git
+   ignores). Work there, then `remove` it. That keeps "probes are temporary" structurally,
+   which nobody manages by hand under a failing build.
+5. **Prove the fix at the root cause — still in the workspace.** The stack trace points at
+   the symptom; trace the wrong value upstream and fix there. The regression test fails
    before the fix and passes after; re-run the full suite and the original reproduction.
    Intermittent bug → loop the test (e.g. 100×) before declaring victory.
+   **You report the fix; you do not leave it behind** — `build` implements it once, in the
+   caller's checkout, where they can watch it land.
+   No workspace available → return a read-only diagnosis that says so, with the fix marked
+   unproven, or `BLOCKED` if nothing can be told apart without running code. Never run the
+   experiment in the caller's tree instead.
 
 ## Error-handling rule
 When the user says "make it not crash" / "stop it taking down the server", they are asking
@@ -74,9 +83,10 @@ Reproduction: <command or test that triggers it, or "NOT REPRODUCED: <why>">
 Isolated to: <smallest input / commit range>
 Hypotheses tested: <each → confirmed / rejected, with evidence>
 Root cause: <file:line + why>
-Fix: <the minimal change, at the cause not the symptom>
+Fix: <the minimal change, at the cause not the symptom — proposed, not applied>
 Regression test: <name; failed before fix, passes after>
 Suite: <result verbatim>
+Workspace: disposable | none (read-only diagnosis) — <path removed, or why none>
 Next: build (fix is nontrivial) | plan (it's a design flaw) | done
 ```
 

@@ -15,3 +15,25 @@
 
 git-ops  glm-5p2   # v2.2.1 safety patch verified on DeepSeek only; retired by the release remeasurement (PR 7)
 git-ops  kimi-k3   # same — the old 15/15 probe measured text that no longer exists
+
+# --- Workspace-ownership change (PR 5). ---------------------------------------------
+# plan, review, debug and build gained filesystem-ownership rules: debug and review now
+# experiment in a disposable worktree instead of the caller's checkout, build is named as
+# the only durable writer, and "parallel-safe" no longer implies shared-cwd writers. That is
+# measured text, so every cell behind it now describes a prompt that no longer exists.
+#
+# These are NOT permanent exemptions. They are the remeasurement to-do list, and CI enforces
+# that: the moment a fresh run makes one of these cells current, its entry here matches
+# nothing and the build fails until the line is deleted. PR 7 cannot quietly skip a skill.
+plan     deepseek-v4-pro
+plan     glm-5p2
+plan     kimi-k3
+review   deepseek-v4-pro
+review   glm-5p2
+review   kimi-k3
+debug    deepseek-v4-pro
+debug    glm-5p2
+debug    kimi-k3
+build    deepseek-v4-pro
+build    glm-5p2
+build    kimi-k3

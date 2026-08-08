@@ -20,13 +20,16 @@ reasoning, so it cannot be surprised by it. When review runs inline, say so in t
    step and its rollback note before building it. A one-way door gets walked through
    deliberately, never as step N of an unattended chain.
 3. **Build** — load the `build` skill inline, starting at step 1. Build always runs in this
-   session: it is the only phase that writes to your checkout.
+   session: it is the only phase that writes durably to the checkout.
    Implement the steps in order. Do not fan parallel writers into the same working tree,
    whatever the plan says about parallel-safety — that marking means the steps are
-   independent, not that two writers may share a checkout.
+   independent of each other, not that two writers may share a checkout.
 4. **Review** — `principal-review` agent, or the `review` skill inline. Pass the
    implementation report. Review runs the tests before any verdict; a verdict without a test
-   run is UNVERIFIED, and UNVERIFIED is not an approval.
+   run is UNVERIFIED, and UNVERIFIED is not an approval. Review's destructive checks belong
+   in a disposable workspace (`scripts/snapshot-workspace.mjs`), never in this checkout —
+   when it reports `Workspace: none`, expect UNVERIFIED and treat that as a gap to close,
+   not a verdict to accept.
 5. **Repair loop** — if the verdict is REQUEST-CHANGES, return to Build with the findings,
    then review again. **Two repair rounds at most.** If findings remain after the second,
    stop and hand the user what is still outstanding rather than looping. A third round means

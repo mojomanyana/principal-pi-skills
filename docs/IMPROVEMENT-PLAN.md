@@ -2,13 +2,14 @@
 
 **Status:** Active  
 **Created:** 2026-08-08  
-**Current position:** PRs 1–4 landed on `gitops-safety` (one branch, one PR, by request).
+**Current position:** PRs 1–5 landed on `gitops-safety` (one branch, one PR, by request).
 Git-Ops re-measured 19/19 · SHIP on DeepSeek (force, reps 3, flakiness 0.00, no misfires);
 GLM and kimi-k3 deliberately unmeasured. `plan`/`review`/`debug` now generated from
 `contracts/`, byte-identical; workflows and agents namespaced with an installer and 20
 install tests. `npm test` green from a fresh checkout. Version bumped to
 2.2.1 — **not yet published or tagged.**  
-**Next action:** PR 5 — workspace isolation and phase ownership. Still open, neither
+**Next action:** PR 6 — contract and rubric cleanup. It is the last text-changing PR before
+PR 7's single remeasurement, so batch every semantic edit into it. Still open, neither
 blocking: whether to publish `v2.2.1` now (the README and AGENTS.md both tell users to
 install `@v2.2.1`, and that tag does not exist yet), and that a publish today ships whatever
 npm picks up by default, since the packaging allowlist is PR 8.  
@@ -63,7 +64,18 @@ this file rather than keeping completed process archaeology indefinitely.
       which only the live E2E cells in PR 7 can exercise.
       Noted for PR 8: the tarball currently ships `docs/`, `tests/`, `contracts/` and
       `scripts/`, and npm warns there is no `.npmignore`.
-- [ ] PR 5 — Workspace isolation and phase ownership
+- [x] PR 5 — Workspace isolation and phase ownership *(same branch/PR)*
+      Snapshot excludes ignored files structurally (built from `git diff HEAD` +
+      `ls-files --exclude-standard`), so no secret-name denylist can miss one. 8 fixture
+      tests cover every state the plan enumerates, including a canary grep proving `.env`
+      never lands in the snapshot.
+      **Consequence, by design:** `plan`, `review`, `debug` and `build` are measured text and
+      all four changed, so their scorecard cells are now blank and listed in
+      `unpublished-cells.txt`. That file is the PR 7 to-do list and CI fails on a dead entry,
+      so the remeasurement cannot be silently skipped. Only `architect`, `decide` and
+      `git-ops` still publish numbers.
+      The word-budget check added in PR 2 caught three real breaches here (plan, agents/plan,
+      debug all over ceiling); trimmed rather than raising the budgets.
 - [ ] PR 6 — Contract and rubric cleanup
 - [ ] PR 7 — Validation tiers, E2E, and fresh measurements
 - [ ] PR 8 — Package cleanup, documentation, and `v2.3.0`

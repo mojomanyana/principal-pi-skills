@@ -40,8 +40,18 @@ ships is a failed review.
      still contain the original's guards — code you present as "cleaner" that drops a
      validation or weakens a security compare is a bug you just authored. If the only way
      smaller is through a safeguard, the verdict is KEEP; say so.
-4. **Verify, don't assume.** Run the tests; exercise the riskiest path if you can. If you
-   cannot verify, the verdict is UNVERIFIED, not approve.
+4. **Verify, don't assume — in a workspace you own.** Run the tests; exercise the riskiest
+   path. The strongest check is often destructive — revert the fix and confirm the
+   regression test goes red, break an input and watch the guard fire — so do all of it in a
+   disposable copy, never in the caller's checkout:
+   `node scripts/snapshot-workspace.mjs create` prints a throwaway worktree carrying their
+   exact working state (staged, unstaged, untracked, minus anything git ignores). Work
+   there, then `remove` it. The caller must find their tree byte-for-byte as they left it —
+   they are still working in it, and a file you "just" reverted is one they may be editing.
+   If no workspace can be made, you may still read, and you may run a read-only test command
+   if one exists — but the verdict is **UNVERIFIED**, and you say the workspace was
+   unavailable. UNVERIFIED is not a soft approve, and it is never a reason to run the
+   mutating check in their tree instead.
 5. **Rank and be concrete.** Every finding: `file:line`, what's wrong, the fix (for
    simplifications, show the smaller code). The ordering IS the message: findings appear
    most-severe first, and "Top concern" is always the highest-severity finding — a rename
@@ -62,6 +72,7 @@ why under Verified.
 ```
 ## Review: <change, one line>
 Verdict: APPROVE | APPROVE-WITH-NITS | CHANGES-REQUESTED | UNVERIFIED
+Workspace: disposable | none (read-only review) — <path removed, or why none>
 Verified: <tests run + result verbatim; paths exercised; or what blocked verification>
 Findings:
   [BLOCKER] file:line — <what breaks, concretely> → <fix>
