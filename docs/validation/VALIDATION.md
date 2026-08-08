@@ -8,8 +8,8 @@ records are in [`../evidence/`](../evidence/).
 ## What is measured
 
 Each skill carries a `tests/specification.yaml`: scenarios with a prompt, a pass checklist,
-and a ship bar. Scenarios marked *critical* must pass for the skill to ship. **88 scenarios
-across the seven skills** — `review` 18, `git-ops` 15, `architect` 14, `decide` 12,
+and a ship bar. Scenarios marked *critical* must pass for the skill to ship. **92 scenarios
+across the seven skills** — `git-ops` 19, `review` 18, `architect` 14, `decide` 12,
 `plan` 12, `build` 9, `debug` 8.
 
 Three kinds of scenario:
@@ -54,7 +54,7 @@ from 3/3 to 0/3 — a right-sizing hatch losing to a system-prompt-weighted proc
 compute a delta across the epoch boundary.**
 
 Cells below are force-epoch unless marked †. † measured under pi ≤ 0.80.x's wrapped-prompt
-delivery; that skill's text has not changed since, so the cell stands. On these same three
+delivery; that skill's text has not changed since, so the cell stands. On these same two
 rows the kimi-k3 cells come from the third-model probe — a full run of the same board, three
 reps, same judge, recorded as a probe because the scorecard was two-model when it ran.
 Publishing it as a third column is a change of scope, not of method.
@@ -76,22 +76,37 @@ until `review` is next re-run.
 | build | 7/9 · 78% | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | A2 1/3, B1 1/3 (DS) · — · — |
 | debug † | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** | — · — · — |
 | decide † | 11/12 · 92% | 11/12 · 92% | 11/12 · 92% | C1 1/3 · A5 1/3 · C1 0/3 |
-| git-ops † | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** | — · — · — |
+| git-ops ◇ | **19/19 · 100% SHIP** | — | — | — · not measured · not measured |
 | plan | 10/12 · 83% | 10/12 · 83% | **12/12 · 100% SHIP** | A5 0/3, B1 0/3 · A2 0/3, C2 1/3 · — |
 | review | **18/18 · 100% SHIP** †‡ | 17/18 · 94% † | **18/18 · 100% SHIP** | — · C1 1/3 · — |
 
-Counting current cells as they stand — which mixes the two epochs, so read it as a summary
-of the table and not as a measurement in its own right — that is **82/88 on DeepSeek,
-83/88 on GLM, 87/88 on kimi-k3.**
+◇ **`git-ops` is measured on DeepSeek only.** Its safety rules were rewritten in the v2.2.1
+patch — conditional upstream preflight, a named credential-incident exception to the
+protected-branch rewrite rule, redacted secret reporting, publication-aware wrong-branch
+recovery — and the board grew from 15 scenarios to 19. The three 15/15 · 100% SHIP cells that
+stood here measured the *previous* text and are **historical**, kept in
+[`RESULTS-MANIFEST.md`](RESULTS-MANIFEST.md) as the record of that text rather than a claim
+about what ships today. The new board was re-run on DeepSeek at three reps and scores
+**19/19 with flakiness 0.00 on all 57 rep-executions and no misfires** — the cleanest run of
+any skill on this board. GLM and kimi-k3 are deliberately blank: one model verifies a patch,
+it does not make a scorecard, and both are queued for the release remeasurement.
+
+Counting current cells as they stand — which mixes the two epochs, so read it as a summary of
+the table and not as a measurement in its own right — that is **86/92 on DeepSeek**, and
+**68/73 on GLM, 72/73 on kimi-k3** with `git-ops` excluded from those two. The three columns
+no longer cover the same denominator; that is the honest shape of it until the remeasurement.
 
 Three things worth reading off it:
 
-- **Six of seven skills ship on at least one model.** `decide` ships on none: it holds at
-  92% everywhere, failing exactly one boundary scenario per model.
-- **The untuned model does best.** kimi-k3 ships six of seven, against three each for the
-  two models the skills were tuned on. Whatever the framework is fitted to, it is not those
-  two models. Two of its six ships (debug, git-ops) come from that probe rather than from a
-  run certified current.
+- **Six of seven skills ship on at least one model.** `decide` ships on none: it holds at 92%
+  everywhere, failing exactly one boundary scenario per model.
+- **The untuned model does best.** kimi-k3 ships five of the six skills it currently has cells
+  for, against three for DeepSeek and two for GLM. Whatever the framework is fitted to, it is
+  not those two models. One of its ships (debug) comes from that probe rather than from a run
+  certified current.
+- **A perfect board is not proof the text was always right.** `git-ops`'s 19/19 took four
+  measurement rounds, and three of the defects it found were regressions introduced while
+  fixing the previous one. The run records are in the manifest for exactly that reason.
 - **`architect` and `plan` on kimi-k3 are perfect runs** — every scenario 3/3, flakiness
   0.00.
 
@@ -141,6 +156,7 @@ surprise waiting to happen.
 | `plan` A5 ⇄ D1 on DeepSeek | run-level | Between consecutive full runs A5 went 3/3 → 0/3 and D1 went 1/3 → 3/3, each unanimous within the later run. **Within-run flakiness of 0.00 is not stability** — read a single-run boundary cell with that in mind. |
 | `review` on DS and GLM | green epoch | Text unchanged, so the cells stand, but a force re-measure would also unbank the two red baselines above. |
 | `decide` C1 / A5 | DS C1 1/3 · GLM A5 1/3 · kimi C1 0/3 | Both are boundary scenarios, and which one a model fails is not stable across models — DeepSeek and kimi-k3 both fail C1, GLM fails A5 instead. |
+| `git-ops` on GLM and kimi-k3 | not measured | The v2.2.1 safety patch is verified on DeepSeek only (19/19, flakiness 0.00). The other two columns are blank rather than carried over: the 15/15 cells that stood there measured text that no longer exists. Queued for the release remeasurement, which re-runs the 19-scenario board on all three. |
 
 ## Measurement lessons
 

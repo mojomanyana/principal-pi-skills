@@ -24,8 +24,12 @@ around.
    plain-text tags (`[ONE-WAY]`, `[BLOCKER]`) instead of an emoji schema, no aphorisms
    doing load-bearing work, no personas, no required reading in reference files.
 3. **Token economics.** Budgets stated as decisions rather than aspirations: **skills
-   ≤ ~1100 words**, with **`git-ops` an accepted exception at ~1320** — the safety-critical
-   operator carries the most arming, and validated behavior outweighs a budget. **Agents
+   ≤ ~1100 words**, with **`git-ops` an accepted exception at ~1900** — the safety-critical
+   operator carries the most arming, and validated behavior outweighs a budget. That
+   exception was ~1320 before the v2.2.1 safety patch; reconciling the protected-branch and
+   secret-purge policies, redacting secret findings, and making wrong-branch recovery
+   publication-aware cost the difference. It is the one budget in this repo that has moved,
+   and it should not move again without a defect to point at. **Agents
    get their own budget, ≤ ~1350**: a single-shot definition carries its output template
    *and* the BLOCKED form *and* the no-questions mechanics, none of which a loaded skill
    needs. Every count in the table below is checkable with `wc -w`. Nothing loads anything
@@ -41,7 +45,7 @@ around.
 | `build` | Test-first implementation — code proven by a test you watched fail | inline | 800 |
 | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/review.md`, 784) or inline | 752 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/debug.md`, 1060) or inline | 933 |
-| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1320 |
+| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1895 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is that
@@ -94,7 +98,9 @@ type `/feature <task>` or `/bugfix <symptom>` and the orchestrator runs the chai
 
 Every output template ends with a `Next:` line naming the follow-on skill — that plus the
 fixed template fields *is* the handoff. No baton vocabulary, no delegation-contract
-reference file: the contract is visible in the template itself.
+reference file: the contract is visible in the template itself. `git-ops` is the exception
+and carries no template: it runs inline and terminates a chain, so a handoff token would
+have nothing to hand to. Its delegated block was removed in v2.2.1 as dead ceremony.
 
 ## See it run
 
@@ -113,7 +119,7 @@ the model's own account:
 ## Validation
 
 Every skill carries a `tests/specification.yaml` of scenarios with pass criteria, and the
-results are committed. The measurement: **88 scenarios across the seven skills, three
+results are committed. The measurement: **92 scenarios across the seven skills, three
 subject models, every scenario run three times**, judged by `claude-code:opus`, with
 objective gates (vitest runs, diff assertions) decided before the judge is consulted. A
 scenario passes at a majority of its clean reps, so every cell below is a pass-rate rather
@@ -128,16 +134,24 @@ cells not marked † below were measured that way.
 | build | 7/9 · 78% | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** |
 | debug † | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** |
 | decide † | 11/12 · 92% | 11/12 · 92% | 11/12 · 92% |
-| git-ops † | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** |
+| git-ops ◇ | **19/19 · 100% SHIP** | — | — |
 | plan | 10/12 · 83% | 10/12 · 83% | **12/12 · 100% SHIP** |
 | review | **18/18 · 100% SHIP** †‡ | 17/18 · 94% † | **18/18 · 100% SHIP** |
 
 † measured under pi ≤ 0.80.x's wrapped-prompt delivery; that skill's text has not changed
 since, so the cell stands. The two delivery modes are not comparable to each other —
 [VALIDATION.md](docs/validation/VALIDATION.md) explains why and what the difference costs.
-On those same three rows the kimi-k3 cells come from the third-model probe — a full run of
+On those same two rows the kimi-k3 cells come from the third-model probe — a full run of
 the same board, three reps, same judge, recorded as a probe because the scorecard was
 two-model when it ran.
+
+◇ `git-ops` is measured on DeepSeek only. The v2.2.1 safety patch rewrote its rules and grew
+the board from 15 scenarios to 19, so the three 15/15 · 100% SHIP cells that stood here
+measured text that no longer exists; they are kept as history in
+[RESULTS-MANIFEST.md](docs/validation/RESULTS-MANIFEST.md). The new board scores 19/19 with
+flakiness 0.00 across all 57 rep-executions. GLM and kimi-k3 are left blank on purpose —
+one model verifies a patch, it does not make a scorecard — and are queued for the release
+remeasurement.
 
 ‡ `review` S6 on DeepSeek was published as a failure under a checklist that could not decide
 its own transcripts; a rewritten, decidable rubric re-grades it as a pass with all 18
@@ -147,7 +161,8 @@ re-grade cannot rewrite it without marking the run stale — so the correction l
 
 Six of seven skills ship on at least one model; `decide` ships on none, holding at 92%
 everywhere with one boundary scenario failing per model. The untuned model does best —
-kimi-k3 ships six of seven, against three each for the two models the skills were tuned on.
+kimi-k3 ships five of the six skills it currently has cells for, against three for DeepSeek
+and two for GLM.
 
 ### What the skills add
 
