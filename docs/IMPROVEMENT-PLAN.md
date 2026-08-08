@@ -2,12 +2,13 @@
 
 **Status:** Active  
 **Created:** 2026-08-08  
-**Current position:** PR 1 landed on `gitops-safety` — Git-Ops re-measured 19/19 · SHIP on
-DeepSeek (force, reps 3, flakiness 0.00, no misfires). GLM and kimi-k3 deliberately unmeasured.  
-**Next action:** PR 2 — CI pinning and `v2.2.1`. Resolve first: the plan specifies
-`npx skill-harness@<pinned-version>`, which contradicts the standing decision (2026-08-06) to
-track `latest` everywhere — CI already tracks `latest`, and its own comment block still
-carries a stale "Pinned to an exact release" paragraph above it.  
+**Current position:** PRs 1 and 2 landed on `gitops-safety` (one branch, one PR, by request).
+Git-Ops re-measured 19/19 · SHIP on DeepSeek (force, reps 3, flakiness 0.00, no misfires);
+GLM and kimi-k3 deliberately unmeasured. `npm test` green from a fresh checkout. Version
+bumped to 2.2.1 — **not yet published or tagged.**  
+**Next action:** PR 3 — byte-identical contract generator. Before it: decide whether to
+publish `v2.2.1` now (npm + annotated tag) or hold the release until more of the milestone
+lands, since the README already tells users to install `@v2.2.1`.  
 **Target releases:** `v2.2.1` safety patch, followed by `v2.3.0` framework release
 
 This is the durable handoff plan produced from the project-wide review. Update the status
@@ -21,7 +22,20 @@ this file rather than keeping completed process archaeology indefinitely.
       git-ops runs. CI treats stale as a warning on a PR and an **error on `main`**, so this
       reds the tree on merge until either PR 7 re-runs those two models or PR 2 changes the
       gate. Decide that in PR 2 rather than discovering it at merge.
-- [ ] PR 2 — CI pinning and `v2.2.1`
+- [x] PR 2 — CI pinning and `v2.2.1` *(landed in the same branch/PR as PR 1, by request)*
+      Three deliberate deviations from this plan, each decided rather than skipped:
+      **(a)** the harness is NOT pinned to an exact version — the standing 2026-08-06
+      decision to track `latest` wins, and its ordering guarantee is what makes the
+      staleness rule work at all; the contradictory comment in `ci.yml` was deleted instead.
+      **(b)** staleness blocks PRs as specified, but scoped to *published* cells via
+      `docs/validation/unpublished-cells.txt`, because the literal rule would have blocked
+      this very PR over cells that publish no number. **(c)** the installed/green git-ops
+      board is deferred to PR 7, which defines that evidence tier properly; force is the
+      published epoch and is already at 19/19.
+      `npm test` covers what exists today (word budgets + spec lint). `generate:check`,
+      `test:install` and `check:pack` are forward references to PRs 3, 4 and 8 and are wired
+      in as those land.
+      **Not done — needs a human:** the actual `npm publish` and the `v2.2.1` tag.
 - [ ] PR 3 — Byte-identical contract generator
 - [ ] PR 4 — Namespaced workflows and agent installer
 - [ ] PR 5 — Workspace isolation and phase ownership

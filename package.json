@@ -1,6 +1,6 @@
 {
     "name": "principal-pi-skills",
-    "version": "2.2.0",
+    "version": "2.2.1",
     "description": "Skill framework for principal-level software engineering: seven dual-use skills (decide, architect, plan, build, review, debug, git-ops) that work unedited as loaded skills or as subagent system prompts.",
     "license": "MIT",
     "author": "Nemanja Alavanja",
@@ -17,6 +17,14 @@
         "skills",
         "agent-skills"
     ],
+    "engines": {
+        "node": ">=20"
+    },
+    "scripts": {
+        "test": "npm run test:unit && npm run lint:skills",
+        "test:unit": "node scripts/check-word-budgets.mjs",
+        "lint:skills": "node scripts/lint-skills.mjs"
+    },
     "pi": {
         "skills": [
             "./decide",

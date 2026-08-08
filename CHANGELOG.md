@@ -29,6 +29,67 @@ decision-record honesty — appear only under the skill, on every model.
 **Fixed** — CI's lint-summary guard tolerates additive format growth in the harness output,
 so tracking the harness's moving `latest` tag stops turning its releases into red trees.
 
+## [2.2.1] — 2026-08-08
+
+A safety patch. `git-ops` carried rules that contradicted each other or leaked the thing
+they existed to protect, and none of it was visible in a passing 15/15 board — because no
+scenario asked.
+
+**Fixed** — four safety defects in `git-ops`, repaired together because they interlock:
+
+- The pre-flight ran `git fetch @{u}` unconditionally, so a branch with no upstream failed a
+  check that should never have run on it. Divergence is now conditional and `upstream: none`
+  is a reported fact that blocks nothing. Detached HEAD becomes the one pre-flight result
+  that *does* block writes.
+- Rule 2's protected-branch absolute and rule 4's leaked-secret playbook contradicted each
+  other outright: one forbade rewriting `main`, the other required it. Reconciled as a
+  **named credential-incident exception** whose preconditions must be stated back before any
+  command is given. Deletion stays absolute and sits outside the exception — it is a rewrite
+  exception only.
+- A secret match was reported *by showing it*, copying the leak into the transcript, the
+  scrollback and every log that captures them. Findings are now reported by path, line,
+  detector and non-reversible fingerprint. Conflict markers and oversized files are
+  explicitly carved out: those name their files outright, having nothing to redact.
+- Wrong-branch recovery recommended `reset` regardless of whether the commit was published.
+  It is now publication-aware, and unknown publication is treated as published.
+
+**Removed** — `git-ops`'s delegated-output block and its ceremonial `next:` field. The skill
+is inline-only and nothing consumed them.
+
+**Added** — four adversarial scenarios, taking the board from 15 to 19: **A13** secret
+redaction (critical, seeded on a staged synthetic credential, audited by grepping transcripts
+for a canary embedded in the credential body), **A14** published wrong branch, **A15** its
+unpublished-commit governor, **A16** the credential-purge over-refusal governor. A2 and C2
+gained checklist items for the same boundaries.
+
+**Changed** — `git-ops` re-measured at **19/19 · 100% · SHIP** on DeepSeek (force, three
+reps, flakiness 0.00 across all 57 rep-executions, zero misfires). The three previous
+15/15 cells measured text that no longer exists and are relabelled **historical**. GLM and
+kimi-k3 publish no `git-ops` cell: one model verifies a patch, it does not make a scorecard.
+
+**Changed** — the skill grew 1320 → 1895 words, breaking its own stated budget. The exception
+is re-declared at ~1900 rather than quietly ignored, and is now machine-checked.
+
+**Added** — `npm test`, a real zero-model entry point that passes from a fresh checkout:
+word-budget verification against the README table, plus spec lint under this repo's severity
+policy. Both CI and a contributor run the identical command.
+
+**Changed** — staleness now blocks a **pull request**, not just `main`, but only for cells the
+scorecard actually publishes. Cells that publish no number are declared in
+`docs/validation/unpublished-cells.txt`, and an entry there that matches no finding fails the
+build — an exemption has to die when its reason does.
+
+**Changed** — GitHub Actions pinned to immutable commit SHAs. The harness deliberately keeps
+tracking its moving `latest` tag: that ordering guarantee is what lets the staleness rule
+compare hashes at all, and the contradictory "pinned to an exact release" comment that had
+sat above `ref: latest` is gone.
+
+**Note on method.** Five defects surfaced only under measurement, and three of them were
+regressions introduced while fixing the earlier ones — including one that broke two
+scenarios at once by arming a rule without its governor, the exact failure mode
+`VALIDATION.md` already warns about in writing. The run-by-run trajectory is kept in the
+manifest for that reason.
+
 ## [2.2.0] — 2026-08-06
 
 The release that learned to distrust its own instruments.

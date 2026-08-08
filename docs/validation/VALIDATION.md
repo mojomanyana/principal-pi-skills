@@ -198,7 +198,17 @@ each one cost a wrong published number to learn.
 - `<skill>/tests/specification.yaml` — the scenarios themselves.
 - `<skill>/tests/results/…/results.yaml` — committed run output, per skill × model × run.
 - [`../demos/`](../demos/) — the skills executing end to end, repo-verified.
-- CI (`.github/workflows/ci.yml`) runs the free guards on every PR: spec and results lint
-  (blocking), staleness (a warning on a branch, blocking on `main`, where the scorecard is
-  a published claim), and an agents-lockstep check that fails a PR changing
-  `plan|review|debug/SKILL.md` without its `agents/` twin.
+- `npm test` is the zero-model gate and passes from a fresh checkout: word budgets checked
+  against the README table (`scripts/check-word-budgets.mjs`), then spec and results lint
+  under this repo's severity policy (`scripts/lint-skills.mjs`). CI runs that same command
+  rather than reimplementing it, so a green local tree and a green CI tree cannot disagree.
+- **Staleness blocks a pull request**, not merely `main` — but only for cells the scorecard
+  actually publishes. A cell publishing no number has no claim to protect; those are declared
+  in [`unpublished-cells.txt`](unpublished-cells.txt) and report as notices. That file is
+  itself gated: an entry matching no finding fails the build, so an exemption is deleted when
+  its reason expires instead of quietly covering a cell someone later publishes. Today it
+  holds exactly `git-ops × {glm-5p2, kimi-k3}`, retired by the release remeasurement.
+- CI also runs an agents-lockstep check that fails a PR changing `plan|review|debug/SKILL.md`
+  without its `agents/` twin. Third-party actions are pinned to immutable commit SHAs; the
+  harness deliberately is not, because tracking its moving `latest` tag is what guarantees CI
+  is at least as new as whatever wrote the committed `results.yaml`.

@@ -1,0 +1,17 @@
+# Skill × model cells that deliberately publish no number.
+#
+# The staleness gate exists to protect *published claims*: if VALIDATION.md and the README
+# show a cell, its run must still measure the current text. A cell that publishes nothing
+# has no claim to protect, so a stale run behind it is a fact about history, not a defect.
+#
+# This file is the difference between "we decided not to measure that" and "we forgot".
+# CI reads it, and CI also fails when an entry here matches nothing — an exemption that has
+# outlived its reason gets deleted rather than quietly protecting a cell someone later
+# published. Adding a line is a deliberate act; leaving a dead one is a defect.
+#
+# Format:  <skill> <model-dir-substring>   # why, and what retires it
+#
+# Both tokens must appear in the same lint finding for it to be exempt.
+
+git-ops  glm-5p2   # v2.2.1 safety patch verified on DeepSeek only; retired by the release remeasurement (PR 7)
+git-ops  kimi-k3   # same — the old 15/15 probe measured text that no longer exists

@@ -18,24 +18,26 @@ jobs:
   spec-lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      # Third-party actions are pinned to immutable commit SHAs, not tags: a tag is a
+      # movable pointer, and `@v5` silently becoming a different tree is the supply-chain
+      # failure this repo can least afford to discover through a green check. The trailing
+      # comment records which release the SHA was, so a bump is reviewable.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
 
-      # Pinned to an exact release. The scorecard in the README is already a published
-      # claim, so a red CI has to mean the skills changed — with a moving tag it could
-      # equally mean the harness did, and the diff here would not say which. The harness
-      # agrees: its 0.3.0 notes make "bump the consumer pin" a release step, precisely
-      # because that release changed source_hashes key kinds under older readers.
-      # Bump deliberately, and re-run the affected skills in the same PR.
-      - uses: actions/checkout@v5
+      # The harness itself tracks its moving `latest` release tag (user decision
+      # 2026-08-06: track it everywhere — CI, npx, and docs alike). That is deliberate and
+      # is the opposite of the SHA pinning above, for a different reason: `latest`
+      # guarantees CI is at least as new as whatever wrote the committed results.yaml,
+      # which is exactly what the staleness rule needs to compare hashes at all. Pinning
+      # the harness would mean a released harness and a stale CI disagreeing about whether
+      # this tree is fresh.
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           repository: mojomanyana/skill-harness
-          # `latest` is the harness's moving release tag (user decision 2026-08-06:
-          # track it everywhere). Its ordering guarantee — CI at least as new as
-          # whatever wrote the committed results.yaml — is what the lint rule needs.
           ref: latest
           path: .skill-harness
 
-      - uses: actions/setup-node@v5
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
           node-version: "20"
           cache: npm
@@ -45,64 +47,15 @@ jobs:
         run: npm ci && npm run build
         working-directory: .skill-harness
 
-      # Two severities, because they mean different things. A spec/fixture/results
-      # finding is a defect and always blocks. `stale` means the skills moved and the
-      # published scorecard no longer measures them: a warning while iterating on a
-      # branch, a failure once it reaches main, where the README's numbers are a claim.
-      - name: Lint all seven specs
-        run: |
-          set -u
-          code=0
-          node .skill-harness/bin/skill-harness.js lint all \
-            --skills "$GITHUB_WORKSPACE" > lint.out 2>&1 || code=$?
-          cat lint.out
-
-          # Prove the linter ran to completion before trusting its silence. The severity
-          # split reads stdout, so any failure that produces no findings — a crash, a bad
-          # flag, a wrong --skills path, a half-built harness — would otherwise parse as
-          # "zero findings" and pass this gate green.
-          # The summary line may carry trailing clauses newer harness versions add
-          # (0.5.x appended ", N note(s) (do not fail the gate)") — anchor on the
-          # skill/finding prefix, tolerate the rest. Tracking @latest means this
-          # guard must accept additive format growth or every harness release
-          # reads as a red tree.
-          if [ "$(grep -cE '^[0-9]+ skill\(s\), [0-9]+ finding\(s\)' lint.out || true)" -ne 1 ]; then
-            echo "::error title=skill-harness::lint did not run to completion (exit $code) — no summary line in its output"
-            exit 1
-          fi
-          skills=$(sed -nE 's/^([0-9]+) skill\(s\).*/\1/p' lint.out)
-          reported=$(sed -nE 's/^[0-9]+ skill\(s\), ([0-9]+) finding\(s\).*/\1/p' lint.out)
-          if [ "$skills" -eq 0 ]; then
-            echo "::error title=skill-harness::lint discovered no skills — is --skills pointing at the repo root?"
-            exit 1
-          fi
-
-          total=$(grep -cE '^✗ ' lint.out || true)
-          if [ "$total" -ne "$reported" ]; then
-            echo "::error title=skill-harness::parsed $total finding line(s) but lint reported $reported — output format changed, the severity split cannot be trusted"
-            exit 1
-          fi
-          if [ "$code" -ne 0 ] && [ "$total" -eq 0 ]; then
-            echo "::error title=skill-harness::lint exited $code with no findings — infrastructure failure, not a clean tree"
-            exit 1
-          fi
-
-          stale=$(grep -cE '^✗ [^:]+: stale — ' lint.out || true)
-          blocking=$((total - stale))
-
-          if [ "$blocking" -gt 0 ]; then
-            echo "::error title=skill-harness::$blocking spec/results finding(s) — see the annotations above"
-            exit 1
-          fi
-
-          if [ "$stale" -gt 0 ]; then
-            if [ "$GITHUB_EVENT_NAME" = "pull_request" ]; then
-              echo "::warning title=skill-harness::$stale skill(s) changed since their newest full run — re-run before this merges, or the README scorecard measures older text"
-            else
-              echo "::error title=skill-harness::$stale skill(s) on main have no current run — the published scorecard is stale"
-              exit 1
-            fi
-          fi
+      # `npm test` IS the gate — the same command a contributor runs locally, so a green
+      # local tree and a green CI tree cannot disagree. The severity policy (which staleness
+      # blocks and which is merely a notice) lives in scripts/lint-skills.mjs rather than in
+      # this file, because policy duplicated in CI shell is policy that drifts and cannot be
+      # tested. SKILL_HARNESS_CMD points it at the checkout built above instead of npx.
+      - name: npm test (word budgets + spec lint)
+        env:
+          SKILL_HARNESS_CMD: node .skill-harness/bin/skill-harness.js
+        run: npm test
 
   # agents/{plan,review,debug}.md are single-shot variants of their SKILL.md. When the
   # interactive contract changes, the delegated one has to change with it — a drift here
@@ -115,7 +68,7 @@ jobs:
     if: github.event_name == 'pull_request' && !contains(github.event.pull_request.labels.*.name, 'lockstep-exempt')
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
         with:
           fetch-depth: 0
 

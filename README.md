@@ -69,8 +69,16 @@ docs/demos/                           the chains running end to end, repo-verifi
 
 ## Install (pi)
 
-1. **Skills + prompts**: `pi install git:github.com/mojomanyana/principal-pi-skills` —
-   the `pi` manifest registers the skills and the `/feature` and `/bugfix` templates.
+1. **Skills + prompts** — install an immutable tag, not a branch:
+
+   ```
+   pi install git:github.com/mojomanyana/principal-pi-skills@v2.2.1
+   ```
+
+   The `pi` manifest registers the skills and the `/feature` and `/bugfix` templates.
+   Unpinned `main` moves under you: the skills' behavior is what the committed scorecard
+   measured, and a tag is what keeps those two the same thing. Drop the `@v2.2.1` only if
+   you want whatever `main` currently holds, measured or not.
 2. **Subagents**: install pi-mono's subagent extension
    (`packages/coding-agent/examples/extensions/subagent` — symlink its `index.ts` and
    `agents.ts` into `~/.pi/agent/extensions/subagent/`), then link the agent
