@@ -40,6 +40,32 @@ decision-record honesty — appear only under the skill, on every model.
 **Fixed** — CI's lint-summary guard tolerates additive format growth in the harness output,
 so tracking the harness's moving `latest` tag stops turning its releases into red trees.
 
+**Changed** — the package ships 24 files and 166 kB instead of 287 files and ~1 MB. A `files`
+allowlist replaces npm's default sweep, which was shipping every fixture, every committed
+`results.yaml`, the evidence directory, CI config and the contract templates — none of which
+runs at install time, all of which stays in git. `npm run check:pack` enforces it in both
+directions: a required runtime file missing from the tarball fails just as loudly as an
+excluded one leaking in, because an allowlist that silently drops a new SKILL.md is invisible
+in every developer test and broken for every user.
+
+**Fixed** — the workspace helper is reachable from an installed package. The contracts said
+`node scripts/snapshot-workspace.mjs`, a relative path that resolves in this checkout and
+nowhere else; debug and review would have found no helper and fallen back to a read-only
+diagnosis for the wrong reason. It is now a bin entry, `npx principal-pi-workspace`. The
+packaging step is what surfaced it.
+
+**Removed** — `docs/superpowers/` (a completed cleanup plan and its design spec, referenced
+by nothing). Benchmark evidence, demos and the run manifest stay: they are the record behind
+the numbers, and the plan is explicit that they are kept in git even as they leave the
+package.
+
+**Changed** — README states plainly what a clean install gives you: the seven skills and
+both workflows running **inline**, which is the complete baseline product; subagents only if
+you separately install the extension; `/feature` and `/bugfix` as deprecated aliases; and
+that **`AGENTS.md` is not loaded as routing context** — pi registers skills and prompts, not
+a routing file, so implying otherwise would have described a layer that is not wired up.
+Inline review is named as self-review and weaker evidence than a cold delegated read.
+
 **Changed** — contract cleanup: absolutes replaced with governed rules, because every one of
 these absolutes was wrong in a real case and the wrongness only showed as over-refusal.
 

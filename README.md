@@ -55,7 +55,8 @@ around.
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is that
-layer, and it is the one file an agent should read at session start.
+layer and the one file an agent should read at session start — but pi does not load it for
+you; point your orchestrator at it deliberately.
 
 ## Layout
 
@@ -70,7 +71,7 @@ tests/{unit,install}/                 unit + clean-home install tests (node:test
 <skill>/tests/specification.yaml      skill-harness scenarios (ship bar, critical gates)
 <skill>/tests/fixtures/<ID>/          seeded repo for one scenario (git-ops, build, debug)
 <skill>/tests/results/…/results.yaml  committed run evidence (Opus-judged)
-AGENTS.md                             the routing + dispatch layer for the orchestrator
+AGENTS.md                             routing + dispatch reference (ships, but pi does not auto-load it)
 CHANGELOG.md                          release history
 docs/validation/                      how the skills are measured — scorecard, run manifest
 docs/evidence/                        per-judgment and per-rep records behind the scorecard
@@ -119,7 +120,24 @@ docs/demos/                           the chains running end to end, repo-verifi
    unavailable and run each phase inline instead. That is a supported configuration, not a
    degraded one — with one honest caveat: inline review is *self-review*. It sees the
    session's own reasoning, so it cannot be surprised by it the way a cold subagent read can.
-   When and why to delegate is defined in [AGENTS.md](./AGENTS.md).
+   Treat an inline APPROVE as weaker evidence than a delegated one.
+4. **`AGENTS.md` is not installed as routing context.** pi packages register skills and
+   prompts; they do not load a routing file into every session. It ships in the package and
+   is worth reading, but nothing loads it for you — if you want the orchestrator to route by
+   it, point your agent at it yourself. Documenting this honestly beats implying a routing
+   layer that is not wired up.
+
+### What a clean install actually gives you
+
+- The seven skills and both workflow commands, running **inline**. That is the baseline
+  product, and it is complete.
+- Subagents only if you did step 2 — they are an improvement in context isolation and cold
+  judgment, not a requirement.
+- `/principal-feature` and `/principal-bugfix` as the supported commands. `/feature` and
+  `/bugfix` still work but are **deprecated aliases**: a bare name is a slot any installed
+  package can claim, and the last one loaded wins silently.
+- Whatever version you pinned. Install a tag; unpinned `main` moves under you, and the
+  skills' measured behavior is only meaningful against the text that was measured.
 
 Once installed, a skill loads from what you ask for — the trigger phrases in the table
 above are the ones each skill's description matches on. For the two multi-step spines, type

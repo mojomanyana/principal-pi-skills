@@ -27,7 +27,7 @@ reasoning, so it cannot be surprised by it. When review runs inline, say so in t
 4. **Review** — `principal-review` agent, or the `review` skill inline. Pass the
    implementation report. Review runs the tests before any verdict; a verdict without a test
    run is UNVERIFIED, and UNVERIFIED is not an approval. Review's destructive checks belong
-   in a disposable workspace (`scripts/snapshot-workspace.mjs`), never in this checkout —
+   in a disposable workspace (`npx principal-pi-workspace`), never in this checkout —
    when it reports `Workspace: none`, expect UNVERIFIED and treat that as a gap to close,
    not a verdict to accept.
 5. **Repair loop** — if the verdict is REQUEST-CHANGES, return to Build with the findings,

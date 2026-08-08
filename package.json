@@ -21,12 +21,13 @@
         "node": ">=20"
     },
     "scripts": {
-        "test": "npm run generate:check && npm run test:unit && npm run test:install && npm run lint:skills",
+        "test": "npm run generate:check && npm run test:unit && npm run test:install && npm run check:pack && npm run lint:skills",
         "test:unit": "node --test tests/unit/*.test.mjs && node scripts/check-word-budgets.mjs",
         "generate": "node scripts/generate-contracts.mjs",
         "generate:check": "node scripts/generate-contracts.mjs --check",
         "lint:skills": "node scripts/lint-skills.mjs",
-        "test:install": "node --test tests/install/*.test.mjs"
+        "test:install": "node --test tests/install/*.test.mjs",
+        "check:pack": "node scripts/check-pack.mjs"
     },
     "pi": {
         "skills": [
@@ -43,6 +44,22 @@
         ]
     },
     "bin": {
-        "principal-pi-agents": "./scripts/install-agents.mjs"
-    }
+        "principal-pi-agents": "./scripts/install-agents.mjs",
+        "principal-pi-workspace": "./scripts/snapshot-workspace.mjs"
+    },
+    "files": [
+        "AGENTS.md",
+        "CHANGELOG.md",
+        "decide/SKILL.md",
+        "architect/SKILL.md",
+        "plan/SKILL.md",
+        "build/SKILL.md",
+        "review/SKILL.md",
+        "debug/SKILL.md",
+        "git-ops/SKILL.md",
+        "prompts/*.md",
+        "agents/*.md",
+        "scripts/install-agents.mjs",
+        "scripts/snapshot-workspace.mjs"
+    ]
 }

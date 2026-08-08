@@ -107,7 +107,18 @@ this file rather than keeping completed process archaeology indefinitely.
       remeasurement. Every cell is listed in `unpublished-cells.txt` and CI fails on a dead
       entry, so PR 7 cannot skip one.
 - [ ] PR 7 — Validation tiers, E2E, and fresh measurements
-- [ ] PR 8 — Package cleanup, documentation, and `v2.3.0`
+- [x] PR 8 — Package cleanup and documentation *(same branch/PR)* — **release step NOT done**
+      Tarball 287 files / 1006 kB → 24 files / 166 kB, enforced by `npm run check:pack` in
+      both directions (missing-required fails as loudly as forbidden-leaked). Removed
+      `docs/superpowers/`; evidence, demos and the manifest stay in git by policy.
+      Packaging surfaced a real defect from PR 5: the contracts invoked the snapshot helper
+      by relative path, which resolves only in this checkout. Now `npx principal-pi-workspace`.
+      README now states the clean-install truth, including that `AGENTS.md` is NOT auto-loaded
+      routing context.
+      **The release sequence itself is not done and needs a human**: publish `2.3.0-rc.1`,
+      install it into a clean pi home, run the four E2E cells, verify the tarball, publish
+      `2.3.0`, tag `v2.3.0`. It is also gated on PR 7 — cutting a release whose scorecard is
+      blank would publish a version with no verified scores.
 
 ---
 
