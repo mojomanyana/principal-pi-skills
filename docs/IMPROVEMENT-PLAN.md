@@ -6,16 +6,16 @@
 published or tagged, so that work ships inside 2.3.0; the CHANGELOG keeps it as its own
 section because the work is a coherent unit, but there is no `v2.2.1` to install.
 
-**Current position:** PRs 1–6 landed on `gitops-safety` (one branch, one PR, by request).
+**Current position:** all 8 PRs landed on `gitops-safety` (one branch, one PR, by request).
 Git-Ops re-measured 19/19 · SHIP on DeepSeek (force, reps 3, flakiness 0.00, no misfires);
 GLM and kimi-k3 deliberately unmeasured. `plan`/`review`/`debug` now generated from
 `contracts/`, byte-identical; workflows and agents namespaced with an installer and 20
 install tests, then a contract cleanup that replaced absolutes with governed rules across
-all seven skills. `npm test` green from a fresh checkout. **The whole scorecard is blank**
-pending PR 7 — every skill's text changed, and no number is published against text with a
-different hash.  
-**Next action:** PR 7 — validation tiers, E2E, and the single full remeasurement. **The
-contract text is now frozen**: every semantic edit is in, and PR 7 measures it once.
+all seven skills, then the full remeasurement. `npm test` green from a fresh checkout.
+**The board is published**: 98 scenarios × 2 models, five of seven skills shipping.  
+**Next action:** cut the release — publish `2.3.0` to npm and tag `v2.3.0`. Everything else
+in this plan is done. The four live workflow E2E cells remain unrun and are the one piece of
+PR 7 not delivered; they need pi-mono's subagent extension vendored into `.pi/extensions/`.
 
 **Scope decision (user, 2026-08-08): two models, not three.** The remeasurement covers
 **DeepSeek v4-pro and GLM 5.2** — the two the skills were tuned against, and the two whose
@@ -30,9 +30,7 @@ Its exemptions stay in `unpublished-cells.txt` until then, so kimi cells publish
 rather than showing stale numbers. Retire them by running:
 `npx -y skill-harness@latest run all --skills "$PWD" --reps 3 --mode force --model fireworks:accounts/fireworks/models/kimi-k3`
 
-Still open, neither blocking: whether to publish and tag `v2.3.0` (README and AGENTS.md both
-tell users to install `@v2.3.0`, and that tag does not exist yet), and that a publish before
-PR 8 ships whatever npm picks up by default, since the packaging allowlist is PR 8.  
+The packaging allowlist landed in PR 8, so a publish now ships 24 files rather than 287.  
 **Independent review (2026-08-08).** A full review of the branch found four HIGH defects in
 the new scripts, all verified empirically and all fixed with regression tests: both CLIs were
 silent no-ops when installed (symlinked-bin main-module guard), `snapshot-workspace` dropped
@@ -163,10 +161,21 @@ this file rather than keeping completed process archaeology indefinitely.
       route for it).
       Skill word budget raised 1100 → 1250 with the reason recorded in the script, the
       README and the changelog: governed rules cost more words than absolutes.
-      **All seven skills are now mid-change**, so the entire scorecard is blank pending the
-      remeasurement. Every cell is listed in `unpublished-cells.txt` and CI fails on a dead
-      entry, so PR 7 cannot skip one.
-- [ ] PR 7 — Validation tiers, E2E, and fresh measurements
+      All seven skills were mid-change at the time, so the whole scorecard went blank pending
+      the remeasurement — since completed in PR 7, and every non-kimi exemption is retired.
+- [x] PR 7 — Fresh measurements *(same branch/PR)* — **E2E cells NOT run**
+      98 scenarios × 3 reps × DeepSeek + GLM, one epoch, reps pinned in the spec. Five of
+      seven skills ship on at least one model; `decide` (12/12 both) shipped on none before.
+      Every non-kimi exemption retired; the dead-exemption check forced each one out as its
+      cell became current.
+      **Not done:** the four live workflow E2E cells (feature/bugfix × subagents present or
+      absent). They need `require_subagents`, which needs pi-mono's subagent extension
+      vendored into `.pi/extensions/` — a decision about carrying someone else's code, not a
+      mechanical step. The static install tests cover discovery inputs; they do not exercise
+      the loader.
+      **Standing hazard found:** the Opus judge's session limit errored two cells (debug/GLM,
+      review/GLM). Read raw they said F (55%) and 8/21; re-judging returned A (91%) and 19/21.
+      Recorded in the manifest as a third caution.
 - [x] PR 8 — Package cleanup and documentation *(same branch/PR)* — **release step NOT done**
       Tarball 287 files / 1006 kB → 24 files / 166 kB, enforced by `npm run check:pack` in
       both directions (missing-required fails as loudly as forbidden-leaked). Removed

@@ -12,12 +12,26 @@ The release that made the installed product real: namespaced commands and agents
 contracts, filesystem isolation between phases, and a contract cleanup that replaced
 absolutes with governed rules.
 
-**The scorecard is blank in this release.** Every skill's text changed, so no cell survives —
-a number is never attached to text with a different hash. The remeasurement is pending and
-covers DeepSeek and GLM; kimi-k3 is an optional follow-up. Until it lands, this release
-carries verified *structure* (98 scenarios, 65 static tests, a clean-home install test) and
-no verified *scores* beyond `git-ops`'s 19/19 on DeepSeek, which is itself pre-cleanup.
-Treat it accordingly.
+**Measured, not asserted.** Every skill's text changed in this release, so the whole board was
+re-run: 98 scenarios × 3 reps × DeepSeek and GLM, `--mode force`, reps pinned in the spec.
+Five of seven skills ship on at least one model.
+
+| | DeepSeek | GLM |
+|---|---|---|
+| architect | 13/14 | **14/14 SHIP** |
+| build | **9/9 SHIP** | **9/9 SHIP** |
+| debug | 9/11 | 10/11 |
+| decide | **12/12 SHIP** | **12/12 SHIP** |
+| git-ops | 18/19 | **19/19 SHIP** |
+| plan | 8/12 | **12/12 SHIP** |
+| review | 20/21 | 19/21 |
+
+`decide` shipped on no model before this and is now perfect on both. `build` went 7/9 → 9/9
+on DeepSeek. `plan` is 12/12 on GLM against 8/12 on DeepSeek — the same text, so the weakness
+is model-specific rather than inherent, and its boundary cells move between runs.
+
+**kimi-k3 is deferred**, so there is no evidence yet about generalization beyond the two
+models these skills were tuned against.
 
 **Added** — the steering digest, dogfooded. `/feature` and `/bugfix` both driven end to end
 against a repo carrying a planted out-of-scope bug; the closing digest surfaced it as a

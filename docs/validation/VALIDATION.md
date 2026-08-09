@@ -127,12 +127,12 @@ So the same scenarios ran again with **no skill at all** — `--mode red`, 477 r
 three reps, like-for-like with the scored cells. Red baselines are unscored controls; the
 delta is the point.
 
-**These deltas measure the text as it stood before the workspace-ownership change.** For
-`plan`, `build` and `review` the "skilled" side is the superseded prompt, so read the table
-as the lift that text produced, not as a current claim. The red baselines are unaffected —
-a naked model has no skill text to go stale — so they stand and the lift recomputes for free
-once the four skills are re-measured. The findings below are about the *shape* of lift, which
-is what survives a prompt edit; the exact numbers are not.
+**These deltas are historical: the "skilled" side is the pre-cleanup prompt for every skill.**
+Read the table as the lift that text produced, not as a current claim. The red baselines are
+unaffected — a naked model has no skill text to go stale — so a current lift is one `--mode
+red` comparison away rather than a re-measurement, but nobody has computed it against the
+published board yet. The findings below are about the *shape* of lift, which survives a prompt
+edit; the numbers are not.
 
 | Skill | DeepSeek: naked → skilled | GLM: naked → skilled | kimi-k3: naked → skilled |
 |---|---|---|---|
@@ -163,10 +163,10 @@ Three findings the deltas carry:
 
 ## Open items
 
-Published as measured rates rather than averaged away. Each is a known limit, not a
-surprise waiting to happen. Rows naming `plan`, `build`, `review` or `debug` describe the
-pre-workspace-ownership text and are carried forward as things to re-check, not as current
-state.
+Superseded by the failing-cells table above, which lists what the *published* board shows.
+The rows below describe the pre-cleanup text and are kept as the record of what those rounds
+found — several were closed by the contract cleanup (`decide` C1/A5 both ship now; `build` A2
+passes on both models). Do not read them as current.
 
 | Item | Where | State |
 |---|---|---|
@@ -175,8 +175,6 @@ state.
 | `plan` A5 ⇄ D1 on DeepSeek | run-level | Between consecutive full runs A5 went 3/3 → 0/3 and D1 went 1/3 → 3/3, each unanimous within the later run. **Within-run flakiness of 0.00 is not stability** — read a single-run boundary cell with that in mind. |
 | `review` on DS and GLM | green epoch | Text unchanged, so the cells stand, but a force re-measure would also unbank the two red baselines above. |
 | `decide` C1 / A5 | DS C1 1/3 · GLM A5 1/3 · kimi C1 0/3 | Both are boundary scenarios, and which one a model fails is not stable across models — DeepSeek and kimi-k3 both fail C1, GLM fails A5 instead. |
-| `git-ops` on GLM and kimi-k3 | not measured | The v2.2.1 safety patch is verified on DeepSeek only (19/19, flakiness 0.00). The other two columns are blank rather than carried over: the 15/15 cells that stood there measured text that no longer exists. Queued for the release remeasurement, which re-runs the 19-scenario board on all three. |
-
 ## Measurement lessons
 
 Nine improvement rounds and three judge audits produced these. They are recorded because
