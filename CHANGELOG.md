@@ -6,7 +6,7 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
-## [2.3.0] — unreleased
+## [2.3.0] — 2026-08-09
 
 The release that made the installed product real: namespaced commands and agents, generated
 contracts, filesystem isolation between phases, and a contract cleanup that replaced

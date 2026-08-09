@@ -89,8 +89,6 @@ docs/demos/                           the chains running end to end, repo-verifi
 
    The `pi` manifest registers the seven skills and the `/principal-feature` and
    `/principal-bugfix` commands (plus the deprecated `/feature` and `/bugfix` aliases).
-   **`v2.3.0` is not tagged yet** — this is the intended command once the release is cut.
-   Until then, install from `main` and expect it to move.
    Unpinned `main` moves under you: the skills' behavior is what the committed scorecard
    measured, and a tag is what keeps those two the same thing. Drop the `@v2.3.0` only if
    you want whatever `main` currently holds, measured or not.

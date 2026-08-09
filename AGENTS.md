@@ -109,8 +109,7 @@ to every output.
 
 1. `pi install git:github.com/mojomanyana/principal-pi-skills@v2.3.0` — registers the
    skills and the `/principal-feature` + `/principal-bugfix` commands via the `pi`
-   manifest. Install a tag, not a branch. (`v2.3.0` is not tagged yet — until the release
-   is cut, `main` is the only option and it moves.)
+   manifest. Install a tag, not a branch.
 2. Subagents need pi-mono's subagent extension (`examples/extensions/subagent`) and the
    agent definitions installed once: `npx principal-pi-agents install`. It copies real
    files into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses to overwrite
