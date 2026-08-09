@@ -9,4 +9,8 @@ describe("cartTotal", () => {
   it("totals a three-line cart", () => {
     expect(cartTotal([{ qty: 1, price: 3 }, { qty: 2, price: 4 }, { qty: 3, price: 1 }])).toBe(14);
   });
+
+  it("returns 0 for an empty cart", () => {
+    expect(cartTotal([])).toBe(0);
+  });
 });

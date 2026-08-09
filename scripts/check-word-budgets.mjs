@@ -27,20 +27,26 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 
 // The declared ceilings.
 //
-// The skill budget moved 1100 -> 1250 in the contract-cleanup round, deliberately and once.
-// The reason is a lesson the framework paid for: *every arming needs its governor in the
-// same breath*. An absolute is cheap to write ("one caller -> inline it", "every catch logs
-// and changes state") and wrong in real cases, and each wrong absolute produced a measured
-// over-refusal. Replacing them with a rule plus the cases it must not eat costs words that
-// the original budget was set without knowing about. The alternative was keeping the cheaper
-// text and the defects.
+// They have moved twice, 1100 -> 1250 -> 1400 for skills and 1350 -> 1500 for agents, and
+// both moves bought the same thing: *every arming needs its governor in the same breath*.
+// An absolute is cheap to write ("one caller -> inline it", "every catch logs and changes
+// state") and wrong in real cases, and each wrong absolute produced a measured over-refusal.
+// A rule plus the cases it must not eat costs words the original budget was set without
+// knowing about.
+//
+// The second move is a deliberate policy choice (user decision, 2026-08-09): when a fix and
+// the ceiling conflict, RAISE THE CEILING rather than trim the fix. Trimming to fit was
+// costing real content — a review paragraph explaining why destructive checks belong in a
+// throwaway worktree got compressed twice, and each compression removed a reason a weak
+// model needed. Prose that earns its place should not be squeezed by a number that was
+// guessed before the content existed.
 //
 // `git-ops` remains the standing exception at 1900: the safety-critical operator carries the
 // most arming of all, and validated behavior outweighs a budget.
 //
-// These are ceilings, not targets. Raising one again needs a defect to point at, in a commit
-// message, the way these two do.
-const BUDGETS = { skill: 1250, agent: 1350, "git-ops": 1900 };
+// These are still ceilings, not targets — the check exists so growth is a decision someone
+// makes, not something that happens.
+const BUDGETS = { skill: 1400, agent: 1500, "git-ops": 1900 };
 
 const words = (p) => {
   const t = readFileSync(join(ROOT, p), "utf8").trim();

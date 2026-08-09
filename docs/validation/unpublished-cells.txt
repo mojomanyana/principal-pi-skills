@@ -13,7 +13,6 @@
 #
 # Both tokens must appear in the same lint finding for it to be exempt.
 
-git-ops  glm-5p2   # v2.2.1 safety patch verified on DeepSeek only; retired by the release remeasurement (PR 7)
 git-ops  kimi-k3   # same — the old 15/15 probe measured text that no longer exists
 
 # --- Contract cleanup: every skill is mid-change. -----------------------------------
@@ -41,21 +40,9 @@ git-ops  kimi-k3   # same — the old 15/15 probe measured text that no longer e
 # Until it runs, kimi publishes nothing rather than stale numbers. Retire these rows with:
 #   npx -y skill-harness@latest run all --skills "$PWD" --reps 3 --mode force \
 #     --model fireworks:accounts/fireworks/models/kimi-k3
-architect deepseek-v4-pro
-architect glm-5p2
 architect kimi-k3
-decide   deepseek-v4-pro
-decide   glm-5p2
 decide   kimi-k3
-plan     deepseek-v4-pro
-plan     glm-5p2
 plan     kimi-k3
-review   deepseek-v4-pro
-review   glm-5p2
 review   kimi-k3
-debug    deepseek-v4-pro
-debug    glm-5p2
 debug    kimi-k3
-build    deepseek-v4-pro
-build    glm-5p2
 build    kimi-k3

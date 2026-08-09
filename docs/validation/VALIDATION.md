@@ -21,7 +21,7 @@ Three kinds of scenario:
   (`<skill>/tests/fixtures/<ID>/`), the model works in it, and the *staged diff* is graded.
   Objective gates (vitest green, `diff_contains`, `diff_excludes`, `post_test`) are decided
   before the judge is consulted, so those criteria cost no judgment at all.
-- **Delegated (D-scenarios)** — `agents/{plan,review,debug}.md` injected as a system prompt
+- **Delegated (D-scenarios)** — `agents/principal-{plan,review,debug}.md` injected as a system prompt
   and run single-shot, testing the contract a subagent actually operates under: no
   dialogue, assumptions instead of questions, the `BLOCKED` form.
 
@@ -34,7 +34,11 @@ Three kinds of scenario:
 - **Every scenario runs three times.** A cell is a pass-rate, not a single draw.
 - Gate: a scenario passes at a majority of its clean reps. `git-ops` C1 requires unanimity —
   set deliberately, for a critical with observed flip-proneness.
-- Judge: `claude-code:opus`.
+- Judge: `claude-code:opus`. **Check for `ERROR` before reading any number.** The judge's
+  session limit corrupted two cells during this round — `debug`/GLM read F (55%) and
+  `review`/GLM read 8/21, and both were the limit rather than the skill: re-judging the saved
+  transcripts returned A (91%) and 19/21. An errored rep is not a failed rep, and a board run
+  long enough to cross a reset window will hit this. `grade <run-dir>` fixes it for free.
 - Subject models: **DeepSeek v4-pro** and **GLM 5.2** — the two the skills were tuned
   against and the two the scorecard publishes. **kimi-k3** is the untuned control for
   overfitting; it is an optional follow-up in the current round rather than a published
@@ -76,61 +80,45 @@ has since changed again.
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
 |---|---|---|---|
-| architect | — | — | — *(deferred)* |
-| build | — | — | — *(deferred)* |
-| debug | — | — | — *(deferred)* |
-| decide | — | — | — *(deferred)* |
-| git-ops | **19/19 · 100% SHIP** | — | — *(deferred)* |
-| plan | — | — | — *(deferred)* |
-| review | — | — | — *(deferred)* |
+| architect | 13/14 · 93% | **14/14 · 100% SHIP** | — *(deferred)* |
+| build | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | — *(deferred)* |
+| debug | 9/11 · 82% | 10/11 · 91% | — *(deferred)* |
+| decide | **12/12 · 100% SHIP** | **12/12 · 100% SHIP** | — *(deferred)* |
+| git-ops | 18/19 · 95% | **19/19 · 100% SHIP** | — *(deferred)* |
+| plan | 8/12 · 67% | **12/12 · 100% SHIP** | — *(deferred)* |
+| review | 20/21 · 95% | 19/21 · 90% | — *(deferred)* |
 
-**The board is blank apart from `git-ops` on DeepSeek, on purpose, and only for as long as
-the remeasurement takes.**
+**98 scenarios × 3 reps × 2 models — the first board measured entirely in one epoch**, under
+`--mode force`, with reps pinned in the spec rather than passed on the command line. Every
+cell above measures the text in this commit.
 
-`git-ops` is the exception because its text genuinely has not moved since it was measured:
-the safety patch landed first, was re-run against the frozen text at 19/19 with flakiness
-0.00 across 57 rep-executions, and none of the later contract work touched it. `lint`
-confirms zero staleness for that cell, which is also why it *cannot* be declared in
-`unpublished-cells.txt` — a non-stale entry there is a dead exemption and fails CI. Blanking
-it would have been the mirror-image error of publishing a stale number: hiding a result that
-is current.
+Five of seven skills now ship on at least one model, and two of those are new:
 
-For the other six, two rounds of contract work landed together. Workspace ownership gave
-`plan`, `review`, `debug` and `build` filesystem rules they did not have. Contract cleanup then replaced
-absolutes with governed rules across all seven skills: `debug`'s catch rule grew the three
-exceptions it was wrongly eating (pure code, transactions, operations with no durable
-record), `review` stopped treating one caller and one dependency as automatic deletions,
-`plan`'s walking skeleton now demands real seams instead of stubs, `decide` narrowed to
-engineering decisions and stopped opening with a brief, and `architect` and `decide` dropped
-handoff tokens that invited a workflow to route where nobody asked.
+- **`decide` 12/12 on both.** It shipped on *nothing* before — it held at 92% everywhere,
+  failing exactly one boundary scenario per model. Narrowing its scope to engineering
+  decisions and making the brief a *conclusion* rather than an opening move closed it on both.
+- **`build` 9/9 on both**, up from 7/9 on DeepSeek.
+- **`plan` 12/12 on GLM against 8/12 on DeepSeek.** A four-scenario spread on identical text
+  is the widest on this board, and it is worth reading carefully: `plan` is not weak, it is
+  weak *on one model*. Its boundary cells (A2, A3, A5, A7) also move between runs — A2
+  measured 3/3 in a targeted run and FAIL in a full run on the same text, hours apart. Treat
+  any single `plan`/DeepSeek cell as one draw.
 
-All of that is measured text. Every remaining cell that stood here described a prompt that no
-longer exists, and the one rule this document has is that **a number is never attached to text with
-a different hash**. Publishing the old figures beside the new prompts would be the exact
-failure the staleness gate was built to prevent — so they are gone, not greyed out.
+### What is still failing, and why it is published rather than fixed
 
-What is not lost: the per-run history is intact in
-[`RESULTS-MANIFEST.md`](RESULTS-MANIFEST.md), and the red baselines never go stale (a naked
-model has no skill text to change), so lift recomputes for free once the boards are re-run.
-The last measured state was 78–100% per skill; a blank says the text moved, not that it got
-worse.
+| Cell | Rate | Why it stands |
+|---|---|---|
+| `review` S9 (GLM) | 0/3 | The observable-fallback governor. A Checks row took DeepSeek 0/3 → 3/3 and moved GLM not at all. A third arming risks the neighbouring cells, which is how this project has hurt itself before. |
+| `plan` A7 | 0–1/3 | The contract says "decompose **and say why**"; the model decomposes silently. The *behavior* half passes. The rubric grades narration, and it is not critical. |
+| `plan` A2/A3/A5 (DS) | boundary | Two different levers — a template placeholder and a Checks row — moved neither consistently. Published at rate. |
+| `debug` D1, `architect` D1 (DS) | 1/3 | Single boundary cells on one model each. |
+| `git-ops` A7 (DS) | 2/3 | PR-title craft; the safety-critical scenarios are all 3/3. |
 
-Every pending cell is listed in [`unpublished-cells.txt`](unpublished-cells.txt), which CI
-reads — **and an entry there that matches no staleness finding fails the build.** The list
-is a to-do that cannot rot: the moment a fresh run makes a cell current, its exemption stops
-matching and must be deleted. The remeasurement cannot quietly skip a skill, and this table
-cannot quietly stay empty.
-
-The batching is deliberate. The plan's own instruction is to make every semantic contract
-change first and then remeasure **once** — re-running a 98-scenario matrix after each edited
-sentence spends the measurement budget on sentences. That is also why this is the last
-text-changing round before the remeasurement.
-
-**The remeasurement covers DeepSeek and GLM.** kimi-k3 is marked *(deferred)*: an optional
-follow-up rather than a dropped column. It is the untuned overfitting control and
-historically the highest scorer on this board, which makes it the least likely to expose a
-defect and the least urgent to refresh — but it also means the overfitting signal is
-unavailable until it runs, and any claim about generalization should wait for it.
+**kimi-k3 is deferred, not dropped.** It is the untuned overfitting control, so until it runs
+there is no evidence about generalization beyond the two models the skills were tuned on —
+and those are exactly the two most likely to flatter the framework. Its rows stay in
+[`unpublished-cells.txt`](unpublished-cells.txt), where CI fails on a dead entry, so it cannot
+be quietly forgotten.
 
 ## What the skills add
 

@@ -26,17 +26,18 @@ around.
    plain-text tags (`[ONE-WAY]`, `[BLOCKER]`) instead of an emoji schema, no aphorisms
    doing load-bearing work, no personas, no required reading in reference files.
 3. **Token economics.** Budgets stated as decisions rather than aspirations: **skills
-   ≤ ~1250 words**, with **`git-ops` an accepted exception at ~1900** — the safety-critical
+   ≤ ~1400 words**, with **`git-ops` an accepted exception at ~1900** — the safety-critical
    operator carries the most arming, and validated behavior outweighs a budget.
    Both ceilings have moved once, each buying a fix rather than more prose. `git-ops` went
    1320 → 1900 to reconcile the protected-branch and secret-purge policies and redact secret
-   findings. The general skill budget went 1100 → 1250 for a lesson this framework paid for:
-   *every arming needs its governor in the same breath*. An absolute is cheap to write —
-   "one caller → inline it", "every catch logs and changes state" — and wrong in real cases,
-   and each wrong absolute produced a measured over-refusal. A rule plus the cases it must
-   not eat costs more words than an absolute; that is the trade. Raising either again needs a
-   defect to point at. **Agents
-   get their own budget, ≤ ~1350**: a single-shot definition carries its output template
+   findings. The skill budget went 1100 → 1250 → 1400 for a lesson this framework
+   paid for: *every arming needs its governor in the same breath*. An absolute is cheap to
+   write — "one caller → inline it", "every catch logs and changes state" — and wrong in real
+   cases, and each wrong absolute produced a measured over-refusal. A rule plus the cases it
+   must not eat costs more words than an absolute; that is the trade. **When a fix and the
+   ceiling conflict, the ceiling moves** — trimming to fit was quietly deleting reasons a weak
+   model needed, which is a worse outcome than a longer file. **Agents
+   get their own budget, ≤ ~1500**: a single-shot definition carries its output template
    *and* the BLOCKED form *and* the no-questions mechanics, none of which a loaded skill
    needs. Every count in the table below is checkable with `wc -w`. Nothing loads anything
    else — a subagent reads one file and has the whole contract.
@@ -47,9 +48,9 @@ around.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 847 |
 | `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1088 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1328) or inline | 1118 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1360) or inline | 1150 |
 | `build` | Test-first implementation — code proven by a test you watched fail | inline | 968 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1265) or inline | 1237 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1315) or inline | 1287 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1333) or inline | 1206 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1895 |
 
@@ -192,27 +193,29 @@ follow-up rather than a published column in the current round.
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
 |---|---|---|---|
-| git-ops | **19/19 · 100% SHIP** | — | — *(deferred)* |
-| the other six | — | — | — *(deferred)* |
+| architect | 13/14 · 93% | **14/14 · 100% SHIP** | — *(deferred)* |
+| build | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | — *(deferred)* |
+| debug | 9/11 · 82% | 10/11 · 91% | — *(deferred)* |
+| decide | **12/12 · 100% SHIP** | **12/12 · 100% SHIP** | — *(deferred)* |
+| git-ops | 18/19 · 95% | **19/19 · 100% SHIP** | — *(deferred)* |
+| plan | 8/12 · 67% | **12/12 · 100% SHIP** | — *(deferred)* |
+| review | 20/21 · 95% | 19/21 · 90% | — *(deferred)* |
 
-**The board is blank on purpose, and only until the remeasurement lands** — apart from
-`git-ops`, whose text has not moved since it was measured at 19/19 (flakiness 0.00 across 57
-rep-executions) and which `lint` confirms is current. Two rounds of contract work changed the
-other six skills' text: filesystem-ownership rules for `plan`, `review`,
-`debug` and `build`, then a cleanup that replaced absolutes with governed rules across all
-six. Every remaining cell measured a prompt that no longer exists, and the one rule this
-project holds to is that a number is never attached to text with a different hash — which
-cuts both ways, so a result that IS current gets published rather than hidden.
+**Five of seven skills ship on at least one model.** `decide` is new to that list — it
+previously held at 92% on every model, failing exactly one boundary scenario each, and shipped
+nowhere; it is now 12/12 on both. `build` went 7/9 → 9/9 on DeepSeek.
 
-The last measured state was 78–100% per skill, and the per-run history is intact in
-[RESULTS-MANIFEST.md](docs/validation/RESULTS-MANIFEST.md). A blank says the text moved, not
-that it got worse.
+`plan` is the one to read carefully: **12/12 on GLM against 8/12 on DeepSeek**, on identical
+text. The skill is not weak, it is weak on one model — and its boundary cells move between
+runs, so treat a single `plan`/DeepSeek cell as one draw rather than a measurement.
 
-Every pending cell is listed in
-[unpublished-cells.txt](docs/validation/unpublished-cells.txt), and **CI fails if an entry
-there matches nothing** — so the list cannot rot into a permanent excuse, and the
-remeasurement cannot skip a skill. [VALIDATION.md](docs/validation/VALIDATION.md) explains
-how the boards are run and what the evidence tiers mean.
+**kimi-k3 is deferred, not dropped.** It is the untuned control for overfitting, so until it
+runs there is no evidence about generalization beyond the two models these skills were tuned
+against — the two most likely to flatter them. Its cells are tracked in
+[unpublished-cells.txt](docs/validation/unpublished-cells.txt), and CI fails if an entry there
+outlives its reason, so it cannot be quietly forgotten.
+[VALIDATION.md](docs/validation/VALIDATION.md) has the failing cells and why each is published
+at rate rather than tuned away.
 
 ## Deliberate design rules
 

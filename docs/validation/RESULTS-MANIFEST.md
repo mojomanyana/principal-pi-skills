@@ -312,3 +312,36 @@ Corrected, `build` reads at most 5/9 · 56% in the green epoch; A1 and A2 are cr
 there, so no green ship cell moves.
 The per-rep diffs behind this, across all three models:
 [`../evidence/c2-needle-2026-08-05.md`](../evidence/c2-needle-2026-08-05.md).
+
+**release-3 / release-3b — the post-contract-cleanup board (2026-08-08/09).** 98 scenarios ×
+3 reps × 2 models, `--mode force`, reps pinned in the spec rather than passed on the command
+line. The first board measured entirely within one epoch. `release-3b` re-runs `plan` and
+`review` after post-board contract fixes (the review BLOCKED governor, the S9 fallback row,
+the plan seam row); the other five skills were untouched and their release-3 cells stand. The
+release-3 `plan` and `review` runs (`04-26`/`04-52` and `05-27`/`05-57`) are therefore
+**superseded** — they measured the pre-fix contracts — and are kept as the record of what
+those fixes changed: review A4 went 0/3 → 3/3 on GLM and S9 0/3 → 2/3 on DeepSeek.
+
+**A third caution for whoever measures next: an ERROR is not a FAIL.** The Opus judge's
+session limit corrupted two cells in this round. `debug`/GLM recorded F (55%) and
+`review`/GLM recorded 8/21; re-judging the saved transcripts returned A (91%) and 19/21 with
+no subject tokens spent. Both would have been published as collapses. Grep a fresh run for
+`judge_verdict: ERROR` before reading any number off it, and prefer `grade <run-dir>` over
+re-running.
+
+| Skill | Model | Run | Round | Grade | Status |
+|---|---|---|---|---|---|
+| architect | deepseek-v4-pro | `2026-08-08T23-08-52-574Z` | release-3 | 13/14 · 93% · not ready | **current (force epoch)** — fails D1 |
+| architect | glm-5p2 | `2026-08-08T23-28-27-180Z` | release-3 | 14/14 · 100% · **SHIP** | **current (force epoch)** |
+| build | deepseek-v4-pro | `2026-08-09T00-25-20-128Z` | release-3 | 9/9 · 100% · **SHIP** | **current (force epoch)** — up from 7/9 |
+| build | glm-5p2 | `2026-08-09T00-47-17-616Z` | release-3 | 9/9 · 100% · **SHIP** | **current (force epoch)** |
+| debug | deepseek-v4-pro | `2026-08-09T01-07-06-234Z` | release-3 | 9/11 · 82% · not ready | **current (force epoch)** |
+| debug | glm-5p2 | `2026-08-09T01-54-07-321Z` | release-3 | 10/11 · 91% · not ready | **current (force epoch)** — recorded F (55%) until re-judged; 4 scenarios ERRORed on the judge's session limit, not on model behavior |
+| decide | deepseek-v4-pro | `2026-08-09T02-55-07-362Z` | release-3 | 12/12 · 100% · **SHIP** | **current (force epoch)** — decide shipped on no model before this |
+| decide | glm-5p2 | `2026-08-09T03-10-53-730Z` | release-3 | 12/12 · 100% · **SHIP** | **current (force epoch)** |
+| git-ops | deepseek-v4-pro | `2026-08-09T03-31-08-147Z` | release-3 | 18/19 · 95% · not ready | **current (force epoch)** — fails A7 (PR-title craft); every safety-critical scenario 3/3 |
+| git-ops | glm-5p2 | `2026-08-09T03-56-22-256Z` | release-3 | 19/19 · 100% · **SHIP** | **current (force epoch)** |
+| plan | deepseek-v4-pro | `2026-08-09T15-09-52-296Z` | release-3b | 8/12 · 67% · not ready | **current (force epoch)** — re-run after the post-board contract fixes |
+| plan | glm-5p2 | `2026-08-09T15-49-43-579Z` | release-3b | 12/12 · 100% · **SHIP** | **current (force epoch)** — a 4-scenario spread against the same text on DeepSeek |
+| review | deepseek-v4-pro | `2026-08-09T16-18-17-173Z` | release-3b | 20/21 · 95% · not ready | **current (force epoch)** — fails S4 |
+| review | glm-5p2 | `2026-08-09T16-40-37-561Z` | release-3b | 19/21 · 90% · not ready | **current (force epoch)** — recorded 8/21 until re-judged; 13 of 21 ERRORed on the judge's session limit |
