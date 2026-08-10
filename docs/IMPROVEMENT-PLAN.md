@@ -13,6 +13,26 @@ GLM and kimi-k3 deliberately unmeasured. `plan`/`review`/`debug` now generated f
 install tests, then a contract cleanup that replaced absolutes with governed rules across
 all seven skills, then the full remeasurement. `npm test` green from a fresh checkout.
 **The board is published**: 98 scenarios × 2 models, five of seven skills shipping.  
+**E2E: the blocker was never vendoring (2026-08-10).** Two findings changed this item:
+
+1. **`pi -p "/principal-feature <task>"` silently does not expand slash commands.** Verified
+   against a control — `/definitely-not-a-real-command say only OK` behaves identically. pi
+   passes the text through, the model does the literal thing, no workflow runs, no commit is
+   made, and nothing errors. Anyone scripting the workflow the obvious way gets a plausible
+   answer with no workflow in it. The working entry point is **`--prompt-template <path>`**.
+2. **The subagent extension ships inside pi itself** (`examples/extensions/subagent`, MIT),
+   so the "subagents present" cells need no vendored copy of anyone else's code — and the
+   "absent" cells need no extension at all.
+
+**`feature × absent` is proven.** It ran end to end against the packed 2.3.1 artifact in a
+throwaway HOME, committed `3e8d95e — Add hello.txt`, and closed with a digest that named the
+inline fallback ("no `principal-*` subagent available") — the honesty requirement from PR 4,
+confirmed live rather than asserted.
+
+`tests/e2e/run-e2e.sh` runs all four cells. The remaining three are unrun: each is a full
+workflow against a real model, so they spend real tokens and want a session with the budget
+for it.
+
 **Next action:** cut the release — publish `2.3.0` to npm and tag `v2.3.0`. Everything else
 in this plan is done. The four live workflow E2E cells remain unrun and are the one piece of
 PR 7 not delivered; they need pi-mono's subagent extension vendored into `.pi/extensions/`.
