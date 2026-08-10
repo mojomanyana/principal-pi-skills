@@ -12,7 +12,8 @@ GLM and kimi-k3 deliberately unmeasured. `plan`/`review`/`debug` now generated f
 `contracts/`, byte-identical; workflows and agents namespaced with an installer and 20
 install tests, then a contract cleanup that replaced absolutes with governed rules across
 all seven skills, then the full remeasurement. `npm test` green from a fresh checkout.
-**The board is published**: 98 scenarios × 2 models, five of seven skills shipping.  
+**The board is published**: 98 scenarios × 2 models, all seven skills shipping on at least
+one model after the `release-3c` re-run restored the `debug` and `review` columns.  
 **E2E: the blocker was never vendoring (2026-08-10).** Two findings changed this item:
 
 1. **`pi -p "/principal-feature <task>"` silently does not expand slash commands.** Verified
@@ -24,8 +25,10 @@ all seven skills, then the full remeasurement. `npm test` green from a fresh che
    so the "subagents present" cells need no vendored copy of anyone else's code — and the
    "absent" cells need no extension at all.
 
-**All four E2E cells now pass: 24 assertions, 0 failures (2026-08-10).** Every earlier
-failure in this row was the harness, and all three came from one defect.
+**All four E2E cells now pass: 26 assertions, 0 failures (2026-08-11).** Every earlier
+failure in this row was the harness, and all three came from one defect. Two rounds of fixes
+are recorded below, in order — the wrong-cwd root cause first, then ten more defects a
+scoped review found in the harness that had just been written to test all this.
 
 **The "fabricated evidence" was not fabricated — the harness ran pi in the wrong repository.**
 `run_workflow` never `cd`-ed into the fixture; `pi` has no `--cwd` and operates on the
@@ -74,12 +77,33 @@ missing `sum.js` scored a deleted file as "fixed", and there was no assertion th
 not written to the developer's checkout — the canary that would have caught all of this on
 day one, now `assert_dev_repo_untouched` in every cell.
 
-Residual fragility, recorded rather than speculatively "fixed": the `× present` inline-claim
-guard matches prose (`inline phases: .*(plan|review)`) and is blind to the markdown emphasis
-the models actually emit. It reached the right verdict here for the right reason — positive
-evidence naming `principal-*` agents — but it is inference from prose, and tightening it
-without a failing case to test against is the same speculative edit this plan already
-records as having moved nothing.
+**A third review, scoped to this delta, found ten more (2026-08-11) — and five were
+false-greens in the harness itself.** The `× present` fragility recorded above was worse than
+recorded: the guard's negative patterns matched *neither* the real wording (`no subagent tool
+available` vs. the required `subagent available`) nor the markdown the models emit, so control
+fell through to a bare `subagent` match that the inline confession itself contains. **A fully
+inline run scored as "delegated"** — reproduced by piping the harness's own committed `absent`
+transcript through the branch. Alongside it: an unknown cell name ran zero assertions and
+exited 0; every step of the subagent install swallowed its failure, so a `present` cell could
+silently become an `absent` one and still report delegation; `cell_bugfix` never asserted on
+its `subs` argument at all, so `bugfix × present` measured nothing `bugfix × absent` did not;
+and the fix check grepped one literal spelling of the bug, so `i <= xs.length - 2` scored as
+fixed. All ten are fixed and the four cells re-run: **26 assertions, 0 failures.**
+
+What changed is the *quality* of the evidence, not the verdict. The assertions now execute
+`sum()` instead of grepping it (verified to reject three buggy rewrites the grep accepted),
+check `greet.txt`'s contents instead of its existence, anchor the digest on the commit hash
+the fixture repo actually has, and classify delegation with a function that is checked in both
+directions against the four captured transcripts by `run-e2e.sh --self-test` — no model calls.
+`bugfix × present` asserts delegation for the first time, and passes. The bare-`npx` guard now
+derives its file list from `npm pack` plus `contracts/*.md.tmpl` instead of a six-file
+allowlist; proven by reintroducing the 2.3.0 defect into a template and watching it fail at
+`agents/principal-review.md`, a file the old list never read.
+
+**The lesson worth keeping: yesterday's 24/24 was true but unearned.** The cells did pass and
+delegation was real — the digests named the agents. The harness simply could not have told us
+otherwise. A green suite is only worth the weakest assertion in it, and five of ours could not
+fail.
 
 **Next action:** cut the release — publish `2.3.0` to npm and tag `v2.3.0`. Everything else
 in this plan is done, including the four E2E cells.
@@ -89,12 +113,15 @@ in this plan is done, including the four E2E cells.
 cells the scorecard has always published. That is ~588 rep-executions (98 scenarios × 3 reps
 × 2 models) rather than ~882.
 
-**kimi-k3 is an optional follow-up, deliberately deferred.** It is the untuned control for
-overfitting and it has historically been the *strongest* model on this board, so it is the
-column most likely to flatter the framework and least likely to expose a defect. Deferring
-it costs the overfitting signal until it runs; it does not weaken the two published columns.
-Its exemptions stay in `unpublished-cells.txt` until then, so kimi cells publish nothing
-rather than showing stale numbers. Retire them by running:
+**kimi-k3 is deferred to a future round, by user decision (2026-08-11): run it when the set
+gains more complex skills, not before.** It is the untuned control for overfitting and it has
+historically been the *strongest* model on this board, so it is the column most likely to
+flatter the framework and least likely to expose a defect — which is also why it is worth
+more against harder material than against the current seven. Deferring it costs the
+overfitting signal until it runs; it does not weaken the two published columns. Its
+exemptions stay in `unpublished-cells.txt` until then, so kimi cells publish nothing rather
+than showing stale numbers, and the staleness gate stays an error on `main`. Retire them by
+running:
 `npx -y skill-harness@latest run all --skills "$PWD" --reps 3 --mode force --model fireworks:accounts/fireworks/models/kimi-k3`
 
 The packaging allowlist landed in PR 8, so a publish now ships 24 files rather than 287.  
@@ -230,12 +257,13 @@ this file rather than keeping completed process archaeology indefinitely.
       README and the changelog: governed rules cost more words than absolutes.
       All seven skills were mid-change at the time, so the whole scorecard went blank pending
       the remeasurement — since completed in PR 7, and every non-kimi exemption is retired.
-- [x] PR 7 — Fresh measurements *(same branch/PR)* — **E2E cells now run, 24/24**
+- [x] PR 7 — Fresh measurements *(same branch/PR)* — **E2E cells now run, 26/26**
       98 scenarios × 3 reps × DeepSeek + GLM, one epoch, reps pinned in the spec. Five of
-      seven skills ship on at least one model; `decide` (12/12 both) shipped on none before.
+      seven skills shipped at the time; the `release-3c` re-run restored `debug` and `review`,
+      taking it to all seven. `decide` (12/12 both) shipped on none before.
       Every non-kimi exemption retired; the dead-exemption check forced each one out as its
       cell became current.
-      **Now done:** all four live workflow E2E cells pass, 24 assertions and 0 failures, via
+      **Now done:** all four live workflow E2E cells pass, 26 assertions and 0 failures, via
       `bash tests/e2e/run-e2e.sh`. Nothing needed vendoring — the subagent extension ships
       inside pi itself (`examples/extensions/subagent`, MIT), and the `absent` cells need no
       extension at all. The static install tests cover discovery inputs; these exercise the
@@ -894,7 +922,7 @@ semantic contract work should merge before the expensive full benchmark run.
 - [ ] Generated contracts have no drift.
 - [ ] Harness lint reports zero defects and zero stale current claims.
 - [ ] Clean installation discovers both namespaced workflows.
-- [x] Feature and bugfix E2E pass with and without subagents. <!-- 24/24, 2026-08-10 -->
+- [x] Feature and bugfix E2E pass with and without subagents. <!-- 26/26, 2026-08-11 -->
 - [ ] Only Build leaves source/test changes in the caller checkout.
 - [ ] Secret findings never reproduce matched values.
 - [ ] Package tarball matches its allowlist.

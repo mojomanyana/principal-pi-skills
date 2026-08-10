@@ -43,10 +43,14 @@ add, so it could not fail. Both restored. The corruption reached git through a b
 two `node_modules/.vite` caches that churn the fixture source hash. Those are untracked and
 `node_modules/` is now ignored.
 
-**Changed** — `debug` and `review` scorecard cells are **withdrawn** pending a re-run.
+**Changed** — `debug` and `review` scorecard cells were **withdrawn** pending a re-run.
 debug's were measured against the corrupted fixtures; review's contract changed in this
 release. A withdrawn cell publishes nothing rather than a number that measured something
-else.
+else. **That re-run has since landed** (`release-3c`, after this version was published):
+`debug` 9/11 on DeepSeek and 11/11 · SHIP on GLM, `review` 21/21 · SHIP on both. Both cells
+are published again, which takes the board to all seven skills shipping on at least one
+model — see `docs/validation/VALIDATION.md` for the current numbers, which this entry does
+not restate.
 
 **Note on verification.** 2.3.0's bins were reported as "verified working from the published
 artifact". That check invoked `./node_modules/.bin/<name>`, which is a different resolution

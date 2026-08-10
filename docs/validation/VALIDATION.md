@@ -92,7 +92,8 @@ has since changed again.
 `--mode force`, with reps pinned in the spec rather than passed on the command line. Every
 cell above measures the text in this commit.
 
-Five of seven skills now ship on at least one model, and two of those are new:
+All seven skills now ship on at least one model. `decide` and `build` are new to that list;
+`debug` and `review` return to it after the fixture repair recorded below:
 
 - **`decide` 12/12 on both.** It shipped on *nothing* before — it held at 92% everywhere,
   failing exactly one boundary scenario per model. Narrowing its scope to engineering
@@ -125,7 +126,7 @@ the third phantom collapse this hazard has produced in this project.
 
 | Cell | Rate | Why it stands |
 |---|---|---|
-| `review` S9 (GLM) | 0/3 | The observable-fallback governor. A Checks row took DeepSeek 0/3 → 3/3 and moved GLM not at all. A third arming risks the neighbouring cells, which is how this project has hurt itself before. |
+| `review` S9 (GLM) | 2/3 (boundary) | The observable-fallback governor. A Checks row took DeepSeek 0/3 → 3/3 and left GLM at 0/3; in `release-3c` GLM came back **PASS at 2/3, flaky 0.67**, so it is a boundary cell rather than a failing one. Still listed because a single draw of it is not a measurement. A third arming risks the neighbouring cells, which is how this project has hurt itself before. |
 | `plan` A7 | 0–1/3 | The contract says "decompose **and say why**"; the model decomposes silently. The *behavior* half passes. The rubric grades narration, and it is not critical. |
 | `plan` A2/A3/A5 (DS) | boundary | Two different levers — a template placeholder and a Checks row — moved neither consistently. Published at rate. |
 | `debug` D1, `architect` D1 (DS) | 1/3 | Single boundary cells on one model each. |

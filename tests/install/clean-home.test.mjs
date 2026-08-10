@@ -159,10 +159,38 @@ test("the bin invocations the docs print are resolvable", () => {
   // returned E404 and the features were inert for every installed user. The earlier test
   // exercised node_modules/.bin/<name>, a different resolution path — which is why it passed.
   // This asserts the docs only print invocations that can resolve.
-  const docs = ["README.md", "AGENTS.md", "review/SKILL.md", "debug/SKILL.md",
-                "prompts/principal-feature.md", "prompts/principal-bugfix.md"];
+  //
+  // The list is DERIVED from what npm actually ships, not hardcoded. A six-file allowlist
+  // covered neither the generated agents/*.md — which install-agents.mjs copies into every
+  // user's ~/.pi/agent/agents — nor the contracts/*.md.tmpl they are generated from, so the
+  // identical defect could reappear one file away and ship with a green suite.
+  //
+  // CHANGELOG.md is the one principled exclusion: it is a historical record, and the
+  // `[2.3.1]` entry has to be able to name the broken invocation it fixed. Everything else
+  // that ships tells a user what to run and must only print resolvable commands. The
+  // exclusion is asserted to be exactly this one file so it cannot quietly grow back into
+  // the allowlist this test was rewritten to remove.
+  const EXCLUDED = ["CHANGELOG.md"];
+  const shipped = execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: ROOT, encoding: "utf8" });
+  const docs = JSON.parse(shipped)[0].files
+    .map((f) => f.path)
+    .filter((p) => p.endsWith(".md") && !EXCLUDED.includes(p));
+  assert.deepEqual(EXCLUDED, ["CHANGELOG.md"],
+    "only the changelog may quote a broken invocation; add a new exclusion only with a reason");
+  // The templates are not shipped, but they are the SOURCE of the shipped agent/skill files,
+  // so a bare invocation reintroduced there would be generated straight into the package.
+  const templates = readdirSync(join(ROOT, "contracts"))
+    .filter((f) => f.endsWith(".md.tmpl"))
+    .map((f) => join("contracts", f));
+
+  const scanned = [...docs, ...templates];
+  assert.ok(scanned.length >= 15,
+    `expected the shipped-docs sweep to cover the whole package, got ${scanned.length}: ${scanned}`);
+  assert.ok(scanned.some((p) => p.startsWith("agents/")),
+    "the sweep must cover agents/*.md — they are installed into the user's agent dir");
+
   const bare = /npx\s+(principal-pi-(?:agents|workspace))/;
-  for (const d of docs) {
+  for (const d of scanned) {
     const text = readFileSync(join(ROOT, d), "utf8");
     const m = text.match(bare);
     assert.equal(

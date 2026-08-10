@@ -199,7 +199,7 @@ follow-up rather than a published column in the current round.
 | plan | 8/12 · 67% | **12/12 · 100% SHIP** | — *(deferred)* |
 | review | **21/21 · 100% SHIP** | **21/21 · 100% SHIP** | — *(deferred)* |
 
-**Six of seven skills ship on at least one model.** `decide` is new to that list — it
+**All seven skills ship on at least one model.** `decide` is new to that list — it
 previously held at 92% on every model, failing exactly one boundary scenario each, and shipped
 nowhere; it is now 12/12 on both. `build` went 7/9 → 9/9 on DeepSeek.
 
