@@ -29,9 +29,33 @@ throwaway HOME, committed `3e8d95e — Add hello.txt`, and closed with a digest 
 inline fallback ("no `principal-*` subagent available") — the honesty requirement from PR 4,
 confirmed live rather than asserted.
 
-`tests/e2e/run-e2e.sh` runs all four cells. The remaining three are unrun: each is a full
-workflow against a real model, so they spend real tokens and want a session with the budget
-for it.
+`tests/e2e/run-e2e.sh` runs all four cells. **One passes; three do not, and none of the three
+failed on the product.**
+
+- **`feature × absent` — PASSES.** Ran end to end, committed, digest named the inline fallback.
+- **`bugfix × absent` — the spine behaved correctly and my fixture did not.** First attempt
+  died because the fixture repo had no persistent git identity, so git-ops correctly stopped
+  and asked rather than inventing one. Fixed. Second attempt: debug returned
+  `Reproduction: NOT REPRODUCED` and the spine stopped — which is exactly what the bugfix
+  prompt instructs. **But the note describes a file that does not exist:** it reports reading
+  `for (let i = 0; i < arr.length; i++)` and running `node sum.test.js → All tests passed`,
+  while the fixture on disk contains `xs.length - 1` and no test file, and the working tree
+  is clean afterwards. The evidence in that debugging note appears fabricated. That is the
+  most serious open question here and it needs its own investigation — it is a claim about
+  model behaviour under `-p`, not something to write into a contract on one observation.
+- **`× present` (both) — blocked on credentials, not code.** The subagent extension loads and
+  the agents install, but every delegation fails with `OAuth refresh failed for Anthropic —
+  the refresh token has expired`. The agents default to an Anthropic model; the copied
+  credentials have an expired token. Worth noting what the spines did with it: both
+  **stopped and surfaced the failure** instead of silently falling back to inline, which is
+  PR 4's rule ("fall back on *absence* only — any other agent failure stops the workflow")
+  confirmed live. Re-authenticate, or point the agents at the same provider as the parent,
+  and these two are runnable.
+
+The harness itself gained two fixes from this round: a persistent git identity in the fixture
+repo, and a guard against a vacuous pass — the `× present` "did not claim inline" assertion
+passed on an aborted run that produced no output at all, which is the exact shape of
+false-green this project keeps finding.
 
 **Next action:** cut the release — publish `2.3.0` to npm and tag `v2.3.0`. Everything else
 in this plan is done. The four live workflow E2E cells remain unrun and are the one piece of

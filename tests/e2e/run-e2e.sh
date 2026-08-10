@@ -58,8 +58,12 @@ setup_home() {
   local with_subagents=$1 home proj
   home=$(mktemp -d); proj="$home/proj"; mkdir -p "$proj"
   cp ~/.pi/agent/auth.json ~/.pi/agent/models-store.json "$home/.pi/agent/" 2>/dev/null || true
+  # Persistent identity, not `-c` on our own commit: the workflow's git-ops phase runs its
+  # OWN `git commit`, and without a configured identity it correctly stops and asks. That is
+  # right behaviour from the skill and a broken fixture from us.
   ( cd "$proj" && git init -q -b main \
-      && git -c user.email=e2e@local -c user.name=e2e commit -q --allow-empty -m base )
+      && git config user.email e2e@local && git config user.name e2e \
+      && git commit -q --allow-empty -m base )
   HOME="$home" PI_CODING_AGENT_DIR="$home/.pi/agent" pi install "npm:$TARBALL" >/dev/null 2>&1
   mkdir -p "$home/.pi/agent"
   cp ~/.pi/agent/auth.json ~/.pi/agent/models-store.json "$home/.pi/agent/" 2>/dev/null || true
@@ -98,9 +102,15 @@ cell_feature() {  # subagents: yes|no
     grep -qiE "inline" <<<"$out" && ok "digest names the inline fallback" \
       || bad "ran inline but did not say so — the honesty requirement"
   else
-    grep -qiE "no .*subagent available|inline phases: .*(plan|review)" <<<"$out" \
-      && bad "claims inline while subagents ARE installed" \
-      || ok "did not claim an inline fallback"
+    # Guard against a vacuous pass: an aborted run has no "inline" claim either, so require
+    # positive evidence the spine actually delegated before crediting it.
+    if grep -qiE "no .*subagent available|inline phases: .*(plan|review)" <<<"$out"; then
+      bad "claims inline while subagents ARE installed"
+    elif grep -qiE "subagent|delegat|principal-(plan|review|debug)" <<<"$out"; then
+      ok "delegated to a subagent rather than running inline"
+    else
+      bad "no evidence of delegation — and no inline claim either; the run produced neither"
+    fi
   fi
   printf '%s\n' "$out" > "$ROOT/tests/e2e/last-feature-$subs.txt"
   rm -rf "$home"
@@ -119,7 +129,7 @@ export function sum(xs) {
 }
 JS
   ( cd "$home/proj" && git add -A \
-      && git -c user.email=e2e@local -c user.name=e2e commit -q -m "add sum" )
+      && git commit -q -m "add sum" )
   out=$(run_workflow "$home" principal-bugfix \
     "sum([1,2,3]) returns 3 instead of 6 in sum.js — the last element is dropped")
 
