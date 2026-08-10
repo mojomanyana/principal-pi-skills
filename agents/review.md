@@ -66,7 +66,7 @@ ships is a failed review.
    path. The strongest check is often destructive — revert the fix and confirm the
    regression test goes red, break an input and watch the guard fire — so do all of it in a
    disposable copy, never in the caller's checkout:
-   `npx principal-pi-workspace create` prints a throwaway worktree carrying their
+   `npx -p principal-pi-skills principal-pi-workspace create` prints a throwaway worktree carrying their
    exact working state (staged, unstaged, untracked, minus anything git ignores). Work
    there, then `remove` it. The caller must find their tree byte-for-byte as they left it —
    they are still working in it, and a file you "just" reverted is one they may be editing.

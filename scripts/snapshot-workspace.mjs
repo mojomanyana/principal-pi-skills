@@ -39,11 +39,13 @@
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, copyFileSync, symlinkSync, readlinkSync, lstatSync, existsSync, rmSync, writeFileSync, realpathSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join, dirname, resolve } from "node:path";
+import { join, dirname, resolve, basename } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const git = (args, cwd, opts = {}) =>
   execFileSync("git", args, { cwd, encoding: "utf8", maxBuffer: 64 * 1024 * 1024, ...opts });
+
+export const SNAPSHOT_PREFIX = "ppw-";
 
 export class SnapshotError extends Error {}
 
@@ -70,7 +72,7 @@ export function createSnapshot(repo = process.cwd()) {
     throw new SnapshotError("repository has no commits yet — nothing to snapshot");
   }
 
-  const path = mkdtempSync(join(tmpdir(), "ppw-"));
+  const path = mkdtempSync(join(tmpdir(), SNAPSHOT_PREFIX));
   rmSync(path, { recursive: true, force: true }); // git worktree add wants a non-existent path
 
   const cleanup = () => {
@@ -147,13 +149,38 @@ function main(argv) {
         return 2;
       }
       const root = git(["rev-parse", "--show-toplevel"], repo).trim();
+      const target = resolve(arg);
+
+      // Refuse anything this tool did not create. The previous version fell back to an
+      // unguarded recursive delete whenever `git worktree remove` failed — and it fails for
+      // ANY path that is not a linked worktree, including the user's main checkout. A stale
+      // or mistyped path therefore destroyed uncommitted work and printed "removed".
+      // An LLM following a contract supplies these paths, so "the caller passes a sane
+      // argument" is not an assumption this can make.
+      const isOurs = basename(target).startsWith(SNAPSHOT_PREFIX) && target.startsWith(realpathSync(tmpdir()));
+      let registered = false;
       try {
-        git(["worktree", "remove", "--force", arg], root, { stdio: "ignore" });
+        registered = git(["worktree", "list", "--porcelain"], root)
+          .split("\n")
+          .some((l) => l.startsWith("worktree ") && resolve(l.slice(9)) === target);
       } catch {
-        if (existsSync(arg)) rmSync(arg, { recursive: true, force: true });
+        /* not a repo we can query; fall through to the ownership check */
+      }
+      if (!registered && !isOurs) {
+        console.error(`✗ refusing to remove ${target}`);
+        console.error(`  It is neither a worktree of this repository nor a snapshot this tool created`);
+        console.error(`  (${SNAPSHOT_PREFIX}* under ${tmpdir()}). Delete it yourself if that is what you meant.`);
+        return 1;
+      }
+
+      try {
+        git(["worktree", "remove", "--force", target], root, { stdio: "ignore" });
+      } catch {
+        // Only reachable for a path we have already proven we own.
+        if (existsSync(target)) rmSync(target, { recursive: true, force: true });
       }
       git(["worktree", "prune"], root, { stdio: "ignore" });
-      console.log(`removed ${arg}`);
+      console.log(`removed ${target}`);
       return 0;
     }
     if (cmd === "prune") {

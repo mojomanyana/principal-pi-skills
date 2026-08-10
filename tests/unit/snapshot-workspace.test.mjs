@@ -16,9 +16,12 @@ import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, symlinkSync, lstatSync, readlinkSync, unlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { createSnapshot, SnapshotError } from "../../scripts/snapshot-workspace.mjs";
+import { execFileSync as run } from "node:child_process";
+const CLI = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "scripts", "snapshot-workspace.mjs");
 
 const created = [];
 const git = (args, cwd) => execFileSync("git", args, { cwd, encoding: "utf8" });
@@ -170,6 +173,33 @@ test("refuses a non-repo and a repo with no commits, rather than half-working", 
 
   git(["init", "-q", "-b", "main"], empty);
   assert.throws(() => createSnapshot(empty), /no commits/, "an empty repo has no HEAD to snapshot");
+});
+
+test("`remove` refuses a path it did not create, instead of deleting it", () => {
+  // The original fell back to an unguarded recursive rmSync whenever `git worktree remove`
+  // failed — which it does for ANY path that is not a linked worktree, including the user's
+  // own checkout. Verified destroying uncommitted work and printing "removed".
+  const repo = fixture();
+  const victim = join(repo, "important");
+  mkdirSync(victim, { recursive: true });
+  writeFileSync(join(victim, "data.txt"), "PRECIOUS UNCOMMITTED WORK\n");
+
+  let code = 0;
+  try {
+    run(process.execPath, [CLI, "remove", victim, "--repo", repo], { encoding: "utf8", stdio: "pipe" });
+  } catch (e) {
+    code = e.status;
+  }
+  assert.equal(code, 1, "must refuse, not succeed");
+  assert.equal(readFileSync(join(victim, "data.txt"), "utf8"), "PRECIOUS UNCOMMITTED WORK\n");
+});
+
+test("`remove` still removes a real snapshot, and exits 0", () => {
+  const repo = fixture();
+  const path = run(process.execPath, [CLI, "create", "--repo", repo], { encoding: "utf8" }).trim();
+  assert.ok(existsSync(path));
+  run(process.execPath, [CLI, "remove", path, "--repo", repo], { stdio: "pipe" });
+  assert.ok(!existsSync(path), "the snapshot it created must still be removable");
 });
 
 test.after(() => {

@@ -4,5 +4,5 @@ export interface CartLine {
 }
 
 export function cartTotal(lines: CartLine[]): number {
-  return lines.map((l) => l.qty * l.price).reduce((a, b) => a + b, 0);
+  return lines.map((l) => l.qty * l.price).reduce((a, b) => a + b);
 }

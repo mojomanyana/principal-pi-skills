@@ -111,7 +111,7 @@ to every output.
    skills and the `/principal-feature` + `/principal-bugfix` commands via the `pi`
    manifest. Install a tag, not a branch.
 2. Subagents need pi-mono's subagent extension (`examples/extensions/subagent`) and the
-   agent definitions installed once: `npx principal-pi-agents install`. It copies real
+   agent definitions installed once: `npx -p principal-pi-skills principal-pi-agents install`. It copies real
    files into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses to overwrite
    anything it did not install.
 3. Without the extension, everything runs inline via the skills; the How column above

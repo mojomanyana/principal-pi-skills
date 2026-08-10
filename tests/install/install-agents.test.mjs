@@ -13,9 +13,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, symlinkSync, rmSync, lstatSync } from "node:fs";
 import { tmpdir, homedir } from "node:os";
-import { join } from "node:path";
+import { join, dirname } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import { run, agentsDir, sources } from "../../scripts/install-agents.mjs";
+
+const ROOT_AGENTS = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "agents");
 
 // Track exactly what we create and delete exactly that. A prefix glob would be shorter and
 // wrong: `node --test` runs test FILES concurrently, so a broad `rm /tmp/ppa-*` reaches into
@@ -158,6 +161,34 @@ test("uninstall keeps files the user edited, and forgets the ones it removed", (
   // A second uninstall must not resurrect claims on the files already removed.
   assert.equal(quiet(() => run(["uninstall"], env)), 0);
   assert.deepEqual(ls(dir), ["principal-plan.md"]);
+});
+
+test("an already-current file is still recorded as owned", () => {
+  // Ownership is what uninstall removes by. Files that matched byte-for-byte were skipped
+  // without being recorded, so a re-install — or a user who copied the agents in by hand —
+  // left uninstall a permanent no-op.
+  const { env, dir } = fresh();
+  mkdirSync(dir, { recursive: true });
+  for (const f of sources().namespaced) {
+    writeFileSync(join(dir, f), readFileSync(join(ROOT_AGENTS, f), "utf8"));
+  }
+  quiet(() => run(["install"], env));
+  const manifest = JSON.parse(readFileSync(join(dir, ".principal-pi-skills.json"), "utf8"));
+  assert.equal(Object.keys(manifest.files).length, 3, "already-current files must be recorded");
+
+  quiet(() => run(["uninstall"], env));
+  assert.deepEqual(ls(dir), [], "and uninstall must then remove them");
+});
+
+test("check verifies everything we own, not just what this run would install", () => {
+  // A check without --with-generic-aliases used to report green while previously-installed
+  // generic aliases rotted — the drift check blind to files it is responsible for.
+  const { env, dir } = fresh();
+  quiet(() => run(["install", "--with-generic-aliases"], env));
+  assert.equal(quiet(() => run(["check"], env)), 0);
+
+  writeFileSync(join(dir, "plan.md"), "locally edited generic alias\n");
+  assert.equal(quiet(() => run(["check"], env)), 1, "drift in an owned generic alias must fail check");
 });
 
 test("uninstall never touches an unrelated agent", () => {
