@@ -107,7 +107,7 @@ to every output.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v2.3.0` — registers the
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v2.3.1` — registers the
    skills and the `/principal-feature` + `/principal-bugfix` commands via the `pi`
    manifest. Install a tag, not a branch.
 2. Subagents need pi-mono's subagent extension (`examples/extensions/subagent`) and the

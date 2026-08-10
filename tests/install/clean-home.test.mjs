@@ -153,6 +153,26 @@ test("the installed bins actually run — not a silent exit 0", () => {
   execFileSync(wsBin, ["remove", path], { cwd: proj, env, stdio: "pipe" });
 });
 
+test("the bin invocations the docs print are resolvable", () => {
+  // 2.3.0 shipped `npx principal-pi-agents install` and `npx principal-pi-workspace create`.
+  // npx resolves a PACKAGE of that name; the bins belong to principal-pi-skills, so both
+  // returned E404 and the features were inert for every installed user. The earlier test
+  // exercised node_modules/.bin/<name>, a different resolution path — which is why it passed.
+  // This asserts the docs only print invocations that can resolve.
+  const docs = ["README.md", "AGENTS.md", "review/SKILL.md", "debug/SKILL.md",
+                "prompts/principal-feature.md", "prompts/principal-bugfix.md"];
+  const bare = /npx\s+(principal-pi-(?:agents|workspace))/;
+  for (const d of docs) {
+    const text = readFileSync(join(ROOT, d), "utf8");
+    const m = text.match(bare);
+    assert.equal(
+      m, null,
+      `${d} prints \`npx ${m?.[1]}\`, which npm resolves as a package name and 404s — ` +
+        `use \`npx -p principal-pi-skills ${m?.[1]}\``
+    );
+  }
+});
+
 test("preseeded generic resources do not shadow the namespaced ones", () => {
   const { tarball } = pack();
   const home = scratch("ppa-home-");

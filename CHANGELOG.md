@@ -6,6 +6,53 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [2.3.1] — 2026-08-10
+
+A defect-fix release. 2.3.0 shipped three defects that a second independent review found,
+all of which made a documented command either do nothing or do damage. **If you installed
+2.3.0, upgrade** — its `principal-pi-workspace remove` can delete a directory you hand it.
+
+**Fixed** — `principal-pi-workspace remove` deleted any path it was given. `git worktree
+remove` fails for anything that is not a linked worktree — including your main checkout —
+and the fallback was an unguarded recursive delete that printed `removed` and exited 0.
+Verified destroying a directory of uncommitted work. The path comes from an LLM following a
+contract, so "the caller passes a sane argument" was never a safe assumption. It now refuses
+anything that is neither a worktree of the repository nor a `ppw-*` snapshot under the temp
+directory.
+
+**Fixed** — both documented `npx` invocations resolved to nonexistent packages.
+`npx principal-pi-agents install` and `npx principal-pi-workspace create` ask npm for a
+*package* of that name; the bins belong to `principal-pi-skills`. Both returned E404. The
+consequence was silent rather than loud: the agent install wrote nothing, so workflows
+degraded to inline self-review with no attributable error, and every review/debug agent got
+E404 where a disposable workspace should have been — leaving the workspace-isolation feature
+inert for every installed user while the contracts forbade verifying in the caller's tree.
+The correct form is `npx -p principal-pi-skills <bin>`, now used in all 14 files that carried
+it.
+
+**Fixed** — the agent installer's ownership record. Files that were already byte-identical
+were skipped without being recorded in the manifest, so `uninstall` was a permanent no-op for
+them. `check` also verified only what the current invocation would install, reporting green
+while previously-installed generic aliases rotted.
+
+**Fixed** — two `debug` fixtures shipped already-fixed code. D1's `reduce` had gained an
+initial value and an empty-cart test, so the **critical** D1 scenario could not reproduce the
+failure its checklist grades; A5's parser had gained the guard its scenario asks the model to
+add, so it could not fail. Both restored. The corruption reached git through a blanket
+`git add -A` that swept up fixtures a local `vitest` run had rewritten — which also tracked
+two `node_modules/.vite` caches that churn the fixture source hash. Those are untracked and
+`node_modules/` is now ignored.
+
+**Changed** — `debug` and `review` scorecard cells are **withdrawn** pending a re-run.
+debug's were measured against the corrupted fixtures; review's contract changed in this
+release. A withdrawn cell publishes nothing rather than a number that measured something
+else.
+
+**Note on verification.** 2.3.0's bins were reported as "verified working from the published
+artifact". That check invoked `./node_modules/.bin/<name>`, which is a different resolution
+path from the documented command — the same class of error as testing a CLI by importing its
+module. The install tests now exercise the documented invocation.
+
 ## [2.3.0] — 2026-08-09
 
 The release that made the installed product real: namespaced commands and agents, generated
