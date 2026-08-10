@@ -24,42 +24,65 @@ all seven skills, then the full remeasurement. `npm test` green from a fresh che
    so the "subagents present" cells need no vendored copy of anyone else's code — and the
    "absent" cells need no extension at all.
 
-**`feature × absent` is proven.** It ran end to end against the packed 2.3.1 artifact in a
-throwaway HOME, committed `3e8d95e — Add hello.txt`, and closed with a digest that named the
-inline fallback ("no `principal-*` subagent available") — the honesty requirement from PR 4,
-confirmed live rather than asserted.
+**All four E2E cells now pass: 24 assertions, 0 failures (2026-08-10).** Every earlier
+failure in this row was the harness, and all three came from one defect.
 
-`tests/e2e/run-e2e.sh` runs all four cells. **One passes; three do not, and none of the three
-failed on the product.**
+**The "fabricated evidence" was not fabricated — the harness ran pi in the wrong repository.**
+`run_workflow` never `cd`-ed into the fixture; `pi` has no `--cwd` and operates on the
+directory it is launched from, so every cell ran against **this checkout** while every
+assertion inspected an untouched fixture in `$HOME/proj`. Confirmed deterministically, 3/3
+reps, with a probe that made the model print its own `pwd`:
 
-- **`feature × absent` — PASSES.** Ran end to end, committed, digest named the inline fallback.
-- **`bugfix × absent` — the spine behaved correctly and my fixture did not.** First attempt
-  died because the fixture repo had no persistent git identity, so git-ops correctly stopped
-  and asked rather than inventing one. Fixed. Second attempt: debug returned
-  `Reproduction: NOT REPRODUCED` and the spine stopped — which is exactly what the bugfix
-  prompt instructs. **But the note describes a file that does not exist:** it reports reading
-  `for (let i = 0; i < arr.length; i++)` and running `node sum.test.js → All tests passed`,
-  while the fixture on disk contains `xs.length - 1` and no test file, and the working tree
-  is clean afterwards. The evidence in that debugging note appears fabricated. That is the
-  most serious open question here and it needs its own investigation — it is a claim about
-  model behaviour under `-p`, not something to write into a contract on one observation.
-- **`× present` (both) — blocked on credentials, not code.** The subagent extension loads and
-  the agents install, but every delegation fails with `OAuth refresh failed for Anthropic —
-  the refresh token has expired`. The agents default to an Anthropic model; the copied
-  credentials have an expired token. Worth noting what the spines did with it: both
-  **stopped and surfaced the failure** instead of silently falling back to inline, which is
-  PR 4's rule ("fall back on *absence* only — any other agent failure stops the workflow")
-  confirmed live. Re-authenticate, or point the agents at the same provider as the parent,
-  and these two are runnable.
+```text
+CWD=/home/alavanja/prepos/principal-pi-skills   (all three reps)
+```
 
-The harness itself gained two fixes from this round: a persistent git identity in the fixture
-repo, and a guard against a vacuous pass — the `× present` "did not claim inline" assertion
-passed on an aborted run that produced no output at all, which is the exact shape of
-false-green this project keeps finding.
+Every line of that debugging note was then literally true: `sum.js` and `sum.test.js` really
+were in this repo's root, containing exactly `for (let i = 0; i < arr.length; i++)` and
+printing exactly `All tests passed.` — left there by the *previous* run of the same cell,
+and swept into `51dbfc4` by `git add -A` (the fourth time that hazard has landed here). The
+model read real files and reported them accurately. **The contract needed no change, and one
+more observation without this probe would have produced exactly the wrong fix.**
+
+Two consequences were invisible until the cwd was found:
+
+- **The runs were contaminated.** pi auto-discovers `AGENTS.md` from cwd, so every cell was
+  silently handed this repo's routing layer — the very file the README says a clean install
+  does *not* get. The cells were measuring a privileged environment, not a user's.
+- **`feature × absent`'s recorded PASS was never reproducible.** It has no saved transcript,
+  its task string (`hello.txt`) does not match the committed script's (`greet.txt`), and
+  under the wrong cwd its own assertions would have failed. It was a manual run, not this
+  harness. It has now been re-run and genuinely passes.
+
+**The `× present` cells were never a credentials problem.** The subagent extension passes
+`--model` to the child `pi` only when the agent's frontmatter declares one
+(`examples/extensions/subagent/index.ts:295`); ours deliberately do not, so the child fell
+back to the throwaway home's config default — Anthropic — which is why every delegation
+reported `OAuth refresh failed for Anthropic`. The token was never involved. Writing the
+parent's `defaultProvider`/`defaultModel` into the throwaway `settings.json` fixes it with no
+re-authentication and no product change. Both cells now delegate for real: the digests name
+`principal-plan`/`principal-review` (feature) and `principal-debug`/`principal-review`
+(bugfix) as having run, with Build and Git-Ops inline.
+
+**A false-green in the harness's own scoreboard, found by the fix.** The per-cell git
+assertions ran inside a `( … )` subshell, so their `pass`/`fail` increments were discarded:
+the first corrected run printed six ✓ and reported "3 passed". A `bad` in that block would
+have printed ✗ and still exited 0 — the three assertions that check whether the spine
+actually committed a correct fix could not fail the suite. Now `git -C` in the parent shell;
+the counts match the marks (24 = 4 × 6). Two smaller ones fixed alongside: `! grep -q` on a
+missing `sum.js` scored a deleted file as "fixed", and there was no assertion that a cell had
+not written to the developer's checkout — the canary that would have caught all of this on
+day one, now `assert_dev_repo_untouched` in every cell.
+
+Residual fragility, recorded rather than speculatively "fixed": the `× present` inline-claim
+guard matches prose (`inline phases: .*(plan|review)`) and is blind to the markdown emphasis
+the models actually emit. It reached the right verdict here for the right reason — positive
+evidence naming `principal-*` agents — but it is inference from prose, and tightening it
+without a failing case to test against is the same speculative edit this plan already
+records as having moved nothing.
 
 **Next action:** cut the release — publish `2.3.0` to npm and tag `v2.3.0`. Everything else
-in this plan is done. The four live workflow E2E cells remain unrun and are the one piece of
-PR 7 not delivered; they need pi-mono's subagent extension vendored into `.pi/extensions/`.
+in this plan is done, including the four E2E cells.
 
 **Scope decision (user, 2026-08-08): two models, not three.** The remeasurement covers
 **DeepSeek v4-pro and GLM 5.2** — the two the skills were tuned against, and the two whose
@@ -207,16 +230,16 @@ this file rather than keeping completed process archaeology indefinitely.
       README and the changelog: governed rules cost more words than absolutes.
       All seven skills were mid-change at the time, so the whole scorecard went blank pending
       the remeasurement — since completed in PR 7, and every non-kimi exemption is retired.
-- [x] PR 7 — Fresh measurements *(same branch/PR)* — **E2E cells NOT run**
+- [x] PR 7 — Fresh measurements *(same branch/PR)* — **E2E cells now run, 24/24**
       98 scenarios × 3 reps × DeepSeek + GLM, one epoch, reps pinned in the spec. Five of
       seven skills ship on at least one model; `decide` (12/12 both) shipped on none before.
       Every non-kimi exemption retired; the dead-exemption check forced each one out as its
       cell became current.
-      **Not done:** the four live workflow E2E cells (feature/bugfix × subagents present or
-      absent). They need `require_subagents`, which needs pi-mono's subagent extension
-      vendored into `.pi/extensions/` — a decision about carrying someone else's code, not a
-      mechanical step. The static install tests cover discovery inputs; they do not exercise
-      the loader.
+      **Now done:** all four live workflow E2E cells pass, 24 assertions and 0 failures, via
+      `bash tests/e2e/run-e2e.sh`. Nothing needed vendoring — the subagent extension ships
+      inside pi itself (`examples/extensions/subagent`, MIT), and the `absent` cells need no
+      extension at all. The static install tests cover discovery inputs; these exercise the
+      loader.
       **Standing hazard found:** the Opus judge's session limit errored two cells (debug/GLM,
       review/GLM). Read raw they said F (55%) and 8/21; re-judging returned A (91%) and 19/21.
       Recorded in the manifest as a third caution.
@@ -871,7 +894,7 @@ semantic contract work should merge before the expensive full benchmark run.
 - [ ] Generated contracts have no drift.
 - [ ] Harness lint reports zero defects and zero stale current claims.
 - [ ] Clean installation discovers both namespaced workflows.
-- [ ] Feature and bugfix E2E pass with and without subagents.
+- [x] Feature and bugfix E2E pass with and without subagents. <!-- 24/24, 2026-08-10 -->
 - [ ] Only Build leaves source/test changes in the caller checkout.
 - [ ] Secret findings never reproduce matched values.
 - [ ] Package tarball matches its allowlist.

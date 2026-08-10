@@ -67,6 +67,19 @@ setup_home() {
   HOME="$home" PI_CODING_AGENT_DIR="$home/.pi/agent" pi install "npm:$TARBALL" >/dev/null 2>&1
   mkdir -p "$home/.pi/agent"
   cp ~/.pi/agent/auth.json ~/.pi/agent/models-store.json "$home/.pi/agent/" 2>/dev/null || true
+  # The subagent extension spawns a CHILD `pi` and passes --model only when the agent's
+  # frontmatter declares one (examples/extensions/subagent/index.ts:295). Ours deliberately
+  # do not, so the child falls back to the config default. In a throwaway home that default
+  # is Anthropic — which is why every delegation reported "OAuth refresh failed for
+  # Anthropic". The token was never the problem; the child just never inherited the
+  # parent's --provider/--model. Write the parent's choice into the config it does read.
+  node -e '
+    const fs = require("fs"), p = process.argv[1];
+    const s = fs.existsSync(p) ? JSON.parse(fs.readFileSync(p, "utf8")) : {};
+    s.defaultProvider = process.argv[2];
+    s.defaultModel = process.argv[3];
+    fs.writeFileSync(p, JSON.stringify(s, null, 2));
+  ' "$home/.pi/agent/settings.json" "$PROVIDER" "$MODEL"
   if [ "$with_subagents" = yes ]; then
     mkdir -p "$home/.pi/agent/extensions/subagent"
     cp "$EXT/index.ts" "$EXT/agents.ts" "$home/.pi/agent/extensions/subagent/" 2>/dev/null
@@ -77,12 +90,31 @@ setup_home() {
   echo "$home"
 }
 
+# `pi` has no --cwd flag: it operates on the directory it is LAUNCHED from. Without the
+# `cd` below it ran in the developer's own checkout — reading and writing this repo while
+# every assertion below inspected an untouched fixture. That is what produced the
+# "fabricated evidence" debugging note: the note truthfully described THIS repo's files,
+# left there by an earlier run of the same cell. It also silently fed the run this repo's
+# AGENTS.md, which pi auto-discovers from cwd and which a clean install does not have.
 run_workflow() {  # home, prompt-name, task -> prints the transcript
   local home=$1 name=$2 task=$3
   local tree="$home/.pi/agent/npm/node_modules/principal-pi-skills"
-  HOME="$home" PI_CODING_AGENT_DIR="$home/.pi/agent" timeout 900 \
-    pi -p --provider "$PROVIDER" --model "$MODEL" \
-       --prompt-template "$tree/prompts/$name.md" "/$name $task" 2>&1
+  ( cd "$home/proj" && HOME="$home" PI_CODING_AGENT_DIR="$home/.pi/agent" timeout 900 \
+      pi -p --provider "$PROVIDER" --model "$MODEL" \
+         --prompt-template "$tree/prompts/$name.md" "/$name $task" 2>&1 )
+}
+
+# Canary: no cell may leave a mark on the developer's checkout. This is the assertion that
+# would have caught the wrong-cwd bug on its first run instead of two commits later.
+dev_repo_state() { git -C "$ROOT" rev-parse HEAD; git -C "$ROOT" status --porcelain; }
+DEV_STATE_BEFORE=$(dev_repo_state)
+assert_dev_repo_untouched() {
+  if [ "$(dev_repo_state)" = "$DEV_STATE_BEFORE" ]; then
+    ok "the developer's checkout is untouched"
+  else
+    bad "THE CELL WROTE TO THE DEVELOPER'S CHECKOUT — it did not run in the fixture repo"
+    diff <(printf '%s\n' "$DEV_STATE_BEFORE") <(dev_repo_state) | head -20
+  fi
 }
 
 cell_feature() {  # subagents: yes|no
@@ -92,10 +124,10 @@ cell_feature() {  # subagents: yes|no
   out=$(run_workflow "$home" principal-feature \
     "add a file named greet.txt containing the word hello")
 
-  ( cd "$home/proj"
-    if [ "$(git log --oneline | wc -l)" -gt 1 ]; then ok "the spine committed"; else bad "no commit — the workflow did not reach git-ops"; fi
-    if [ -f greet.txt ]; then ok "the change landed in the caller's checkout"; else bad "greet.txt missing"; fi
-    if [ -z "$(git status --porcelain)" ]; then ok "working tree clean (build's change was committed, not left loose)"; else bad "tree dirty after the spine finished"; fi )
+  local proj="$home/proj"
+  if [ "$(git -C "$proj" log --oneline | wc -l)" -gt 1 ]; then ok "the spine committed"; else bad "no commit — the workflow did not reach git-ops"; fi
+  if [ -f "$proj/greet.txt" ]; then ok "the change landed in the caller's checkout"; else bad "greet.txt missing"; fi
+  if [ -z "$(git -C "$proj" status --porcelain)" ]; then ok "working tree clean (build's change was committed, not left loose)"; else bad "tree dirty after the spine finished"; fi
 
   grep -qi "digest" <<<"$out" && ok "closed with a digest" || bad "no digest"
   if [ "$subs" = no ]; then
@@ -112,6 +144,7 @@ cell_feature() {  # subagents: yes|no
       bad "no evidence of delegation — and no inline claim either; the run produced neither"
     fi
   fi
+  assert_dev_repo_untouched
   printf '%s\n' "$out" > "$ROOT/tests/e2e/last-feature-$subs.txt"
   rm -rf "$home"
 }
@@ -133,14 +166,18 @@ JS
   out=$(run_workflow "$home" principal-bugfix \
     "sum([1,2,3]) returns 3 instead of 6 in sum.js — the last element is dropped")
 
-  ( cd "$home/proj"
-    if [ "$(git log --oneline | wc -l)" -gt 2 ]; then ok "the spine committed a fix"; else bad "no fix commit"; fi
-    if grep -q "i < xs.length;" sum.js 2>/dev/null || ! grep -q "xs.length - 1" sum.js; then
-      ok "the off-by-one is actually fixed"; else bad "sum.js still drops the last element"; fi
-    if [ -z "$(git status --porcelain)" ]; then ok "working tree clean"; else bad "tree dirty"; fi )
+  local proj="$home/proj"
+  if [ "$(git -C "$proj" log --oneline | wc -l)" -gt 2 ]; then ok "the spine committed a fix"; else bad "no fix commit"; fi
+  # Require the file to EXIST before judging it: `! grep -q` on a missing file succeeds,
+  # so the old form scored a deleted sum.js as "fixed".
+  if [ ! -f "$proj/sum.js" ]; then bad "sum.js is gone — the fix cannot be verified"
+  elif grep -q "xs.length - 1" "$proj/sum.js"; then bad "sum.js still drops the last element"
+  else ok "the off-by-one is actually fixed"; fi
+  if [ -z "$(git -C "$proj" status --porcelain)" ]; then ok "working tree clean"; else bad "tree dirty"; fi
 
   grep -qi "digest" <<<"$out" && ok "closed with a digest" || bad "no digest"
   grep -qiE "root cause" <<<"$out" && ok "digest carries the root cause" || bad "no root cause in the digest"
+  assert_dev_repo_untouched
   printf '%s\n' "$out" > "$ROOT/tests/e2e/last-bugfix-$subs.txt"
   rm -rf "$home"
 }
