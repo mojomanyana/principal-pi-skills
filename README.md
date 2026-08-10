@@ -50,8 +50,8 @@ around.
 | `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1088 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1360) or inline | 1150 |
 | `build` | Test-first implementation — code proven by a test you watched fail | inline | 968 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1315) or inline | 1287 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1333) or inline | 1206 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1317) or inline | 1289 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1335) or inline | 1208 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1895 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
@@ -97,8 +97,8 @@ docs/demos/                           the chains running end to end, repo-verifi
    `agents.ts` into `~/.pi/agent/extensions/subagent/`), then install the agent definitions:
 
    ```
-   npx principal-pi-agents install     # → ${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents
-   npx principal-pi-agents check       # verify they are present and current
+   npx -p principal-pi-skills principal-pi-agents install     # → ${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents
+   npx -p principal-pi-skills principal-pi-agents check       # verify they are present and current
    ```
 
    It installs `principal-plan`, `principal-review` and `principal-debug` as **real files,
@@ -193,13 +193,18 @@ follow-up rather than a published column in the current round.
 |---|---|---|---|
 | architect | 13/14 · 93% | **14/14 · 100% SHIP** | — *(deferred)* |
 | build | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | — *(deferred)* |
-| debug | 9/11 · 82% | 10/11 · 91% | — *(deferred)* |
+| debug ✗ | — *(withdrawn)* | — *(withdrawn)* | — *(deferred)* |
 | decide | **12/12 · 100% SHIP** | **12/12 · 100% SHIP** | — *(deferred)* |
 | git-ops | 18/19 · 95% | **19/19 · 100% SHIP** | — *(deferred)* |
 | plan | 8/12 · 67% | **12/12 · 100% SHIP** | — *(deferred)* |
-| review | 20/21 · 95% | 19/21 · 90% | — *(deferred)* |
+| review ✗ | — *(withdrawn)* | — *(withdrawn)* | — *(deferred)* |
 
-**Five of seven skills ship on at least one model.** `decide` is new to that list — it
+✗ `debug`'s cells are **withdrawn**: a review found its D1 and A5 fixtures shipped
+already-fixed code, so a critical scenario could not reproduce its own failure and another
+could not fail. The fixtures are restored and a re-run is pending; the previous 9/11 and
+10/11 were measured against them and should not be quoted.
+
+**Four of the six remaining skills ship on at least one model.** `decide` is new to that list — it
 previously held at 92% on every model, failing exactly one boundary scenario each, and shipped
 nowhere; it is now 12/12 on both. `build` went 7/9 → 9/9 on DeepSeek.
 

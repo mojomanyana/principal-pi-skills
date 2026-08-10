@@ -59,8 +59,8 @@ documented command silently do nothing or do damage:
 
 - **Both CLIs were no-ops when installed.** The main-module guard compared
   `import.meta.url` against an unresolved `process.argv[1]`. npm links bins as symlinks, so
-  for every real user the comparison was false: `npx principal-pi-agents install` printed
-  nothing and exited 0, and so did `npx principal-pi-workspace create`. Exit 0 with no output
+  for every real user the comparison was false: `npx -p principal-pi-skills principal-pi-agents install` printed
+  nothing and exited 0, and so did `npx -p principal-pi-skills principal-pi-workspace create`. Exit 0 with no output
   reads as success, so the agents never installed and debug/review got an empty path where a
   worktree should be — silently losing the isolation this release is built around.
 - **`snapshot-workspace` dropped its own subcommand** whenever `--repo` was absent: the
@@ -89,7 +89,7 @@ in every developer test and broken for every user.
 **Fixed** — the workspace helper is reachable from an installed package. The contracts said
 `node scripts/snapshot-workspace.mjs`, a relative path that resolves in this checkout and
 nowhere else; debug and review would have found no helper and fallen back to a read-only
-diagnosis for the wrong reason. It is now a bin entry, `npx principal-pi-workspace`. The
+diagnosis for the wrong reason. It is now a bin entry, `npx -p principal-pi-skills principal-pi-workspace`. The
 packaging step is what surfaced it.
 
 **Removed** — `docs/superpowers/` (a completed cleanup plan and its design spec, referenced

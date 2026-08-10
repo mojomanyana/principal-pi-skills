@@ -53,3 +53,6 @@ $RECYCLE.BIN/
 # the skill it grades.
 **/tests/results/**/*.txt
 **/tests/results/**/*.html
+
+# Machine-local; a tracked vitest cache churns fixture hashes and stales results.
+node_modules/

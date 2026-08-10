@@ -108,7 +108,13 @@ function install({ dir, wanted, force }) {
 
   let wrote = 0;
   for (const a of actions) {
-    if (a.kind === "current") continue;
+    if (a.kind === "current") {
+      // Record it anyway. Ownership is what `uninstall` removes by, and a file that was
+      // already byte-identical (a re-install, or a user who copied it in by hand) would
+      // otherwise never enter the manifest — making uninstall a permanent no-op for it.
+      manifest.files[a.file] ??= sha(readFileSync(join(dir, a.file), "utf8"));
+      continue;
+    }
     if (a.kind === "refuse" && !force) continue;
     // Remove first. Writing to a path that is a symlink writes THROUGH it, editing whatever
     // it points at — which is why plan() refuses links at all. --force means "replace the
@@ -131,7 +137,12 @@ function check({ dir, wanted }) {
     console.error(`✗ ${dir} does not exist — run \`principal-pi-agents install\``);
     return 1;
   }
-  const { actions } = plan(dir, wanted);
+  // Check everything we own, not just what this invocation would install. Otherwise a
+  // `check` without --with-generic-aliases reports green while previously-installed generic
+  // aliases sit stale — the drift check missing exactly the files it is responsible for.
+  const owned = Object.keys(readManifest(dir).files);
+  const all = [...new Set([...wanted, ...owned])].filter((f) => existsSync(join(ROOT, "agents", f)));
+  const { actions } = plan(dir, all);
   const bad = actions.filter((a) => a.kind !== "current");
   for (const a of bad) {
     console.error(`✗ ${a.file}: ${a.kind === "install" ? "not installed" : a.kind === "update" ? "out of date" : a.why}`);

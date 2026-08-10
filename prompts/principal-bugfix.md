@@ -30,7 +30,7 @@ reasoning, so it cannot be surprised by it. When review runs inline, say so in t
    confident the diagnosis was.
 4. **Review** — `principal-review` agent, or the `review` skill inline. It verifies the
    regression test fails before the fix and passes after — a destructive check, so it
-   belongs in a disposable workspace (`npx principal-pi-workspace`), never in this
+   belongs in a disposable workspace (`npx -p principal-pi-skills principal-pi-workspace`), never in this
    checkout. A verdict without that check is UNVERIFIED, and UNVERIFIED is not an approval;
    when review reports `Workspace: none`, treat it as a gap to close rather than a verdict
    to accept.

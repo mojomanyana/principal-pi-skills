@@ -181,7 +181,7 @@ this file rather than keeping completed process archaeology indefinitely.
       both directions (missing-required fails as loudly as forbidden-leaked). Removed
       `docs/superpowers/`; evidence, demos and the manifest stay in git by policy.
       Packaging surfaced a real defect from PR 5: the contracts invoked the snapshot helper
-      by relative path, which resolves only in this checkout. Now `npx principal-pi-workspace`.
+      by relative path, which resolves only in this checkout. Now `npx -p principal-pi-skills principal-pi-workspace`.
       README now states the clean-install truth, including that `AGENTS.md` is NOT auto-loaded
       routing context.
       **The release sequence itself is not done and needs a human**: publish `2.3.0-rc.1`,

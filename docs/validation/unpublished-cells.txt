@@ -40,6 +40,19 @@ git-ops  kimi-k3   # same — the old 15/15 probe measured text that no longer e
 # Until it runs, kimi publishes nothing rather than stale numbers. Retire these rows with:
 #   npx -y skill-harness@latest run all --skills "$PWD" --reps 3 --mode force \
 #     --model fireworks:accounts/fireworks/models/kimi-k3
+# --- debug: fixtures were corrupted, cells withdrawn (2026-08-10). ------------------
+# An independent review found the D1 and A5 fixtures shipped ALREADY-FIXED code: D1's
+# reduce had gained an initial value and an empty-cart test, and A5's parser had gained the
+# guard the scenario asks the model to add. So D1 (critical) could not reproduce the failure
+# it grades and A5 could not fail. The published debug column was measured against both.
+# Fixtures restored; re-run pending. These rows retire when it lands.
+debug    deepseek-v4-pro
+debug    glm-5p2
+# review's contract changed in the same fix round (the npx -p invocation is measured text),
+# so its cells are withdrawn pending the same re-run.
+review   deepseek-v4-pro
+review   glm-5p2
+
 architect kimi-k3
 decide   kimi-k3
 plan     kimi-k3

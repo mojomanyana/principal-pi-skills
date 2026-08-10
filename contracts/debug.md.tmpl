@@ -60,7 +60,7 @@ unknown one; the harder the bug, the stricter the loop.
    file:line because <observed evidence> implies <cause>"; test the cheapest first.
 4. **Probe — in a workspace you own.** One smallest experiment per hypothesis: a log line,
    an assertion, a narrowed test. One change at a time. Probing edits code, so do it in a
-   disposable copy, never the caller's checkout: `npx principal-pi-workspace create`
+   disposable copy, never the caller's checkout: `npx -p principal-pi-skills principal-pi-workspace create`
    prints a throwaway worktree holding their exact working state (minus anything git
    ignores). Work there, then `remove` it. That keeps "probes are temporary" structurally,
    which nobody manages by hand under a failing build.
