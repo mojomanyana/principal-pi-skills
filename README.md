@@ -193,18 +193,13 @@ follow-up rather than a published column in the current round.
 |---|---|---|---|
 | architect | 13/14 · 93% | **14/14 · 100% SHIP** | — *(deferred)* |
 | build | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | — *(deferred)* |
-| debug ✗ | — *(withdrawn)* | — *(withdrawn)* | — *(deferred)* |
+| debug | 9/11 · 82% | **11/11 · 100% SHIP** | — *(deferred)* |
 | decide | **12/12 · 100% SHIP** | **12/12 · 100% SHIP** | — *(deferred)* |
 | git-ops | 18/19 · 95% | **19/19 · 100% SHIP** | — *(deferred)* |
 | plan | 8/12 · 67% | **12/12 · 100% SHIP** | — *(deferred)* |
-| review ✗ | — *(withdrawn)* | — *(withdrawn)* | — *(deferred)* |
+| review | **21/21 · 100% SHIP** | **21/21 · 100% SHIP** | — *(deferred)* |
 
-✗ `debug`'s cells are **withdrawn**: a review found its D1 and A5 fixtures shipped
-already-fixed code, so a critical scenario could not reproduce its own failure and another
-could not fail. The fixtures are restored and a re-run is pending; the previous 9/11 and
-10/11 were measured against them and should not be quoted.
-
-**Four of the six remaining skills ship on at least one model.** `decide` is new to that list — it
+**Six of seven skills ship on at least one model.** `decide` is new to that list — it
 previously held at 92% on every model, failing exactly one boundary scenario each, and shipped
 nowhere; it is now 12/12 on both. `build` went 7/9 → 9/9 on DeepSeek.
 

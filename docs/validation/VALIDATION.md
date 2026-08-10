@@ -82,11 +82,11 @@ has since changed again.
 |---|---|---|---|
 | architect | 13/14 · 93% | **14/14 · 100% SHIP** | — *(deferred)* |
 | build | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | — *(deferred)* |
-| debug ✗ | — *(withdrawn)* | — *(withdrawn)* | — *(deferred)* |
+| debug | 9/11 · 82% | **11/11 · 100% SHIP** | — *(deferred)* |
 | decide | **12/12 · 100% SHIP** | **12/12 · 100% SHIP** | — *(deferred)* |
 | git-ops | 18/19 · 95% | **19/19 · 100% SHIP** | — *(deferred)* |
 | plan | 8/12 · 67% | **12/12 · 100% SHIP** | — *(deferred)* |
-| review ✗ | — *(withdrawn)* | — *(withdrawn)* | — *(deferred)* |
+| review | **21/21 · 100% SHIP** | **21/21 · 100% SHIP** | — *(deferred)* |
 
 **98 scenarios × 3 reps × 2 models — the first board measured entirely in one epoch**, under
 `--mode force`, with reps pinned in the spec rather than passed on the command line. Every
@@ -104,15 +104,22 @@ Five of seven skills now ship on at least one model, and two of those are new:
   measured 3/3 in a targeted run and FAIL in a full run on the same text, hours apart. Treat
   any single `plan`/DeepSeek cell as one draw.
 
-✗ **`debug`'s cells are withdrawn, not deferred.** An independent review found both the D1
-and A5 fixtures shipping already-fixed code — D1's `reduce` had gained an initial value and
-an empty-cart test, A5's parser the guard its scenario asks the model to add. A critical
-scenario that cannot reproduce its own failure and a scenario that cannot fail are not
-measurements, and the published 9/11 and 10/11 were scored against them. The fixtures are
-restored (D1 throws `Reduce of empty array with no initial value` again; A5's suite is red)
-and the cells stay blank until the board is re-run. The corruption reached git through a
-`git add -A` that swept up a fixture a local vitest run had rewritten — which is also how the
-stray `node_modules/.vite` caches got tracked.
+**`debug` and `review` were re-measured after the fixture repair (`release-3c`).** An
+independent review found `debug`'s D1 and A5 fixtures shipping already-fixed code — D1's
+`reduce` had gained an initial value and an empty-cart test, A5's parser the guard its
+scenario asks the model to add — so a critical scenario could not reproduce the failure it
+grades and another could not fail. Both are restored and both skills re-run:
+
+- **`debug` 9/11 on DeepSeek, 11/11 · SHIP on GLM.** D1 now passes on both: with the bug
+  back, the agent reproduces and diagnoses it. What fails on DeepSeek is B1 and D2 — the
+  skill, not a broken fixture.
+- **`review` 21/21 · SHIP on both**, up from 20/21 and 19/21. The only contract change was
+  the `npx -p` invocation fix, which cannot plausibly move S4 or S9's judgments, so read this
+  as boundary cells landing favourably rather than as the fix causing it.
+
+`debug`/GLM first recorded **D (64%) with "2 critical fails"** — three scenarios had ERRORed
+on the judge's session limit. Re-judging the saved transcripts returned 11/11 · SHIP. That is
+the third phantom collapse this hazard has produced in this project.
 
 ### What is still failing, and why it is published rather than fixed
 

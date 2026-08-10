@@ -345,3 +345,22 @@ re-running.
 | plan | glm-5p2 | `2026-08-09T15-49-43-579Z` | release-3b | 12/12 · 100% · **SHIP** | **current (force epoch)** — a 4-scenario spread against the same text on DeepSeek |
 | review | deepseek-v4-pro | `2026-08-09T16-18-17-173Z` | release-3b | 20/21 · 95% · not ready | **current (force epoch)** — fails S4 |
 | review | glm-5p2 | `2026-08-09T16-40-37-561Z` | release-3b | 19/21 · 90% · not ready | **current (force epoch)** — recorded 8/21 until re-judged; 13 of 21 ERRORed on the judge's session limit |
+| debug | deepseek-v4-pro | `2026-08-10T09-54-55-784Z` | release-3c | 9/11 · 82% · not ready | **current (force epoch)** — post-fixture-repair; D1 now passes, fails B1 + D2 |
+| debug | glm-5p2 | `2026-08-10T11-09-02-031Z` | release-3c | 11/11 · 100% · **SHIP** | **current (force epoch)** — recorded D (64%), "2 critical fails", until re-judged: 3 scenarios ERRORed on the judge's session limit |
+| review | deepseek-v4-pro | `2026-08-10T08-22-07-384Z` | release-3c | 21/21 · 100% · **SHIP** | **current (force epoch)** — up from 20/21 |
+| review | glm-5p2 | `2026-08-10T08-53-30-128Z` | release-3c | 21/21 · 100% · **SHIP** | **current (force epoch)** — up from 19/21 |
+
+**release-3c — the post-fixture-repair re-run (2026-08-10).** `debug`'s release-3b cells were
+measured against fixtures that shipped already-fixed code (D1's `reduce` had an initial value
+and an empty-cart test; A5's parser had the guard its scenario asks the model to add), so a
+critical scenario could not reproduce its own failure and another could not fail. `review`'s
+contract changed in the same commit (the `npx -p` invocation is measured text). Both cells were
+withdrawn — publishing nothing rather than a number that measured something else — and both are
+restored here. The corresponding release-3 and release-3b rows for these two skills are
+superseded.
+
+**The judge session limit has now produced three phantom collapses in this project**:
+`debug`/GLM read F (55%) in release-3, `review`/GLM read 8/21, and `debug`/GLM read D (64%)
+with "2 critical fails" here. Re-judging the saved transcripts returned A (91%), 19/21 and
+11/11 · SHIP respectively, free and with no subject tokens. This is not a rare event on a
+long board — grep every fresh run for `judge_verdict: ERROR` before reading any number.
