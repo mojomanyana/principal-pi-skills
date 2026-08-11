@@ -69,11 +69,13 @@ contracts/{plan,review,debug}.md.tmpl the SOURCE for all of the above — edit h
 prompts/principal-{feature,bugfix}.md the two workflow spines (/feature, /bugfix are aliases)
 scripts/                              generator, agent installer, and the checks behind `npm test`
 tests/{unit,install}/                 unit + clean-home install tests (node:test, no dependencies)
+tests/e2e/run-e2e.sh                  live workflow cells: both spines, with and without subagents
 <skill>/tests/specification.yaml      skill-harness scenarios (ship bar, critical gates)
 <skill>/tests/fixtures/<ID>/          seeded repo for one scenario (git-ops, build, debug)
 <skill>/tests/results/…/results.yaml  committed run evidence (Opus-judged)
 AGENTS.md                             routing + dispatch reference (ships, but pi does not auto-load it)
 CHANGELOG.md                          release history
+docs/HANDOFF.md                       current state, what is open, standing hazards — read first
 docs/validation/                      how the skills are measured — scorecard, run manifest
 docs/evidence/                        per-judgment and per-rep records behind the scorecard
 docs/demos/                           the chains running end to end, repo-verified
@@ -84,17 +86,31 @@ docs/demos/                           the chains running end to end, repo-verifi
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v2.3.0
+   pi install git:github.com/mojomanyana/principal-pi-skills@v2.3.1
    ```
+
+   **Do not install `2.3.0`** — it is deprecated on npm for a destructive defect: its
+   `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
+   and reports success. `2.3.1` is the lowest safe version.
 
    The `pi` manifest registers the seven skills and the `/principal-feature` and
    `/principal-bugfix` commands (plus the deprecated `/feature` and `/bugfix` aliases).
    Unpinned `main` moves under you: the skills' behavior is what the committed scorecard
-   measured, and a tag is what keeps those two the same thing. Drop the `@v2.3.0` only if
+   measured, and a tag is what keeps those two the same thing. Drop the `@v2.3.1` only if
    you want whatever `main` currently holds, measured or not.
-2. **Subagents (optional).** Install pi-mono's subagent extension
-   (`packages/coding-agent/examples/extensions/subagent` — symlink its `index.ts` and
-   `agents.ts` into `~/.pi/agent/extensions/subagent/`), then install the agent definitions:
+2. **Subagents (optional).** The extension ships **inside pi itself**, so there is nothing
+   to clone. Copy its `index.ts` and `agents.ts` into `~/.pi/agent/extensions/subagent/`
+   from wherever your pi lives:
+
+   ```
+   # installed from npm — the path that applies to most people:
+   EXT="$(dirname "$(readlink -f "$(command -v pi)")")/../examples/extensions/subagent"
+   mkdir -p ~/.pi/agent/extensions/subagent
+   cp "$EXT/index.ts" "$EXT/agents.ts" ~/.pi/agent/extensions/subagent/
+   ```
+
+   In a pi-mono *source* checkout the same files are at
+   `packages/coding-agent/examples/extensions/subagent`. Then install the agent definitions:
 
    ```
    npx -p principal-pi-skills principal-pi-agents install     # → ${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents
@@ -111,10 +127,16 @@ docs/demos/                           the chains running end to end, repo-verifi
    Tool restriction is structural, in the agents' frontmatter: `plan` is read-only;
    `review` adds `bash` only to run tests; `debug` gets the full toolset.
 
-   The extension steps were last run end to end against **pi 0.80.2** and pi-mono
-   [`008c76f`](https://github.com/badlogic/pi-mono/commit/008c76f955ae) — the newest commit
-   touching that extension path, so the layout has been stable since 2026-06-18. Upstream is
-   someone else's repo: if the file names move, check out that commit.
+   The extension steps were last run end to end against **pi 0.83.0** (2026-08-11), by the
+   live workflow E2E cells in `tests/e2e/run-e2e.sh` — both `× subagents present` cells
+   delegate to `principal-plan`/`principal-review`/`principal-debug` and pass. Upstream is
+   someone else's repo, so if the file names move, that copy step is the thing to re-check.
+
+   One trap worth knowing if you run subagents on a non-default provider: the extension
+   passes `--model` to the child `pi` only when an agent's frontmatter names one. Ours
+   deliberately do not, so a delegated agent uses your pi config's `defaultProvider` /
+   `defaultModel` — **not** whatever `--provider`/`--model` you passed the parent. If
+   delegations fail to authenticate while the parent is fine, that mismatch is why.
 3. **Without the extension everything still works.** The workflows detect that delegation is
    unavailable and run each phase inline instead. That is a supported configuration, not a
    degraded one — with one honest caveat: inline review is *self-review*. It sees the
