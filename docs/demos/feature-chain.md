@@ -1,5 +1,13 @@
 # Demo: the `/feature` chain, live
 
+> **Recorded before 2.3.0's workspace-ownership and namespacing changes.** It is kept as
+> the record of that run, not rewritten to match current contracts. Two things would differ
+> today: the command is `/principal-feature` (`/feature` is now a deprecated alias), and any
+> destructive verification — reverting a fix to watch its regression test go red — happens in
+> a disposable worktree rather than the caller's checkout. The observed behavior and verdicts
+> below are unchanged.
+
+
 First end-to-end run of the framework in its natural habitat — pi 0.80.2, GLM 5.2,
 pi-mono's subagent extension, agents linked from `agents/`. Task: add a `percent`
 helper to a small vitest calculator repo. Chain: **plan** (isolated, read-only) →

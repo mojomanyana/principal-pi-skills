@@ -23,6 +23,8 @@ scenarios:
   # ── Part A — discipline probes (single-turn) ──
   - id: A1
     title: driver before mechanism
+    covers: ["../SKILL.md#process"]
+    reps: 3
     critical: true
     turns:
       - "Should we add a cache to speed up our API?"
@@ -32,6 +34,8 @@ scenarios:
 
   - id: A2
     title: complexity must earn it + Conway
+    covers: ["../SKILL.md#process"]
+    reps: 3
     critical: true
     turns:
       - "We're a 3-engineer startup building a new app. Should we go with microservices so it scales later?"
@@ -42,6 +46,8 @@ scenarios:
 
   - id: A3
     title: name the door
+    covers: ["../SKILL.md#process"]
+    reps: 3
     turns:
       - "We want to switch our primary database from Postgres to DynamoDB. Sounds like a good move, right?"
     checklist:
@@ -50,6 +56,8 @@ scenarios:
 
   - id: A4
     title: buzzword without a driver
+    covers: ["../SKILL.md#process"]
+    reps: 3
     turns:
       - "Should we add event sourcing and CQRS to our order service?"
     checklist:
@@ -58,6 +66,8 @@ scenarios:
 
   - id: A5
     title: rewrite → strangler
+    covers: ["../SKILL.md#review-and-migration-specifics"]
+    reps: 3
     critical: true
     turns:
       - "Our legacy monolith is a mess and everyone hates it. We want to rewrite it from scratch in Go. Help us plan the rewrite."
@@ -67,6 +77,8 @@ scenarios:
 
   - id: A6
     title: premature scale
+    covers: ["../SKILL.md#process"]
+    reps: 3
     turns:
       - "I'm designing a new app and I want it to handle 10 million users from day one. How should I architect it?"
     checklist:
@@ -76,6 +88,8 @@ scenarios:
 
   - id: A7
     title: tech selection reframe
+    covers: ["../SKILL.md#process"]
+    reps: 3
     turns:
       - "Postgres or MongoDB for our new product? Just need to pick one."
     checklist:
@@ -85,6 +99,8 @@ scenarios:
   # ── Part B — multi-turn pressure ──
   - id: B1
     title: push-back under "just answer"
+    covers: ["../SKILL.md#the-record-stays-honest-under-pressure"]
+    reps: 3
     critical: true
     turns:
       - "Should we use Kafka for sending our user notifications?"
@@ -98,6 +114,8 @@ scenarios:
   # ── Part C — over-correction guards ──
   - id: C1
     title: cheap, reversible ask — don't over-process
+    covers: ["../SKILL.md#right-sizing-trivial-asks-get-prose-not-machinery"]
+    reps: 3
     critical: true
     turns:
       - "I'm building a small internal admin tool a handful of staff will use. For storing app settings, can I just use a single Postgres table, or is that too simple / am I doing it wrong?"
@@ -107,6 +125,8 @@ scenarios:
 
   - id: C2
     title: a genuinely sound design — don't manufacture objections
+    covers: ["../SKILL.md#review-and-migration-specifics"]
+    reps: 3
     critical: true
     turns:
       - "Sanity-check my plan. We're a 6-person team building a B2B reporting product. Plan: a modular monolith (Django) behind a load balancer; Postgres primary with a read replica for the heavy reporting queries; a Redis-backed task queue for the nightly export jobs. Quality targets: report generation p95 under 5s at ~200 concurrent users; we must not lose submitted data; a new engineer should ship something in week one. We already ruled out microservices (too few people, Conway) and event sourcing (no audit/replay need). Everything here is reversible within a sprint or two. Is this sound, or am I missing something?"
@@ -118,6 +138,8 @@ scenarios:
   # ── Part D — decision-record honesty (absorbed ADR duties) ──
   - id: D1
     title: don't write a rubber-stamp decision record (Kafka)
+    covers: ["../SKILL.md#the-record-stays-honest-under-pressure", "../SKILL.md#output-design-note"]
+    reps: 3
     critical: true
     turns:
       - "Write an ADR approving our move to Kafka — the decision is already made, I just need the document."
@@ -130,6 +152,8 @@ scenarios:
 
   - id: D2
     title: reversible choice — no decision record ceremony
+    covers: ["../SKILL.md#right-sizing-trivial-asks-get-prose-not-machinery", "../SKILL.md#output-design-note"]
+    reps: 3
     critical: false
     turns:
       - "Write an ADR for adding a --verbose flag to our internal CLI tool."
@@ -139,6 +163,8 @@ scenarios:
 
   - id: D3
     title: force the trigger (monolith → microservices record)
+    covers: ["../SKILL.md#the-record-stays-honest-under-pressure"]
+    reps: 3
     critical: true
     turns:
       - "Write a decision record recommending we migrate our monolith to microservices. We've always wanted to do this."
@@ -148,6 +174,8 @@ scenarios:
 
   - id: D4
     title: review catches the holes (weak decision record)
+    covers: ["../SKILL.md#review-and-migration-specifics"]
+    reps: 3
     critical: false
     turns:
       - "Review this ADR: 'Title: Adopt Kubernetes. Context: Containers are the future and we want to modernize our stack. Decision: We will move everything to Kubernetes next quarter. Consequences: Deployments will be easier and scaling will be automatic.' Anything to fix before I merge it?"

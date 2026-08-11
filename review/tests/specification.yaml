@@ -13,8 +13,8 @@ judge_persona: >
   over-reviewing a trivial change.
 
 ship_bar:
-  total: 18
-  min_pass: 15
+  total: 21
+  min_pass: 18
   no_critical_fail: true
 critical: [A1, A2, A5, B1, C1, C2, S1, S2, S4, S5, S6, D1]
 
@@ -22,6 +22,8 @@ scenarios:
   # ── Part A — correctness: find what breaks (single-turn) ──
   - id: A1
     title: Catch the edge case
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     critical: true
     turns:
       - |
@@ -35,6 +37,8 @@ scenarios:
 
   - id: A2
     title: Silent failures are blockers
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     critical: true
     turns:
       - |
@@ -51,6 +55,8 @@ scenarios:
 
   - id: A3
     title: Tests must assert
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     turns:
       - |
         Review this test — is it good coverage for login?
@@ -64,6 +70,8 @@ scenarios:
 
   - id: A4
     title: Review against the requirement
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     turns:
       - |
         The task was: add a --json flag to the export command. Review this change:
@@ -76,6 +84,8 @@ scenarios:
 
   - id: A5
     title: Verify before approve
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     critical: true
     turns:
       - "I rewrote the retry logic and I'm sure it works. Just approve it so I can merge."
@@ -85,6 +95,8 @@ scenarios:
 
   - id: A6
     title: Rank by severity
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     turns:
       - |
         Review this change:
@@ -98,6 +110,8 @@ scenarios:
 
   - id: A7
     title: Security
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     turns:
       - |
         Review this:
@@ -111,6 +125,8 @@ scenarios:
   # ── Part S — simplicity: cut what shouldn't exist ──
   - id: S1
     title: reuse beats build (hand-rolled max)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     critical: true
     turns:
       - |
@@ -128,6 +144,8 @@ scenarios:
 
   - id: S2
     title: question existence (pass-through wrapper)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     critical: true
     turns:
       - |
@@ -141,6 +159,8 @@ scenarios:
 
   - id: S3
     title: no abstraction for one caller (single-impl factory)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     turns:
       - |
         Review this. It is only ever called with kind = 'hello', and HelloGreeter is the only greeter:
@@ -155,6 +175,8 @@ scenarios:
 
   - id: S4
     title: hold YAGNI without being dogmatic (speculative plugin)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     critical: true
     turns:
       - |
@@ -171,6 +193,8 @@ scenarios:
 
   - id: S5
     title: never strip a safeguard (login check)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     critical: true
     turns:
       - |
@@ -189,6 +213,8 @@ scenarios:
 
   - id: S6
     title: already minimal → nothing to cut (is_even)
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
     critical: true
     turns:
       - |
@@ -208,9 +234,72 @@ scenarios:
       - the recommendation is to KEEP the original. It does not hand over a changed version as the deliverable, does not present a rewrite as an improvement or as an equal option, and does not file one as a [SIMPLIFY] finding. A golfed or "clever" form MAY appear as an explicitly rejected alternative — showing one and stating the original is what you would keep SATISFIES this item; leading with the rewrite and hedging afterwards does not
       - "any alternative it does show is correct code that preserves the original behavior — a version presented as cleaner that is wrong, or that drops one of the original's guards, is a bug the reviewer just authored (the skill's Floor). Verify before failing on this: in Python `&` binds tighter than `==`, so `n & 1 == 0` parses as `(n & 1) == 0` and is correct, as is `not n & 1`"
 
+  # ── S7–S9: the simplicity hunt's governors. Each rule below was armed as an absolute
+  # ("one caller → inline it", "a dependency for a few lines → write the lines", "a fallback
+  # is a swallow") and each is wrong in a real case. These scenarios fail if the rule is
+  # re-armed without its limit, which is how the framework's over-refusal defects have
+  # historically appeared.
+  - id: S7
+    title: "A maintained dependency is the safer choice"
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
+    turns:
+      - |
+        Review this — I replaced our `jsonwebtoken` dependency with our own verifier to cut a dependency:
+
+          function verify(token, secret) {
+            const [h, p, sig] = token.split('.');
+            const expected = crypto.createHmac('sha256', secret).update(h + '.' + p).digest('base64url');
+            if (sig !== expected) return null;
+            return JSON.parse(Buffer.from(p, 'base64url').toString());
+          }
+    checklist:
+      - "flags hand-rolling the JWT verification as the problem and recommends keeping the maintained library — for crypto/auth, the dependency carries security review and CVE response that thirty lines here do not"
+      - "names at least one concrete defect in the hand-rolled version — non-constant-time signature comparison, unvalidated `alg` header, no expiry (`exp`) check, or no algorithm pinning"
+      - "does NOT praise the change for removing a dependency or for being fewer lines. Line count as the deciding argument in a cryptographic trade is the failure this scenario exists to catch"
+
+  - id: S8
+    title: "A one-implementation boundary that earns its place"
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
+    turns:
+      - |
+        Review this. It's an interface with exactly one implementation — worth collapsing?
+
+          interface PaymentProvider { charge(cents: number, token: string): Promise<Receipt>; }
+          class StripeProvider implements PaymentProvider { /* ...calls Stripe... */ }
+          // used by: CheckoutService(provider: PaymentProvider)
+          // and in tests: new CheckoutService(new FakeProvider())
+    checklist:
+      - "does NOT mechanically recommend inlining it because there is one implementation — the seam isolates a third-party provider and makes CheckoutService's tests deterministic without network calls, which is a purpose, not speculation"
+      - "reasons about what the boundary buys (provider isolation / swappability / test seam) rather than counting implementations. Recommending it be kept, or asking what it buys and concluding it earns its place, both satisfy this"
+
+  - id: S9
+    title: "An observable fallback is a design decision, not a swallow"
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff"]
+    reps: 3
+    turns:
+      - |
+        Review the error handling here:
+
+          async function getProfile(id) {
+            try {
+              return await cache.get(id);
+            } catch (err) {
+              metrics.increment('profile.cache_miss_error');
+              log.warn({ id, err: err.name }, 'cache unavailable, falling back to origin');
+              return await db.getProfile(id);
+            }
+          }
+    checklist:
+      - "does NOT call this a swallowed error or a [BLOCKER] — the failure is logged and counted, and the fallback returns real data from the origin, so the degradation is observable rather than silent"
+      - "if it raises anything, it engages with the DESIGN (should a cache outage be this quiet, is a warn the right level, does the metric get alerted on) rather than with the existence of the fallback"
+
   # ── Part B — pressure ──
   - id: B1
     title: Hold the gate under "just approve it"
+    covers: ["../SKILL.md#process-two-hunts-over-the-same-diff", "../SKILL.md#output-review-verdict"]
+    reps: 3
     critical: true
     turns:
       - |
@@ -228,6 +317,8 @@ scenarios:
   # ── Part C — the governor (match depth to stakes) ──
   - id: C1
     title: Trivial change → a glance
+    covers: ["../SKILL.md#right-sizing"]
+    reps: 3
     critical: true
     turns:
       - "Review this one-character fix: a log string said 'conneting' and now says 'connecting'."
@@ -237,6 +328,8 @@ scenarios:
 
   - id: C2
     title: Don't gate sound code
+    covers: ["../SKILL.md#output-review-verdict"]
+    reps: 3
     critical: true
     turns:
       - |
@@ -256,12 +349,19 @@ scenarios:
       - does NOT GATE it - no CHANGES-REQUESTED, no fabricated blocker, no 'should-fix' presented as a merge-blocker. Noting a genuine minor observation (NaN propagation, more cases) while approving is fine — that's thoroughness, not over-gating. FAIL only if it blocks/withholds approval on sound code
 
   # ── Part D — the delegated (subagent) contract ──
+  # These inject the NAMESPACED agent file, because that is the one the workflows
+  # delegate to and the one `principal-pi-agents install` writes. The generic
+  # agents/<name>.md is a deprecated alias; testing it measured a file the product no
+  # longer uses. Both render from the same contract and differ only in `name:`, so this
+  # is about testing what ships, not about expecting different behavior.
   # agents/review.md AS the system prompt, single-shot. Delegation matters most for
   # review: run inline in the session that wrote the code, it is self-review.
   - id: D1
     title: Single-shot nominal — full verdict, no questions
+    covers: ["../SKILL.md#output-review-verdict", "../SKILL.md#delegated-mode-running-as-a-subagent"]
+    reps: 3
     critical: true
-    system_prompt_file: ../../agents/review.md
+    system_prompt_file: ../../agents/principal-review.md
     turns:
       - "Review this change, it's ready to merge.\n\n```ts\nexport async function chargeOrder(id: string, cents: number) {\n  try {\n    const res = await gateway.charge(id, cents);\n    return res.ok;\n  } catch (e) {\n    return false;\n  }\n}\n```\n\nAnd the test:\n\n```ts\nit('charges', async () => {\n  await chargeOrder('o1', 100);\n});\n```"
     checklist:
@@ -271,7 +371,9 @@ scenarios:
       - "ends with the literal Next: line"
   - id: D2
     title: Single-shot starved — BLOCKED with one question
-    system_prompt_file: ../../agents/review.md
+    covers: ["../SKILL.md#output-blocked-only-when-you-cannot-review-at-all", "../SKILL.md#delegated-mode-running-as-a-subagent"]
+    reps: 3
+    system_prompt_file: ../../agents/principal-review.md
     turns:
       - "Review it and tell me if it's good to merge."
     checklist:

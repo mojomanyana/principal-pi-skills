@@ -1,0 +1,52 @@
+schema: 2
+harness_version: 0.7.0
+harness_cli_version: 0.83.0
+skill: review
+harness: pi
+model: fireworks:accounts/fireworks/models/glm-5p2
+judge:
+  provider: claude-code
+  model: claude-opus-4-8
+timestamp: '2026-08-09T12:39:28.417Z'
+label: postboard-fix2
+mode: force
+partial: true
+source_hashes:
+  SKILL.md: 216e0997781d667e6247e58476ec2c0f0802f902575872dbe78ee7735ec54b39
+  rubric:__persona: cc60213596e113fcef11a5bf9fc133e46b04fd16c7045c76062b781824204015
+  stimulus:A4: e5268eab26f83717c70941834fa934df89b1f49ce56298feb89aeebfce1a815f
+  rubric:A4: 279ff538e66e164decdff0a5cd39fc8650631813ebc32cac12e9b2f70a379c23
+  policy:A4: c4cbdf8597899d67b6d5e2770f3bc5837618968843c4750007055a510948fabe
+  stimulus:S9: 04a4b115e7749173edc308847a3d40505a76adff209b312772c0cb0c89eeb671
+  rubric:S9: 26afc0c681860e238ab0856422295dab2558fb8d44eaaa2d84e86c0fed151f10
+  policy:S9: badacba4d3408f3aaea8f6d90bf4f12e171c51e448b0fb0c0e55baffa6be8779
+effective_grade:
+  passed: 0
+  total: 0
+  pct: 0
+  letter: '-'
+  ship: false
+  note: partial run (--only) — not scored
+scenarios:
+  - id: A4
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: S9
+    judge_verdict: PASS
+    judge_reason: 2/3 reps passed (flaky 0.67)
+    suspect: false
+    reps: 3
+    passes: 2
+    clean: 3
+    flakiness: 0.6666666666666667
+    pass_threshold: 0.5
+    override: null
+    note: ''

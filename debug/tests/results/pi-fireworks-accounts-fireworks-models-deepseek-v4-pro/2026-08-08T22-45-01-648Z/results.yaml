@@ -1,0 +1,54 @@
+schema: 2
+harness_version: 0.7.0
+harness_cli_version: 0.83.0
+skill: debug
+harness: pi
+model: fireworks:accounts/fireworks/models/deepseek-v4-pro
+judge:
+  provider: claude-code
+  model: claude-opus-4-8
+timestamp: '2026-08-08T22:45:01.648Z'
+label: shakeout3
+mode: force
+partial: true
+source_hashes:
+  SKILL.md: 27e355395ed1edd443f88a68f51773658968fd87a8708ea17ba73878aedbb75c
+  rubric:__persona: 84760bc1e73f37403c07fcdf7279442c90174b26601ea51acbf627f2e6f843de
+  stimulus:A5: 5f32895fc555b13d960ab153726bcfccf86cf3695fd632314c7affe164e70e69
+  rubric:A5: 93e4946c058e56cc6dd08ee5f2c0ca048e3af9bfa08336f65a4647fb27b0eb8c
+  policy:A5: de8a886429f94e97cd257f02b3d04565930aa9f10ce6b993b045ef56197bbe95
+  fixture:fixtures/A5: 6544b260ca6e6db636c603a79af8c50ec51ffa46d5b12a8ee624f10477b2612b
+  stimulus:A6: e9c1b3a81ae719e0aa2e228248d5fb609638ecbe1499e6042c5b7c14bc5c8b71
+  rubric:A6: 1d3b665137725964e22911ae64066baf374bf97750a39afcd48cb8e17d53f455
+  policy:A6: 98c112cdcb223a5828950a3409760bd6188e1c276e0c94de9685f511f35ee1b2
+  fixture:fixtures/A6: 455bcb79fb04108c068ddea9156f7df368d7526c48596cef789adcaaf2ca8948
+effective_grade:
+  passed: 0
+  total: 0
+  pct: 0
+  letter: '-'
+  ship: false
+  note: partial run (--only) — not scored
+scenarios:
+  - id: A5
+    judge_verdict: PASS
+    judge_reason: 2/3 reps passed (flaky 0.67)
+    suspect: false
+    reps: 3
+    passes: 2
+    clean: 3
+    flakiness: 0.6666666666666667
+    pass_threshold: 0.5
+    override: null
+    note: ''
+  - id: A6
+    judge_verdict: PASS
+    judge_reason: 3/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 3
+    clean: 3
+    flakiness: 0
+    pass_threshold: 0.5
+    override: null
+    note: ''

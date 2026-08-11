@@ -95,7 +95,6 @@ Decision record (only for ONE-WAY or precedent-setting choices):
   Context: <the forcing trigger — what makes this necessary now; a preference is not a trigger>
   Decision: <what was chosen over what>
   Consequences: <positive AND negative — a record with only upsides is a sales pitch>
-Next: plan (to implement) | decide (if still contested)
 ```
 
 ## Checks

@@ -30,34 +30,55 @@ unknown one; the harder the bug, the stricter the loop.
 3. **Hypothesize testably.** First read the error message word by word — it usually names
    the file, line, and cause. Then write 2–3 hypotheses in the form "the bug is at
    file:line because <observed evidence> implies <cause>"; test the cheapest first.
-4. **Probe.** One smallest experiment per hypothesis — a log line, an assertion, a
-   narrowed test. One change at a time. Probes are temporary: remove them when done.
-5. **Fix at the root cause and verify.** The stack trace points at the symptom; trace the
-   wrong value upstream to where it originated and fix there. The regression test fails
+4. **Probe — in a workspace you own.** One smallest experiment per hypothesis: a log line,
+   an assertion, a narrowed test. One change at a time. Probing edits code, so do it in a
+   disposable copy, never the caller's checkout: `npx -p principal-pi-skills principal-pi-workspace create`
+   prints a throwaway worktree holding their exact working state (minus anything git
+   ignores). Work there, then `remove` it. That keeps "probes are temporary" structurally,
+   which nobody manages by hand under a failing build.
+5. **Prove the fix at the root cause — still in the workspace.** The stack trace points at
+   the symptom; trace the wrong value upstream and fix there. The regression test fails
    before the fix and passes after; re-run the full suite and the original reproduction.
    Intermittent bug → loop the test (e.g. 100×) before declaring victory.
+   **In a workflow you report the fix and do not leave it behind** — `build` implements it
+   once, in the caller's checkout, where they can watch it land. **Asked directly to fix it,
+   fix it.** "Diagnose this and fix it" is a request, not a handoff; withholding a repair the
+   user asked for because a later phase might apply it is the ceremony this framework
+   refuses.
+   No workspace available → return a read-only diagnosis that says so, with the fix marked
+   unproven, or `BLOCKED` if nothing can be told apart without running code. Never run the
+   experiment in the caller's tree instead.
 
 ## Error-handling rule
 When the task says "make it not crash" / "stop it taking down the server", it is asking
 you to make the failure **survivable and detectable** — never to suppress it. A fix where
 the operation silently looks like it succeeded (order unmarked, null nobody checks) is a
-worse bug than the crash. If the fix catches an error, the failure must stay detectable
-AND the affected state must stay consistent: log it, mark the affected record/operation as failed (not left half-done),
-and either raise a domain error a caller is expected to handle or return a result the
-caller checks. Test the failure path too — a test that only covers the happy path can't
-tell a fix from a swallow. A silent `catch {}` / `return null` / `pass` trades a loud
-crash for silent corruption — that is not a fix. **Absence of success is not a failure
-signal**: leaving the record unmarked or a field null so "the caller can tell" is a
-swallow — nobody can distinguish *failed* from *not attempted yet*. Every real catch does
-at least two things: logs the error AND changes observable state — mark the record failed,
-return a result the caller checks, or raise a domain error (`OperationFailedError`); all
-three are equally right, pick what the code shape allows. In a `void` function with no
-failure state to set, create one (a `markFailed`/status field) or throw — a bare `return`
-inside the catch is the swallow. The shape of a real catch:
-`catch (e) { log.error(e); markFailed(record); return { ok: false, error: e }; }` — and
-the caller checks it. If you find yourself typing `catch {}` or
-`catch (e) { return null; }` or an empty `catch (e) { return; }`, delete it; that is the
-bug, not the fix.
+worse bug than the crash. A silent `catch {}` / `return null` / `pass` trades a loud crash
+for silent corruption. **Absence of success is not a failure signal**: leaving a record
+unmarked so "the caller can tell" is a swallow — nobody can distinguish *failed* from *not
+attempted yet*.
+
+A caught error must do four things: **preserve the failure semantics** (the caller can
+still tell it failed — a raised domain error, a checked result, a rejected promise);
+**keep state consistent wherever state was changed** (a half-written record is marked
+failed or rolled back); **log once, at the boundary that owns it** — handler, job runner,
+entry point, not at every frame on the way up; and **sanitize the log** — no credentials,
+tokens, PII, request/response bodies or raw provider errors; log the operation, the ids and
+the error type.
+
+Three shapes satisfy that and are routinely mistaken for swallows. **Pure or library code**
+may return a typed error or checked result and log nothing — a parser returning
+`Err(ParseError)` is complete, and a library that logs has stolen the caller's decision
+about where output goes. **A transaction** may roll back and rethrow; that is the state
+consistency and the semantics both. And **do not invent a status field where no durable
+record exists** — if nothing durable was written there is nothing to mark, so raise or
+return and stop.
+
+Test the failure path too — a happy-path test cannot tell a fix from a swallow. A typical
+catch at a boundary:
+`catch (e) { log.error({ op, id, err: e.name }); markFailed(record); return { ok: false, error: e }; }`
+— and the caller checks it. `catch {}`, `catch (e) { return null; }`, or an empty
+`catch (e) { return; }` is the bug, not the fix.
 
 ## When stuck (probes stop producing new information)
 Never repeat an experiment that was already tried — each next step must produce NEW
@@ -79,11 +100,18 @@ Reproduction: <command or test that triggers it, or "NOT REPRODUCED: <why>">
 Isolated to: <smallest input / commit range>
 Hypotheses tested: <each → confirmed / rejected, with evidence>
 Root cause: <file:line + why>
-Fix: <the minimal change, at the cause not the symptom>
+Fix: <the minimal change, at the cause not the symptom — proposed, not applied>
 Regression test: <name; failed before fix, passes after>
 Suite: <result verbatim>
-Next: build (fix is nontrivial) | plan (it's a design flaw) | done
+Workspace: disposable | none (read-only diagnosis) — <path removed, or why none>
+Blocked: <the ONE question that would unblock the diagnosis> | none
+Next: build | plan | done | blocked
 ```
+
+`Next:` is exactly one of those four bare words — the caller routes on it mechanically, so
+`build (nontrivial)` matches nothing. **build** the fix needs implementing · **plan** it is
+a design flaw · **done** nothing more is needed · **blocked** you need the answer in
+`Blocked:` first. Never `blocked` alongside a confident root cause.
 
 ## Checks
 | If you are about to… | Instead |

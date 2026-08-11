@@ -12,6 +12,14 @@ description: >
 Produce working code proven by a test you watched fail. "It compiles", "it ran once", and
 "I added a test after" are not evidence.
 
+**You are the only phase that writes durably.** Plan reads; debug and review experiment in
+disposable workspaces and throw them away. The change lands here, once, in the user's
+checkout, where they can see it. So implement it yourself even when debug already proved a
+candidate fix elsewhere — a fix "already applied" somewhere the user cannot see is a fix
+they cannot review. And never fan parallel writers into one working tree: steps marked
+parallel-safe are independent of each other, which is a statement about dependencies, not a
+licence for two processes to edit the same files at once.
+
 ## Process
 1. **Read before writing.** Open the files you will change, the callers of anything whose
    signature changes, the nearest test. Run the existing suite for a baseline. Match the
@@ -66,8 +74,14 @@ Verified: <what you observed working, or "NOT VERIFIED because …">
 Assumptions: <what you guessed and why> | none
 Follow-ups: <out-of-scope issues found, left untouched> | none
 Blocked: <contradictions or errors you stopped on> | none
-Next: review, then git-ops
+Next: review | debug | blocked
 ```
+
+`Next:` is exactly one of those three words — the caller routes on it mechanically.
+**review** the work is ready for a verdict · **debug** you hit a failure whose cause you
+could not identify, so it needs diagnosis before more building · **blocked** you stopped on
+the contradiction named in `Blocked:`. Never `done`: build does not decide that its own work
+is finished, review does.
 
 ## Checks
 | If you are about to… | Instead |

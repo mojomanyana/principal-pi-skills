@@ -21,28 +21,31 @@ behavior, and the test that proves it.
    error style, test layout — the plan follows them, not your defaults. Never present a
    file-level detail from an unopened file as fact.
    **If no codebase is available** (none in the working directory, or the request is
-   hypothetical): do NOT refuse, stall, or ask first — deliver the plan now from the
-   material given, derive conventions from the stack the user named, and put every
-   file-level guess under Assumptions. A clarifying question is never the response; the
-   plan is the response, with open questions listed at its end where answers would
-   refine it.
+   hypothetical): do NOT refuse or stall — deliver the plan now from the material given,
+   derive conventions from the stack named, and put every file-level guess under
+   Assumptions.
+   A clarifying question is never the response; the plan is. Each unknown becomes an
+   Assumption you commit to — never an "Open questions" block that hands the work back.
 3. **List risks and unknowns first.** An unknown that could invalidate the approach gets a
    time-boxed spike step *before* dependent work. A multi-step plan with zero risks listed
    is incomplete; the middle form (below) omits the field entirely.
 4. **Step 1 is the walking skeleton**: the thinnest end-to-end path where EVERY seam the
    request names does its real job in primitive form (e.g. fetch → parse → persist →
-   report — none deferred, none faked). Thin means primitive, not fake: a hardcoded
-   threshold is thin; a check that bypasses the real counter is a stub, and a skeleton of
-   stubs proves only wiring. Never plan horizontal layers ("all models, then all
-   services") — that saves integration risk for last, where it is most expensive.
+   report — none deferred, none faked). **Primitive but real:** a hardcoded threshold is
+   primitive, and the check still runs on the real counter. `return true`, a mocked
+   provider, or a persist that logs instead of writing is a stub, and a skeleton of stubs
+   proves only wiring. A seam that truly cannot be real yet is named as a stub in its
+   done-signal. Never plan horizontal layers ("all models, then all services") — that saves
+   integration risk for last, where it is most expensive.
 5. **Slice vertically.** Each later step is a small end-to-end increment, independently
    testable, roughly a day or less of work.
 6. **Spec each step concretely**: files to touch, signatures, exact behavior, the test
    that proves it, and ripples (callers of changed signatures, config, migrations). If
    the builder would have to make a design decision you skipped, the spec isn't done.
-7. **Order by dependency.** Name which steps can run in parallel. Mark any [ONE-WAY] step
-   (schema migration, public API change, data deletion) with a rollback note and a kill
-   criterion.
+7. **Order by dependency.** Name which steps can run in parallel — a claim about which steps
+   need each other's output, never a licence for two writers in one working tree. Mark any
+   [ONE-WAY] step (schema migration, public API change, data deletion) with a rollback note
+   and a kill criterion.
 
 ## Right-sizing
 A one-file, clearly-specified change (a config value, a small flag): reply in three lines —
@@ -94,13 +97,14 @@ Steps:
   3. …
 Parallel-safe: <which steps> | none
 Assumptions: <what only hands-on work can confirm>
-Next: build, starting at step 1
+Next: build
 ```
 
 ## Checks
 | If you are about to… | Instead |
 |---|---|
 | Write a flat list like "1. build API 2. build UI 3. test" | That is an enumeration. Slice vertically; spec each step to the file-and-signature level. |
+| Defer a seam the request named to a later step "for now" | Then step 1 is not a skeleton. Every named seam appears in it — thin, but present. |
 | Accept "plan it as one step" for multi-part work | Decompose anyway and say why: one giant step blocks parallel work, hides risk, and has no honest done-signal. |
 | Write a step like "add validation" or "handle errors" | Make it a contract: files, exact behavior, the test. If you can't name the test, it's too vague. |
 | Spec a file you haven't opened | Open it. A spec for a fiction wastes everyone's time. |

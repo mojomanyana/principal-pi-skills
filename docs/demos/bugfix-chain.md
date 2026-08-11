@@ -1,5 +1,13 @@
 # Demo: the `/bugfix` chain, live
 
+> **Recorded before 2.3.0's workspace-ownership and namespacing changes.** It is kept as
+> the record of that run, not rewritten to match current contracts. Two things would differ
+> today: the command is `/principal-bugfix` (`/bugfix` is now a deprecated alias), and any
+> destructive verification — reverting a fix to watch its regression test go red — happens in
+> a disposable worktree rather than the caller's checkout. The observed behavior and verdicts
+> below are unchanged.
+
+
 Same environment. A `mul(a, a)` bug planted under an innocent "refactor mul" commit.
 Chain: **debug** (isolated diagnosis) → **build** (inline fix) → **review** (fresh
 context) → **git-ops** (inline).

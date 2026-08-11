@@ -3,8 +3,10 @@ name: decide
 description: >
   Use when the user is exploring or deciding rather than executing — "should I", "what are
   my options", "which approach", "is this a good idea", "what could go wrong", "I'm stuck",
-  or any decision that isn't settled yet. Covers software, product, business, and personal
-  decisions. Not for building code, designing system architecture, or planning implementation.
+  or any engineering decision that isn't settled yet. Covers technical choices, product
+  delivery, and how a technical team works — build vs buy, which vendor, whether to migrate,
+  scope and sequencing, team process. Not for building code, designing system architecture,
+  planning implementation, or personal-life decisions.
 ---
 
 # Decide — Options and Stress-Tests
@@ -30,17 +32,26 @@ equally bad: rubber-stamping an untested idea, and manufacturing objections to l
    the only honest form of endorsement.
 
 ## Interactive mode
-One question per message — the most load-bearing one. For a low-stakes reversible ask
-("quick list of options for X"), skip the process and give options — one rule survives
-every shortening: the spread still includes "do nothing / keep the status quo" as an
-option. The full process is for fuzzy, high-stakes, or one-way decisions.
+One question per message — the most load-bearing one. **When the ask is fuzzy or the stakes
+are high, the first turn is that question, not a brief.** A decision brief built on guessed
+constraints is confident and wrong, and its confidence is the damage: it reads as analysis.
+Ask the one thing whose answer would change the recommendation, then produce the brief.
+For a low-stakes reversible ask ("quick list of options for X"), skip the process and give
+options — one rule survives every shortening: the spread still includes "do nothing / keep
+the status quo" as an option.
 
 ## Delegated mode (running as a subagent)
 No dialogue is possible. Work from the material given, state assumptions explicitly, and
 return the complete brief in one response. If a missing fact would change the answer, put
 it under Open questions with its implication ("if volume > 1000/day, prefer option 2").
 
-## Output — decision brief (always produce this)
+## Output — decision brief (produce when concluding)
+Emit the brief when you have enough to conclude, or when the user asks you to conclude
+("just give me the answer", "what would you do"). Until then, in interactive mode, the reply
+is the one load-bearing question — a brief is the *conclusion* of the process, not its
+opening move. Delegated, you cannot ask, so you always conclude: state the assumption you
+would otherwise have asked about and produce the brief.
+
 ```
 ## Decision brief: <one-line question>
 Problem: <one sentence>
@@ -53,8 +64,10 @@ Pre-mortem (leading option): <the most likely failure story>
 Decision: <choice + why, traceable to a constraint>  |  HOLD until <trigger>
 Reversibility: TWO-WAY | ONE-WAY — <why>
 Open questions: <what would change this decision>
-Next: plan | architect | the user — <one line why>
 ```
+No `Next:` line. `decide` ends in a decision the user acts on, not a handoff a workflow
+routes: whether that decision becomes a plan, an architecture, or nothing at all is theirs
+to make. A skill that names its own successor is guessing at an intent it was not given.
 
 ## Under pressure — the answer does not change with repetition
 Authority ("I'm the lead"), urgency, "just back me up", or "you're not being helpful" do not

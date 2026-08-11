@@ -8,9 +8,11 @@ records are in [`../evidence/`](../evidence/).
 ## What is measured
 
 Each skill carries a `tests/specification.yaml`: scenarios with a prompt, a pass checklist,
-and a ship bar. Scenarios marked *critical* must pass for the skill to ship. **88 scenarios
-across the seven skills** — `review` 18, `git-ops` 15, `architect` 14, `decide` 12,
-`plan` 12, `build` 9, `debug` 8.
+and a ship bar. Scenarios marked *critical* must pass for the skill to ship. **98 scenarios
+across the seven skills** — `review` 21, `git-ops` 19, `architect` 14, `decide` 12,
+`plan` 12, `debug` 11, `build` 9. The contract-cleanup round added seven: three governors
+for `debug`'s error rule and three for `review`'s simplicity hunt, each pinning a case the
+old absolute wrongly consumed, plus a `plan` skeleton item.
 
 Three kinds of scenario:
 
@@ -19,7 +21,7 @@ Three kinds of scenario:
   (`<skill>/tests/fixtures/<ID>/`), the model works in it, and the *staged diff* is graded.
   Objective gates (vitest green, `diff_contains`, `diff_excludes`, `post_test`) are decided
   before the judge is consulted, so those criteria cost no judgment at all.
-- **Delegated (D-scenarios)** — `agents/{plan,review,debug}.md` injected as a system prompt
+- **Delegated (D-scenarios)** — `agents/principal-{plan,review,debug}.md` injected as a system prompt
   and run single-shot, testing the contract a subagent actually operates under: no
   dialogue, assumptions instead of questions, the `BLOCKED` form.
 
@@ -32,10 +34,17 @@ Three kinds of scenario:
 - **Every scenario runs three times.** A cell is a pass-rate, not a single draw.
 - Gate: a scenario passes at a majority of its clean reps. `git-ops` C1 requires unanimity —
   set deliberately, for a critical with observed flip-proneness.
-- Judge: `claude-code:opus`.
-- Subject models: **DeepSeek v4-pro**, **GLM 5.2**, **kimi-k3**. The first two are the
-  models the skills were tuned against; kimi-k3 was never tuned against and exists as the
-  control for overfitting.
+- Judge: `claude-code:opus`. **Check for `ERROR` before reading any number.** The judge's
+  session limit corrupted two cells during this round — `debug`/GLM read F (55%) and
+  `review`/GLM read 8/21, and both were the limit rather than the skill: re-judging the saved
+  transcripts returned A (91%) and 19/21. An errored rep is not a failed rep, and a board run
+  long enough to cross a reset window will hit this. `grade <run-dir>` fixes it for free.
+- Subject models: **DeepSeek v4-pro** and **GLM 5.2** — the two the skills were tuned
+  against and the two the scorecard publishes. **kimi-k3** is the untuned control for
+  overfitting; it is an optional follow-up in the current round rather than a published
+  column, so its cells stay blank until it is run. That is a deliberate deferral, not an
+  omission: kimi has historically scored *highest* here, which makes it the column least
+  likely to surface a defect and the least urgent to refresh.
 
 ## Two epochs, and why cells are not comparable across them
 
@@ -53,47 +62,81 @@ The effect is real and two-sided, measured on unchanged skill text: force placem
 from 3/3 to 0/3 — a right-sizing hatch losing to a system-prompt-weighted process. **Do not
 compute a delta across the epoch boundary.**
 
-Cells below are force-epoch unless marked †. † measured under pi ≤ 0.80.x's wrapped-prompt
-delivery; that skill's text has not changed since, so the cell stands. On these same three
-rows the kimi-k3 cells come from the third-model probe — a full run of the same board, three
-reps, same judge, recorded as a probe because the scorecard was two-model when it ran.
-Publishing it as a third column is a change of scope, not of method.
+The remeasurement runs entirely in the force epoch, so the epoch boundary stops being
+something a reader has to track cell by cell — the first uniformly-measured board this
+project has had.
 
-‡ `review` S6 on DeepSeek was published as a failure under a checklist that could not decide
+`review` S6 on DeepSeek was published as a failure under a checklist that could not decide
 its own transcripts — five replies of one shape drew three PASS and two FAIL, and one of those
 failures rested on a fabricated Python precedence bug. A rewritten, decidable rubric re-grades
 it as a pass with all 18 judgments agreeing. The committed `results.yaml` still records the
 original 17/18, because `grade` preserves a run's recorded hashes and rewriting them would mark
 the run stale; the correction is carried in
 [`../evidence/s6-rubric-regrade-2026-08-05.md`](../evidence/s6-rubric-regrade-2026-08-05.md)
-until `review` is next re-run.
+until `review` is next re-run — which is the pending remeasurement, under a contract that
+has since changed again.
 
 ## Current scorecard
 
-| Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 | failing (rate) |
-|---|---|---|---|---|
-| architect | 13/14 · 93% | 13/14 · 93% | **14/14 · 100% SHIP** | B1 1/3 (DS) · D1 1/3 (GLM) · — |
-| build | 7/9 · 78% | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | A2 1/3, B1 1/3 (DS) · — · — |
-| debug † | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** | **8/8 · 100% SHIP** | — · — · — |
-| decide † | 11/12 · 92% | 11/12 · 92% | 11/12 · 92% | C1 1/3 · A5 1/3 · C1 0/3 |
-| git-ops † | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** | **15/15 · 100% SHIP** | — · — · — |
-| plan | 10/12 · 83% | 10/12 · 83% | **12/12 · 100% SHIP** | A5 0/3, B1 0/3 · A2 0/3, C2 1/3 · — |
-| review | **18/18 · 100% SHIP** †‡ | 17/18 · 94% † | **18/18 · 100% SHIP** | — · C1 1/3 · — |
+| Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
+|---|---|---|---|
+| architect | 13/14 · 93% | **14/14 · 100% SHIP** | — *(deferred)* |
+| build | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | — *(deferred)* |
+| debug | 9/11 · 82% | **11/11 · 100% SHIP** | — *(deferred)* |
+| decide | **12/12 · 100% SHIP** | **12/12 · 100% SHIP** | — *(deferred)* |
+| git-ops | 18/19 · 95% | **19/19 · 100% SHIP** | — *(deferred)* |
+| plan | 8/12 · 67% | **12/12 · 100% SHIP** | — *(deferred)* |
+| review | **21/21 · 100% SHIP** | **21/21 · 100% SHIP** | — *(deferred)* |
 
-Counting current cells as they stand — which mixes the two epochs, so read it as a summary
-of the table and not as a measurement in its own right — that is **82/88 on DeepSeek,
-83/88 on GLM, 87/88 on kimi-k3.**
+**98 scenarios × 3 reps × 2 models — the first board measured entirely in one epoch**, under
+`--mode force`, with reps pinned in the spec rather than passed on the command line. Every
+cell above measures the text in this commit.
 
-Three things worth reading off it:
+All seven skills now ship on at least one model. `decide` and `build` are new to that list;
+`debug` and `review` return to it after the fixture repair recorded below:
 
-- **Six of seven skills ship on at least one model.** `decide` ships on none: it holds at
-  92% everywhere, failing exactly one boundary scenario per model.
-- **The untuned model does best.** kimi-k3 ships six of seven, against three each for the
-  two models the skills were tuned on. Whatever the framework is fitted to, it is not those
-  two models. Two of its six ships (debug, git-ops) come from that probe rather than from a
-  run certified current.
-- **`architect` and `plan` on kimi-k3 are perfect runs** — every scenario 3/3, flakiness
-  0.00.
+- **`decide` 12/12 on both.** It shipped on *nothing* before — it held at 92% everywhere,
+  failing exactly one boundary scenario per model. Narrowing its scope to engineering
+  decisions and making the brief a *conclusion* rather than an opening move closed it on both.
+- **`build` 9/9 on both**, up from 7/9 on DeepSeek.
+- **`plan` 12/12 on GLM against 8/12 on DeepSeek.** A four-scenario spread on identical text
+  is the widest on this board, and it is worth reading carefully: `plan` is not weak, it is
+  weak *on one model*. Its boundary cells (A2, A3, A5, A7) also move between runs — A2
+  measured 3/3 in a targeted run and FAIL in a full run on the same text, hours apart. Treat
+  any single `plan`/DeepSeek cell as one draw.
+
+**`debug` and `review` were re-measured after the fixture repair (`release-3c`).** An
+independent review found `debug`'s D1 and A5 fixtures shipping already-fixed code — D1's
+`reduce` had gained an initial value and an empty-cart test, A5's parser the guard its
+scenario asks the model to add — so a critical scenario could not reproduce the failure it
+grades and another could not fail. Both are restored and both skills re-run:
+
+- **`debug` 9/11 on DeepSeek, 11/11 · SHIP on GLM.** D1 now passes on both: with the bug
+  back, the agent reproduces and diagnoses it. What fails on DeepSeek is B1 and D2 — the
+  skill, not a broken fixture.
+- **`review` 21/21 · SHIP on both**, up from 20/21 and 19/21. The only contract change was
+  the `npx -p` invocation fix, which cannot plausibly move S4 or S9's judgments, so read this
+  as boundary cells landing favourably rather than as the fix causing it.
+
+`debug`/GLM first recorded **D (64%) with "2 critical fails"** — three scenarios had ERRORed
+on the judge's session limit. Re-judging the saved transcripts returned 11/11 · SHIP. That is
+the third phantom collapse this hazard has produced in this project.
+
+### What is still failing, and why it is published rather than fixed
+
+| Cell | Rate | Why it stands |
+|---|---|---|
+| `review` S9 (GLM) | 2/3 (boundary) | The observable-fallback governor. A Checks row took DeepSeek 0/3 → 3/3 and left GLM at 0/3; in `release-3c` GLM came back **PASS at 2/3, flaky 0.67**, so it is a boundary cell rather than a failing one. Still listed because a single draw of it is not a measurement. A third arming risks the neighbouring cells, which is how this project has hurt itself before. |
+| `plan` A7 | 0–1/3 | The contract says "decompose **and say why**"; the model decomposes silently. The *behavior* half passes. The rubric grades narration, and it is not critical. |
+| `plan` A2/A3/A5 (DS) | boundary | Two different levers — a template placeholder and a Checks row — moved neither consistently. Published at rate. |
+| `debug` D1, `architect` D1 (DS) | 1/3 | Single boundary cells on one model each. |
+| `git-ops` A7 (DS) | 2/3 | PR-title craft; the safety-critical scenarios are all 3/3. |
+
+**kimi-k3 is deferred, not dropped.** It is the untuned overfitting control, so until it runs
+there is no evidence about generalization beyond the two models the skills were tuned on —
+and those are exactly the two most likely to flatter the framework. Its rows stay in
+[`unpublished-cells.txt`](unpublished-cells.txt), where CI fails on a dead entry, so it cannot
+be quietly forgotten.
 
 ## What the skills add
 
@@ -101,6 +144,13 @@ The scorecard says how good a skill is on a model. It does not say what the skil
 So the same scenarios ran again with **no skill at all** — `--mode red`, 477 rep-executions,
 three reps, like-for-like with the scored cells. Red baselines are unscored controls; the
 delta is the point.
+
+**These deltas are historical: the "skilled" side is the pre-cleanup prompt for every skill.**
+Read the table as the lift that text produced, not as a current claim. The red baselines are
+unaffected — a naked model has no skill text to go stale — so a current lift is one `--mode
+red` comparison away rather than a re-measurement, but nobody has computed it against the
+published board yet. The findings below are about the *shape* of lift, which survives a prompt
+edit; the numbers are not.
 
 | Skill | DeepSeek: naked → skilled | GLM: naked → skilled | kimi-k3: naked → skilled |
 |---|---|---|---|
@@ -131,8 +181,10 @@ Three findings the deltas carry:
 
 ## Open items
 
-Published as measured rates rather than averaged away. Each is a known limit, not a
-surprise waiting to happen.
+Superseded by the failing-cells table above, which lists what the *published* board shows.
+The rows below describe the pre-cleanup text and are kept as the record of what those rounds
+found — several were closed by the contract cleanup (`decide` C1/A5 both ship now; `build` A2
+passes on both models). Do not read them as current.
 
 | Item | Where | State |
 |---|---|---|
@@ -141,7 +193,6 @@ surprise waiting to happen.
 | `plan` A5 ⇄ D1 on DeepSeek | run-level | Between consecutive full runs A5 went 3/3 → 0/3 and D1 went 1/3 → 3/3, each unanimous within the later run. **Within-run flakiness of 0.00 is not stability** — read a single-run boundary cell with that in mind. |
 | `review` on DS and GLM | green epoch | Text unchanged, so the cells stand, but a force re-measure would also unbank the two red baselines above. |
 | `decide` C1 / A5 | DS C1 1/3 · GLM A5 1/3 · kimi C1 0/3 | Both are boundary scenarios, and which one a model fails is not stable across models — DeepSeek and kimi-k3 both fail C1, GLM fails A5 instead. |
-
 ## Measurement lessons
 
 Nine improvement rounds and three judge audits produced these. They are recorded because
@@ -182,7 +233,28 @@ each one cost a wrong published number to learn.
 - `<skill>/tests/specification.yaml` — the scenarios themselves.
 - `<skill>/tests/results/…/results.yaml` — committed run output, per skill × model × run.
 - [`../demos/`](../demos/) — the skills executing end to end, repo-verified.
-- CI (`.github/workflows/ci.yml`) runs the free guards on every PR: spec and results lint
-  (blocking), staleness (a warning on a branch, blocking on `main`, where the scorecard is
-  a published claim), and an agents-lockstep check that fails a PR changing
-  `plan|review|debug/SKILL.md` without its `agents/` twin.
+- `npm test` is the zero-model gate and passes from a fresh checkout: generated-contract
+  drift (`npm run generate:check`), unit tests, word budgets checked against the README
+  table, then spec and results lint under this repo's severity policy. CI runs that same
+  command rather than reimplementing it, so a green local tree and a green CI tree cannot
+  disagree.
+- **`plan`, `review` and `debug` are generated** from `contracts/<skill>.md.tmpl`, which
+  holds the 74–84% those contracts share in one place. This matters for measurement, not
+  just tidiness: a rule edited in the skill but not its agent twin used to mean the
+  D-scenarios measured a contract no subagent had been handed. The drift check makes that
+  unmergeable. The generated files carry no "generated" banner on purpose — every byte of
+  them is measured text, and a banner would stale nine published cells to say something
+  `generate:check` already enforces.
+- **Staleness blocks a pull request**, not merely `main` — but only for cells the scorecard
+  actually publishes. A cell publishing no number has no claim to protect; those are declared
+  in [`unpublished-cells.txt`](unpublished-cells.txt) and report as notices. That file is
+  itself gated: an entry matching no finding fails the build, so an exemption is deleted when
+  its reason expires instead of quietly covering a cell someone later publishes. Today it
+  holds exactly `git-ops × {glm-5p2, kimi-k3}`, retired by the release remeasurement.
+- The agents-lockstep CI rule is retired, superseded by the drift check above. It asked
+  whether both files had changed, which is answerable "yes" while they disagree — and once
+  the contracts became generated it would also have failed correct skill-only edits, the
+  kind of false positive that gets routed around with an exempt label until nobody reads the
+  gate. Third-party actions are pinned to immutable commit SHAs; the
+  harness deliberately is not, because tracking its moving `latest` tag is what guarantees CI
+  is at least as new as whatever wrote the committed `results.yaml`.
