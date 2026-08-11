@@ -110,9 +110,14 @@ to every output.
 1. `pi install git:github.com/mojomanyana/principal-pi-skills@v2.3.1` — registers the
    skills and the `/principal-feature` + `/principal-bugfix` commands via the `pi`
    manifest. Install a tag, not a branch.
-2. Subagents need pi-mono's subagent extension (`examples/extensions/subagent`) and the
-   agent definitions installed once: `npx -p principal-pi-skills principal-pi-agents install`. It copies real
+2. Subagents need pi-mono's subagent extension (`examples/extensions/subagent`, which ships
+   inside pi itself — nothing to vendor) and the agent definitions installed once:
+   `npx -p principal-pi-skills principal-pi-agents install`. It copies real
    files into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses to overwrite
    anything it did not install.
+   A delegated agent runs on the pi config's `defaultProvider`/`defaultModel`, **not** the
+   `--provider`/`--model` you gave the parent: the extension forwards `--model` only when an
+   agent's frontmatter names one, and these deliberately do not. If delegations fail to
+   authenticate while the parent session is fine, that mismatch is the reason.
 3. Without the extension, everything runs inline via the skills; the How column above
    simply collapses to "inline".
