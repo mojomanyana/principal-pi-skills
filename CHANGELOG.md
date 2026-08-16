@@ -6,7 +6,7 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
-## [Unreleased]
+## [2.4.0] — 2026-08-17
 
 **Added** — every skill now declares an `allowed-tools` capability ceiling, which
 [pi-daddy](https://github.com/mojomanyana/pi-daddy) enforces as a real `--tools` allowlist in a
