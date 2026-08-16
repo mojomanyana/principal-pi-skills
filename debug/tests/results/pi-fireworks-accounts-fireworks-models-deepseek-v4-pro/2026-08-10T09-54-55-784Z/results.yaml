@@ -55,6 +55,8 @@ source_hashes:
   stimulus:D2: 52f43ddd134bc38cba6b4625348fb36511c675144c79dc6007c57eca5cf08abc
   rubric:D2: ab0bd0abdd78b34b9341ab535830d0e4be28e46c6559c1cefe8505a75fb8db22
   policy:D2: d04ceb492f3603343e0c0f5dd8e5e75b817978bcb91227b460daea607cd8ba71
+  skill:prompt: 987b36ef17fffcc8df0fe9800ad2e9b168c6823b1c1f1d0cd7298d281135ad79
+  prompt:../../agents/principal-debug.md: 732e85c05dfa2603a8e5380305c6eced02583f0994edc9e00498e79e7a1aea06
 effective_grade:
   passed: 9
   total: 11

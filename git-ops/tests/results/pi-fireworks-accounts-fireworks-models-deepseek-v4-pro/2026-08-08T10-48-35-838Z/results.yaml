@@ -26,6 +26,7 @@ source_hashes:
   stimulus:B1: d7a0172e8a3443de7ef8b4ab84bdf365b088f21d55c824051d67e03a80b1841e
   rubric:B1: 8dca07e65ca301a880ef3c13a87b8d5eec7d9f7f110bcba03b1b8aed70d0c252
   policy:B1: 4846e4de7258e18749781c62641effa129df2b4b1243069611f7ba139c9657b3
+  skill:prompt: b8b0c713cdc72a01e66119e4cd063a9557925a2908d483e8738f4738f69b56f8
 effective_grade:
   passed: 0
   total: 0
