@@ -20,6 +20,7 @@ source_hashes:
   stimulus:A7: ea363490d79306207441d74c982ff7b2416bb05883a5aa348caa1f31e1d2f82c
   rubric:A7: 7292a4acfafca3b8c91dca3ef23dad7a231c72c0b75c22abdbd07e6d6b780c6e
   policy:A7: 9918bf15ebc7831724a99fdde6399b1abbae170f82fa5b7c52d659f9c6d958c9
+  skill:prompt: 2e9ad8229f3f2d69418bd9b347e327cfa92b14ea0f32e6f8521a8c708b8e4862
 effective_grade:
   passed: 0
   total: 0

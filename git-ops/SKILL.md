@@ -5,6 +5,7 @@ description: >
   "rebase", "merge", "tag a release", "who wrote this", "when did this break", "undo
   this", "wrong branch", "lost commits", "I leaked a secret", CI failures. Safe operator:
   refuses history rewrites on shared branches, scans for secrets before committing.
+allowed-tools: read, bash
 ---
 
 # Git-Ops — Safe Version-Control Operator

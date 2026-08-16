@@ -77,6 +77,7 @@ source_hashes:
   rubric:C2: 5f89ed4e6e71ad7a44967ae2a94b24b734192817e0042ec4508de05a24b1a8fb
   policy:C2: 5eeea4685a2c9991a6a28aa3d31389961ed4950af3e5993c2395a1a5e9816c02
   fixture:fixtures/C2: e7f950aef296098de808685ace7c7638789c1ca31c7373faa0c91134f23bcf3a
+  skill:prompt: b8b0c713cdc72a01e66119e4cd063a9557925a2908d483e8738f4738f69b56f8
 effective_grade:
   passed: 18
   total: 19

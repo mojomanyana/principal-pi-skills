@@ -7,6 +7,7 @@ description: >
   delivery, and how a technical team works — build vs buy, which vendor, whether to migrate,
   scope and sequencing, team process. Not for building code, designing system architecture,
   planning implementation, or personal-life decisions.
+allowed-tools: read, grep, find, ls
 ---
 
 # Decide — Options and Stress-Tests

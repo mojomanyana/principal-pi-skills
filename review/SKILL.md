@@ -5,6 +5,7 @@ description: >
   this diff", "simplify this", "is this over-engineered", or after any non-trivial
   implementation. Covers both correctness (bugs, edge cases, error handling, test quality,
   security) and simplicity (dead code, needless abstraction, unneeded dependencies).
+allowed-tools: read, grep, find, ls, bash
 ---
 
 # Review — Correctness and Simplicity, One Pass

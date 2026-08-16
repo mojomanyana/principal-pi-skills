@@ -5,6 +5,7 @@ description: >
   lint error — "why is this failing", "find the bug", "debug this", "it crashes when",
   "works on my machine". Not for writing new features or fixing a bug whose cause is
   already known (build).
+allowed-tools: read, grep, find, ls, bash
 ---
 
 # Debug — Hypothesis Before Fix

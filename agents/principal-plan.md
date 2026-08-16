@@ -7,6 +7,7 @@ description: >
   the plan and per-step specs; writes no code. Not for system-level design (architect)
   or diagnosing failures (debug).
 tools: read, grep, find, ls
+allowed-tools: read, grep, find, ls
 ---
 
 # Plan — Slices and Specs

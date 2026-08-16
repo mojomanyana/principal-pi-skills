@@ -6,6 +6,58 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [Unreleased]
+
+**Added** — every skill now declares an `allowed-tools` capability ceiling, which
+[pi-daddy](https://github.com/mojomanyana/pi-daddy) enforces as a real `--tools` allowlist in a
+separate OS process. Four are read-only (`decide`, `architect`, `plan`, plus nothing else that can
+modify anything); three hold `bash` (`review`, `debug`, `git-ops`); `build` alone holds `edit` and
+`write`. Reasoning and the rejected alternative: [docs/DECISION-capability-ceilings.md](docs/DECISION-capability-ceilings.md).
+
+**Decided** — `decide`, `architect` and `plan` return their document as text rather than writing a
+file. pi-daddy governs tools and never paths, so `Write(docs/**)` is not expressible — verified in
+its source, where a path-scoped entry yields *zero* capabilities plus a refusal flag rather than a
+broad write. Granting these three a real `write` would have meant unrestricted filesystem access in
+order to produce a document their own bodies already define as a message, and would have emptied the
+read-only tier entirely. `build/SKILL.md` already said this: *"You are the only phase that writes
+durably. Plan reads."*
+
+**Fixed** — `agents/debug.md` declared no `tools:` key, and in pi-subagents an absent `tools:` means
+the *full default toolset*. The debug twin was silently the most powerful of the three while `plan`
+and `review` declared theirs. It now declares `read, grep, find, ls, bash` in both spellings.
+
+**Corrected** — the integration handoff proposed `Read, Grep, Glob` for `review` on the grounds that
+its description says *"Reports findings; never edits"*. That string appears nowhere in this
+repository, and `review/SKILL.md:58-68` requires the opposite: it creates a disposable worktree and
+runs the tests in it. Denying `bash` would have made every review return `UNVERIFIED` — which
+review's own body calls "not a soft approve". The handoff's `Glob` is also unknown to pi, whose
+built-ins are `bash, edit, edit-diff, find, grep, ls, parallel, read, write`; six of the seven
+proposed ceilings carried it, and would have been refused as written.
+
+**Fixed upstream** — declaring `allowed-tools` initially took `npm run lint:skills` from 2 stale
+findings to 22, because skill-harness hashed the whole `SKILL.md` and so charged a paid re-wave for
+a frontmatter key no graded run can observe. Reported and fixed in skill-harness 0.8.0, which
+digests a prompt document as body plus model-visible frontmatter. `restamp` then upgraded the
+committed runs — 202 examined, 18 upgraded, 122 correctly unprovable — bringing this branch back to
+the pre-change baseline of 57 findings, 2 stale.
+
+**Added** — a fourth severity in `scripts/lint-skills.mjs`, declared in
+`docs/validation/record-artifacts.txt`: a staleness finding whose *record* cannot be proven but
+whose *stimulus* is vouched for by a checkable assertion. It covers the two remaining `debug/A6`
+findings, which predate this work and fail on `main` today: a `vitest` cache left by a hand
+authoring run was hashed into the 2026-08-10 fixture digests and no longer exists, so no digest of
+those runs can be proven — while `git diff` shows the tracked stimulus byte-identical and `rescore`
+reproduces the published grades exactly, 0 verdicts moved.
+
+Deliberately not folded into `unpublished-cells.txt`: that file covers cells with no claim to
+protect, and these publish. Entries here match on three tokens (cell, model, and the source vouched
+for) rather than two, so one cannot swallow a different kind of drift on the same cell — verified: a
+one-word body edit to `debug/SKILL.md` still blocks. Dead entries fail the build, so a re-run
+retires the exemption rather than quietly extending it. It is the weakest of the four severities and
+says so: a human standing where a measurement used to.
+
+---
+
 ## [2.3.1] — 2026-08-10
 
 A defect-fix release. 2.3.0 shipped three defects that a second independent review found,
