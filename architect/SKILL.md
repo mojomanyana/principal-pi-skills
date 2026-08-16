@@ -6,6 +6,7 @@ description: >
   or recording an architecture decision — "how should I structure", "design a system that",
   "should we adopt X", "plan the migration", "review our architecture", "write an ADR".
   Not for code-level planning of a single change.
+allowed-tools: read, grep, find, ls
 ---
 
 # Architect — Design from Measurable Drivers

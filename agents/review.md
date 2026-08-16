@@ -7,6 +7,7 @@ description: >
   test quality, security) and simplicity (dead code, needless abstraction, unneeded
   dependencies).
 tools: read, grep, find, ls, bash
+allowed-tools: read, grep, find, ls, bash
 ---
 
 # Review — Correctness and Simplicity, One Pass

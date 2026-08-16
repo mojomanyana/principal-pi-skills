@@ -27,6 +27,13 @@ description: >
   or diagnosing failures (debug).
 tools: read, grep, find, ls
 {{/agent}}
+{{! One ceiling, two spellings: `tools:` is pi-subagents' key and reaches the agent twins only;
+{{! `allowed-tools` is the Agent Skills key pi-daddy enforces through pi's --tools, and reaches
+{{! both outputs. They must name the SAME set — keep them adjacent so drift is visible here.
+{{! Written in pi's own tool names because pi-daddy lowercases and does not translate: `Glob`
+{{! would become tool:glob, which pi has no tool for and the catalog refuses. See
+{{! docs/DECISION-capability-ceilings.md.
+allowed-tools: read, grep, find, ls
 ---
 
 # Plan — Slices and Specs

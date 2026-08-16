@@ -6,6 +6,41 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [Unreleased]
+
+**Added** — every skill now declares an `allowed-tools` capability ceiling, which
+[pi-daddy](https://github.com/mojomanyana/pi-daddy) enforces as a real `--tools` allowlist in a
+separate OS process. Four are read-only (`decide`, `architect`, `plan`, plus nothing else that can
+modify anything); three hold `bash` (`review`, `debug`, `git-ops`); `build` alone holds `edit` and
+`write`. Reasoning and the rejected alternative: [docs/DECISION-capability-ceilings.md](docs/DECISION-capability-ceilings.md).
+
+**Decided** — `decide`, `architect` and `plan` return their document as text rather than writing a
+file. pi-daddy governs tools and never paths, so `Write(docs/**)` is not expressible — verified in
+its source, where a path-scoped entry yields *zero* capabilities plus a refusal flag rather than a
+broad write. Granting these three a real `write` would have meant unrestricted filesystem access in
+order to produce a document their own bodies already define as a message, and would have emptied the
+read-only tier entirely. `build/SKILL.md` already said this: *"You are the only phase that writes
+durably. Plan reads."*
+
+**Fixed** — `agents/debug.md` declared no `tools:` key, and in pi-subagents an absent `tools:` means
+the *full default toolset*. The debug twin was silently the most powerful of the three while `plan`
+and `review` declared theirs. It now declares `read, grep, find, ls, bash` in both spellings.
+
+**Corrected** — the integration handoff proposed `Read, Grep, Glob` for `review` on the grounds that
+its description says *"Reports findings; never edits"*. That string appears nowhere in this
+repository, and `review/SKILL.md:58-68` requires the opposite: it creates a disposable worktree and
+runs the tests in it. Denying `bash` would have made every review return `UNVERIFIED` — which
+review's own body calls "not a soft approve". The handoff's `Glob` is also unknown to pi, whose
+built-ins are `bash, edit, edit-diff, find, grep, ls, parallel, read, write`; six of the seven
+proposed ceilings carried it, and would have been refused as written.
+
+**Known** — `npm run lint:skills` reports 22 findings stale behind a published scorecard cell, up
+from 2 at `2.3.1` (the pre-existing pair is a `debug/A6` fixture drift). No text a model reads
+changed; skill-harness hashes the whole `SKILL.md`, so a frontmatter-only edit invalidates
+behavioral measurements. Not worked around — see the decision record.
+
+---
+
 ## [2.3.1] — 2026-08-10
 
 A defect-fix release. 2.3.0 shipped three defects that a second independent review found,

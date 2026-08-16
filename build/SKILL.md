@@ -5,6 +5,7 @@ description: >
   refactor — "fix this", "write the function", "implement the spec", "make the test pass",
   "code this up", "build it". Not for diagnosing an unknown failure (debug) or deciding
   what to build (plan).
+allowed-tools: read, grep, find, ls, edit, write, bash
 ---
 
 # Build — Test-First Implementation

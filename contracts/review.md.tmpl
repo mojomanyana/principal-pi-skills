@@ -27,6 +27,10 @@ description: >
   dependencies).
 tools: read, grep, find, ls, bash
 {{/agent}}
+{{! One ceiling, two spellings — see docs/DECISION-capability-ceilings.md. `bash` is not
+{{! optional here: review verifies in a disposable worktree it creates with npx and runs the
+{{! tests there, so a review without it returns UNVERIFIED every time.
+allowed-tools: read, grep, find, ls, bash
 ---
 
 # Review — Correctness and Simplicity, One Pass
