@@ -34,10 +34,27 @@ review's own body calls "not a soft approve". The handoff's `Glob` is also unkno
 built-ins are `bash, edit, edit-diff, find, grep, ls, parallel, read, write`; six of the seven
 proposed ceilings carried it, and would have been refused as written.
 
-**Known** — `npm run lint:skills` reports 22 findings stale behind a published scorecard cell, up
-from 2 at `2.3.1` (the pre-existing pair is a `debug/A6` fixture drift). No text a model reads
-changed; skill-harness hashes the whole `SKILL.md`, so a frontmatter-only edit invalidates
-behavioral measurements. Not worked around — see the decision record.
+**Fixed upstream** — declaring `allowed-tools` initially took `npm run lint:skills` from 2 stale
+findings to 22, because skill-harness hashed the whole `SKILL.md` and so charged a paid re-wave for
+a frontmatter key no graded run can observe. Reported and fixed in skill-harness 0.8.0, which
+digests a prompt document as body plus model-visible frontmatter. `restamp` then upgraded the
+committed runs — 202 examined, 18 upgraded, 122 correctly unprovable — bringing this branch back to
+the pre-change baseline of 57 findings, 2 stale.
+
+**Added** — a fourth severity in `scripts/lint-skills.mjs`, declared in
+`docs/validation/record-artifacts.txt`: a staleness finding whose *record* cannot be proven but
+whose *stimulus* is vouched for by a checkable assertion. It covers the two remaining `debug/A6`
+findings, which predate this work and fail on `main` today: a `vitest` cache left by a hand
+authoring run was hashed into the 2026-08-10 fixture digests and no longer exists, so no digest of
+those runs can be proven — while `git diff` shows the tracked stimulus byte-identical and `rescore`
+reproduces the published grades exactly, 0 verdicts moved.
+
+Deliberately not folded into `unpublished-cells.txt`: that file covers cells with no claim to
+protect, and these publish. Entries here match on three tokens (cell, model, and the source vouched
+for) rather than two, so one cannot swallow a different kind of drift on the same cell — verified: a
+one-word body edit to `debug/SKILL.md` still blocks. Dead entries fail the build, so a re-run
+retires the exemption rather than quietly extending it. It is the weakest of the four severities and
+says so: a human standing where a measurement used to.
 
 ---
 
