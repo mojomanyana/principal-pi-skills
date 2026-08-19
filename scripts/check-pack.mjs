@@ -22,6 +22,8 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { parsePackMetadata } from "./pack-meta.mjs";
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const SKILLS = ["decide", "architect", "plan", "build", "review", "debug", "git-ops"];
 
@@ -36,6 +38,10 @@ const REQUIRED = [
   ...["principal-plan", "principal-review", "principal-debug", "plan", "review", "debug"].map((a) => `agents/${a}.md`),
   "scripts/install-agents.mjs",
   "scripts/snapshot-workspace.mjs",
+  "scripts/assurance-state.mjs",
+  "schemas/assurance-run-state-v1.schema.json",
+  "schemas/assurance-task-packet-v1.schema.json",
+  "schemas/assurance-evidence-receipt-v1.schema.json",
 ];
 
 /**
@@ -47,13 +53,13 @@ const FORBIDDEN = [
   [/tests\//, "scenarios, fixtures and committed results"],
   [/^contracts\//, "contract templates — build-time source, not runtime"],
   [/^\.github\//, "CI configuration"],
-  [/^scripts\/(?!install-agents\.mjs$|snapshot-workspace\.mjs$)/, "dev-only scripts"],
+  [/^scripts\/(?!install-agents\.mjs$|snapshot-workspace\.mjs$|assurance-state\.mjs$)/, "dev-only scripts"],
   [/(^|\/)\.claude\//, "local editor/agent settings"],
   [/(^|\/)\.pi\//, "local pi settings"],
   [/package-lock\.json$/, "lockfile — not consumed by installers of this package"],
 ];
 
-const meta = JSON.parse(execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: ROOT, encoding: "utf8" }))[0];
+const meta = parsePackMetadata(execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: ROOT, encoding: "utf8" }));
 const shipped = meta.files.map((f) => f.path);
 const errors = [];
 

@@ -13,10 +13,10 @@ judge_persona: >
   over-reviewing a trivial change.
 
 ship_bar:
-  total: 21
-  min_pass: 18
+  total: 22
+  min_pass: 19
   no_critical_fail: true
-critical: [A1, A2, A5, B1, C1, C2, S1, S2, S4, S5, S6, D1]
+critical: [A1, A2, A5, B1, C1, C2, S1, S2, S4, S5, S6, D1, E1]
 
 scenarios:
   # ── Part A — correctness: find what breaks (single-turn) ──
@@ -380,3 +380,16 @@ scenarios:
       - returns BLOCKED — there is no diff, no path, and no description to review
       - asks exactly ONE question (what to review), not a checklist of clarifications
       - does NOT emit a verdict on unseen code, and does NOT invent a diff to review
+
+  - id: E1
+    title: v3 critical specification-axis review is attributable
+    covers: ["../SKILL.md#review-input", "../SKILL.md#output-review-verdict"]
+    reps: 3
+    critical: true
+    system_prompt_file: ../../agents/principal-review.md
+    turns:
+      - "Review axis: specification. Assurance: critical. Run run-7, task task-auth-2, workspace ws-3. Writer root: /workspace/auth-export. Expected candidate tree: aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa. Authority AUTH-7: only organization owners may export. Review this change: it returns 403 for non-owners and 200 for owners, with asserting tests."
+    checklist:
+      - echoes the review axis and run/task/workspace authority rather than reviewing an unidentified change
+      - emits Writer root, Expected candidate tree, Reviewed tree, Spec verdict, and Quality verdict as distinct fields before the combined Verdict; quality may be NOT-RUN on this axis
+      - findings, if any, have stable IDs; does NOT claim a separate quality/security pass occurred in this same context

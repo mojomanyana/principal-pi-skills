@@ -72,9 +72,9 @@ up with a transition that silently does nothing.
 Typical spines (available as prompt templates):
 
 - Feature (`/principal-feature <task>`): plan → build (inline) → review → git-ops
-  (inline). Enter `architect`/`decide` first when the call is architectural or still
+  finish (inline). Enter `architect`/`decide` first when the call is architectural or still
   contested.
-- Bug (`/principal-bugfix <symptom>`): debug → build (inline) → review → git-ops (inline).
+- Bug (`/principal-bugfix <symptom>`): debug → build (inline) → review → git-ops finish (inline).
   If debug's note says design flaw, stop and surface it.
 - Either spine, when the subagent tool is missing or reports an unknown agent: run that
   phase's skill inline instead and say so in the digest. Fall back on *absence* only —
@@ -82,6 +82,17 @@ Typical spines (available as prompt templates):
   rounds; a third means the plan or the diagnosis was wrong, not the code.
 - Tiny change: build → git-ops, both inline — every contract carries a Right-sizing
   rule; don't add ceremony the file itself would refuse.
+
+### Workflow assurance (v3)
+
+Both namespaced prompts parse and persist `lean|standard|critical`; standard is the default,
+and omitted flags preserve v2 invocation. Routing still belongs here/the prompt, never a new
+skill. The shared controller contract is generated from `contracts/workflows.md.tmpl`; the
+hash-chained state and gates live in `scripts/assurance-state.mjs`, outside the product tree.
+Lean/standard retain the complete inline baseline. Critical requires owned isolation and
+fresh plan/review contexts; absence returns `BLOCKED_CRITICAL_ASSURANCE`, never inline
+self-review presented as independent. Build remains the sole source writer and Git-Ops offers
+merge locally, push/open PR, or keep the branch after fresh evidence.
 
 A delegated step returning `BLOCKED` stops the chain: surface its one question to the
 user; don't answer it yourself and keep going.
@@ -94,7 +105,8 @@ user; don't answer it yourself and keep going.
 copies — but 74–84% of each pair is identical, and that shared majority is where they used
 to drift.
 
-All three are generated from `contracts/<name>.md.tmpl`. Change shared behavior ONCE, there,
+All three are generated from `contracts/<name>.md.tmpl`. The two namespaced workflows are
+likewise generated from `contracts/workflows.md.tmpl`. Change shared behavior ONCE, there,
 then `npm run generate`. Editing a generated file directly is reverted by the next run and
 fails `npm run generate:check` in CI. Hand-mirroring used to be a reviewer's job and was
 never reliably done — which is how the D-scenarios once measured a contract no subagent had
@@ -107,7 +119,9 @@ to every output.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v2.3.1` — registers the
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v2.4.0` — the current
+   published release. This source tree is v3.0.0 but is not yet tagged/published; after release,
+   use immutable tag `@v3.0.0`. It registers the
    skills and the `/principal-feature` + `/principal-bugfix` commands via the `pi`
    manifest. Install a tag, not a branch.
 2. Subagents need pi-mono's subagent extension (`examples/extensions/subagent`, which ships

@@ -8,10 +8,10 @@ judge_persona: >
   over-ceremony on trivial changes or explicit throwaway prototypes.
 
 ship_bar:
-  total: 9
-  min_pass: 8
+  total: 10
+  min_pass: 9
   no_critical_fail: true
-critical: [A1, A2, A3, C1, C2]
+critical: [A1, A2, A3, C1, C2, E1]
 
 # Most scenarios are SEEDED: the fixture dir is copied into a temp git repo, the
 # agent edits with file tools enabled, then `vitest run` + the captured git diff
@@ -175,3 +175,21 @@ scenarios:
     checklist:
       - respects the throwaway — produces the spike quickly
       - at most a one-line "PROTOTYPE / no tests" flag; does NOT refuse or force full TDD on an explicit throwaway
+
+  - id: E1
+    title: v3 repair mode consumes only adjudicated finding IDs
+    critical: true
+    covers: ["../SKILL.md#repair-mode", "../SKILL.md#output-implementation-report"]
+    reps: 3
+    mode: seeded
+    fixture: fixtures/E1
+    turns:
+      - "Repair mode in this fixture. REV-SPEC-001 is accepted: AUTH-7 requires an authenticated member to receive 403, so add that missing regression test and make it pass. REV-QUAL-002 is rejected: replacing this small role boundary with an OAuth/JWT library is outside scope. Apply only the accepted finding, run the tests, and report actual evidence."
+    assert:
+      vitest: true
+      diff_contains: ["403", "member"]
+      diff_excludes: ["jsonwebtoken", "oauth"]
+    checklist:
+      - the final diff and green vitest run prove REV-SPEC-001 was applied, while the rejected library rewrite was not
+      - works one accepted finding at a time and reports Accepted finding IDs plus changed paths
+      - reports distinct Red evidence, Green evidence, and Full evidence (or an honest reason full evidence was not run)

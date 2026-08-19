@@ -1,8 +1,9 @@
+{{! GENERATED WORKFLOWS — this template is the source of truth for both namespaced spines.
+{{! Edit here, then npm run generate. Shared assurance rules live outside feature/bugfix blocks.
+{{#feature}}
 ---
-description: DEPRECATED alias for /principal-feature. Same risk-adaptive workflow.
+description: Risk-adaptive feature spine. Standard by default; lean and critical are explicit assurance profiles.
 ---
-`/feature` is a deprecated alias; `/principal-feature` is the supported command. Execute the complete workflow below for `$@` and mention the deprecation once in the closing digest.
-
 Execute this workflow for: $@
 
 Initialize a `feature` run before any phase. Resolve the shipped tool at
@@ -11,6 +12,20 @@ falling back to `scripts/assurance-state.mjs` in a source checkout. Serialize th
 a one-line JSON object (`{"request":...}` with JSON escaping), pass it on stdin to
 `node <tool> init --workflow feature`, and keep its `run_id`. Never interpolate request text into a
 shell command.
+{{/feature}}
+{{#bugfix}}
+---
+description: Risk-adaptive bugfix spine. Standard by default; lean and critical are explicit assurance profiles.
+---
+Execute this workflow for: $@
+
+Initialize a `bugfix` run before any phase. Resolve the shipped tool at
+`${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/npm/node_modules/principal-pi-skills/scripts/assurance-state.mjs`,
+falling back to `scripts/assurance-state.mjs` in a source checkout. Serialize the exact request as
+a one-line JSON object (`{"request":...}` with JSON escaping), pass it on stdin to
+`node <tool> init --workflow bugfix`, and keep its `run_id`. Never interpolate request text into a
+shell command.
+{{/bugfix}}
 If initialization or later state validation fails, stop instead of replacing persistence with
 prose. For an effective critical run, report `BLOCKED_CRITICAL_ASSURANCE`; otherwise report
 `BLOCKED_ASSURANCE`.
@@ -124,6 +139,7 @@ Discard/cleanup occurs only on explicit request. Do not auto-push, publish, tag,
 force-push, or destructively clean up.
 <!-- assurance:shared:end -->
 
+{{#feature}}
 ## Feature path
 
 1. For substantive work, invoke `principal-plan` (or Plan inline under the delegation rule). For a
@@ -144,3 +160,26 @@ force-push, or destructively clean up.
    not already choose. End with `Digest:` followed by exactly six labeled lines:
    `Run/profile/scope:`, `Ref:` (including the full final commit SHA), `Assumptions:`, `Follow-ups:`,
    `Evidence gaps:`, and `Execution contexts:` (inline/fresh-context). No transcript narration.
+{{/feature}}
+{{#bugfix}}
+## Bugfix path
+
+1. Invoke `principal-debug` (or Debug inline under the delegation rule). It reproduces and returns a
+   proposed regression test/fix from a disposable workspace. NOT REPRODUCED, BLOCKED, or a design
+   flaw stops; `Next: plan` surfaces the design change rather than hiding it in a repair.
+2. Under critical assurance, turn the diagnosis into a Plan, run independent critique, then record
+   its task packets before Build. Consequential fixes also need explicit approved design/rollback/abort.
+3. Attach the chosen workspace and writer lease. Critical requires an owned isolated branch
+   worktree; standard prefers one for substantive work. Run `pre-build`, then invoke Build inline:
+   recreate the regression test, watch it fail, implement once, and record Red, Green, Full evidence
+   plus changed paths.
+4. Standard Review proves the regression test fails without the fix and passes with it in a
+   disposable workspace. Critical runs separate specification and quality contexts for every task,
+   then a fresh whole-change review. Adjudicate findings before one-at-a-time repair; two rounds max.
+5. After fresh evidence, invoke Git-Ops inline in finish mode. Present and record one of merge, PR,
+   or keep, then require clean finalize/side-effect gates before execution and finish after; wait if
+   not already choose. End with `Digest:` followed by exactly six labeled lines:
+   `Root cause:` (the concrete diagnosed cause), `Run/profile/scope:`, `Ref:` (including the full
+   final commit SHA), `Assumptions/follow-ups:`, `Evidence gaps:`, and `Execution contexts:`
+   (inline/fresh-context). No transcript narration.
+{{/bugfix}}

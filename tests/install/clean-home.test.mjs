@@ -23,6 +23,8 @@ import { tmpdir, homedir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
+import { parsePackMetadata } from "../../scripts/pack-meta.mjs";
+
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const SKILLS = ["decide", "architect", "plan", "build", "review", "debug", "git-ops"];
 
@@ -50,7 +52,7 @@ const pack = () => {
   if (packed) return packed;
   const out = scratch("ppa-pack-");
   const json = execFileSync("npm", ["pack", "--json", "--pack-destination", out], { cwd: ROOT, encoding: "utf8" });
-  const [meta] = JSON.parse(json);
+  const meta = parsePackMetadata(json);
   packed = { dir: out, tarball: join(out, meta.filename), files: meta.files.map((f) => f.path) };
   return packed;
 };
@@ -67,6 +69,10 @@ test("the tarball ships every runtime file a user needs", () => {
     if (!files.includes(`agents/${a}.md`)) missing.push(`agents/${a}.md`);
   }
   if (!files.includes("scripts/install-agents.mjs")) missing.push("scripts/install-agents.mjs");
+  if (!files.includes("scripts/assurance-state.mjs")) missing.push("scripts/assurance-state.mjs");
+  for (const schema of ["assurance-run-state-v1.schema.json", "assurance-task-packet-v1.schema.json", "assurance-evidence-receipt-v1.schema.json"]) {
+    if (!files.includes(`schemas/${schema}`)) missing.push(`schemas/${schema}`);
+  }
   if (!files.includes("package.json")) missing.push("package.json");
 
   assert.deepEqual(missing, [], `not shipped: ${missing.join(", ")}`);
@@ -79,6 +85,7 @@ test("the packed manifest registers the skills and prompts pi will look for", ()
   assert.deepEqual(pkg.pi.skills, SKILLS.map((s) => `./${s}`));
   assert.deepEqual(pkg.pi.prompts, ["./prompts"]);
   assert.ok(pkg.bin?.["principal-pi-agents"], "the installer must be exposed as a bin entry");
+  assert.ok(pkg.bin?.["principal-pi-assurance"], "the assurance state tool must be exposed as a bin entry");
 });
 
 test("installing the tarball into a clean HOME sets up the namespaced agents", () => {
@@ -135,7 +142,8 @@ test("the installed bins actually run — not a silent exit 0", () => {
 
   const agentsBin = join(proj, "node_modules", ".bin", "principal-pi-agents");
   const wsBin = join(proj, "node_modules", ".bin", "principal-pi-workspace");
-  assert.ok(existsSync(agentsBin) && existsSync(wsBin), "both bins must be linked");
+  const assuranceBin = join(proj, "node_modules", ".bin", "principal-pi-assurance");
+  assert.ok(existsSync(agentsBin) && existsSync(wsBin) && existsSync(assuranceBin), "all three bins must be linked");
 
   const out = execFileSync(agentsBin, ["install"], { cwd: proj, env, encoding: "utf8" });
   assert.match(out, /installed|current/, "the installer must report what it did, not print nothing");
@@ -151,6 +159,13 @@ test("the installed bins actually run — not a silent exit 0", () => {
   const path = execFileSync(wsBin, ["create"], { cwd: proj, env, encoding: "utf8" }).trim();
   assert.ok(path.length > 0 && existsSync(path), `create must print a real worktree path, got ${JSON.stringify(path)}`);
   execFileSync(wsBin, ["remove", path], { cwd: proj, env, stdio: "pipe" });
+
+  const stateDir = join(home, "assurance-state");
+  const assurance = JSON.parse(execFileSync(assuranceBin, [
+    "init", "--workflow", "feature", "--request", "--assurance critical add auth", "--state-dir", stateDir,
+  ], { cwd: proj, env, encoding: "utf8" }));
+  assert.equal(assurance.assurance.effective, "critical");
+  assert.ok(existsSync(join(stateDir, "runs", assurance.run_id, "events.jsonl")), "the installed state tool must persist its event log");
 });
 
 test("the bin invocations the docs print are resolvable", () => {
@@ -172,7 +187,7 @@ test("the bin invocations the docs print are resolvable", () => {
   // the allowlist this test was rewritten to remove.
   const EXCLUDED = ["CHANGELOG.md"];
   const shipped = execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: ROOT, encoding: "utf8" });
-  const docs = JSON.parse(shipped)[0].files
+  const docs = parsePackMetadata(shipped).files
     .map((f) => f.path)
     .filter((p) => p.endsWith(".md") && !EXCLUDED.includes(p));
   assert.deepEqual(EXCLUDED, ["CHANGELOG.md"],
@@ -189,7 +204,7 @@ test("the bin invocations the docs print are resolvable", () => {
   assert.ok(scanned.some((p) => p.startsWith("agents/")),
     "the sweep must cover agents/*.md — they are installed into the user's agent dir");
 
-  const bare = /npx\s+(principal-pi-(?:agents|workspace))/;
+  const bare = /npx\s+(principal-pi-(?:agents|workspace|assurance))/;
   for (const d of scanned) {
     const text = readFileSync(join(ROOT, d), "utf8");
     const m = text.match(bare);

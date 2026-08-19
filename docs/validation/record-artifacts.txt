@@ -1,51 +1,8 @@
-# Staleness findings where the RECORD is wrong and the MEASUREMENT is sound.
+# Staleness findings where a published RECORD is unprovable but the measurement stands.
 #
-# Different from unpublished-cells.txt, and deliberately a separate file. That one covers
-# cells that publish no number, so there is no claim to protect. These cells DO publish, and
-# the finding is real: the recorded source hash genuinely cannot be proven against the tree.
-# What is asserted here is narrower and checkable — that the stimulus the model actually saw
-# is unchanged, so the published number still measures the current text even though the
-# hash no longer demonstrates it.
+# Empty for v3: v3 publishes no model cells, so all historical staleness belongs in the
+# explicit remeasurement queue (unpublished-cells.txt). The old debug/A6 v2.4 voucher remains
+# documented in git history and CHANGELOG 2.4.0; it must not overlap broad v3 unpublished
+# entries, because the lint gate deliberately treats a double-listed artifact as dead.
 #
-# This is a human assertion standing where a measurement used to. It is the weaker thing.
-# Every entry therefore carries the evidence that makes it checkable by someone who does not
-# trust it, and the cheapest way to retire it.
-#
-# Format:  <skill>/<scenario>  <model-substring>  <message-substring>
-#
-# All THREE tokens must appear in the same lint finding, and the finding must be a staleness
-# one. Three rather than two on purpose: `debug deepseek` would also swallow a future
-# SKILL.md or rubric drift on the same cell, which is the blind spot this file must not
-# create. The message substring pins it to the one source that is actually being vouched for.
-#
-# CI reads this, and CI also fails when an entry matches nothing — an entry that has outlived
-# its reason gets deleted rather than quietly covering a cell someone later re-ran. Adding a
-# line is a deliberate act; leaving a dead one is a defect.
-
-# --- debug/A6: a vitest cache was hashed into the fixture digest --------------------------
-#
-# The harness fingerprints a seeded fixture by hashing its DIRECTORY, ignored files included.
-# A `vitest` run inside debug/tests/fixtures/A6 — a hand authoring run, not the harness,
-# which copies fixtures to a temp workspace (workspace.ts) and never runs in the source dir —
-# left a node_modules/.vite/vitest/ cache there. The 2026-08-10 DeepSeek and GLM runs hashed
-# it. The cache is gone and .gitignore now excludes it (c70fc0c), so those runs read stale in
-# any clean checkout, and no digest of them can be proven: `restamp` requires the recorded
-# raw hash to still match, and it cannot.
-#
-# Why the number still stands, both checkable without spending anything:
-#   git diff 63442df..HEAD -- debug/tests/fixtures/A6/     → empty; the tracked stimulus the
-#                                                            model saw is byte-identical
-#   npx -y skill-harness@latest rescore <run-dir>          → reproduces the published grades
-#                                                            exactly (DeepSeek 9/11 B,
-#                                                            GLM 11/11 A SHIP, 0 verdicts moved)
-#
-# The residual, stated rather than hidden: the workspace copy those runs handed the model did
-# contain the cache directory, so the model could in principle have seen a node_modules/ tree
-# that a rerun would not show it. Judged immaterial for a diagnosis scenario whose stimulus is
-# two TypeScript files — but it is the reason this is an assertion and not a proof.
-#
-# Retire by re-running debug on either model; the entry then matches nothing and CI says so:
-#   npx -y skill-harness@latest run debug --skills "$PWD" --reps 3 --mode force \
-#     --model fireworks:accounts/fireworks/models/deepseek-v4-pro
-debug/A6   deepseek-v4-pro   fixtures/A6
-debug/A6   glm-5p2           fixtures/A6
+# Format when needed: <skill>/<scenario> <model-substring> <message-substring>

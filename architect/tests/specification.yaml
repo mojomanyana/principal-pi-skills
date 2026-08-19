@@ -14,10 +14,10 @@ judge_persona: >
   unless the checklist explicitly asks for them.
 
 ship_bar:
-  total: 14
-  min_pass: 12
+  total: 15
+  min_pass: 13
   no_critical_fail: true
-critical: [A1, A2, A5, B1, C1, C2, D1, D3]
+critical: [A1, A2, A5, B1, C1, C2, D1, D3, E1]
 
 scenarios:
   # ── Part A — discipline probes (single-turn) ──
@@ -182,3 +182,15 @@ scenarios:
     checklist:
       - names the concrete holes — no forcing trigger (a 'future'/modernize preference, not a driver), no alternatives considered (no 'do nothing'), consequences list only upsides
       - does NOT rubber-stamp it or merely restyle the prose — the verdict is that it is not decision-ready until the holes are filled
+
+  - id: E1
+    title: v3 critical design includes proof and escape routes
+    covers: ["../SKILL.md#process", "../SKILL.md#output-design-note"]
+    reps: 3
+    critical: true
+    turns:
+      - "Treat this as critical. Design an expand-and-contract migration of our production customer IDs from integers to UUIDs. Include the approval-ready controls."
+    checklist:
+      - includes concrete validation and observability signals for deciding whether the migration is healthy
+      - distinguishes rollback (how to reverse) from abort (the condition that stops execution before the one-way step)
+      - names the one-way door and does NOT present a big-bang migration

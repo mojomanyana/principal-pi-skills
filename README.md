@@ -12,7 +12,9 @@ The set is built for **one principal engineer steering at a high level while ski
 subagents do the work.** Two properties follow, and every design choice below serves them:
 **delegable trust** — an output carries the evidence needed to verify it without redoing
 the work — and **cheap iteration** — a defect found is a defect fixed, not documented
-around.
+around. v3 adds risk-adaptive assurance to the two workflows: `standard` stays the default,
+while explicit `critical` activates selected isolation, independent-review, evidence, and
+approval controls without creating another skill suite.
 
 ## Three constraints
 
@@ -26,11 +28,13 @@ around.
    plain-text tags (`[ONE-WAY]`, `[BLOCKER]`) instead of an emoji schema, no aphorisms
    doing load-bearing work, no personas, no required reading in reference files.
 3. **Token economics.** Budgets stated as decisions rather than aspirations: **skills
-   ≤ ~1400 words**, with **`git-ops` an accepted exception at ~1900** — the safety-critical
+   ≤ ~1400 words**, with **`git-ops` an accepted exception at ~2000** — the safety-critical
    operator carries the most arming, and validated behavior outweighs a budget.
    Both ceilings have moved once, each buying a fix rather than more prose. `git-ops` went
    1320 → 1900 to reconcile the protected-branch and secret-purge policies and redact secret
-   findings. The skill budget went 1100 → 1250 → 1400 for a lesson this framework
+   findings, then 1900 → 2000 for v3 finish mode's fresh-evidence gate and explicit
+   merge/PR/keep choice. No safety playbook was trimmed to make room. The skill budget went
+   1100 → 1250 → 1400 for a lesson this framework
    paid for: *every arming needs its governor in the same breath*. An absolute is cheap to
    write — "one caller → inline it", "every catch logs and changes state" — and wrong in real
    cases, and each wrong absolute produced a measured over-refusal. A rule plus the cases it
@@ -46,13 +50,13 @@ around.
 
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
-| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 852 |
-| `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1093 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1365) or inline | 1155 |
-| `build` | Test-first implementation — code proven by a test you watched fail | inline | 976 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1323) or inline | 1295 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1347) or inline | 1214 |
-| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1898 |
+| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 860 |
+| `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1142 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1467) or inline | 1257 |
+| `build` | Test-first implementation — code proven by a test you watched fail | inline | 1162 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1392) or inline | 1364 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1395) or inline | 1261 |
+| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1997 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is that
@@ -65,9 +69,12 @@ you; point your orchestrator at it deliberately.
 <skill>/SKILL.md                      the interactive contract — nothing else is required reading
 agents/principal-{plan,review,debug}.md  subagent definitions the workflows delegate to
 agents/{plan,review,debug}.md         deprecated generic-name aliases
-contracts/{plan,review,debug}.md.tmpl the SOURCE for all of the above — edit here, run `npm run generate`
-prompts/principal-{feature,bugfix}.md the two workflow spines (/feature, /bugfix are aliases)
-scripts/                              generator, agent installer, and the checks behind `npm test`
+contracts/{plan,review,debug}.md.tmpl source for dual-use contracts — edit here, run `npm run generate`
+contracts/workflows.md.tmpl           source for namespaced spines and full deprecated aliases
+prompts/{principal-,}{feature,bugfix}.md generated workflows; bare names are deprecated
+schemas/                              portable v1 run-state, task-packet, and evidence schemas
+scripts/assurance-state.mjs           append-only assurance state, transitions, and gates
+scripts/                              generator, installers, and checks behind `npm test`
 tests/{unit,install}/                 unit + clean-home install tests (node:test, no dependencies)
 tests/e2e/run-e2e.sh                  live workflow cells: both spines, with and without subagents
 <skill>/tests/specification.yaml      skill-harness scenarios (ship bar, critical gates)
@@ -86,8 +93,12 @@ docs/demos/                           the chains running end to end, repo-verifi
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v2.3.1
+   pi install git:github.com/mojomanyana/principal-pi-skills@v2.4.0
    ```
+
+   `2.4.0` is the current published npm release. This checkout's manifest is `3.0.0`, but v3
+   is not published or tagged yet; after release, install immutable tag `@v3.0.0` for the
+   assurance profiles. Do not turn a moving branch into production install guidance.
 
    **Do not install `2.3.0`** — it is deprecated on npm for a destructive defect: its
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
@@ -96,7 +107,7 @@ docs/demos/                           the chains running end to end, repo-verifi
    The `pi` manifest registers the seven skills and the `/principal-feature` and
    `/principal-bugfix` commands (plus the deprecated `/feature` and `/bugfix` aliases).
    Unpinned `main` moves under you: the skills' behavior is what the committed scorecard
-   measured, and a tag is what keeps those two the same thing. Drop the `@v2.3.1` only if
+   measured, and a tag is what keeps those two the same thing. Drop the version pin only if
    you want whatever `main` currently holds, measured or not.
 2. **Subagents (optional).** The extension ships **inside pi itself**, so there is nothing
    to clone. Copy its `index.ts` and `agents.ts` into `~/.pi/agent/extensions/subagent/`
@@ -125,23 +136,26 @@ docs/demos/                           the chains running end to end, repo-verifi
    `--with-generic-aliases`.
 
    Tool restriction is structural, in the agents' frontmatter: `plan` is read-only;
-   `review` adds `bash` only to run tests; `debug` gets the full toolset.
+   `review` adds `bash` to run tests; `debug` has the same bash-enabled surface (and pi-daddy
+   correctly treats bash as write-capable authority).
 
    The extension steps were last run end to end against **pi 0.83.0** (2026-08-11), by the
-   live workflow E2E cells in `tests/e2e/run-e2e.sh` — both `× subagents present` cells
-   delegate to `principal-plan`/`principal-review`/`principal-debug` and pass. Upstream is
-   someone else's repo, so if the file names move, that copy step is the thing to re-check.
+   historical workflow E2E cells in `tests/e2e/run-e2e.sh`. v3 defines four `× subagents
+   present` cells (standard/critical × both spines); they are prepared but not model-run here.
+   The v2 cells delegated to `principal-plan`/`principal-review`/`principal-debug` and passed.
+   Upstream is someone else's repo, so if the file names move, that copy step is the thing to
+   re-check.
 
    One trap worth knowing if you run subagents on a non-default provider: the extension
    passes `--model` to the child `pi` only when an agent's frontmatter names one. Ours
    deliberately do not, so a delegated agent uses your pi config's `defaultProvider` /
    `defaultModel` — **not** whatever `--provider`/`--model` you passed the parent. If
    delegations fail to authenticate while the parent is fine, that mismatch is why.
-3. **Without the extension everything still works.** The workflows detect that delegation is
-   unavailable and run each phase inline instead. That is a supported configuration, not a
-   degraded one — with one honest caveat: inline review is *self-review*. It sees the
-   session's own reasoning, so it cannot be surprised by it the way a cold subagent read can.
-   Treat an inline APPROVE as weaker evidence than a delegated one.
+3. **Without the extension, lean and standard still work completely inline.** That remains a
+   supported baseline. Inline review is self-review and weaker than a cold read. Critical
+   assurance does not pretend otherwise: if no governed fresh-context executor exists for its
+   critique and independent reviews, it returns `BLOCKED_CRITICAL_ASSURANCE` rather than
+   silently degrading to inline self-review.
 4. **`AGENTS.md` is not installed as routing context.** pi packages register skills and
    prompts; they do not load a routing file into every session. It ships in the package and
    is worth reading, but nothing loads it for you — if you want the orchestrator to route by
@@ -150,10 +164,12 @@ docs/demos/                           the chains running end to end, repo-verifi
 
 ### What a clean install actually gives you
 
-- The seven skills and both workflow commands, running **inline**. That is the baseline
-  product, and it is complete.
-- Subagents only if you did step 2 — they are an improvement in context isolation and cold
-  judgment, not a requirement.
+- The seven skills and both workflow commands, with lean/standard running **inline** as a
+  complete baseline.
+- Subagents only if you did step 2 — optional for lean/standard, but one way to satisfy the
+  fresh-context controls explicit critical assurance requires.
+- `principal-pi-assurance`, a parent/controller CLI that stores a hash-chained event log and
+  derived snapshot outside the product tree. It adds no public skill name.
 - `/principal-feature` and `/principal-bugfix` as the supported commands. `/feature` and
   `/bugfix` still work but are **deprecated aliases**: a bare name is a slot any installed
   package can claim, and the last one loaded wins silently.
@@ -185,6 +201,33 @@ verify both files had been *touched*, never that they still agreed.
 and carries no template: it runs inline and terminates a chain, so a handoff token would
 have nothing to hand to. Its delegated block was removed in 2.3.0 as dead ceremony.
 
+The two namespaced workflows and deprecated aliases are generated as complete prompts from
+`contracts/workflows.md.tmpl`; aliases do not depend on recursive slash-command expansion, and the
+shared assurance section is byte-identical by construction. Workflow state is not prose:
+`principal-pi-assurance` validates the v1 schemas, appends hash-chained JSONL events, derives
+`snapshot.json`, rejects illegal downgrades/transitions, and gates stale evidence or missing
+critical controls. In git it stores under the common directory
+(`.git/principal-pi-skills/assurance-v1`), otherwise under XDG state. Build remains the only
+durable source writer. See [docs/ASSURANCE.md](./docs/ASSURANCE.md).
+
+## Assurance profiles
+
+Both namespaced workflows accept:
+
+```
+--assurance lean|standard|critical
+--critical-scope "entire-run|task-2,task-4|db/migrations/**,src/auth/**"
+```
+
+`standard` is the compatible default and `high` aliases `critical`. “Treat this as critical”
+and “escalate this run to critical” persist the same state. Lean keeps the tiny/reversible
+path. Standard keeps Option B. Critical adds approved design for consequential work,
+independent plan critique before task packets, an owned branch worktree, per-task specification
+and quality reviews in separate fresh contexts rooted at that writer checkout, a final whole-change
+review after task evidence, fresh full evidence, and just-in-time approval for external effects.
+Git-Ops records final branch/head/tree between readiness and completion gates. Critical never silently falls back;
+unavailable isolation or fresh contexts returns `BLOCKED_CRITICAL_ASSURANCE`.
+
 ## See it run
 
 Three end-to-end runs, verified against the repository afterwards rather than taken from
@@ -201,41 +244,18 @@ the model's own account:
 
 ## Validation
 
-Every skill carries a `tests/specification.yaml` of scenarios with pass criteria, and the
-results are committed. The measurement: **98 scenarios across the seven skills, every
-scenario run three times** on DeepSeek v4-pro and GLM 5.2, judged by `claude-code:opus`, with
-objective gates (vitest runs, diff assertions) decided before the judge is consulted. A
-scenario passes at a majority of its clean reps, so a cell is a pass-rate rather than a
-single draw. The scored deployment is skill-as-system-prompt (`--mode force`) — the delivery
-modern pi makes deterministic, and the way the `agents/` variants already run.
-**kimi-k3 was never tuned against** — it is the control for overfitting, and is an optional
-follow-up rather than a published column in the current round.
+v3 changes model-visible contract text, adds one `E1` assurance scenario to each skill, and adds
+a Git-Ops stale-receipt negative, taking the static specification from 98 to **106 scenarios**.
+Those eight scenarios are prepared but
+have **not** been model-run; no paid skill-harness or live E2E validation was authorized.
+Consequently v3 publishes no model score yet. The committed DeepSeek/GLM board remains a
+historical v2.4 baseline, not evidence for the v3 prompts. `docs/validation/VALIDATION.md`
+records that boundary and the commands for a future measured wave.
 
-| Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
-|---|---|---|---|
-| architect | 13/14 · 93% | **14/14 · 100% SHIP** | — *(deferred)* |
-| build | **9/9 · 100% SHIP** | **9/9 · 100% SHIP** | — *(deferred)* |
-| debug | 9/11 · 82% | **11/11 · 100% SHIP** | — *(deferred)* |
-| decide | **12/12 · 100% SHIP** | **12/12 · 100% SHIP** | — *(deferred)* |
-| git-ops | 18/19 · 95% | **19/19 · 100% SHIP** | — *(deferred)* |
-| plan | 8/12 · 67% | **12/12 · 100% SHIP** | — *(deferred)* |
-| review | **21/21 · 100% SHIP** | **21/21 · 100% SHIP** | — *(deferred)* |
-
-**All seven skills ship on at least one model.** `decide` is new to that list — it
-previously held at 92% on every model, failing exactly one boundary scenario each, and shipped
-nowhere; it is now 12/12 on both. `build` went 7/9 → 9/9 on DeepSeek.
-
-`plan` is the one to read carefully: **12/12 on GLM against 8/12 on DeepSeek**, on identical
-text. The skill is not weak, it is weak on one model — and its boundary cells move between
-runs, so treat a single `plan`/DeepSeek cell as one draw rather than a measurement.
-
-**kimi-k3 is deferred, not dropped.** It is the untuned control for overfitting, so until it
-runs there is no evidence about generalization beyond the two models these skills were tuned
-against — the two most likely to flatter them. Its cells are tracked in
-[unpublished-cells.txt](docs/validation/unpublished-cells.txt), and CI fails if an entry there
-outlives its reason, so it cannot be quietly forgotten.
-[VALIDATION.md](docs/validation/VALIDATION.md) has the failing cells and why each is published
-at rate rather than tuned away.
+The free gate is `npm test`: generated-contract/workflow drift, state-machine and schema
+transitions, install/packed-artifact behavior, worktree isolation, word budgets, and
+skill-harness lint. Live workflow E2E now defines standard/critical × feature/bugfix ×
+subagents present/absent; it is prepared but not run here because it spends model tokens.
 
 ## Deliberate design rules
 

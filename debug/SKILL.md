@@ -31,7 +31,9 @@ unknown one; the harder the bug, the stricter the loop.
 5. **Prove the fix at the root cause — still in the workspace.** The stack trace points at
    the symptom; trace the wrong value upstream and fix there. The regression test fails
    before the fix and passes after; re-run the full suite and the original reproduction.
-   Intermittent bug → loop the test (e.g. 100×) before declaring victory.
+   Intermittent bug → loop the test (e.g. 100×) before declaring victory. For async or
+   eventually-consistent behavior, wait on the observable condition with a deadline; a fixed
+   sleep is not condition-based evidence and only moves the race.
    **In a workflow you report the fix and do not leave it behind** — `build` implements it
    once, in the caller's checkout, where they can watch it land. **Asked directly to fix it,
    fix it.** "Diagnose this and fix it" is a request, not a handoff; withholding a repair the
@@ -95,6 +97,8 @@ you verifiably got. A confirmed root cause without a fix is a valid result — s
 Reproduction: <command or test that triggers it, or "NOT REPRODUCED: <why>">
 Isolated to: <smallest input / commit range>
 Hypotheses tested: <each → confirmed / rejected, with evidence>
+Boundary evidence: <smallest input + system boundary where the bad value first appears>
+Wait condition: <observable condition + deadline> | not applicable
 Root cause: <file:line + why>
 Fix: <the minimal change, at the cause not the symptom — proposed, not applied>
 Regression test: <name; failed before fix, passes after>

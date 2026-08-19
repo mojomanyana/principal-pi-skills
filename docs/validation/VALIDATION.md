@@ -1,18 +1,38 @@
 # Validation
 
-How the seven skills are measured, what they currently score, what they add over a naked
-model, and what is still open. Every number here is a committed measurement — the run that
-produced it is in [`RESULTS-MANIFEST.md`](RESULTS-MANIFEST.md), and the per-judgment
-records are in [`../evidence/`](../evidence/).
+How the seven skills are measured, what the last measured release scored, what they add over
+a naked model, and what is still open. Every number here is a committed measurement — the run
+that produced it is in [`RESULTS-MANIFEST.md`](RESULTS-MANIFEST.md), and per-judgment records
+are in [`../evidence/`](../evidence/).
 
-## What is measured
+## v3 measurement status
+
+The v3 assurance implementation changes model-visible text in all seven skills, adds one `E1`
+scenario per skill, and adds a Git-Ops `E2` stale-receipt negative. The specifications now contain
+**106 scenarios**: `review` 22, `git-ops` 21, `architect` 15, `decide` 13, `plan` 13, `debug` 12,
+`build` 10. These eight new scenarios were prepared and free lint is in scope, but **no paid
+skill-harness or live E2E run was authorized**.
+Therefore v3 currently publishes no model score. The board below is explicitly the historical
+v2.4 baseline; it must not be attached to the v3 prompt digests.
+
+A future measured wave is:
+
+```bash
+npx -y skill-harness@latest run all --skills "$PWD" --mode force \
+  --model fireworks:accounts/fireworks/models/deepseek-v4-pro
+npx -y skill-harness@latest run all --skills "$PWD" --mode force \
+  --model fireworks:accounts/fireworks/models/glm-5p2
+```
+
+As always, grep the saved results for `judge_verdict: ERROR` before reading a score. A run is
+not part of this implementation unless separately authorized.
+
+## What is specified
 
 Each skill carries a `tests/specification.yaml`: scenarios with a prompt, a pass checklist,
-and a ship bar. Scenarios marked *critical* must pass for the skill to ship. **98 scenarios
-across the seven skills** — `review` 21, `git-ops` 19, `architect` 14, `decide` 12,
-`plan` 12, `debug` 11, `build` 9. The contract-cleanup round added seven: three governors
-for `debug`'s error rule and three for `review`'s simplicity hunt, each pinning a case the
-old absolute wrongly consumed, plus a `plan` skeleton item.
+and a ship bar. Scenarios marked *critical* must pass for the skill to ship. The v2.4
+contract-cleanup round had 98; v3's seven E1 scenarios plus the Git-Ops negative pin the assurance deltas while the
+existing right-sizing scenarios remain counterexamples against architecture theater.
 
 Three kinds of scenario:
 
@@ -76,7 +96,7 @@ the run stale; the correction is carried in
 until `review` is next re-run — which is the pending remeasurement, under a contract that
 has since changed again.
 
-## Current scorecard
+## Historical v2.4 scorecard (not a v3 claim)
 
 | Skill | DeepSeek v4-pro | GLM 5.2 | kimi-k3 |
 |---|---|---|---|
@@ -90,9 +110,9 @@ has since changed again.
 
 **98 scenarios × 3 reps × 2 models — the first board measured entirely in one epoch**, under
 `--mode force`, with reps pinned in the spec rather than passed on the command line. Every
-cell above measures the text in this commit.
+cell above measured the v2.4 contract text; none measures v3.
 
-All seven skills now ship on at least one model. `decide` and `build` are new to that list;
+All seven v2.4 skills shipped on at least one model. `decide` and `build` were new to that list;
 `debug` and `review` return to it after the fixture repair recorded below:
 
 - **`decide` 12/12 on both.** It shipped on *nothing* before — it held at 92% everywhere,

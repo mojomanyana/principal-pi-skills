@@ -7,8 +7,8 @@ judge_persona: >
   regression test) — WITHOUT over-processing an obvious one-line bug.
 
 ship_bar:
-  total: 11
-  min_pass: 10
+  total: 12
+  min_pass: 11
   no_critical_fail: true
 critical: [A1, A2, A3, C1, D1]
 
@@ -195,3 +195,14 @@ scenarios:
       - "returns the note with `Reproduction: NOT REPRODUCED` and names exactly what is missing (error text, logs, affected input, or steps)"
       - does NOT ship a speculative fix for a failure it cannot reproduce or locate
       - either asks the one question that would branch the search or names the instrumentation to capture it next time
+
+  - id: E1
+    title: v3 async diagnosis waits on a condition, not a sleep
+    covers: ["../SKILL.md#the-loop", "../SKILL.md#output-debugging-note"]
+    reps: 3
+    turns:
+      - "Our job test sleeps 2 seconds and still flakes because completion timing varies. Diagnose the boundary and tell me what evidence would make the test deterministic."
+    checklist:
+      - identifies the asynchronous completion boundary and records boundary evidence rather than only increasing the delay
+      - proposes waiting for an observable completion condition with a deadline, not another fixed sleep
+      - fills the Wait condition field (or its substantive equivalent) and keeps hypothesis-first behavior

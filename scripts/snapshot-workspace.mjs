@@ -31,9 +31,13 @@
  * nothing there can move a branch the caller cares about.
  *
  * Usage:
- *   node scripts/snapshot-workspace.mjs create [--repo <dir>]   → prints the path
+ *   node scripts/snapshot-workspace.mjs create [--repo <dir>] [--branch <name>] → prints the path
  *   node scripts/snapshot-workspace.mjs remove <path> [--repo <dir>]
  *   node scripts/snapshot-workspace.mjs prune [--repo <dir>]
+ *
+ * Detached is the default for disposable Debug/Review experiments. `--branch` creates an
+ * owned workspace for durable Build work; removing that worktree keeps the branch available
+ * for Git-Ops to merge, open a PR, or retain.
  */
 
 import { execFileSync } from "node:child_process";
@@ -56,7 +60,7 @@ export class SnapshotError extends Error {}
  * directory some other way — a caller that crashed mid-run should not be punished for
  * calling it twice.
  */
-export function createSnapshot(repo = process.cwd()) {
+export function createSnapshot(repo = process.cwd(), { branch = null, _afterAttach = null } = {}) {
   let root;
   try {
     root = git(["rev-parse", "--show-toplevel"], repo).trim();
@@ -76,20 +80,44 @@ export function createSnapshot(repo = process.cwd()) {
   rmSync(path, { recursive: true, force: true }); // git worktree add wants a non-existent path
 
   const cleanup = () => {
+    // A missing path is already clean; prune any stale registration and remain idempotent.
+    if (!existsSync(path)) {
+      try {
+        git(["worktree", "prune"], root, { stdio: "ignore" });
+      } catch {
+        /* best-effort metadata cleanup; there is no directory to delete */
+      }
+      return;
+    }
     try {
       git(["worktree", "remove", "--force", path], root, { stdio: "ignore" });
     } catch {
-      rmSync(path, { recursive: true, force: true });
+      // Lock, permission, and repository failures are not permission to recurse. The path is
+      // a real worktree and can contain uncommitted experiments; preserve it for inspection.
+      throw new SnapshotError(`git refused to remove ${path}; nothing was deleted`);
     }
     try {
       git(["worktree", "prune"], root, { stdio: "ignore" });
     } catch {
-      /* pruning is best-effort; the directory is already gone */
+      /* pruning is best-effort after Git has already removed the worktree */
     }
   };
 
   try {
-    git(["worktree", "add", "--detach", path, "HEAD"], root, { stdio: ["ignore", "ignore", "pipe"] });
+    if (branch) {
+      try {
+        git(["check-ref-format", "--branch", branch], root, { stdio: ["ignore", "ignore", "pipe"] });
+      } catch {
+        throw new SnapshotError(`invalid workspace branch: ${branch}`);
+      }
+      git(["worktree", "add", "-b", branch, path, "HEAD"], root, { stdio: ["ignore", "ignore", "pipe"] });
+    } else {
+      git(["worktree", "add", "--detach", path, "HEAD"], root, { stdio: ["ignore", "ignore", "pipe"] });
+    }
+    if (_afterAttach !== null) {
+      if (typeof _afterAttach !== "function") throw new SnapshotError("_afterAttach must be a function when supplied");
+      _afterAttach({ path, root }); // deterministic failure injection for cleanup safety tests
+    }
 
     // Tracked changes: staged and unstaged together, deletions and mode changes included.
     // `git diff HEAD` cannot see ignored files, which is exactly the property we want.
@@ -124,22 +152,49 @@ export function createSnapshot(repo = process.cwd()) {
 
     return { path, cleanup, root };
   } catch (e) {
-    cleanup(); // never leak a worktree on a setup failure
-    throw e instanceof SnapshotError ? e : new SnapshotError(`could not create snapshot: ${e.message}`);
+    const setupError = e instanceof SnapshotError ? e : new SnapshotError(`could not create snapshot: ${e.message}`);
+    try {
+      cleanup();
+    } catch (cleanupError) {
+      throw new SnapshotError(
+        `${setupError.message}; cleanup also failed: ${cleanupError.message}; preserved worktree: ${path}`,
+      );
+    }
+    throw setupError;
   }
 }
 
 function main(argv) {
-  const repoFlag = argv.indexOf("--repo");
-  const repo = repoFlag === -1 ? process.cwd() : resolve(argv[repoFlag + 1] ?? ".");
-  // Guard on repoFlag !== -1: with no --repo, repoFlag + 1 === 0 and the subcommand itself
-  // gets filtered out, so every invocation without --repo fell through to usage.
-  const args = argv.filter((a, i) => repoFlag === -1 || (i !== repoFlag && i !== repoFlag + 1));
+  const valueOf = (name) => {
+    const index = argv.indexOf(name);
+    if (index === -1) return null;
+    if (!argv[index + 1] || argv[index + 1].startsWith("--")) throw new SnapshotError(`${name} requires a value`);
+    return argv[index + 1];
+  };
+  let repoValue;
+  let branch;
+  try {
+    repoValue = valueOf("--repo");
+    branch = valueOf("--branch");
+  } catch (e) {
+    console.error(`✗ ${e.message}`);
+    return 2;
+  }
+  const repo = repoValue ? resolve(repoValue) : process.cwd();
+  const consumed = new Set();
+  for (const name of ["--repo", "--branch"]) {
+    const index = argv.indexOf(name);
+    if (index !== -1) {
+      consumed.add(index);
+      consumed.add(index + 1);
+    }
+  }
+  const args = argv.filter((_, index) => !consumed.has(index));
   const [cmd, arg] = args;
 
   try {
     if (cmd === "create") {
-      const { path } = createSnapshot(repo);
+      const { path } = createSnapshot(repo, { branch });
       console.log(path);
       return 0;
     }
@@ -149,38 +204,47 @@ function main(argv) {
         return 2;
       }
       const root = git(["rev-parse", "--show-toplevel"], repo).trim();
+      const canonicalRoot = realpathSync(root);
       const target = resolve(arg);
+      const canonicalTemp = realpathSync(tmpdir());
+      let canonicalTarget = target;
+      if (existsSync(target)) canonicalTarget = realpathSync(target);
 
-      // Refuse anything this tool did not create. The previous version fell back to an
-      // unguarded recursive delete whenever `git worktree remove` failed — and it fails for
-      // ANY path that is not a linked worktree, including the user's main checkout. A stale
-      // or mistyped path therefore destroyed uncommitted work and printed "removed".
-      // An LLM following a contract supplies these paths, so "the caller passes a sane
-      // argument" is not an assumption this can make.
-      const isOurs = basename(target).startsWith(SNAPSHOT_PREFIX) && target.startsWith(realpathSync(tmpdir()));
+      // Registration alone is not ownership: the repository's main checkout is registered
+      // too. Accept only the direct ppw-* children this tool creates under the canonical temp
+      // root, and reject the main checkout explicitly even if someone gave it that shape.
+      const isOurs =
+        canonicalTarget !== canonicalRoot &&
+        dirname(canonicalTarget) === canonicalTemp &&
+        basename(canonicalTarget).startsWith(SNAPSHOT_PREFIX);
       let registered = false;
       try {
-        registered = git(["worktree", "list", "--porcelain"], root)
+        registered = git(["worktree", "list", "--porcelain"], canonicalRoot)
           .split("\n")
-          .some((l) => l.startsWith("worktree ") && resolve(l.slice(9)) === target);
+          .filter((line) => line.startsWith("worktree "))
+          .some((line) => {
+            const listed = resolve(line.slice(9));
+            return (existsSync(listed) ? realpathSync(listed) : listed) === canonicalTarget;
+          });
       } catch {
-        /* not a repo we can query; fall through to the ownership check */
+        /* Query failure is a refusal, never permission to delete. */
       }
-      if (!registered && !isOurs) {
+      if (!isOurs || !registered) {
         console.error(`✗ refusing to remove ${target}`);
-        console.error(`  It is neither a worktree of this repository nor a snapshot this tool created`);
-        console.error(`  (${SNAPSHOT_PREFIX}* under ${tmpdir()}). Delete it yourself if that is what you meant.`);
+        console.error(`  It is not a registered ${SNAPSHOT_PREFIX}* worktree directly under ${canonicalTemp}.`);
         return 1;
       }
 
       try {
-        git(["worktree", "remove", "--force", target], root, { stdio: "ignore" });
+        git(["worktree", "remove", "--force", canonicalTarget], canonicalRoot, { stdio: "ignore" });
       } catch {
-        // Only reachable for a path we have already proven we own.
-        if (existsSync(target)) rmSync(target, { recursive: true, force: true });
+        // A generic Git failure can mean a lock, permissions, or repository corruption. Never
+        // turn it into recursive deletion; leave the path intact for an operator to inspect.
+        console.error(`✗ git refused to remove ${canonicalTarget}; nothing was deleted`);
+        return 1;
       }
-      git(["worktree", "prune"], root, { stdio: "ignore" });
-      console.log(`removed ${target}`);
+      git(["worktree", "prune"], canonicalRoot, { stdio: "ignore" });
+      console.log(`removed ${canonicalTarget}`);
       return 0;
     }
     if (cmd === "prune") {
@@ -194,7 +258,7 @@ function main(argv) {
     return 1;
   }
 
-  console.error("usage: snapshot-workspace <create|remove <path>|prune> [--repo <dir>]");
+  console.error("usage: snapshot-workspace <create|remove <path>|prune> [--repo <dir>] [--branch <name>]");
   return 2;
 }
 

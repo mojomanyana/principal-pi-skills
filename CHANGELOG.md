@@ -6,6 +6,63 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [3.0.0] — Unreleased
+
+**Added — risk-adaptive assurance profiles on the two existing workflow spines.** `standard`
+remains the default Option B behavior; `lean` preserves the tiny/reversible path; explicit
+`critical` (and `high`) activates selected Option C controls. `--critical-scope` accepts an
+entire run, task IDs, or path globs. Natural-language critical/escalation requests map to the
+same state. No skill or public agent name was added: the set remains decide, architect, plan,
+build, review, debug, git-ops.
+
+**Added — deterministic assurance state outside the product tree.**
+`principal-pi-assurance` validates versioned run-state/task-packet/evidence-receipt schemas, appends a
+SHA-256-linked JSONL event log, atomically derives a snapshot, enforces legal transitions and
+explicit downgrade, matches critical scope, detects stale evidence after source changes, and
+returns `BLOCKED_CRITICAL_ASSURANCE` with missing controls. State is under git's common
+directory (XDG state outside git), so Plan/Review/Debug retain their read-only/disposable
+workspace contracts and Build remains the only durable source writer.
+
+**Changed — critical workflow controls.** Consequential design approval includes validation,
+observability, rollback, abort, and one-way doors; plans carry authority and independently
+verifiable task packets; an independent plan critique precedes Build; an owned isolated
+branch worktree is mandatory; each task receives separate fresh specification and
+quality/security reviews rooted at the canonical writer checkout; a final fresh whole-change review
+follows all task evidence. Mid-run escalation freezes base/head/candidate-tree and backfills exact
+matching receipts before more source writes. Approved replans explicitly supersede immutable stale
+packets rather than silently rebinding them.
+Irreversible/external effects require just-in-time user approval. Critical never degrades to
+inline self-review when fresh-context infrastructure is absent.
+
+**Changed — standard and repair/finish discipline.** Standard remains the normal spine with
+vertical slices, dependency/interface preflight, one writer, milestone/final review,
+evidence-based finding adjudication, fresh verification, and an explicit finish choice.
+Build repair mode consumes accepted finding IDs one at a time. Git-Ops finish mode offers
+merge locally, push/open PR, or keep, runs a pre-operation readiness gate, and persists final
+branch/head/tree before the completion gate; discard remains explicit. Tiny work does not acquire
+architecture machinery unless the user explicitly selected critical.
+
+**Changed — workflow and dual-use generation.** Both namespaced prompts now render from
+`contracts/workflows.md.tmpl`, with a test proving their assurance rules are identical.
+Plan/Review/Debug continue to render skill, namespaced agent, and generic alias from their
+existing templates. All capability ceilings are unchanged.
+
+**Added — free assurance coverage.** Unit tests cover parsing/defaults, policy escalation,
+explicit downgrade, scope matching, legal events, missing-control blocks, evidence freshness,
+review-context/workspace/tree independence, JIT approval, readiness/finalization, event-log
+integrity, Draft 2020-12/runtime schema parity, and branch-attached workspaces. The E2E harness now defines standard/critical ×
+feature/bugfix × subagents present/absent; critical/absent asserts a clean block. Seven `E1`
+skill-harness scenarios plus a Git-Ops stale-receipt negative are prepared but deliberately not
+model-run; no skill-harness/live E2E validation was authorized, so v2.4 measurements are historical
+and v3 publishes no model score yet.
+
+**Fixed — npm 12 pack metadata compatibility.** npm 12 changed `npm pack --json` from an
+array to a package-keyed object, which made seven clean-home install tests fail before this
+work began. Pack checks, install tests, and E2E now normalize both shapes and still fail on
+empty/malformed metadata.
+
+---
+
 ## [2.4.0] — 2026-08-17
 
 **Added** — every skill now declares an `allowed-tools` capability ceiling, which
