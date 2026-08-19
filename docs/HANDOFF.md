@@ -7,9 +7,9 @@
 **Branch:** `feat/v3-risk-adaptive-assurance`
 **Base SHA:** `4dece8ca35648725234c7dc2eadead95cd084b07`
 
-This handoff closes in one focused local commit. Nothing is pushed, tagged, published, or
-installed from an unpublished v3 tag. Paid skill-harness subjects/judges and live workflow E2E
-cells remain intentionally unrun pending separate authorization.
+This handoff is open as [PR #31](https://github.com/mojomanyana/principal-pi-skills/pull/31).
+It is not merged, tagged, published, or installed from an unpublished v3 tag. Paid skill-harness
+subjects/judges and live workflow E2E cells remain intentionally unrun pending separate authorization.
 
 ## 1. State of the implementation
 
@@ -695,7 +695,7 @@ Required environment:
 - no secret values copied into this repository. The E2E harness copies credentials only into its
   throwaway HOME and removes it.
 
-## 10. Final amendment candidate evidence
+## 10. Current PR candidate evidence
 
 Exact base:
 
@@ -703,25 +703,20 @@ Exact base:
 4dece8ca35648725234c7dc2eadead95cd084b07
 ```
 
-Final repair `git status --short --branch` before staging:
+CI follow-up `git status --short --branch` before staging:
 
 ```text
-## feat/v3-risk-adaptive-assurance...origin/feat/v3-risk-adaptive-assurance [ahead 1, behind 1]
- M contracts/workflows.md.tmpl
- M docs/ASSURANCE.md
+## feat/v3-risk-adaptive-assurance...origin/feat/v3-risk-adaptive-assurance
+ M .github/workflows/ci.yml
  M docs/HANDOFF.md
- M prompts/bugfix.md
- M prompts/feature.md
- M prompts/principal-bugfix.md
- M prompts/principal-feature.md
- M scripts/assurance-state.mjs
- M tests/unit/assurance-state.test.mjs
+ M tests/e2e/run-e2e.sh
 ```
 
 Complete candidate `git diff --stat 4dece8ca35648725234c7dc2eadead95cd084b07`
 (the base-to-candidate tree, including paths already committed in the superseded local commit):
 
 ```text
+ .github/workflows/ci.yml                          |    7 +-
  AGENTS.md                                         |   22 +-
  CHANGELOG.md                                      |   57 +
  README.md                                         |  146 +-
@@ -746,7 +741,7 @@ Complete candidate `git diff --stat 4dece8ca35648725234c7dc2eadead95cd084b07`
  decide/SKILL.md                                   |    1 +
  decide/tests/specification.yaml                   |   14 +-
  docs/ASSURANCE.md                                 |  213 +++
- docs/HANDOFF.md                                   |  983 +++++++++--
+ docs/HANDOFF.md                                   |  979 +++++++++--
  docs/validation/VALIDATION.md                     |   46 +-
  docs/validation/record-artifacts.txt              |   55 +-
  docs/validation/unpublished-cells.txt             |   76 +-
@@ -771,7 +766,7 @@ Complete candidate `git diff --stat 4dece8ca35648725234c7dc2eadead95cd084b07`
  scripts/generate-contracts.mjs                    |  107 +-
  scripts/pack-meta.mjs                             |   14 +
  scripts/snapshot-workspace.mjs                    |  128 +-
- tests/e2e/run-e2e.sh                              |  289 +++-
+ tests/e2e/run-e2e.sh                              |  291 +++-
  tests/install/clean-home.test.mjs                 |   23 +-
  tests/unit/assurance-contracts.test.mjs           |  128 ++
  tests/unit/assurance-state.test.mjs               | 1503 +++++++++++++++++
@@ -779,12 +774,13 @@ Complete candidate `git diff --stat 4dece8ca35648725234c7dc2eadead95cd084b07`
  tests/unit/handoff-transitions.test.mjs           |    2 +-
  tests/unit/pack-meta.test.mjs                     |   19 +
  tests/unit/snapshot-workspace.test.mjs            |  107 ++
- 57 files changed, 7096 insertions(+), 703 deletions(-)
+ 58 files changed, 7099 insertions(+), 705 deletions(-)
 ```
 
-Complete changed/generated file list (57 files). Generated outputs are marked:
+Complete changed/generated file list (58 files). Generated outputs are marked:
 
 ```text
+.github/workflows/ci.yml
 AGENTS.md
 CHANGELOG.md
 README.md

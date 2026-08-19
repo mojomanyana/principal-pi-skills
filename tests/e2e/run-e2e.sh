@@ -36,7 +36,7 @@ ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/../.." && pwd)"
 PROVIDER="${PROVIDER:-fireworks}"
 MODEL="${MODEL:-accounts/fireworks/models/deepseek-v4-pro}"
 PI_PKG="$(dirname "$(readlink -f "$(command -v pi)")" 2>/dev/null)/.."
-EXT="$PI_PKG/examples/extensions/subagent"
+EXT="${EXT:-$PI_PKG/examples/extensions/subagent}"
 # Derived from `command -v pi`, so it is wrong for any pi layout where the launcher is not
 # one directory below the package root. Validate it here rather than letting a `present`
 # cell quietly degrade into an `absent` one and still score "delegated".
