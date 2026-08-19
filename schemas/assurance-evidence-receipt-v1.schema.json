@@ -1,0 +1,48 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://principal-pi-skills.dev/schemas/assurance-evidence-receipt-v1.schema.json",
+  "title": "principal-pi-skills assurance evidence receipt v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "kind",
+    "command",
+    "exit_code",
+    "head_sha",
+    "tree_sha",
+    "task_id",
+    "workspace_id",
+    "recorded_at",
+    "seq"
+  ],
+  "properties": {
+    "kind": {
+      "enum": [
+        "red",
+        "green",
+        "exact-target",
+        "full-suite",
+        "build",
+        "lint",
+        "requirements-trace",
+        "risk-specific"
+      ]
+    },
+    "command": { "$ref": "#/$defs/nonEmpty" },
+    "exit_code": { "type": "integer" },
+    "head_sha": { "$ref": "#/$defs/gitSha" },
+    "tree_sha": { "$ref": "#/$defs/gitSha" },
+    "task_id": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/entityId" }] },
+    "workspace_id": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/entityId" }] },
+    "recorded_at": { "type": "string", "format": "date-time" },
+    "seq": { "type": "integer", "minimum": 1 }
+  },
+  "$defs": {
+    "nonEmpty": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "entityId": {
+      "type": "string",
+      "pattern": "^(?!(?:constructor|prototype)$)[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$"
+    },
+    "gitSha": { "type": "string", "pattern": "^(?:[a-fA-F0-9]{40}|[a-fA-F0-9]{64})$" }
+  }
+}

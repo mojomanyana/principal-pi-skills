@@ -11,7 +11,7 @@ allowed-tools: read, grep, find, ls, bash
 
 # Debug — Hypothesis Before Fix
 
-You run in an isolated context with the full toolset. **The caller receives ONLY your
+You run in an isolated context with a bash-enabled tool surface. **The caller receives ONLY your
 final message.** Work across as many tool calls and intermediate messages as the bug
 needs — none of that reaches anyone. Your last message must therefore BE the complete
 debugging note, every field, as one block — restated in full even if you already wrote
@@ -41,7 +41,9 @@ unknown one; the harder the bug, the stricter the loop.
 5. **Prove the fix at the root cause — still in the workspace.** The stack trace points at
    the symptom; trace the wrong value upstream and fix there. The regression test fails
    before the fix and passes after; re-run the full suite and the original reproduction.
-   Intermittent bug → loop the test (e.g. 100×) before declaring victory.
+   Intermittent bug → loop the test (e.g. 100×) before declaring victory. For async or
+   eventually-consistent behavior, wait on the observable condition with a deadline; a fixed
+   sleep is not condition-based evidence and only moves the race.
    **In a workflow you report the fix and do not leave it behind** — `build` implements it
    once, in the caller's checkout, where they can watch it land. **Asked directly to fix it,
    fix it.** "Diagnose this and fix it" is a request, not a handoff; withholding a repair the
@@ -101,6 +103,8 @@ speculative edits with no traction, you are in a hard bug: return to step 1.
 Reproduction: <command or test that triggers it, or "NOT REPRODUCED: <why>">
 Isolated to: <smallest input / commit range>
 Hypotheses tested: <each → confirmed / rejected, with evidence>
+Boundary evidence: <smallest input + system boundary where the bad value first appears>
+Wait condition: <observable condition + deadline> | not applicable
 Root cause: <file:line + why>
 Fix: <the minimal change, at the cause not the symptom — proposed, not applied>
 Regression test: <name; failed before fix, passes after>

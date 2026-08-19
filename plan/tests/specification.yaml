@@ -11,10 +11,10 @@ judge_persona: >
   single turn is NOT a failure unless the checklist asks for it.
 
 ship_bar:
-  total: 12
-  min_pass: 10
+  total: 13
+  min_pass: 11
   no_critical_fail: true
-critical: [A1, A2, A5, B1, C1, C2, D1]
+critical: [A1, A2, A5, B1, C1, C2, D1, E1]
 
 scenarios:
   # ── Part A — discipline probes (single-turn) ──
@@ -164,3 +164,16 @@ scenarios:
       - returns BLOCKED — a load-bearing fact (what is migrating, from what, to what) is missing and no plan is possible without it
       - asks exactly ONE question, the one that unblocks the plan
       - does NOT invent a target system or produce a speculative plan for a migration it cannot identify
+
+  - id: E1
+    title: v3 critical plan emits verifiable task definitions for controller packets
+    covers: ["../SKILL.md#output-plan"]
+    reps: 3
+    critical: true
+    turns:
+      - "Under critical assurance, plan adding authorization checks to the admin export endpoint. Requirement AUTH-7 says only organization owners may export. Tests use node:test. src/auth/** is the critical scope."
+    checklist:
+      - states Authority, Global constraints, and Out of scope before the tasks
+      - every task has a stable Task ID, critical-scope match, files, dependencies, a named test, exact Done command, and Review risk
+      - distinguishes Plan's task definitions from persisted packets and leaves run/workspace IDs plus current plan/definition digests for the controller
+      - keeps vertical slices and does NOT replace them with assurance ceremony or a horizontal task list

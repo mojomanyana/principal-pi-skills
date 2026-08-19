@@ -39,7 +39,7 @@ const SOURCES = {
   build: "build/SKILL.md",
 };
 
-const WORKFLOWS = ["prompts/principal-feature.md", "prompts/principal-bugfix.md"];
+const WORKFLOWS = ["prompts/principal-feature.md", "prompts/principal-bugfix.md", "prompts/feature.md", "prompts/bugfix.md"];
 
 /** Verdicts review can actually return, read from the contract rather than restated here. */
 const REVIEW_VERDICTS = readFileSync(join(ROOT, "contracts/review.md.tmpl"), "utf8")

@@ -1,0 +1,307 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://principal-pi-skills.dev/schemas/assurance-run-state-v1.schema.json",
+  "title": "principal-pi-skills assurance run state v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "workflow",
+    "request",
+    "assurance",
+    "risk_trigger",
+    "risk",
+    "status",
+    "frozen_diff",
+    "critical_backfill_required",
+    "plan_digest",
+    "current_head_sha",
+    "current_tree_sha",
+    "last_change_seq",
+    "last_authority_seq",
+    "phases",
+    "tasks",
+    "workspaces",
+    "active_workspace_id",
+    "definition_digests",
+    "evidence",
+    "reviews",
+    "used_context_ids",
+    "findings",
+    "approvals",
+    "finish",
+    "finalization",
+    "event_seq",
+    "event_digest"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "run_id": { "$ref": "#/$defs/runId" },
+    "workflow": { "enum": ["feature", "bugfix"] },
+    "request": { "$ref": "#/$defs/nonEmpty" },
+    "assurance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["requested", "effective", "source", "reason", "scope", "activated_at"],
+      "properties": {
+        "requested": { "$ref": "#/$defs/profile" },
+        "effective": { "$ref": "#/$defs/profile" },
+        "source": {
+          "enum": ["default", "flag", "alias", "natural-language", "policy", "user", "user-downgrade"]
+        },
+        "reason": { "$ref": "#/$defs/nonEmpty" },
+        "scope": { "$ref": "#/$defs/scope" },
+        "activated_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "risk_trigger": { "type": ["string", "null"] },
+    "risk": {
+      "type": "object",
+      "required": ["level", "reason"],
+      "properties": {
+        "level": { "enum": ["unknown", "tiny", "substantive", "consequential"] },
+        "reason": { "$ref": "#/$defs/nonEmpty" },
+        "classified_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "status": { "enum": ["active", "blocked", "finished"] },
+    "frozen_diff": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["base_sha", "head_sha", "tree_sha", "frozen_at", "evidence"],
+          "properties": {
+            "base_sha": { "$ref": "#/$defs/gitSha" },
+            "head_sha": { "$ref": "#/$defs/gitSha" },
+            "tree_sha": { "$ref": "#/$defs/gitSha" },
+            "frozen_at": { "type": "string", "format": "date-time" },
+            "evidence": { "type": "array" }
+          }
+        }
+      ]
+    },
+    "critical_backfill_required": { "type": "boolean" },
+    "backfill": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["receipts", "completed_at"],
+      "properties": {
+        "receipts": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 3,
+          "items": { "$ref": "#/$defs/backfillReceipt" }
+        },
+        "completed_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "design": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["approved", "design_digest", "validation_strategy", "observability", "rollback_strategy", "abort_strategy", "one_way_doors", "approved_by", "approved_at"],
+      "properties": {
+        "approved": { "const": true },
+        "design_digest": { "$ref": "#/$defs/digest" },
+        "validation_strategy": { "$ref": "#/$defs/nonEmpty" },
+        "observability": { "$ref": "#/$defs/nonEmpty" },
+        "rollback_strategy": { "$ref": "#/$defs/nonEmpty" },
+        "abort_strategy": { "$ref": "#/$defs/nonEmpty" },
+        "one_way_doors": { "type": "array", "items": { "$ref": "#/$defs/nonEmpty" }, "uniqueItems": true },
+        "approved_by": { "const": "user" },
+        "approved_at": { "type": "string", "format": "date-time" }
+      }
+    },
+    "plan_digest": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/digest" }] },
+    "plan_critique": { "type": ["object", "null"] },
+    "current_head_sha": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/gitSha" }] },
+    "current_tree_sha": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/gitSha" }] },
+    "last_change_seq": { "type": "integer", "minimum": 0 },
+    "last_authority_seq": { "type": "integer", "minimum": 0 },
+    "phases": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["status", "task_id", "workspace_id", "definition_digest", "started_at", "round"],
+        "properties": {
+          "status": { "enum": ["started", "completed", "blocked"] },
+          "task_id": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/entityId" }] },
+          "workspace_id": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/entityId" }] },
+          "definition_digest": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/digest" }] },
+          "started_at": { "type": "string", "format": "date-time" },
+          "completed_at": { "type": "string", "format": "date-time" },
+          "reason": { "type": "string" },
+          "round": { "type": "integer", "minimum": 1 }
+        }
+      }
+    },
+    "tasks": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/entityId" },
+      "additionalProperties": {
+        "type": "object",
+        "required": ["packet", "task_digest", "status", "completed_seq", "recorded_at"],
+        "properties": {
+          "packet": { "$ref": "assurance-task-packet-v1.schema.json" },
+          "task_digest": { "$ref": "#/$defs/digest" },
+          "status": { "enum": ["ready", "building", "changed", "completed", "blocked", "superseded"] },
+          "completed_seq": { "type": ["integer", "null"], "minimum": 1 },
+          "recorded_at": { "type": "string", "format": "date-time" },
+          "superseded_at": { "type": "string", "format": "date-time" },
+          "superseded_reason": { "$ref": "#/$defs/nonEmpty" }
+        }
+      }
+    },
+    "workspaces": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/entityId" },
+      "additionalProperties": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["workspace_id", "path", "mode", "writer", "attached_at"],
+        "properties": {
+          "workspace_id": { "$ref": "#/$defs/entityId" },
+          "path": { "$ref": "#/$defs/nonEmpty" },
+          "mode": { "enum": ["caller", "owned-isolated"] },
+          "writer": { "const": "build" },
+          "attached_at": { "type": "string", "format": "date-time" }
+        }
+      }
+    },
+    "active_workspace_id": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/entityId" }] },
+    "definition_digests": {
+      "type": "object",
+      "additionalProperties": { "$ref": "#/$defs/digest" }
+    },
+    "evidence": {
+      "type": "array",
+      "items": { "$ref": "assurance-evidence-receipt-v1.schema.json" }
+    },
+    "reviews": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["axis", "verdict", "spec_verdict", "quality_verdict", "context_id", "head_sha", "tree_sha", "task_id", "workspace_id", "recorded_at", "seq"],
+        "properties": {
+          "axis": { "enum": ["specification", "quality", "whole-change", "combined"] },
+          "verdict": { "enum": ["APPROVE", "APPROVE-WITH-NITS", "CHANGES-REQUESTED", "UNVERIFIED"] },
+          "spec_verdict": { "enum": ["APPROVE", "CHANGES-REQUESTED", "UNVERIFIED", null] },
+          "quality_verdict": { "enum": ["APPROVE", "CHANGES-REQUESTED", "UNVERIFIED", null] },
+          "context_id": { "$ref": "#/$defs/entityId" },
+          "head_sha": { "$ref": "#/$defs/gitSha" },
+          "tree_sha": { "$ref": "#/$defs/gitSha" },
+          "task_id": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/entityId" }] },
+          "workspace_id": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/entityId" }] },
+          "recorded_at": { "type": "string", "format": "date-time" },
+          "seq": { "type": "integer", "minimum": 1 }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "axis": { "const": "whole-change" }, "verdict": { "const": "APPROVE" } } },
+            "then": {
+              "properties": {
+                "spec_verdict": { "const": "APPROVE" },
+                "quality_verdict": { "const": "APPROVE" }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "used_context_ids": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/entityId" }
+    },
+    "findings": {
+      "type": "object",
+      "propertyNames": { "$ref": "#/$defs/entityId" },
+      "additionalProperties": { "type": "object" }
+    },
+    "approvals": { "type": "array", "items": { "type": "object" } },
+    "finish": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["choice", "explicit_request", "selected_at"],
+          "properties": {
+            "choice": { "enum": ["merge", "pr", "keep", "discard"] },
+            "explicit_request": { "type": "boolean" },
+            "selected_at": { "type": "string", "format": "date-time" }
+          }
+        }
+      ]
+    },
+    "finalization": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["choice", "candidate_head_sha", "final_branch", "head_sha", "tree_sha", "completed_at"],
+          "properties": {
+            "choice": { "enum": ["merge", "pr", "keep", "discard"] },
+            "candidate_head_sha": { "$ref": "#/$defs/gitSha" },
+            "final_branch": { "$ref": "#/$defs/nonEmpty" },
+            "head_sha": { "$ref": "#/$defs/gitSha" },
+            "tree_sha": { "$ref": "#/$defs/gitSha" },
+            "completed_at": { "type": "string", "format": "date-time" }
+          }
+        }
+      ]
+    },
+    "event_seq": { "type": "integer", "minimum": 0 },
+    "event_digest": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/digest" }] }
+  },
+  "$defs": {
+    "profile": { "enum": ["lean", "standard", "critical"] },
+    "nonEmpty": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "runId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+    "entityId": { "type": "string", "pattern": "^(?!(?:constructor|prototype)$)[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$" },
+    "digest": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" },
+    "gitSha": { "type": "string", "pattern": "^(?:[a-fA-F0-9]{40}|[a-fA-F0-9]{64})$" },
+    "repoPathPattern": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*\\\\)(?!.*(?:^|/)(?:\\.{1,2})(?:/|$))(?!.*//).+$"
+    },
+    "backfillReceipt": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["control", "base_sha", "head_sha", "tree_sha", "result", "evidence"],
+      "properties": {
+        "control": { "enum": ["frozen-diff-review", "requirements-trace", "risk-specific"] },
+        "base_sha": { "$ref": "#/$defs/gitSha" },
+        "head_sha": { "$ref": "#/$defs/gitSha" },
+        "tree_sha": { "$ref": "#/$defs/gitSha" },
+        "result": { "const": "pass" },
+        "evidence": { "$ref": "#/$defs/nonEmpty" },
+        "context_id": { "$ref": "#/$defs/entityId" }
+      }
+    },
+    "scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "selectors"],
+      "properties": {
+        "type": { "enum": ["entire-run", "selectors"] },
+        "selectors": { "type": "array", "items": { "$ref": "#/$defs/repoPathPattern" }, "uniqueItems": true }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "type": { "const": "selectors" } } },
+          "then": { "properties": { "selectors": { "minItems": 1 } } }
+        },
+        {
+          "if": { "properties": { "type": { "const": "entire-run" } } },
+          "then": { "properties": { "selectors": { "maxItems": 0 } } }
+        }
+      ]
+    }
+  }
+}

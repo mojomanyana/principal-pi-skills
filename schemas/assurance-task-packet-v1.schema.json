@@ -1,0 +1,91 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://principal-pi-skills.dev/schemas/assurance-task-packet-v1.schema.json",
+  "title": "principal-pi-skills assurance task packet v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "run_id",
+    "task_id",
+    "title",
+    "authority",
+    "global_constraints",
+    "out_of_scope",
+    "critical_scope",
+    "files",
+    "dependencies",
+    "done_command",
+    "review_risk",
+    "workspace_id",
+    "plan_digest",
+    "definition_digests"
+  ],
+  "properties": {
+    "schema_version": { "const": "1.0" },
+    "run_id": { "$ref": "#/$defs/runId" },
+    "task_id": { "$ref": "#/$defs/entityId" },
+    "title": { "$ref": "#/$defs/nonEmpty" },
+    "authority": {
+      "type": "array",
+      "minItems": 1,
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/nonEmpty" }
+    },
+    "global_constraints": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/nonEmpty" }
+    },
+    "out_of_scope": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/nonEmpty" }
+    },
+    "critical_scope": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["applies", "matched_by"],
+      "properties": {
+        "applies": { "type": "boolean" },
+        "matched_by": {
+          "type": "array",
+          "uniqueItems": true,
+          "items": { "$ref": "#/$defs/nonEmpty" }
+        }
+      },
+      "if": { "properties": { "applies": { "const": true } } },
+      "then": { "properties": { "matched_by": { "minItems": 1 } } }
+    },
+    "files": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/repoPathPattern" }
+    },
+    "dependencies": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": { "$ref": "#/$defs/entityId" }
+    },
+    "done_command": { "$ref": "#/$defs/nonEmpty" },
+    "review_risk": { "$ref": "#/$defs/nonEmpty" },
+    "workspace_id": { "$ref": "#/$defs/entityId" },
+    "plan_digest": { "$ref": "#/$defs/digest" },
+    "definition_digests": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": { "$ref": "#/$defs/digest" }
+    }
+  },
+  "$defs": {
+    "nonEmpty": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "runId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
+    "entityId": { "type": "string", "pattern": "^(?!(?:constructor|prototype)$)[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$" },
+    "repoPathPattern": {
+      "type": "string",
+      "minLength": 1,
+      "pattern": "^(?!/)(?![A-Za-z]:[\\\\/])(?!.*\\\\)(?!.*(?:^|/)(?:\\.{1,2})(?:/|$))(?!.*//).+$"
+    },
+    "digest": { "type": "string", "pattern": "^[a-fA-F0-9]{64}$" }
+  }
+}

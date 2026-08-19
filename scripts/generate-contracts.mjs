@@ -1,6 +1,7 @@
 #!/usr/bin/env node
 /**
- * Render `<skill>/SKILL.md` and `agents/<skill>.md` from one template per contract.
+ * Render dual-use skill/agent contracts plus the namespaced workflow prompts and their
+ * deprecated full-workflow aliases from source templates.
  *
  * `plan`, `review` and `debug` each exist twice: an interactive contract loaded as a skill,
  * and a single-shot contract handed to a subagent as its system prompt. The two are 74–84%
@@ -14,6 +15,7 @@
  *
  *     {{#skill}} …only in <skill>/SKILL.md… {{/skill}}
  *     {{#agent}} …only in agents/<skill>.md… {{/agent}}
+ *     {{#feature}} / {{#bugfix}} select workflow-specific steps; unblocked text is shared.
  *
  * Anything outside a block appears in both. Marker lines are consumed; they never reach the
  * output. Blocks do not nest — a nested marker is an error rather than a guess.
@@ -35,7 +37,7 @@
  * template is the file a person opens to make a change.
  *
  * Usage:
- *   node scripts/generate-contracts.mjs           write the six files
+ *   node scripts/generate-contracts.mjs           write all generated files
  *   node scripts/generate-contracts.mjs --check    render in memory, diff, exit 1 on drift
  */
 
@@ -68,8 +70,15 @@ export const MODES = {
   "agent-namespaced": { block: "agent", path: (s) => `agents/principal-${s}.md`, name: (s) => `principal-${s}` },
 };
 
-const OPEN = /^\{\{#(skill|agent)\}\}$/;
-const CLOSE = /^\{\{\/(skill|agent)\}\}$/;
+export const WORKFLOW_MODES = {
+  feature: { block: "feature", path: "prompts/principal-feature.md" },
+  bugfix: { block: "bugfix", path: "prompts/principal-bugfix.md" },
+  "feature-alias": { block: "feature", path: "prompts/feature.md", alias: "feature", supported: "principal-feature" },
+  "bugfix-alias": { block: "bugfix", path: "prompts/bugfix.md", alias: "bugfix", supported: "principal-bugfix" },
+};
+
+const OPEN = /^\{\{#(skill|agent|feature|bugfix)\}\}$/;
+const CLOSE = /^\{\{\/(skill|agent|feature|bugfix)\}\}$/;
 const COMMENT = /^\{\{!/;
 
 /**
@@ -110,8 +119,22 @@ export function render(template, mode, source = "<template>", vars = {}) {
   return out.join("\n");
 }
 
+export function renderWorkflow(template, spec, source = "contracts/workflows.md.tmpl") {
+  const rendered = render(template, spec.block, source);
+  if (!spec.alias) return rendered;
+  const closingFrontmatter = rendered.indexOf("\n---\n", 4);
+  if (!rendered.startsWith("---\n") || closingFrontmatter === -1) {
+    throw new Error(`${source}: workflow rendering has no frontmatter for deprecated alias ${spec.alias}`);
+  }
+  const body = rendered.slice(closingFrontmatter + 5);
+  const notice =
+    `\`/${spec.alias}\` is a deprecated alias; \`/${spec.supported}\` is the supported command. ` +
+    `Execute the complete workflow below for \`$@\` and mention the deprecation once in the closing digest.\n\n`;
+  return `---\ndescription: DEPRECATED alias for /${spec.supported}. Same risk-adaptive workflow.\n---\n${notice}${body}`;
+}
+
 // Importing this file (the unit tests do) must not run the CLI — otherwise `node --test`
-// would rewrite the six contracts as a side effect of loading the module under test.
+// would rewrite generated contracts as a side effect of loading the module under test.
 const invokedDirectly = process.argv[1] && fileURLToPath(import.meta.url) === realpathSync(process.argv[1]);
 if (!invokedDirectly) {
   // exported for tests
@@ -122,40 +145,54 @@ const check = process.argv.includes("--check");
 const drift = [];
 let written = 0;
 
+const outputs = [];
 for (const contract of CONTRACTS) {
   const rel = `contracts/${contract}.md.tmpl`;
   const template = readFileSync(join(ROOT, rel), "utf8");
-
   for (const mode of Object.values(MODES)) {
-    const path = mode.path(contract);
-    const rendered = render(template, mode.block, rel, { name: mode.name(contract) });
+    outputs.push({
+      source: rel,
+      path: mode.path(contract),
+      rendered: render(template, mode.block, rel, { name: mode.name(contract) }),
+    });
+  }
+}
 
-    if (check) {
-      let current;
-      try {
-        current = readFileSync(join(ROOT, path), "utf8");
-      } catch {
-        drift.push(`${path}: missing — run \`npm run generate\``);
-        continue;
-      }
-      if (current !== rendered) {
-        const c = current.split("\n");
-        const r = rendered.split("\n");
-        // findIndex returns -1 when every committed line matches and the render is simply
-        // longer — the common case, a rule appended to a template. Without this the message
-        // says "line 0" and prints <eof> twice, reporting drift while hiding what drifted.
-        const first = c.findIndex((l, i) => l !== r[i]);
-        const at = first === -1 ? Math.min(c.length, r.length) : first;
-        drift.push(
-          `${path}: differs from ${rel} at line ${at + 1}\n` +
-            `    committed: ${JSON.stringify(c[at] ?? "<eof>")}\n` +
-            `    generated: ${JSON.stringify(r[at] ?? "<eof>")}`
-        );
-      }
-    } else {
-      writeFileSync(join(ROOT, path), rendered);
-      written++;
+const workflowSource = "contracts/workflows.md.tmpl";
+const workflowTemplate = readFileSync(join(ROOT, workflowSource), "utf8");
+for (const mode of Object.values(WORKFLOW_MODES)) {
+  outputs.push({
+    source: workflowSource,
+    path: mode.path,
+    rendered: renderWorkflow(workflowTemplate, mode, workflowSource),
+  });
+}
+
+for (const { source, path, rendered } of outputs) {
+  if (check) {
+    let current;
+    try {
+      current = readFileSync(join(ROOT, path), "utf8");
+    } catch {
+      drift.push(`${path}: missing — run \`npm run generate\``);
+      continue;
     }
+    if (current !== rendered) {
+      const c = current.split("\n");
+      const r = rendered.split("\n");
+      // findIndex returns -1 when every committed line matches and the render is simply
+      // longer — the common case, a rule appended to a template.
+      const first = c.findIndex((line, index) => line !== r[index]);
+      const at = first === -1 ? Math.min(c.length, r.length) : first;
+      drift.push(
+        `${path}: differs from ${source} at line ${at + 1}\n` +
+          `    committed: ${JSON.stringify(c[at] ?? "<eof>")}\n` +
+          `    generated: ${JSON.stringify(r[at] ?? "<eof>")}`
+      );
+    }
+  } else {
+    writeFileSync(join(ROOT, path), rendered);
+    written++;
   }
 }
 
@@ -169,8 +206,8 @@ if (check) {
     );
     process.exit(1);
   }
-  console.log(`✓ ${CONTRACTS.length * Object.keys(MODES).length} generated contracts match their templates`);
+  console.log(`✓ ${outputs.length} generated contracts match their templates`);
 } else {
-  console.log(`✓ wrote ${written} file(s) from ${CONTRACTS.length} template(s)`);
+  console.log(`✓ wrote ${written} file(s) from ${CONTRACTS.length + 1} template(s)`);
 }
 }

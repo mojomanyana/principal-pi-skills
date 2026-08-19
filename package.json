@@ -1,6 +1,6 @@
 {
     "name": "principal-pi-skills",
-    "version": "2.4.0",
+    "version": "3.0.0",
     "description": "Skill framework for principal-level software engineering: seven dual-use skills (decide, architect, plan, build, review, debug, git-ops) that work unedited as loaded skills or as subagent system prompts.",
     "license": "MIT",
     "author": "Nemanja Alavanja",
@@ -45,7 +45,8 @@
     },
     "bin": {
         "principal-pi-agents": "./scripts/install-agents.mjs",
-        "principal-pi-workspace": "./scripts/snapshot-workspace.mjs"
+        "principal-pi-workspace": "./scripts/snapshot-workspace.mjs",
+        "principal-pi-assurance": "./scripts/assurance-state.mjs"
     },
     "files": [
         "AGENTS.md",
@@ -59,7 +60,13 @@
         "git-ops/SKILL.md",
         "prompts/*.md",
         "agents/*.md",
+        "schemas/*.json",
         "scripts/install-agents.mjs",
-        "scripts/snapshot-workspace.mjs"
-    ]
+        "scripts/snapshot-workspace.mjs",
+        "scripts/assurance-state.mjs"
+    ],
+    "devDependencies": {
+        "ajv": "^8.20.0",
+        "ajv-formats": "^3.0.1"
+    }
 }

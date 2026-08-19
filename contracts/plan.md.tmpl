@@ -61,8 +61,8 @@ A plan that bottoms out in "add validation" is not a plan; each step names files
 behavior, and the test that proves it.
 
 ## Process
-1. **State the outcome** in one measurable sentence ("users can reset passwords without
-   filing a support ticket"), not a feature list.
+1. **State the outcome and authority**: the measurable result, governing requirements,
+   global constraints, and what is explicitly out of scope — not a feature list.
 2. **Read the code before planning it.** Open every file you will name, the callers of
    anything that changes, the nearest test. Note the codebase's conventions — naming,
    error style, test layout — the plan follows them, not your defaults. Never present a
@@ -141,22 +141,42 @@ the one output this agent never produces.
 {{/agent}}
 
 ## Output — plan
-This template is for multi-step work. A trivial reversible change never gets it — its
-entire plan is three lines: the change, the test, done. Small clear work (one flag, one
-helper, one endpoint) gets the middle form: two or three slices with a done-signal each,
-and nothing else — no Risks block, no spike, no [after:]/parallel annotations; the step
-numbers are the order. Not knowing the codebase is an Assumptions line, not a risk. A
-real [ONE-WAY] is the one field that always survives.
+Output **task definitions**: authority/constraints/scope, files/dependencies, behavior/test, done
+command, and review risk. The controller adds run/workspace IDs and current digests, validates the
+task-packet schema, and persists; Plan never invents them. Critical always emits a task definition
+but omits unrelated ceremony.
+
+Use this template for multi-step work. Trivial reversible work gets three lines: change, test, done.
+Small clear work gets two or three slices with a done-signal; omit Risks, spikes, and dependency
+annotations because step order suffices. Unknown codebase facts are Assumptions. A real [ONE-WAY]
+always survives.
 ```
 ## Plan: <outcome, one sentence>
+Authority: <requirement IDs, approved design, or exact user request>
+Global constraints: <limits every task must preserve>
+Out of scope: <explicit exclusions> | none
 Conventions observed: <naming / error / test patterns found in the codebase>
 Risks: <risk → mitigation or spike step>
 Steps:
   1. Walking skeleton — <thinnest real path through every named seam> — proves: <each seam, exercised for real>
-  2. <step name>  [after: 1]  [ONE-WAY: <rollback + kill criterion>]
+     Task ID: task-1
+     Critical scope: <why this task matches> | not critical
      Files: <paths>
+     Dependencies: none
      Change: <signatures + exact behavior>
      Test: <name, level, edge cases>
+     Done command: <exact command + expected result>
+     Review risk: <highest-risk behavior reviewers must attack>
+     Ripples: <callers, config, migrations> | none
+  2. <step name>  [after: 1]  [ONE-WAY: <rollback + kill criterion>]
+     Task ID: <stable ID>
+     Critical scope: <matched task/path selector> | not critical
+     Files: <paths>
+     Dependencies: <task IDs> | none
+     Change: <signatures + exact behavior>
+     Test: <name, level, edge cases>
+     Done command: <exact command + expected result>
+     Review risk: <risk or boundary>
      Ripples: <callers, config, migrations> | none
   3. …
 Parallel-safe: <which steps> | none

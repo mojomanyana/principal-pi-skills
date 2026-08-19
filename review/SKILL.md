@@ -14,6 +14,15 @@ Find what will break in production and what shouldn't exist at all. An approval 
 evidence is a guess with a signature; a review that flags naming while a swallowed error
 ships is a failed review.
 
+## Review input
+Input supplies `Review axis: specification | quality | combined | whole-change`, assurance,
+run/task/workspace IDs, authority, available digests, and for critical work `Writer root:` plus
+`Expected candidate tree:`. Combined runs both hunts.
+Specification checks requirements; quality checks correctness, security, maintainability, and
+simplicity. `whole-change` runs both over the complete base-to-head diff and trace, never a sample;
+it APPROVES only if both sub-verdicts do. Critical task axes use separate fresh contexts; missing
+authority never becomes inline self-approval.
+
 ## Process — two hunts over the same diff
 1. **Anchor on the requirement.** What was the change supposed to do? Behavior beyond or
    beside the spec is a finding, not a bonus.
@@ -56,23 +65,19 @@ ships is a failed review.
      still contain the original's guards — code you present as "cleaner" that drops a
      validation or weakens a security compare is a bug you just authored. If the only way
      smaller is through a safeguard, the verdict is KEEP; say so.
-4. **Verify, don't assume — in a workspace you own.** Run the tests; exercise the riskiest
-   path. The strongest check is often destructive — revert the fix and confirm the
-   regression test goes red, break an input and watch the guard fire — so do all of it in a
-   disposable copy, never in the caller's checkout:
-   `npx -p principal-pi-skills principal-pi-workspace create` prints a throwaway worktree carrying their
-   exact working state (staged, unstaged, untracked, minus anything git ignores). Work
-   there, then `remove` it. The caller must find their tree byte-for-byte as they left it —
-   they are still working in it, and a file you "just" reverted is one they may be editing.
-   If no workspace can be made, you may still read, and you may run a read-only test command
-   if one exists — but the verdict is **UNVERIFIED**, and you say the workspace was
-   unavailable. UNVERIFIED is not a soft approve, and it is never a reason to run the
-   mutating check in their tree instead.
-5. **Rank and be concrete.** Every finding: `file:line`, what's wrong, the fix (for
-   simplifications, show the smaller code). The ordering IS the message: findings appear
-   most-severe first, and "Top concern" is always the highest-severity finding — a rename
-   or style improvement can never outrank a delete-this-code or bug finding. Clean code
-   gets "verified, no blockers" — don't manufacture findings to look thorough.
+4. **Verify in a workspace you own.** Run tests and the riskiest path. Destructive probes
+   (revert the fix, break an input) belong in a disposable copy, never the caller checkout.
+   Critical review requires the supplied root:
+   `npx -p principal-pi-skills principal-pi-workspace create --repo <writer-root>`; otherwise
+   omit `--repo`. Never snapshot your CWD and attribute it elsewhere. The snapshot carries
+   staged, unstaged, and untracked non-ignored state. In a critical snapshot, use an absent
+   temporary `GIT_INDEX_FILE` with `git read-tree HEAD`, `git add -A`, `git write-tree`; if it
+   does not equal the expected candidate tree, return UNVERIFIED without approval. Work there,
+   then `remove`. If creation fails, only read or run a read-only check and return UNVERIFIED;
+   never mutate the caller checkout.
+5. **Rank and be concrete.** Give each finding a stable ID, `file:line`, defect, and fix
+   (show smaller code for simplifications). Order by severity; Top concern is the highest.
+   Clean code gets “verified, no blockers” — never manufacture findings.
 
 ## Right-sizing
 Depth scales with blast radius. A described one-character/typo-level fix with no behavior
@@ -87,14 +92,21 @@ why under Verified.
 ## Output — review verdict
 ```
 ## Review: <change, one line>
+Review axis: specification | quality | combined | whole-change
+Assurance: lean | standard | critical — Run/Task/Workspace: <IDs>
+Authority: <requirements + plan/task/definition digests used>
+Writer root: <canonical source checkout or n/a> · Expected candidate tree: <SHA or n/a>
+Reviewed tree: <computed snapshot tree SHA or NOT-VERIFIED>
+Spec verdict: APPROVE | CHANGES-REQUESTED | UNVERIFIED | NOT-RUN
+Quality verdict: APPROVE | CHANGES-REQUESTED | UNVERIFIED | NOT-RUN
 Verdict: APPROVE | APPROVE-WITH-NITS | CHANGES-REQUESTED | UNVERIFIED
 Workspace: disposable | none (read-only review) — <path removed, or why none>
 Verified: <tests run + result verbatim; paths exercised; or what blocked verification>
 Findings:
-  [BLOCKER] file:line — <what breaks, concretely> → <fix>
-  [SHOULD-FIX] file:line — … → …
-  [SIMPLIFY] file:line — <show the smaller version>
-  [NIT] …
+  [REV-SPEC-001] [BLOCKER] file:line — <what breaks, concretely> → <fix>
+  [REV-QUAL-001] [SHOULD-FIX] file:line — … → …
+  [REV-QUAL-002] [SIMPLIFY] file:line — <show the smaller version>
+  [REV-QUAL-003] [NIT] …
 Top concern: <the one thing most worth the author's attention>
 Next: build | git-ops
 ```

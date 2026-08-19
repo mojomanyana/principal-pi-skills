@@ -10,8 +10,8 @@ judge_persona: >
   explicitly asks for them.
 
 ship_bar:
-  total: 12
-  min_pass: 10
+  total: 13
+  min_pass: 11
   no_critical_fail: true
 critical: [A2, A5, B2, C1, C2]
 
@@ -158,3 +158,13 @@ scenarios:
       - engages the actual reasoning of the plan, does NOT invent weak objections
       - if it cannot find a load-bearing flaw, says so honestly OR raises the one genuinely load-bearing risk (e.g. is the bottleneck really reads?)
       - does not bury everything behind a single deferring question.
+
+  - id: E1
+    title: v3 decision conclusion carries a compact revisit condition
+    covers: ["../SKILL.md#output-decision-brief-produce-when-concluding"]
+    reps: 3
+    turns:
+      - "We have compared managed Postgres and self-hosting. Choose managed Postgres for our three-person team and wrap up the decision, including when we should revisit it."
+    checklist:
+      - concludes with the managed choice and a concrete revisit condition/trigger rather than an unconditional forever-decision
+      - does NOT add workflow routing or implementation steps to the decision brief

@@ -15,7 +15,7 @@ import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { render, MODES } from "../../scripts/generate-contracts.mjs";
+import { render, renderWorkflow, MODES, WORKFLOW_MODES } from "../../scripts/generate-contracts.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
@@ -67,6 +67,33 @@ test("errors name the template and line so a failure is actionable", () => {
 // Driven off the generator's own MODES table rather than a second list here: a mode added
 // to the generator and forgotten here would ship an unchecked file, which is precisely the
 // class of drift this whole mechanism exists to remove.
+test("workflow assurance rules render identically into both namespaced spines", () => {
+  const template = read("contracts/workflows.md.tmpl");
+  const feature = render(template, "feature", "contracts/workflows.md.tmpl");
+  const bugfix = render(template, "bugfix", "contracts/workflows.md.tmpl");
+  const section = (text) => text.match(/<!-- assurance:shared:start -->([\s\S]*?)<!-- assurance:shared:end -->/)?.[1];
+  assert.ok(section(feature), "feature rendering has no shared assurance section");
+  assert.equal(section(feature), section(bugfix));
+});
+
+for (const [mode, spec] of Object.entries(WORKFLOW_MODES)) {
+  test(`${spec.path} matches the workflow template (${mode})`, () => {
+    const template = read("contracts/workflows.md.tmpl");
+    assert.equal(read(spec.path), renderWorkflow(template, spec, "contracts/workflows.md.tmpl"));
+  });
+}
+
+for (const alias of ["feature-alias", "bugfix-alias"]) {
+  test(`${WORKFLOW_MODES[alias].path} embeds the complete workflow rather than a literal slash-command handoff`, () => {
+    const text = read(WORKFLOW_MODES[alias].path);
+    assert.match(text, /DEPRECATED alias/);
+    assert.match(text, /assurance-state\.mjs/);
+    assert.match(text, /node <tool> init --workflow/);
+    assert.match(text, /BLOCKED_CRITICAL_ASSURANCE/);
+    assert.doesNotMatch(text, /Run `\/principal-(feature|bugfix)` for:/);
+  });
+}
+
 for (const contract of ["plan", "review", "debug"]) {
   for (const [mode, spec] of Object.entries(MODES)) {
     test(`${contract}: ${spec.path(contract)} matches the template (${mode})`, () => {

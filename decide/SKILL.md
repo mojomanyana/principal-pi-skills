@@ -63,6 +63,7 @@ Options:
   3. Do nothing — …
 Pre-mortem (leading option): <the most likely failure story>
 Decision: <choice + why, traceable to a constraint>  |  HOLD until <trigger>
+Revisit when: <condition that would change the decision>
 Reversibility: TWO-WAY | ONE-WAY — <why>
 Open questions: <what would change this decision>
 ```

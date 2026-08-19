@@ -62,6 +62,14 @@ function fixture() {
 }
 
 const status = (dir) => git(["status", "--porcelain=v1", "-z"], dir);
+const candidateTree = (dir) => {
+  const holder = mkdtempSync(join(tmpdir(), "ppindex-"));
+  created.push(holder);
+  const env = { ...process.env, GIT_INDEX_FILE: join(holder, "candidate.index") };
+  execFileSync("git", ["read-tree", "HEAD"], { cwd: dir, env });
+  execFileSync("git", ["add", "-A"], { cwd: dir, env });
+  return execFileSync("git", ["write-tree"], { cwd: dir, env, encoding: "utf8" }).trim();
+};
 
 test("the snapshot reproduces committed, staged, unstaged and deleted state", () => {
   const repo = fixture();
@@ -72,6 +80,16 @@ test("the snapshot reproduces committed, staged, unstaged and deleted state", ()
   assert.equal(readFileSync(join(path, "unstaged.txt"), "utf8"), "UNSTAGED CHANGE\n", "unstaged change");
   assert.ok(!existsSync(join(path, "doomed.txt")), "a deleted file must be deleted in the snapshot too");
 
+  cleanup();
+});
+
+test("a writer-root snapshot has the exact same candidate tree without changing the real index", () => {
+  const repo = fixture();
+  const before = status(repo);
+  const writerTree = candidateTree(repo);
+  const { path, cleanup } = createSnapshot(repo);
+  assert.equal(candidateTree(path), writerTree);
+  assert.equal(status(repo), before, "temporary-index tree computation must not alter the writer index");
   cleanup();
 });
 
@@ -158,12 +176,68 @@ test("cleanup is idempotent, so a crashed caller can always call it again", () =
   assert.ok(!git(["worktree", "list"], repo).includes(path));
 });
 
+test("exported cleanup preserves a locked worktree after Git refuses removal", () => {
+  const repo = fixture();
+  const { path, cleanup } = createSnapshot(repo);
+  const marker = join(path, "uncommitted-experiment.txt");
+  writeFileSync(marker, "PRESERVE ME\n");
+  git(["worktree", "lock", path], repo);
+
+  assert.throws(() => cleanup(), /nothing was deleted/i);
+  assert.equal(readFileSync(marker, "utf8"), "PRESERVE ME\n");
+  git(["worktree", "unlock", path], repo);
+  cleanup();
+  assert.ok(!existsSync(path));
+});
+
+test("setup plus cleanup failure reports the preserved worktree path", () => {
+  const repo = fixture();
+  let preserved;
+  assert.throws(
+    () => createSnapshot(repo, {
+      _afterAttach: ({ path }) => {
+        preserved = path;
+        writeFileSync(join(path, "setup-failure-marker.txt"), "PRESERVED\n");
+        git(["worktree", "lock", path], repo);
+        throw new Error("forced setup failure");
+      },
+    }),
+    (error) => /forced setup failure/.test(error.message) && /cleanup also failed/.test(error.message) &&
+      error.message.includes(preserved),
+  );
+  assert.equal(readFileSync(join(preserved, "setup-failure-marker.txt"), "utf8"), "PRESERVED\n");
+  git(["worktree", "unlock", preserved], repo);
+  git(["worktree", "remove", "--force", preserved], repo);
+});
+
 test("a snapshot is a real repo — history and tooling work inside it", () => {
   // Debug runs bisect and log in here; a plain directory copy would not support that.
   const repo = fixture();
   const { path, cleanup } = createSnapshot(repo);
   assert.match(git(["log", "--oneline"], path), /baseline/);
   cleanup();
+});
+
+test("an owned workspace may attach a new branch for durable Build work", () => {
+  const repo = fixture();
+  const branch = "principal/run-test-owned";
+  const { path, cleanup } = createSnapshot(repo, { branch });
+  assert.equal(git(["branch", "--show-current"], path).trim(), branch);
+  writeFileSync(join(path, "owned.txt"), "durable build output\n");
+  git(["add", "owned.txt"], path);
+  git(["commit", "-qm", "owned work"], path);
+  assert.match(git(["log", "-1", "--format=%s"], path), /owned work/);
+  cleanup();
+  assert.match(git(["branch", "--list", branch], repo), /principal\/run-test-owned/,
+    "removing the worktree keeps the branch for merge, PR, or keep finish choices");
+});
+
+test("the CLI accepts --branch and prints a branch-attached owned workspace", () => {
+  const repo = fixture();
+  const branch = "principal/run-cli-owned";
+  const path = run(process.execPath, [CLI, "create", "--repo", repo, "--branch", branch], { encoding: "utf8" }).trim();
+  assert.equal(git(["branch", "--show-current"], path).trim(), branch);
+  run(process.execPath, [CLI, "remove", path, "--repo", repo], { stdio: "pipe" });
 });
 
 test("refuses a non-repo and a repo with no commits, rather than half-working", () => {
@@ -192,6 +266,39 @@ test("`remove` refuses a path it did not create, instead of deleting it", () => 
   }
   assert.equal(code, 1, "must refuse, not succeed");
   assert.equal(readFileSync(join(victim, "data.txt"), "utf8"), "PRECIOUS UNCOMMITTED WORK\n");
+});
+
+test("`remove` refuses the registered main checkout and preserves its files", () => {
+  const repo = fixture();
+  const marker = join(repo, "main-checkout-marker.txt");
+  writeFileSync(marker, "DO NOT DELETE\n");
+
+  let code = 0;
+  try {
+    run(process.execPath, [CLI, "remove", repo, "--repo", repo], { encoding: "utf8", stdio: "pipe" });
+  } catch (e) {
+    code = e.status;
+  }
+  assert.equal(code, 1, "the main worktree must be refused even though Git registers it");
+  assert.equal(readFileSync(marker, "utf8"), "DO NOT DELETE\n");
+  assert.ok(existsSync(join(repo, ".git")), "the repository itself must remain intact");
+});
+
+test("`remove` preserves an owned path when Git refuses removal", () => {
+  const repo = fixture();
+  const path = run(process.execPath, [CLI, "create", "--repo", repo], { encoding: "utf8" }).trim();
+  git(["worktree", "lock", path], repo);
+
+  let code = 0;
+  try {
+    run(process.execPath, [CLI, "remove", path, "--repo", repo], { encoding: "utf8", stdio: "pipe" });
+  } catch (e) {
+    code = e.status;
+  }
+  assert.equal(code, 1, "a Git refusal must remain a refusal");
+  assert.ok(existsSync(path), "generic Git failure must never fall back to recursive deletion");
+  git(["worktree", "unlock", path], repo);
+  run(process.execPath, [CLI, "remove", path, "--repo", repo], { stdio: "pipe" });
 });
 
 test("`remove` still removes a real snapshot, and exits 0", () => {

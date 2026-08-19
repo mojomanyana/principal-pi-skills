@@ -41,12 +41,13 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // model needed. Prose that earns its place should not be squeezed by a number that was
 // guessed before the content existed.
 //
-// `git-ops` remains the standing exception at 1900: the safety-critical operator carries the
-// most arming of all, and validated behavior outweighs a budget.
+// `git-ops` is the standing exception at 2000: v3 moved it 1900 -> 2000 for the
+// fresh-evidence finish gate and explicit merge/PR/keep choice. The safety-critical operator
+// carries the most arming of all, and trimming its incident rules to fit would be the defect.
 //
 // These are still ceilings, not targets — the check exists so growth is a decision someone
 // makes, not something that happens.
-const BUDGETS = { skill: 1400, agent: 1500, "git-ops": 1900 };
+const BUDGETS = { skill: 1400, agent: 1500, "git-ops": 2000 };
 
 const words = (p) => {
   const t = readFileSync(join(ROOT, p), "utf8").trim();
