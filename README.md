@@ -75,7 +75,7 @@ prompts/{principal-,}{feature,bugfix}.md generated workflows; bare names are dep
 schemas/                              portable v1 run-state, task-packet, and evidence schemas
 scripts/assurance-state.mjs           append-only assurance state, transitions, and gates
 scripts/                              generator, installers, and checks behind `npm test`
-tests/{unit,install}/                 unit + clean-home install tests (node:test, no dependencies)
+tests/{unit,install}/                 unit + clean-home install tests (node:test; ajv dev-only, schema parity)
 tests/e2e/run-e2e.sh                  live workflow cells: both spines, with and without subagents
 <skill>/tests/specification.yaml      skill-harness scenarios (ship bar, critical gates)
 <skill>/tests/fixtures/<ID>/          seeded repo for one scenario (git-ops, build, debug)
@@ -93,12 +93,15 @@ docs/demos/                           the chains running end to end, repo-verifi
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v2.4.0
+   pi install git:github.com/mojomanyana/principal-pi-skills@v3.0.0
    ```
 
-   `2.4.0` is the current published npm release. This checkout's manifest is `3.0.0`, but v3
-   is not published or tagged yet; after release, install immutable tag `@v3.0.0` for the
-   assurance profiles. Do not turn a moving branch into production install guidance.
+   `3.0.0` is the current published npm release, and the tag matches this checkout's
+   manifest. It adds the risk-adaptive assurance profiles; `standard` is the default and
+   preserves v2 invocation, so upgrading from `2.4.0` changes no command you already type.
+   Read [Validation](#validation) first: v3 ships with **no model score of its own** — the
+   committed board is a historical v2.4 baseline. Do not turn a moving branch into
+   production install guidance.
 
    **Do not install `2.3.0`** — it is deprecated on npm for a destructive defect: its
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
@@ -247,7 +250,8 @@ the model's own account:
 v3 changes model-visible contract text, adds one `E1` assurance scenario to each skill, and adds
 a Git-Ops stale-receipt negative, taking the static specification from 98 to **106 scenarios**.
 Those eight scenarios are prepared but
-have **not** been model-run; no paid skill-harness or live E2E validation was authorized.
+have **not** been model-run; no paid skill-harness or live E2E validation was authorized, and
+`3.0.0` was released on that basis deliberately rather than by oversight.
 Consequently v3 publishes no model score yet. The committed DeepSeek/GLM board remains a
 historical v2.4 baseline, not evidence for the v3 prompts. `docs/validation/VALIDATION.md`
 records that boundary and the commands for a future measured wave.

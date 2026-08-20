@@ -5,7 +5,10 @@
 > today: the command is `/principal-feature` (`/feature` is now a deprecated alias), and any
 > destructive verification — reverting a fix to watch its regression test go red — happens in
 > a disposable worktree rather than the caller's checkout. The observed behavior and verdicts
-> below are unchanged.
+> below are unchanged. They also predate v3's assurance
+> profiles: what these runs show is what `standard` — still the default — does, and explicit
+> `critical` would add an independent plan critique, per-task fresh reviews, and evidence
+> receipts on top of it.
 
 
 First end-to-end run of the framework in its natural habitat — pi 0.80.2, GLM 5.2,

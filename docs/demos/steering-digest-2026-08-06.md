@@ -5,7 +5,10 @@
 > today: the commands are `/principal-feature` and `/principal-bugfix` (the bare names are now deprecated aliases), and any
 > destructive verification — reverting a fix to watch its regression test go red — happens in
 > a disposable worktree rather than the caller's checkout. The observed behavior and verdicts
-> below are unchanged.
+> below are unchanged. They also predate v3's assurance
+> profiles: what these runs show is what `standard` — still the default — does, and explicit
+> `critical` would add an independent plan critique, per-task fresh reviews, and evidence
+> receipts on top of it.
 
 
 The P1 additions to `/feature` and `/bugfix` — the [ONE-WAY] pause and the closing

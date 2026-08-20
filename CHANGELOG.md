@@ -6,7 +6,7 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
-## [3.0.0] — Unreleased
+## [3.0.0] — 2026-08-20
 
 **Added — risk-adaptive assurance profiles on the two existing workflow spines.** `standard`
 remains the default Option B behavior; `lean` preserves the tiny/reversible path; explicit
@@ -60,6 +60,26 @@ and v3 publishes no model score yet.
 array to a package-keyed object, which made seven clean-home install tests fail before this
 work began. Pack checks, install tests, and E2E now normalize both shapes and still fail on
 empty/malformed metadata.
+
+**Fixed — the `v2.4.0` git tag never existed.** 2.4.0 was published to npm on 2026-08-16, but
+no tag was cut, so `pi install git:github.com/mojomanyana/principal-pi-skills@v2.4.0` — the
+immutable install command README and AGENTS.md both printed, and the one thing this project
+tells users to prefer over a moving branch — resolved to nothing for four days. The tag is
+backfilled at the release commit it always belonged to (`4dece8c`), and tagging now precedes
+publishing. It is the same failure as 2.3.1's 404'ing npx invocations: a documented command
+nothing executed.
+
+**Changed — released with the measurement gap stated, not closed.** `3.0.0` ships statically
+verified and unmeasured, and every document that could be read as a claim now says so at the
+point of reading: the README install step, `docs/ASSURANCE.md`, `docs/validation/VALIDATION.md`,
+and the handoff verdict. All 101 skill-harness findings are exempt-stale against the v3 text —
+that is the honest state of a v3 cell, not a passing one. The authorized two-model wave and the
+live eight-cell E2E remain the work that would replace the historical v2.4 board with a v3 one.
+
+**Changed — `ajv`/`ajv-formats` are the first devDependencies.** The Draft 2020-12 parity test
+needs a real validator. Runtime install stays dependency-free — they are not in the pack
+allowlist — but `npm test` in a fresh checkout now requires `npm ci` first, where before it ran
+on a bare clone.
 
 ---
 

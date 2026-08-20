@@ -5,6 +5,13 @@ superseded runs are KEPT — they are the evidence for the round-over-round traj
 (DeepSeek 61% → 82% → 89% → ~92%; GLM 92% → 97% → ~99%) that no single current run shows.
 The scorecard in [`VALIDATION.md`](VALIDATION.md) = the **current** row per skill × model
 × epoch; every other row here is the history behind it.
+
+**Since `3.0.0` (2026-08-20), no row on this page measures the shipped prompts.** v3 changed
+model-visible text in all seven skills, so every run below — including each one marked
+**current** — is stale against the text now installed; "current" here means newest *within its
+measurement epoch*, not current against `main`. The skill-harness lint reports all 101 of those
+cells as exempt-stale rather than passing. Nothing here may be quoted as v3 evidence; see
+[`VALIDATION.md`](VALIDATION.md) for the boundary and the commands that would close it.
 Runs marked *overridden* carry hand-verified judge-misfire overrides (`override: PASS`
 + note in results.yaml) with the misfire transcripts force-committed alongside for audit.
 

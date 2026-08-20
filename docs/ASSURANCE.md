@@ -1,6 +1,8 @@
 # v3 assurance profiles
 
-**Status:** implemented in the `3.0.0` source tree; not yet published or model-measured.
+**Status:** shipped in `3.0.0`, released and tagged 2026-08-20; **not model-measured** — v3
+publishes no skill-harness score of its own, and the committed board is the historical v2.4
+baseline. See [validation/VALIDATION.md](validation/VALIDATION.md).
 `standard` remains the default Option B workflow. `critical` selects Option C controls inside
 the same seven-skill suite.
 

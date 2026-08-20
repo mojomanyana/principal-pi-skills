@@ -15,6 +15,13 @@ skill-harness or live E2E run was authorized**.
 Therefore v3 currently publishes no model score. The board below is explicitly the historical
 v2.4 baseline; it must not be attached to the v3 prompt digests.
 
+`3.0.0` was released, tagged and published on 2026-08-20 with that gap open and stated, not
+closed: the free gate (generated-contract parity, state-machine/schema transitions, install and
+packed-artifact behavior, worktree isolation, word budgets, skill-harness lint) is green, and
+every v2.4 cell is exempt-stale against the v3 text rather than re-measured. Anyone who needs a
+measured number for the v3 prompts must run the wave below; until then the honest statement about
+v3 is *specified and statically verified*, not *measured*.
+
 A future measured wave is:
 
 ```bash

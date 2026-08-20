@@ -1,15 +1,18 @@
 # Handoff 1 — v3 risk-adaptive assurance
 
-**Status:** implementation-complete / static-only; **not release-ready**
-**Updated:** 2026-08-19
-**Source manifest:** `3.0.0` (unpublished)
-**Published npm latest verified during discovery:** `2.4.0`
-**Branch:** `feat/v3-risk-adaptive-assurance`
+**Status:** released as `3.0.0`; **statically verified, not model-measured**
+**Updated:** 2026-08-20
+**Source manifest:** `3.0.0` (tagged `v3.0.0`, published to npm 2026-08-20)
+**Previous published release:** `2.4.0` (npm 2026-08-16; its git tag was backfilled 2026-08-20)
+**Branch:** merged to `main` via [PR #31](https://github.com/mojomanyana/principal-pi-skills/pull/31)
 **Base SHA:** `4dece8ca35648725234c7dc2eadead95cd084b07`
 
-This handoff is open as [PR #31](https://github.com/mojomanyana/principal-pi-skills/pull/31).
-It is not merged, tagged, published, or installed from an unpublished v3 tag. Paid skill-harness
-subjects/judges and live workflow E2E cells remain intentionally unrun pending separate authorization.
+PR #31 merged on 2026-08-19 (`b28a8d5`, CI green) and `3.0.0` was tagged and published on
+2026-08-20 with its evidence gap open and stated rather than closed. Paid skill-harness
+subjects/judges and the live workflow E2E cells are still unrun; they remain authorized-later
+work, and nothing in this repository may present the v2.4 board as v3 evidence. Sections 2–7
+below are the durable cross-repository contract and stay valid as written; sections 8–11 carry
+the release state.
 
 ## 1. State of the implementation
 
@@ -593,17 +596,23 @@ check, scoped dependency completion gate, and precise hash/workspace limitations
 
 ## 8. Version/package consistency
 
-- `package.json`: `3.0.0`; includes the assurance CLI bin and `schemas/*.json`; unpublished.
-- `package-lock.json`: root/package version `3.0.0`; unpublished.
-- `CHANGELOG.md`: `[3.0.0] — Unreleased`; v2.4 history retained.
-- `README.md`: install command remains immutable `@v2.4.0`, explicitly says npm latest is `2.4.0`
-  and source manifest is unpublished/untagged `3.0.0`; future `@v3.0.0` is not presented as
-  currently installable.
-- Clean-install examples using unversioned `npx -p principal-pi-skills` therefore still resolve the
-  published 2.4.0 until release; source/packed tests explicitly test the local v3 tarball.
+- `package.json`: `3.0.0`; includes the assurance CLI bin and `schemas/*.json`; published.
+- `package-lock.json`: root/package version `3.0.0`.
+- `CHANGELOG.md`: `[3.0.0] — 2026-08-20`; v2.4 history retained.
+- `README.md` and `AGENTS.md`: install command is immutable `@v3.0.0`, states that `3.0.0` is the
+  current published release and that `standard` keeps v2 invocation working, and links validation
+  before use because v3 carries no model score.
+- Clean-install examples using unversioned `npx -p principal-pi-skills` now resolve `3.0.0`;
+  source/packed tests continue to test the local tarball rather than the registry.
 - Pack allowlist requires all runtime skills/prompts/agents, assurance CLI/workspace installer, and
   all three schemas; lockfile/tests/docs/contracts remain excluded as intended.
-- This handoff uses “source 3.0.0 (unpublished)” versus “published 2.4.0” consistently.
+- Tags: `v2.1.0`, `v2.2.0`, `v2.3.0`, `v2.3.1`, `v2.4.0` (backfilled at `4dece8c`), `v3.0.0`.
+  2.4.0 shipped to npm without a git tag, which left the install command every doc printed
+  resolving to nothing for four days — the same class of defect as 2.3.1's 404'ing npx
+  invocations, and the reason the release procedure now tags before publishing.
+- `ajv`/`ajv-formats` are the repository's first devDependencies (Draft 2020-12 schema parity in
+  `tests/unit/assurance-state.test.mjs`). Runtime install stays dependency-free; a checkout with no
+  `node_modules` now fails `npm test` on a missing module until `npm ci` runs.
 
 ## 9. Free/offline validation and paid-run plan
 
@@ -620,7 +629,8 @@ npm test
   free skill lint: 7 skills, 101 expected stale findings, 101 exempt, 0 blocking
 
 bash tests/e2e/run-e2e.sh --self-test
-  exit 0; 10 synthetic delegation/final-digest assertions passed, 0 failed; no model calls
+  exit 0; 14 synthetic delegation/final-digest assertions passed, 0 failed; no model calls
+  (10 at first authoring; the CI-dependency commit 961f8cc added four)
 
 bash -n tests/e2e/run-e2e.sh
   exit 0
@@ -640,6 +650,13 @@ Evidence-loop corrections retained in history of this session:
 ```
 
 No paid skill-harness subject/judge or live workflow cell is part of Handoff 1.
+
+Re-verified on `main` at release time (2026-08-20), after `npm ci` on a checkout that had no
+`node_modules`: `npm test` exit 0 — 13 generated contracts matched, 141/141 unit, 10 files within
+word budget, 25/25 clean-home install, packed artifact 28 files / 350 kB unpacked (348 kB before
+this release's documentation edits, which ship in the tarball), all 28 required present and
+nothing excluded leaked, lint 101 findings / 101 exempt / **0 blocking**;
+`bash tests/e2e/run-e2e.sh --self-test` exit 0, 14 passed; `git diff --check` exit 0.
 
 ### Authorized-later skill-harness commands
 
@@ -695,9 +712,9 @@ Required environment:
 - no secret values copied into this repository. The E2E harness copies credentials only into its
   throwaway HOME and removes it.
 
-## 10. Current PR candidate evidence
+## 10. Release candidate evidence (PR #31, merged `b28a8d5`)
 
-Exact base:
+Kept as the record of what was reviewed and merged. Exact base:
 
 ```text
 4dece8ca35648725234c7dc2eadead95cd084b07
@@ -842,15 +859,20 @@ tests/unit/snapshot-workspace.test.mjs
 
 ## 11. Handoff verdict
 
-- **STATIC READY** — deterministic/static checks are green; this is not a release verdict.
+- **RELEASED, STATICALLY VERIFIED** — `3.0.0` is tagged and published; deterministic/static checks
+  are green. This is not a measurement verdict and must never be quoted as one.
 - **READY FOR PI-DADDY INTEGRATION** — v1 protocol is specified; spawn-time CWD validation and
   governed-child lease coordination remain integration work, while raw-shell confinement requires
   an OS sandbox or constrained broker.
 - **READY FOR SKILL-HARNESS INTEGRATION** — static specs/fixtures lint; paid subjects/judges remain
   unauthorized.
-- **Before release:** pi-daddy runtime enforcement evidence, authorized model measurements, live
-  eight-cell E2E, optional live scoped/escalation/stale cells, version/tag decision, then publish/tag
-  as separate explicitly authorized operations.
+- **Still open after 3.0.0** — the release deliberately shipped ahead of these, and each is the
+  reason v3 quotes no score:
+  1. the authorized two-model skill-harness wave (§9) — 106 scenarios × 3 reps × 2 models;
+  2. the live eight-cell workflow E2E (§6, §9), plus the optional scoped/escalation/stale cells;
+  3. pi-daddy runtime enforcement evidence for the ceilings and the writer lease.
+  A `3.1.0`/`3.0.1` that lands measurements changes no contract — it replaces the exempt-stale
+  board with a real v3 one and rewrites the validation boundary in `docs/validation/VALIDATION.md`.
 
 ## Standing hazards
 
