@@ -98,7 +98,11 @@ decides, not on a 3-1 judge draw. `review`/GLM keeps S6 at 2/3 and its failing c
 The value here is that the number stopped being luck, and that a fabricated bug stopped being
 part of the record.
 
-## Why this is not merged
+## Why this was held back — and what happened since
+
+*(Both paragraphs below are the 2026-08-05 state. Resolution is recorded at the end of the
+section; the reasoning is kept as written.)*
+
 
 A checklist-only edit marks `review` stale against the kimi-k3 probe — the one `review` run
 recorded after `40c207c` added `scenario:` hashes — and `stale` fails CI on `main`. A re-grade
@@ -113,6 +117,16 @@ checklist — change it and transcripts stay valid, so a free re-grade fixes it)
 `stimulus:` and `rubric:`, with `grade` refreshing the rubric half, and a grading correction costs
 judgments instead of model spend. As it stands the gate charges a re-run for fixing a rubric,
 which is pressure to leave known-ambiguous rubrics in place.
+
+**Resolved.** The rubric edit landed in `452ec05`, the same commit that added this record — so
+the heading above described a branch that was merged as it was written, and it stayed misleading
+until the 3.0.0 release pass. Upstream then made the split this section asked for: every committed
+`results.yaml` now carries `stimulus:<ID>` and `rubric:<ID>` hashes separately, and the lint
+distinguishes a changed stimulus (needs a re-run) from a changed skill body — visible in messages
+like *"the stimulus for `D1` changed since the newest … run"*. A grading correction no longer
+costs model spend. Since 3.0.0 every `review` cell is exempt-stale against the v3 contract text
+anyway, so the specific staleness this section waited on is subsumed by the release-wide
+measurement gap in [`../validation/VALIDATION.md`](../validation/VALIDATION.md).
 
 ## Reproduce
 
