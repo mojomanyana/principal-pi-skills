@@ -62,6 +62,18 @@ arms:
       # is `childDepth > maxDepth`. There is NO OS sandbox either — core's
       # SandboxBackend seam is fake-backed — so this bounds the intended path; it
       # is not containment, and no report may claim otherwise.
+      # Force the captured-subprocess executor. MEASURED 2026-08-22: absent, this
+      # variable is three-state and means PROBE (pi-daddy `src/executor.ts`), so a
+      # machine with `herdr` on PATH silently gets pane-based execution — and a pane
+      # needs an INTERACTIVE plan, because `--print` makes pi process the prompt and
+      # exit before it reaches the readiness `herdr agent start` waits for. The
+      # harness runs `pi -p`. Wave 0 hit exactly this: the ledger recorded
+      # `capability_decision` for principal-review and `child_lifecycle: starting`,
+      # then nothing, and the harness's 300s adapter timeout fired to the second.
+      # With `0` the same delegation records `starting` AND `completed`, and the
+      # parent gets the child's answer back. `0`'s own disclosure is "children have
+      # no terminal", which is precisely a headless measurement run.
+      PI_GRANTS_HERDR: "0"
       PI_GRANTS_MAX_DEPTH: "1"
       # Per-run ledger. This is the arm's DELIVERY PROOF: zero spawn events means
       # the model never delegated, and "pi-daddy changed nothing" would be
