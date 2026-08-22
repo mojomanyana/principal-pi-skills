@@ -20,12 +20,52 @@ arms:
       - agents
     require_definitions: 6
     env:
-      # Narrow root ceiling. There is NO OS sandbox — core's SandboxBackend seam is
-      # fake-backed — so this bounds the intended path; it is not containment, and
-      # no report may claim otherwise.
-      PI_GRANTS_GRANT: "tool:read,tool:grep,tool:find,tool:ls"
+      # The root's own grant, and it must satisfy THREE separate requirements —
+      # each of which, unmet, produces an arm that runs green having measured
+      # nothing. `require_definitions` above cannot catch any of them: it counts
+      # definition files COPIED, not definitions reachable.
+      #
+      #  1. `tool:delegate` is what registers the delegation tools at all. Setting
+      #     this variable makes the session governed, and a governed session
+      #     without it registers no spawn tool and is a leaf — pi-daddy would load
+      #     and the model still could only narrate delegating, i.e. the control
+      #     with extra steps and an empty ledger.
+      #  2. An `agent:` capability per definition. `maySpawnDefinition` authorises
+      #     a spawn only via `agent:<name>`, `agent:*` or `tool:*`; with none of
+      #     them all six seeded definitions are unspawnable and the model is told
+      #     `Available: none`. Enumerated rather than `agent:*` so that adding a
+      #     seventh definition has to change this arm explicitly instead of
+      #     silently widening it.
+      #  3. A superset of every seeded definition's declared ceiling. An `agent:`
+      #     spawn requests the definition's WHOLE ceiling, and anything the root
+      #     does not hold is a hard CAPABILITY_ESCALATION refusal — not a
+      #     narrowing. `agents/{debug,principal-debug,review,principal-review}.md`
+      #     declare `bash`, so a root without `tool:bash` can spawn only the two
+      #     plan definitions and the other four refuse.
+      #
+      # Children are leaves twice over: no definition's ceiling names `delegate`,
+      # and PI_GRANTS_MAX_DEPTH below bounds depth anyway.
+      PI_GRANTS_GRANT: "agent:debug,agent:plan,agent:principal-debug,agent:principal-plan,agent:principal-review,agent:review,tool:delegate,tool:read,tool:grep,tool:find,tool:ls,tool:bash"
+      # Gate off, EXPLICITLY empty — absent means the default, which gates
+      # `tool:bash`. The harness runs pi non-interactively (`-p`), so a gated
+      # bash-carrying spawn hits GATED_UNAPPROVED with no human to ask and the
+      # four bash definitions refuse regardless of the grant above.
+      #
+      # What this costs, stated plainly because a report would otherwise overclaim:
+      # a child holding bash can run `env -u PI_GRANTS_GRANT pi …` and obtain an
+      # UNGOVERNED descendant (measured — pi-daddy docs/probes/g5-bash-escape).
+      # Together with the absent OS sandbox noted below, what this arm measures is
+      # governance as PROVISIONING, DEPTH-BOUNDING and RECORDING. It is not
+      # containment, and no report may claim it held a boundary.
+      PI_GRANTS_GATED: ""
+      # Exactly one level of children: `childDepth = depth + 1 = 1`, and the check
+      # is `childDepth > maxDepth`. There is NO OS sandbox either — core's
+      # SandboxBackend seam is fake-backed — so this bounds the intended path; it
+      # is not containment, and no report may claim otherwise.
       PI_GRANTS_MAX_DEPTH: "1"
       # Per-run ledger. This is the arm's DELIVERY PROOF: zero spawn events means
       # the model never delegated, and "pi-daddy changed nothing" would be
-      # indistinguishable from "pi-daddy was never used".
+      # indistinguishable from "pi-daddy was never used". The converse does NOT
+      # hold — the ledger also records refusals, leases and lifecycle events, so a
+      # non-zero count is not by itself evidence that anything was spawned.
       PI_GRANTS_LEDGER: "<run-dir>/pi-daddy.ledger.jsonl"
