@@ -1,0 +1,31 @@
+# Measurement arms. Deliberately NOT part of any spec digest: an arm is meant to
+# be A/B'd, so control and treatment must be the same experiment run twice. The
+# arm is carried in the run-dir tag instead, which `lint` and `stability` key on.
+#
+# The implicit `none` arm is the control — no extension, no seeded definitions,
+# byte-identical to a run from before arms existed.
+arms:
+  # Governed delegation. NOTE this arm changes TWO things at once versus the
+  # control: a spawn tool exists at all (no spec here declares env.extensions, so
+  # every committed run had none and could only narrate delegating), and spawning
+  # is governed. Report it as "governed delegation vs no delegation", never as
+  # "governance changed behaviour".
+  - name: pi-daddy
+    extensions:
+      - ~/prepos/pi-daddy/packages/pi-daddy/extensions/grants.ts
+    # pi-daddy resolves definitions by path from <cwd>/.pi/skills, and the harness
+    # runs pi in a neutral temp workspace — so without seeding it has nothing to
+    # spawn and the arm would measure nothing while looking green.
+    seed_skills:
+      - agents
+    require_definitions: 6
+    env:
+      # Narrow root ceiling. There is NO OS sandbox — core's SandboxBackend seam is
+      # fake-backed — so this bounds the intended path; it is not containment, and
+      # no report may claim otherwise.
+      PI_GRANTS_GRANT: "tool:read,tool:grep,tool:find,tool:ls"
+      PI_GRANTS_MAX_DEPTH: "1"
+      # Per-run ledger. This is the arm's DELIVERY PROOF: zero spawn events means
+      # the model never delegated, and "pi-daddy changed nothing" would be
+      # indistinguishable from "pi-daddy was never used".
+      PI_GRANTS_LEDGER: "<run-dir>/pi-daddy.ledger.jsonl"
