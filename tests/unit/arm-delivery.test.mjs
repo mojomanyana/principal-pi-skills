@@ -51,6 +51,7 @@ export function armRecord(text) {
   if (start === -1) return null;
 
   const out = {};
+  const env = {};
   for (let i = start + 1; i < lines.length; i++) {
     const line = lines[i];
     if (line.trim() === "") continue;
@@ -59,7 +60,16 @@ export function armRecord(text) {
     // Only the arm's own fields, at exactly one level of nesting. `env:` sits
     // here too and its children at four spaces; without this they would be read
     // as arm fields, and a grant containing the text `definitions:` would set one.
-    if (line.startsWith("    ")) continue;
+    if (line.startsWith("    ")) {
+      // ...except the `env:` children, which are the only 4-space lines worth
+      // reading: `PI_GRANTS_HERDR` is how a zero ledger is distinguished from a
+      // broken one (see the guard below). Anchored at EXACTLY four spaces and to
+      // an UPPER_SNAKE key, so neither `extensions:`' `- /path` items nor the
+      // folded grant's 6-space continuation lines can be mistaken for env keys.
+      const e = /^ {4}([A-Z][A-Z0-9_]*):\s*(.*)$/.exec(line);
+      if (e) env[e[1]] = e[2];
+      continue;
+    }
     const m = /^ {2}([a-z_]+):\s*(.*)$/.exec(line);
     if (m) out[m[1]] = m[2];
   }
@@ -77,7 +87,44 @@ export function armRecord(text) {
     }
     return n;
   };
-  return { name: out.name, ledgerEvents: numeric("ledger_events"), definitions: numeric("definitions") };
+  return { name: out.name, ledgerEvents: numeric("ledger_events"), definitions: numeric("definitions"), env };
+}
+
+/**
+ * Why this committed arm run proves nothing, or null if it proves something.
+ *
+ * `definitions === 0` is vacuous unconditionally: nothing was seeded, so there was
+ * never anything to spawn.
+ *
+ * `ledgerEvents === 0` is the harder case, because it means two different things
+ * and the count alone cannot separate them:
+ *
+ *   (a) the arm loaded and delegation was IMPOSSIBLE — the failure this guard was
+ *       written for. Wave 0's first arm run is the specimen: absent
+ *       `PI_GRANTS_HERDR` means PROBE, so a machine with `herdr` on `PATH` got
+ *       pane-based execution, and a pane cannot work behind `pi -p` because
+ *       `--print` exits before the readiness `herdr agent start` waits for. That
+ *       ledger read `starting` and stopped.
+ *   (b) the arm loaded, delegation WORKED, and the model declined to use it. That
+ *       is a finding rather than a broken run — and on `review` it is *the*
+ *       finding: governance is pure cost because nothing ever delegates.
+ *
+ * The only discriminator in the record today is whether the operator PINNED the
+ * executor instead of letting pi-daddy probe for one. This comment should not
+ * pretend that is proof: a pinned executor is not a demonstration that delegation
+ * succeeded. The honest fix is an arm canary — one probe per run proving the
+ * delegation tool reached the model, recorded the way `--canary` records
+ * `delivery_canary`. Until that exists this is the narrowest rule that admits (b)
+ * while still catching (a), and it is deliberately keyed on recorded evidence
+ * rather than on a run label, because a label is a promise and a field is a fact.
+ */
+export function vacuityReason(record) {
+  const seen = `arm \`${record.name}\` recorded definitions=${record.definitions} ledger_events=${record.ledgerEvents}`;
+  if (record.definitions === 0) return `${seen} — nothing was seeded, so nothing could be spawned`;
+  if (record.ledgerEvents === 0 && record.env.PI_GRANTS_HERDR === undefined) {
+    return `${seen} and did not pin PI_GRANTS_HERDR, so pi-daddy probed for an executor — a probed herdr pane cannot complete behind \`pi -p\``;
+  }
+  return null;
 }
 
 test("every committed arm run recorded delegation actually happening", () => {
@@ -102,9 +149,8 @@ test("every committed arm run recorded delegation actually happening", () => {
     const record = armRecord(readFileSync(join(ROOT, rel), "utf8"));
     if (record === null) continue; // control run: nothing to deliver
     armRuns++;
-    if (record.ledgerEvents === 0 || record.definitions === 0) {
-      vacuous.push(`${rel}: arm \`${record.name}\` recorded definitions=${record.definitions} ledger_events=${record.ledgerEvents}`);
-    }
+    const why = vacuityReason(record);
+    if (why !== null) vacuous.push(`${rel}: ${why}`);
   }
 
   assert.deepEqual(
@@ -131,12 +177,12 @@ test("the sweep detects the vacuity it exists to catch", () => {
 
   assert.deepEqual(
     armRecord(withArm("  name: pi-daddy\n  definitions: 6\n  ledger_events: 0\n")),
-    { name: "pi-daddy", ledgerEvents: 0, definitions: 6 },
+    { name: "pi-daddy", ledgerEvents: 0, definitions: 6, env: {} },
     "a zero ledger must be read as zero, not skipped",
   );
   assert.deepEqual(
     armRecord(withArm("  name: pi-daddy\n  definitions: 6\n  ledger_events: 14\n")),
-    { name: "pi-daddy", ledgerEvents: 14, definitions: 6 },
+    { name: "pi-daddy", ledgerEvents: 14, definitions: 6, env: {} },
   );
   assert.equal(armRecord("schema: 2\nskill: debug\nscenarios:\n  - id: A1\n"), null, "a control run has no arm block");
 
@@ -159,7 +205,38 @@ test("the sweep detects the vacuity it exists to catch", () => {
         '    PI_GRANTS_GRANT: "agent:debug,tool:delegate"\n    ledger_events: 0\n    definitions: 0\n',
     ),
   );
-  assert.deepEqual(nested, { name: "pi-daddy", ledgerEvents: 14, definitions: 6 }, "env children leaked into the arm record");
+  assert.deepEqual(
+    nested,
+    { name: "pi-daddy", ledgerEvents: 14, definitions: 6, env: { PI_GRANTS_GRANT: '"agent:debug,tool:delegate"' } },
+    "env children leaked into the arm record",
+  );
+
+  // The new rule's failure path, in both directions. A pinned executor must ADMIT a
+  // zero ledger (that is the `review` finding: delegation worked and went unused),
+  // and an unpinned one must still CATCH it (that is Wave 0's hung arm).
+  const rec = (extra) =>
+    armRecord(withArm("  name: pi-daddy\n  definitions: 6\n  ledger_events: 0\n" + extra));
+
+  assert.equal(
+    vacuityReason(rec("  env:\n    PI_GRANTS_HERDR: '0'\n")),
+    null,
+    "a zero ledger with the executor pinned is a finding, not a vacuous run — this is what admits it",
+  );
+  assert.match(
+    vacuityReason(rec("  env:\n    PI_GRANTS_GRANT: 'tool:delegate'\n")) ?? "",
+    /did not pin PI_GRANTS_HERDR/,
+    "a zero ledger with env present but no executor pin must still be caught",
+  );
+  assert.match(
+    vacuityReason(rec("")) ?? "",
+    /did not pin PI_GRANTS_HERDR/,
+    "a zero ledger with no env at all must still be caught",
+  );
+  assert.match(
+    vacuityReason(armRecord(withArm("  name: pi-daddy\n  definitions: 0\n  ledger_events: 9\n  env:\n    PI_GRANTS_HERDR: '0'\n"))) ?? "",
+    /nothing was seeded/,
+    "definitions=0 stays vacuous however the executor was chosen",
+  );
 
   // The block must end at column 0, not run on into the rest of the document.
   const bounded = armRecord("arm:\n  name: pi-daddy\n  definitions: 6\n  ledger_events: 14\nledger_events: 0\n");
