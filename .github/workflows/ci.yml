@@ -25,6 +25,9 @@ jobs:
       # failure this repo can least afford to discover through a green check. The trailing
       # comment records which release the SHA was, so a bump is reviewable.
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+        with:
+          # Version-boundary tests compare shipped bytes to the immutable 3.0.0 base.
+          fetch-depth: 0
 
       # The harness itself tracks its moving `latest` release tag (user decision
       # 2026-08-06: track it everywhere — CI, npx, and docs alike). That is deliberate and

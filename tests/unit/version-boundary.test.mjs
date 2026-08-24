@@ -28,6 +28,16 @@ test("source is 3.0.1 Unreleased while npm latest and install guidance remain 3.
   assert.match(read("README.md"), /npm [`]?latest[`]?[^\n]*3\.0\.0|3\.0\.0[^\n]*npm [`]?latest[`]?/i);
 });
 
+test("CI fetches the immutable base history required by version-boundary gates", () => {
+  const workflow = read(".github/workflows/ci.yml");
+  const checkout = "actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09";
+  const rootCheckout = workflow.indexOf(checkout);
+  const harnessCheckout = workflow.indexOf(checkout, rootCheckout + checkout.length);
+  assert.ok(rootCheckout >= 0 && harnessCheckout > rootCheckout, "root and harness checkout steps must both remain pinned");
+  assert.match(workflow.slice(rootCheckout, harnessCheckout), /with:\n(?:\s+#.*\n)*\s+fetch-depth: 0(?:\n|$)/, "root checkout must contain the immutable comparison base");
+  assert.match(workflow.slice(harnessCheckout), /repository: mojomanyana\/skill-harness[\s\S]*ref: latest[\s\S]*path: \.skill-harness/, "harness checkout remains independently configured");
+});
+
 test("all tracked authoritative source-version statements reject a current-source 3.0.0 claim", () => {
   const paths = execFileSync("git", ["ls-files", "*.md", "package.json", "package-lock.json"], { cwd: ROOT, encoding: "utf8" }).trim().split("\n").filter(Boolean);
   const contradictions = [];
