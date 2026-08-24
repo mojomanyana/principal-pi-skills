@@ -107,6 +107,7 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   });
 
   const installed = join(proj, "node_modules", "principal-pi-skills");
+  assert.equal(JSON.parse(readFileSync(join(installed, "package.json"), "utf8")).version, "3.0.1", "clean install must use the unreleased source pack");
   assert.ok(existsSync(join(installed, "git-ops", "SKILL.md")), "skills must survive the install");
   assert.ok(existsSync(join(installed, "prompts", "principal-feature.md")));
 

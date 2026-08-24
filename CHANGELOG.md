@@ -6,6 +6,31 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [3.0.1] — Unreleased
+
+**Fixed — fail-closed measurement classification.** A closed machine-readable manifest now
+classifies all 205 committed `results.yaml` files exactly once and binds each entry to its
+raw SHA-256. The Terra-high control, unpinned-executor infrastructure failure, and
+subprocess-pinned delivery-unproven run are explicitly excluded from efficacy, stability,
+release, and v3 scoring. Historical result payloads are unchanged.
+
+**Added — external per-observation attestation verification.** A development-only verifier
+accepts canonical Ed25519 attestations only from explicitly configured operator-trusted
+production keys. A closed arm policy and canonical strict future-result contract bind one
+accepted attempt to one result/scenario/repetition; complete trust stores are eagerly checked,
+and an in-memory validation-session registry atomically rejects replay across all evidence sets.
+Missing, extra, stale, future, replayed, mismatched, refusal-only, incomplete, capability-only,
+or invalidly signed evidence fails closed. Durable operational replay prevention remains the
+external producer/controller's responsibility. No private production key is stored here. The external producer
+remains responsible for signing-key protection, ledger authenticity, runtime identity,
+loaded-definition and artifact/module confinement, process-tree containment, and any OS
+sandbox.
+
+**Changed — source metadata only.** Source is `3.0.1 — Unreleased`; npm `latest` and install
+guidance remain published `3.0.0`. Shipped runtime schemas, scripts, skills, agents, and
+prompts are byte-identical to `3.0.0`. No 3.0.1 model score, publication, tag, or release is
+claimed.
+
 ## [3.0.0] — 2026-08-20
 
 **Added — risk-adaptive assurance profiles on the two existing workflow spines.** `standard`

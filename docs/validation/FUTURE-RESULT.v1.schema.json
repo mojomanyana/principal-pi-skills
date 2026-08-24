@@ -1,0 +1,82 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mojomanyana/principal-pi-skills/docs/validation/FUTURE-RESULT.v1.schema.json",
+  "title": "Strict future treatment result v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version", "result_id", "arm_id", "arm_definition_sha256", "producer_repository",
+    "producer_commit", "producer_tree", "producer_artifact_sha256", "executor_identity",
+    "run_id", "task_id", "workspace_id", "context_id", "scenarios"
+  ],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "result_id": { "$ref": "#/$defs/id" },
+    "arm_id": { "$ref": "#/$defs/id" },
+    "arm_definition_sha256": { "$ref": "#/$defs/sha256" },
+    "producer_repository": { "type": "string", "format": "uri", "pattern": "^https://" },
+    "producer_commit": { "$ref": "#/$defs/gitOid" },
+    "producer_tree": { "$ref": "#/$defs/gitOid" },
+    "producer_artifact_sha256": { "$ref": "#/$defs/sha256" },
+    "executor_identity": { "$ref": "#/$defs/id" },
+    "run_id": { "$ref": "#/$defs/id" },
+    "task_id": { "$ref": "#/$defs/id" },
+    "workspace_id": { "$ref": "#/$defs/id" },
+    "context_id": { "oneOf": [{ "$ref": "#/$defs/id" }, { "type": "null" }] },
+    "scenarios": {
+      "type": "array", "minItems": 1,
+      "items": {
+        "type": "object", "additionalProperties": false,
+        "required": ["scenario_id", "repetitions"],
+        "properties": {
+          "scenario_id": { "$ref": "#/$defs/id" },
+          "repetitions": {
+            "type": "array", "minItems": 1,
+            "items": {
+              "type": "object", "additionalProperties": false,
+              "required": ["repetition_index", "attempts"],
+              "properties": {
+                "repetition_index": { "type": "integer", "minimum": 0 },
+                "attempts": {
+                  "type": "array", "minItems": 1,
+                  "items": {
+                    "type": "object", "additionalProperties": false,
+                    "required": ["attempt_id", "attempt_index", "accepted", "status", "ledger_sha256", "behavioral_receipt_sha256", "behavioral_evidence_types", "lifecycle"],
+                    "properties": {
+                      "attempt_id": { "$ref": "#/$defs/id" },
+                      "attempt_index": { "type": "integer", "minimum": 0 },
+                      "accepted": { "type": "boolean" },
+                      "status": { "enum": ["completed", "failed", "refused"] },
+                      "ledger_sha256": { "$ref": "#/$defs/sha256" },
+                      "behavioral_receipt_sha256": {
+                        "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/sha256" }
+                      },
+                      "behavioral_evidence_types": {
+                        "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["delegation-completed"] }
+                      },
+                      "lifecycle": {
+                        "type": "object", "additionalProperties": false,
+                        "required": ["status", "successful_delegation", "completed_children", "refusal_only"],
+                        "properties": {
+                          "status": { "enum": ["completed", "failed", "refused"] },
+                          "successful_delegation": { "type": "boolean" },
+                          "completed_children": { "type": "integer", "minimum": 0 },
+                          "refusal_only": { "type": "boolean" }
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "gitOid": { "type": "string", "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$" },
+    "id": { "type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+-]*$" }
+  }
+}

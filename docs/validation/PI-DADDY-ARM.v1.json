@@ -1,0 +1,51 @@
+{
+  "schema_version": 1,
+  "arm_id": "pi-daddy-subprocess-c364a6717e3d-pd0.19.0",
+  "status": "experimental",
+  "measurement_eligible": false,
+  "eligibility_reason": "No operator-approved external attestation producer and production signing key are configured.",
+  "executor": {
+    "kind": "subprocess",
+    "identity": "subprocess:pi-daddy-0.19.0"
+  },
+  "producer": {
+    "repository": "https://github.com/mojomanyana/pi-daddy",
+    "commit": "c364a6717e3d5e369ecd3298b9cbb595eb94d9b2",
+    "tree": "2d957aed183c2bc839a4f49301f2e8e86f4552e3",
+    "artifact_sha256": "c261877f9f6e1b13db8249e1d4e233cae9094efc07602e80c28555168cdc9b16"
+  },
+  "pi_daddy": {
+    "package_version": "0.19.0",
+    "package_sha256": "c261877f9f6e1b13db8249e1d4e233cae9094efc07602e80c28555168cdc9b16",
+    "package_tree_sha256": "cb54db1b4963c64762ac58b4e6b86d9a062c1204562de8eaac91aac689c00af8",
+    "extension_sha256": "3b89312befe5bb7e83136b32d83820db94dbcda0754fdd82482a319790fa02a2"
+  },
+  "result_contract": {
+    "schema_version": 1,
+    "schema_path": "docs/validation/FUTURE-RESULT.v1.schema.json",
+    "encoding": "principal-canonical-json-v1"
+  },
+  "attestation_contract": {
+    "schema_version": 1,
+    "schema_path": "docs/validation/EXTERNAL-ATTESTATION.v1.schema.json",
+    "signature_algorithm": "Ed25519"
+  },
+  "accepted_attempt": {
+    "required": true,
+    "cardinality": "exactly-one-per-observation",
+    "index_origin": 0,
+    "required_status": "completed"
+  },
+  "freshness_policy": {
+    "max_attestation_age_ms": 3600000,
+    "max_completion_to_attestation_ms": 300000
+  },
+  "behavioral_evidence": {
+    "required_types": [
+      "delegation-completed"
+    ],
+    "minimum_receipts": 1
+  },
+  "signing_keys": [],
+  "canonical_definition_sha256": "808c4c9244c770b7896f32cc5e7618c03b3868e3cc50422c47517496dd9985db"
+}

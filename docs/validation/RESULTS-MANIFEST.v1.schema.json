@@ -1,0 +1,118 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mojomanyana/principal-pi-skills/docs/validation/RESULTS-MANIFEST.v1.schema.json",
+  "title": "Explicit committed-result classification manifest v1",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "classifications", "arm_policies", "results"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "classifications": {
+      "const": ["control", "historical-baseline", "valid-treatment", "invalid-infrastructure", "delivery-unproven", "probe", "excluded"]
+    },
+    "arm_policies": {
+      "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/relativePath" }
+    },
+    "results": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["path", "result_file_sha256", "classification", "evidence_basis", "participates", "reason"],
+        "properties": {
+          "path": { "$ref": "#/$defs/relativePath" },
+          "result_file_sha256": { "$ref": "#/$defs/sha256" },
+          "classification": { "enum": ["control", "historical-baseline", "valid-treatment", "invalid-infrastructure", "delivery-unproven", "probe", "excluded"] },
+          "evidence_basis": { "enum": ["historical-control", "historical-treatment", "external-attestation-v1", "invalid-infrastructure", "delivery-unproven", "historical-probe", "excluded"] },
+          "participates": {
+            "type": "object", "additionalProperties": false,
+            "required": ["efficacy", "stability", "release_claims"],
+            "properties": {
+              "efficacy": { "type": "boolean" },
+              "stability": { "type": "boolean" },
+              "release_claims": { "type": "boolean" }
+            }
+          },
+          "reason": { "type": "string", "minLength": 1 },
+          "arm_policy_path": { "$ref": "#/$defs/relativePath" },
+          "treatment_binding": { "$ref": "#/$defs/treatmentBinding" },
+          "attestation_paths": {
+            "type": "array", "minItems": 1, "uniqueItems": true, "items": { "$ref": "#/$defs/relativePath" }
+          }
+        },
+        "allOf": [
+          {
+            "if": { "properties": { "classification": { "const": "valid-treatment" } }, "required": ["classification"] },
+            "then": {
+              "required": ["arm_policy_path", "treatment_binding", "attestation_paths"],
+              "properties": { "evidence_basis": { "const": "external-attestation-v1" } }
+            },
+            "else": {
+              "not": { "anyOf": [{ "required": ["arm_policy_path"] }, { "required": ["treatment_binding"] }, { "required": ["attestation_paths"] }] }
+            }
+          }
+        ]
+      }
+    }
+  },
+  "$defs": {
+    "sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "gitOid": { "type": "string", "pattern": "^(?:[a-f0-9]{40}|[a-f0-9]{64})$" },
+    "id": { "type": "string", "minLength": 1, "maxLength": 256, "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/+-]*$" },
+    "timestamp": { "type": "string", "pattern": "^[0-9]{4}-[0-9]{2}-[0-9]{2}T[0-9]{2}:[0-9]{2}:[0-9]{2}\\.[0-9]{3}Z$" },
+    "relativePath": { "type": "string", "minLength": 1, "pattern": "^(?!/)(?!.*(?:^|/)\\.\\.(?:/|$))(?!.*\\\\).+$" },
+    "treatmentBinding": {
+      "type": "object", "additionalProperties": false,
+      "required": ["arm_id", "arm_schema_version", "arm_definition_sha256", "producer", "executor_identity", "signing_key", "result_schema_version", "accepted_attempt", "freshness_policy", "required_behavioral_evidence_types"],
+      "properties": {
+        "arm_id": { "$ref": "#/$defs/id" },
+        "arm_schema_version": { "const": 1 },
+        "arm_definition_sha256": { "$ref": "#/$defs/sha256" },
+        "producer": {
+          "type": "object", "additionalProperties": false,
+          "required": ["repository", "commit", "tree", "artifact_sha256"],
+          "properties": {
+            "repository": { "type": "string", "format": "uri", "pattern": "^https://" },
+            "commit": { "$ref": "#/$defs/gitOid" },
+            "tree": { "$ref": "#/$defs/gitOid" },
+            "artifact_sha256": { "$ref": "#/$defs/sha256" }
+          }
+        },
+        "executor_identity": { "$ref": "#/$defs/id" },
+        "signing_key": {
+          "type": "object", "additionalProperties": false,
+          "required": ["key_id", "fingerprint", "purpose", "active_from", "revoked_at"],
+          "properties": {
+            "key_id": { "$ref": "#/$defs/id" },
+            "fingerprint": { "$ref": "#/$defs/sha256" },
+            "purpose": { "enum": ["production", "test"] },
+            "active_from": { "$ref": "#/$defs/timestamp" },
+            "revoked_at": { "oneOf": [{ "$ref": "#/$defs/timestamp" }, { "type": "null" }] }
+          }
+        },
+        "result_schema_version": { "const": 1 },
+        "accepted_attempt": {
+          "type": "object", "additionalProperties": false,
+          "required": ["required", "cardinality", "index_origin", "required_status"],
+          "properties": {
+            "required": { "const": true },
+            "cardinality": { "const": "exactly-one-per-observation" },
+            "index_origin": { "const": 0 },
+            "required_status": { "const": "completed" }
+          }
+        },
+        "freshness_policy": {
+          "type": "object", "additionalProperties": false,
+          "required": ["max_attestation_age_ms", "max_completion_to_attestation_ms"],
+          "properties": {
+            "max_attestation_age_ms": { "type": "integer", "minimum": 1, "maximum": 3600000 },
+            "max_completion_to_attestation_ms": { "type": "integer", "minimum": 0, "maximum": 300000 }
+          }
+        },
+        "required_behavioral_evidence_types": {
+          "type": "array", "minItems": 1, "uniqueItems": true, "items": { "enum": ["delegation-completed"] }
+        }
+      }
+    }
+  }
+}
