@@ -5,6 +5,55 @@ a naked model, and what is still open. Every number here is a committed measurem
 that produced it is in [`RESULTS-MANIFEST.md`](RESULTS-MANIFEST.md), and per-judgment records
 are in [`../evidence/`](../evidence/).
 
+## Evidence eligibility and external trust boundary
+
+Current source is `3.0.1 — Unreleased`; published npm `latest` remains `3.0.0`. The
+machine-readable result manifest validates all 205 committed result bytes without needing Git
+history. Historical comparison is a separate optional audit and never substitutes for current
+hash/completeness validation.
+
+A treatment observation is eligible only when a canonical strict-JSON future-result v1 document,
+closed enabled arm policy, manifest binding, complete trust store, and closed v1 external
+attestation agree exactly. They bind result path/raw SHA-256 and result ID, scenario/repetition,
+accepted attempt ID/index, arm schema/definition, producer source/tree/artifact, executor,
+run/task/workspace/context, ledger and behavioral receipts, lifecycle, freshness, nonce, and
+arm-authorized signing key. Unknown fields, duplicate keys at any depth, YAML aliases/merges,
+multiple or trailing documents, skipped structures, and extra or missing attestations fail.
+Exactly one accepted observation maps to exactly one attestation. Within one complete validation
+session, future treatment identity is a bijection between result ID and canonical repository-relative
+result path plus raw SHA-256. Dot segments and redundant separators canonicalize before reservation;
+one path cannot acquire another digest or result ID, and one result ID cannot acquire another path or
+digest. These identity proposals join nonce, observation, and accepted-attempt proposals in the same
+check-all-before-commit transaction.
+
+Every trust entry is checked eagerly, including unused entries: key IDs and fingerprints are
+unique; PEM/SPKI is valid Ed25519; fingerprints are recomputed; purpose, activation and revocation
+metadata match the exact arm policy; and eligible policy keys and trusted keys form an exact
+bijection. Test keys cannot qualify production evidence. Verification collects replay proposals
+for every evidence set and commits attestation, nonce, observation, accepted-attempt, arm and
+signer bindings to one in-memory session registry only after the complete corpus passes. A failed
+late set commits nothing. A fresh session may deterministically revalidate the same corpus;
+durable cross-process replay prevention remains the external producer/controller's responsibility.
+
+This repository is the **consumer**, not the attestation producer. The external producer is
+responsible for protecting signing authority, authenticating ledger records, proving actual
+runtime and loaded definitions, artifact/module confinement, process-tree containment, and OS
+sandboxing where required. A valid signature proves only that the configured producer made the
+claim. principal-pi-skills does not install or execute the pi-daddy artifact, launch children,
+hold private keys, produce ledgers, or claim same-UID/OS isolation. Before result enumeration,
+every configured per-skill result root is resolved beneath the trusted validation root and every
+component from that root through the result root is `lstat`-checked: symlinks and non-directories are
+rejected even when a link resolves back inside the workspace, and real paths must remain confined.
+This is deterministic path confinement for validation, not a defense against malicious same-UID
+filesystem races; that requires an OS sandbox or equivalent external isolation.
+
+The future data-only pi-daddy identity binds commit `c364a6717e3d5e369ecd3298b9cbb595eb94d9b2`,
+package `0.19.0` / `c261877f…9b16`, extension `3b89312b…02a2`, and executor `subprocess`.
+It is experimental and measurement-ineligible until an approved external producer and production
+key exist. No currently committed pi-daddy result has a compatible attestation: valid-treatment
+count is **zero**. The Terra-high runs are exploratory and excluded from v3 scoring. The required
+DeepSeek/GLM wave and all live workflow cells remain unrun.
+
 ## v3 measurement status
 
 The v3 assurance implementation changes model-visible text in all seven skills, adds one `E1`

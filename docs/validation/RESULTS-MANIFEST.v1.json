@@ -1,0 +1,2477 @@
+{
+  "schema_version": 1,
+  "classifications": [
+    "control",
+    "historical-baseline",
+    "valid-treatment",
+    "invalid-infrastructure",
+    "delivery-unproven",
+    "probe",
+    "excluded"
+  ],
+  "arm_policies": [
+    "docs/validation/PI-DADDY-ARM.v1.json"
+  ],
+  "results": [
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T15-30-48-159Z/results.yaml",
+      "result_file_sha256": "9091fbd06f00d3b1e8053b6ef24c7c087802643356635f5be3b6f2917078c82e",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T23-01-01-595Z/results.yaml",
+      "result_file_sha256": "e4743020465ccab55bec4f51d84278e19f8e68691addabb7bc0a3b0399aba1d0",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T07-39-27-263Z/results.yaml",
+      "result_file_sha256": "2d981e698c7ab19abec59cb6c907b18b864eb86f88f91978120a411faa16371c",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T23-54-54-029Z/results.yaml",
+      "result_file_sha256": "51889449639e16354e116d22036481c042bb2d3e81580f93405b398026a01c57",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-04T18-38-23-847Z/results.yaml",
+      "result_file_sha256": "b604af17a103215c33801b9e379a31843c5921fb9a685fdb043d2137fe28fdbe",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T15-32-52-785Z/results.yaml",
+      "result_file_sha256": "735cb92746b200ad90b28734bc831e87c862349e0a1c753a6efd08821f11db6e",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-05T08-31-59-847Z/results.yaml",
+      "result_file_sha256": "bf3198506709e5886694c865e73e919fe35c223a0cd0d5c4f10efc23ec6ec5a2",
+      "classification": "invalid-infrastructure",
+      "evidence_basis": "invalid-infrastructure",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Pi 0.83 progressive-disclosure incident delivered a mostly naked model under a treatment label."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-05T08-49-24-985Z/results.yaml",
+      "result_file_sha256": "54b259a65ec5224a7e70df30a87b39c63deec861ca83126e862a862950e8ca07",
+      "classification": "invalid-infrastructure",
+      "evidence_basis": "invalid-infrastructure",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Pi 0.83 progressive-disclosure incident delivered a mostly naked model under a treatment label."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-05T12-32-29-360Z/results.yaml",
+      "result_file_sha256": "1a71e75c18bd14e5ee277e5e5038ca76bcf355d0f88dc575fe4229c0486f12b2",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-06T10-13-06-589Z/results.yaml",
+      "result_file_sha256": "63f7e5b3aa55e7b6d50a0250fce2e1e49eefe729777e0842e7c2bc4eaf5cf4aa",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T23-08-52-574Z/results.yaml",
+      "result_file_sha256": "83fc4b01dca83fc6ec8326d3abfafbd5e474d81a3801a461bade87830002f4fc",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-02T23-55-46-093Z/results.yaml",
+      "result_file_sha256": "27dd476b0a97ff503f79e0543837a7eeb84561ed7bb05227fa7b3ebe6efdc844",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T08-34-25-073Z/results.yaml",
+      "result_file_sha256": "f6c90985393c4df01d9371a23fc21bfb7d775bc7a16988bad547b4e75298decf",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-04T23-57-13-285Z/results.yaml",
+      "result_file_sha256": "298f151a8088ff9d04104cc70614f53a8813c34a5c38fab98abdef45a3aa5b5c",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T08-55-00-434Z/results.yaml",
+      "result_file_sha256": "17ead9cc60718e8531f4ba4eba97d50b76ecee3889522c1629a3d99f8df94456",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-05T08-25-19-214Z/results.yaml",
+      "result_file_sha256": "6b1c9da2ac2fc7447ae790b359b7e54b80a630072fb25a48e533dba1f357708a",
+      "classification": "invalid-infrastructure",
+      "evidence_basis": "invalid-infrastructure",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Pi 0.83 progressive-disclosure incident delivered a mostly naked model under a treatment label."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-05T08-52-54-785Z/results.yaml",
+      "result_file_sha256": "d1f92de618b9d2eb9025c4dcd1d5076e2ce58d61af257bb7c33cdbe724948805",
+      "classification": "invalid-infrastructure",
+      "evidence_basis": "invalid-infrastructure",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Pi 0.83 progressive-disclosure incident delivered a mostly naked model under a treatment label."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-05T12-53-24-222Z/results.yaml",
+      "result_file_sha256": "e83f11f57491abc3289ea5a6ddb0f59625399e7a14ed3b5ff8db260d78edd851",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-06T10-39-57-928Z/results.yaml",
+      "result_file_sha256": "2b874e200c9dd355b7fa9270de978028b3f5ad89c7945ee5c883b20c6b8a7049",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-08T23-28-27-180Z/results.yaml",
+      "result_file_sha256": "d490fda36ed20157dc2c3d1c41bafbc4955c7b54f293dba9a3406ee9f6b28f06",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-04T18-15-15-040Z/results.yaml",
+      "result_file_sha256": "dc531a8c77815eb460caff2ffcb0d4eb401c3b67090066da04ca55b6dd2637e7",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-05T14-54-25-478Z/results.yaml",
+      "result_file_sha256": "0db131ddf1b556dc53d0d19920e92e9528953806e1d91fa90299a78ee24427a1",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "architect/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-06T11-08-02-463Z/results.yaml",
+      "result_file_sha256": "63ec24355ab854db318abf15c5cd82fb757a4441cd7e4a3cb30d625c4e1a8471",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T15-37-35-368Z/results.yaml",
+      "result_file_sha256": "b7d68345b545f81a3e9d35ad0dd789200a4b30495f84f85d93de5605dff7bb7f",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T21-36-16-604Z/results.yaml",
+      "result_file_sha256": "e95680a6d6119e998b2013b630753fb8aba0b28dc51452e3386585c4354f9665",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T23-07-23-208Z/results.yaml",
+      "result_file_sha256": "b6478f84fe1bb480931eaee41895aa978da859153930a56cbcf35f5b26b2a180",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T07-49-27-992Z/results.yaml",
+      "result_file_sha256": "e3c00079212d993e7be59650eebc1b053771b02154b96f938ccc6e0155b3d1e0",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-30T13-41-21-295Z/results.yaml",
+      "result_file_sha256": "2f16cf52d36737a0dc7a4f72cbd0d58765217542db283c1815249e242e69f7a0",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T12-12-10-338Z/results.yaml",
+      "result_file_sha256": "bc70f4af646350e8449397ca768f61b02315390bd653101bd50344f45d75fd37",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T14-08-45-240Z/results.yaml",
+      "result_file_sha256": "439b2f1e20c657c75f2b5dbdeabd71155ac2ac2c86c83b0b20aa38910db0509a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T15-08-41-425Z/results.yaml",
+      "result_file_sha256": "932121c0efbebae54d36d95af4351f98b90b3e7b911fa4952396c8e1e14ae3bd",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-04T13-55-48-087Z/results.yaml",
+      "result_file_sha256": "9e764985ba805019e2001ef52cd1841ba4e869ee133b6b463e20cf93ce5801b5",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-04T14-04-53-205Z/results.yaml",
+      "result_file_sha256": "66c15e50cc734b38dbef690d53e2e8c32877f38e15e8e20ffaae1cdb5c7ce9c9",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-04T21-50-37-187Z/results.yaml",
+      "result_file_sha256": "cdc21ab911b930a98a96024147cc5862aa7316d71176e16f70ad97f1e39f6673",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-05T11-53-05-139Z/results.yaml",
+      "result_file_sha256": "5d86330d012ab7b64cd8fd59a4de5d51f322e27f507d3be2fec7a89a9aa2eac0",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-06T09-31-25-059Z/results.yaml",
+      "result_file_sha256": "0da69c03b21af97f9d9e444d8c0e23e08264c085a2bb1441711f1dc022b52081",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T00-25-20-128Z/results.yaml",
+      "result_file_sha256": "dd0b6ec718b6d8d439ee1765a8b89ac838178a5e14e665792b7c6acd29431eb5",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T00-01-58-353Z/results.yaml",
+      "result_file_sha256": "6b61dcd7ad279f261732f71c67cdbbcb22c9ad1a340848245925572ad73325c6",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T08-42-27-514Z/results.yaml",
+      "result_file_sha256": "d4a3c68693b393537a34d20648820705beefdc4615feef995be1cbbc8342beeb",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-30T14-22-55-740Z/results.yaml",
+      "result_file_sha256": "7c7fa1a20256916289dfb5117f1ddcbb49f5f0fe67769dca41c5124ec0bc42dc",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T12-27-16-157Z/results.yaml",
+      "result_file_sha256": "5e840ea24a48dc5e4093edc8e25372b083c8bea9d0a86f63f1351eb8ab054c3b",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T14-17-18-037Z/results.yaml",
+      "result_file_sha256": "93d612bd26904848635edd7841984875b13f9bb20a151edf6f5b67f0bab57e8a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T08-25-42-220Z/results.yaml",
+      "result_file_sha256": "7a9e1a87e8c84c68b7a3b75e6b455f4600be65b80c9333e510ced94af001b0c6",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T13-57-36-874Z/results.yaml",
+      "result_file_sha256": "f40f9fa4fd826974ac185f073fd95d6d1040f82f06e4aedd995c6f37202028d7",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T14-06-02-064Z/results.yaml",
+      "result_file_sha256": "b9e26000cb6e5146ccd8a958de4895826765073519375818d50cc97c4bb5078d",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T22-03-15-128Z/results.yaml",
+      "result_file_sha256": "3d212ba64c944eda7c6c5f1b8fbdfaa9bd934d20369d81d61cc6b0d68e167fc9",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-05T12-13-21-244Z/results.yaml",
+      "result_file_sha256": "ca056e6743bdfca7f7bf263229286c7400dad700ce65e3afb985eab41ddbb1e8",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-06T09-46-51-362Z/results.yaml",
+      "result_file_sha256": "52ed1f84645897838f83471070efa9087068761cb50d56388c329aff24224ed2",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T00-47-17-616Z/results.yaml",
+      "result_file_sha256": "8d104473ec56baaab7b3d83104c57074d903428c699fc0e09e22e09b5cf555fa",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-04T16-59-49-139Z/results.yaml",
+      "result_file_sha256": "cef3ca6b1f3a2f5edc1f7c1348cde3b85b3a4a7d2f800f21fb53a4f19e61e0cc",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-05T14-26-31-713Z/results.yaml",
+      "result_file_sha256": "f2815d7f1e17c73b4f16ebe6b7dad5f7f1a4dee56cc805d79ee731b1cf3c0f6b",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "build/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-06T09-58-09-426Z/results.yaml",
+      "result_file_sha256": "9a2e4bfce12961b6b0456aeccd43b606c591e89d7613cdbefcd245f1f00bc64c",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T21-42-25-065Z/results.yaml",
+      "result_file_sha256": "c3b7526e5eb915f03b6698b5c72637f2556fef2a59b41711b66c694baedee85a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T23-12-11-158Z/results.yaml",
+      "result_file_sha256": "e1bfbb677e079874d6f7a87f866d6759d9a22e76f9d1ecb28651b5dc2d17d276",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T07-55-50-467Z/results.yaml",
+      "result_file_sha256": "b71d331dd0948f97216f67558f0b72992bbea5f985e5c3840be1f68f8067745d",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T10-31-47-788Z/results.yaml",
+      "result_file_sha256": "e57f6204605cf544992d43d6f3e5419788f18494d3718928b1a6122dae682b6a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-30T13-53-29-494Z/results.yaml",
+      "result_file_sha256": "1b31e0674407267119f3ead54b46eddc12969c63fd33e7b5fd9b0d84707dc6d9",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T12-10-30-264Z/results.yaml",
+      "result_file_sha256": "d3c6916bc65d18d40246d3ee955356ceb052a35db02e4eddaa6d215fbac6e2d7",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T12-42-59-286Z/results.yaml",
+      "result_file_sha256": "bbe95507d65bbea41f2c0880c91705ce2dc7f3b2019e80838456f08f30748e65",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T13-12-41-458Z/results.yaml",
+      "result_file_sha256": "4dea89e950a565ea314607d0ae665f86bda2efc414897b67dfcdba89986e6c5c",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T14-03-44-316Z/results.yaml",
+      "result_file_sha256": "d8366c1a2e77fe25ca9e974ae6039c502f1aa739e539f7b9675f8e8798326fe9",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T14-55-38-747Z/results.yaml",
+      "result_file_sha256": "f3faf1fe4a339b69aa05603b263f565ac56dc6be42f0d990105e311f9d84220a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-04T22-13-35-411Z/results.yaml",
+      "result_file_sha256": "5c939bbaa36b78cfe25bdb8628340c7f0aab0780d2998084b7598ccffcf271a2",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T21-51-58-036Z/results.yaml",
+      "result_file_sha256": "24094169fe3c1154f95d5fcbe0a2af0d9a3a8402824bdc0f3bdcc5808ba4eab8",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T22-38-17-388Z/results.yaml",
+      "result_file_sha256": "7bcdfa35125977c93f278fbc9c41245108fc38d6ad8a4938947d8e4d006526a1",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T22-45-01-648Z/results.yaml",
+      "result_file_sha256": "3c5e55052b0c837a0e8664daa22b61f2ff28e8c8eccc8726caf2116ebdcf3952",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T01-07-06-234Z/results.yaml",
+      "result_file_sha256": "5f2f2afd311860a162c5e98349541595dc902da83eb50e8e4c7020c63a4aa694",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-10T09-54-55-784Z/results.yaml",
+      "result_file_sha256": "70210e85e6f357ba4c07075a21339561dfa25c03093c209944543ce2186807b0",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T00-05-24-027Z/results.yaml",
+      "result_file_sha256": "e5d51a60cfeb0deea5b97021080116126aec83cc3671b09a69ef2b7ef07a1b6a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T08-47-31-479Z/results.yaml",
+      "result_file_sha256": "96eff35f88d9e95b2d8a4978224b6d4971924fd301566676b2bdeaba73cc0f6c",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-30T13-19-23-305Z/results.yaml",
+      "result_file_sha256": "e2ac0b4108f5a31b8ef7e944ab44a2f560929693a93d7b6b69f9c21a0250e2ae",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-30T14-39-32-605Z/results.yaml",
+      "result_file_sha256": "7312a2f558ab0e1c48fe2d3931e9c85b321706dd9e8d92f0b7d92980b0d75ee1",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T12-25-37-908Z/results.yaml",
+      "result_file_sha256": "ec7371bfb91ca98c9c7f34239b6eb7d637a9337c0eb9c434b6660af8a046a181",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T12-44-45-881Z/results.yaml",
+      "result_file_sha256": "011eeee3ad8e4ba8dd4c1b32fcb4e8be891f81d47e2e67c66d556f7f318166be",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T13-31-45-930Z/results.yaml",
+      "result_file_sha256": "e79299a70999fed0fc9bd97492c6a37e3c64ff2e1f3493714cabd1146fb60b63",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T14-12-28-493Z/results.yaml",
+      "result_file_sha256": "2509fe498e6f48069b43b5e43daaa8ca611b0359ca6d6ee09cb54f39ed1895ce",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T08-08-15-263Z/results.yaml",
+      "result_file_sha256": "52cabf6eb3e65928aad6c72dc7a8decc5abc72d7c273e3ba1ee49e1fcb47e5ac",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T22-36-09-606Z/results.yaml",
+      "result_file_sha256": "da5c4aad4974773f1c86bb35bf65770c2c3d81a410131da353db9439a24e2f2c",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T01-54-07-321Z/results.yaml",
+      "result_file_sha256": "43d83438c73ae8f0ed0d5727684f91732c313b9b35e7467de4efe53c99457254",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-10T11-09-02-031Z/results.yaml",
+      "result_file_sha256": "a5c0dfe259ddfc0f8898097e8a0b8d376455f5e2cc3ef8b0ff9ba2cef3a8f722",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "debug/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-04T19-46-21-872Z/results.yaml",
+      "result_file_sha256": "eb523f395146be565ed4eb88fef35fbe1815a65cfccd1741fb719dabf40c8df5",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T21-46-12-019Z/results.yaml",
+      "result_file_sha256": "413efd481eb4c0f9ee60e1665b19bfd391ad2cc677713ad071575b01ed6e3bcf",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T23-16-12-529Z/results.yaml",
+      "result_file_sha256": "9be81bfe1fb327f654b53a41ae93a4fe3346c25208cdd6b97265cd219eec6053",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-30T13-29-26-766Z/results.yaml",
+      "result_file_sha256": "25c2c726db50e03d4fe34d0268e6df55c6376ac44d1ae7f943f47fe52d9f608b",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T14-23-53-696Z/results.yaml",
+      "result_file_sha256": "55b0fe4770c5f8a3cb1c730fd3bccb28ec8fec45b6ddcd60a1f2ad6684a92cb5",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T14-36-55-972Z/results.yaml",
+      "result_file_sha256": "6e17b81a648380e915fc6627a47cdd2a7ca1c455a4fb6f64e5660222e4a7ac24",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T14-45-17-403Z/results.yaml",
+      "result_file_sha256": "49ff9b1d22364f481450869e01119deef63206ba81e418040dc1832f138e39ea",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T02-55-07-362Z/results.yaml",
+      "result_file_sha256": "9e0ffeb96b7cf06ce6167ca115512c46f176e081e03321575992eee8a5b9babd",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T00-07-57-967Z/results.yaml",
+      "result_file_sha256": "af159ee773eb236debc01c171ffc1eb5ca190118f9337263aea794e87a908214",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T14-38-11-915Z/results.yaml",
+      "result_file_sha256": "04187618f5043da40dcc97a982f1ee8a5dd45241e62e2bea413e2b563a32659a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T07-55-56-958Z/results.yaml",
+      "result_file_sha256": "303763cbbcbea791fb6efcb0d2fe8a0f3ca5742e10ed3f2e4b14691cebca6c2c",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T03-10-53-730Z/results.yaml",
+      "result_file_sha256": "86e297f8ae50dc1b8267bdec2dda93b77aec3f6e95c6aa51ea479a21a5804021",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "decide/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-04T19-22-15-594Z/results.yaml",
+      "result_file_sha256": "7d0435a3cc5c9695f9127865a4089d2c2d0c8a90afe6ba345db193e351e3abfd",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T21-55-18-113Z/results.yaml",
+      "result_file_sha256": "d2939d16af53b2113ec31680989c45804889f66fb56fc34c7761139712a4e5cb",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T23-24-23-466Z/results.yaml",
+      "result_file_sha256": "b9ce8251c338ddfa4cfde4762b8e4d3b95cf7362627095b37f401f5f8fabc983",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T08-00-38-099Z/results.yaml",
+      "result_file_sha256": "87862a027537e23ecf2eb92d763558e31d928f7e9d2b0c864c3c8c4d817b335f",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-04T23-44-25-631Z/results.yaml",
+      "result_file_sha256": "7e83c9a92b57abe9f5a18ab080097a2c71a6eb833cc5d5c4ded44ff930c51cc6",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-29T11-51-44-004Z/results.yaml",
+      "result_file_sha256": "39a7fae963ec98e199533c40532ebe1c34d16aa21f242df9bc6e3439610d5ed2",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-29T12-23-42-894Z/results.yaml",
+      "result_file_sha256": "66ef9d6ecdfca277f3b408927381525e932c7b1b0a97e564ba6e6645723990a5",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-29T12-54-21-760Z/results.yaml",
+      "result_file_sha256": "28cd619f0ad4629869ad075c16b8ca8fab2d129928c648cb7c4d18322a488c3c",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-29T13-12-15-268Z/results.yaml",
+      "result_file_sha256": "826070d1e10185571ace0f486e1268d273a2821b54b8855790c92fcfbc141e43",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-30T14-02-02-904Z/results.yaml",
+      "result_file_sha256": "6dfb63c49399c33d50ef5e0ef32a198708a6a3d00ade48b7afeaa7a38a67087d",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T14-06-06-855Z/results.yaml",
+      "result_file_sha256": "8d2435b16d031503cab90cd4b3e00ec710a5d931d86573826107b340e6d97b4c",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T15-55-57-859Z/results.yaml",
+      "result_file_sha256": "7d52fd80dc5309032a2c49b9113c0b689d67719ebdc35aeff34c71504d99fa10",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-04T13-59-12-210Z/results.yaml",
+      "result_file_sha256": "a8df238cdec05c203f682a66473b548b6c89049776dc63ece053d404ccbfba61",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-04T15-14-56-904Z/results.yaml",
+      "result_file_sha256": "d1b8a1020b375e1f419e35c0b464240ed8a8db9614a0307e668e35a8820cac25",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-07T23-59-10-774Z/results.yaml",
+      "result_file_sha256": "f68da234cd1228bec7033646dc4391c72b0c70b096a5a141ab17e669b4c3f206",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T00-11-27-451Z/results.yaml",
+      "result_file_sha256": "3c8c663c2a423423468d17d2cf043a28052e25dae6f7359627cab4dc5c918cdd",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T00-18-22-519Z/results.yaml",
+      "result_file_sha256": "580a1021b1fa0b2ca9e91f6b953d48c22a928ffec5862d89ad32ca133fe1a609",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T00-21-07-494Z/results.yaml",
+      "result_file_sha256": "11c043bc4172227d9e5cced29468b18871e836ed2130a28b390b72f194e4e9a9",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T00-57-15-514Z/results.yaml",
+      "result_file_sha256": "e68ee7b45b11d7b12d12e4278b2e89ae11f979709caf6840d03349f966745e5d",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T01-04-08-463Z/results.yaml",
+      "result_file_sha256": "d00f1a75dd35a9dbebfaf164577d6f835b90ebee3480cce674674ea02c2abb71",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T10-48-35-838Z/results.yaml",
+      "result_file_sha256": "9650dc3b9df26af68127e41650a2928e8557bb4a4515335939126d88c23f34dd",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T10-55-44-714Z/results.yaml",
+      "result_file_sha256": "2fd5e41eaf6723ee8715a5385809c3c2b00cf1d3cc86cd6078a0e6db0bcb3294",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T03-31-08-147Z/results.yaml",
+      "result_file_sha256": "f6f5fdfc807ed572800f4c7343eaeb68f5492efb565801b63fea91d5cbfb41a6",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T00-13-32-588Z/results.yaml",
+      "result_file_sha256": "f5c70ef3588157692ec0a9d18cf198c167cdbd473e29a3605560d4e0fd90d05a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T08-51-23-333Z/results.yaml",
+      "result_file_sha256": "299fec907a02a853b6a47cfc06f73a9c52ed4b5eb7f0e776cc0276c82174511d",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-04T23-52-02-808Z/results.yaml",
+      "result_file_sha256": "2caa2695b5fc52df6bb2c072343e4332c478dbf68363d41851678725f33a5c02",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-29T12-10-05-516Z/results.yaml",
+      "result_file_sha256": "19a84b47cdb98291cac0489dafec39edd80869aca511d01bc4ad9c7f15a92d00",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-29T12-33-34-456Z/results.yaml",
+      "result_file_sha256": "1d680b580ed63d8b33c3b46d29a050028a0ef6fdd307ae286747d7f62c366a17",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-29T13-00-27-277Z/results.yaml",
+      "result_file_sha256": "ee91e71198907eff0d5b338f113682d7b5e88bea923e97d6e441230a65fc8bc6",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-29T13-19-21-916Z/results.yaml",
+      "result_file_sha256": "1a6b3a3cc2fd14116c9c593af8565d4c9ceb317197b1beebcbdd64f4093cf5ff",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-30T14-46-29-272Z/results.yaml",
+      "result_file_sha256": "db51ed9947388c1c8a63e7c3d64ad9ddc502e171948a40afe78e7f6a34b9d418",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T14-14-29-744Z/results.yaml",
+      "result_file_sha256": "ddff6373ef259bc8b57ef9cb580ac37f5991f5ebcd4c6fd293cf8007f14b9b0f",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T14-28-58-358Z/results.yaml",
+      "result_file_sha256": "abd690f3e6d4e4dc995f1eae610bef693b401109dec5f800f87b7cc5aa9dd34e",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T09-25-21-120Z/results.yaml",
+      "result_file_sha256": "919c9af61ae49889a396695a6013a1085cd9005e802faa16fb326d2f147af1d9",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T14-01-04-829Z/results.yaml",
+      "result_file_sha256": "374db3a97df48e6396e66ed77218958d3f7f0da2dfb69d6870b48ce0e4f931e3",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T15-38-03-797Z/results.yaml",
+      "result_file_sha256": "bcebce45b7d3e5972b106572e2bc7e8442d7e559fdf3cc152f47e680440f4fd7",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T03-56-22-256Z/results.yaml",
+      "result_file_sha256": "e241a272d42a5446ff6f3c49aa7ea55ed70bcc4f7450fca3c4d111dde663ec27",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "git-ops/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-04T16-09-12-158Z/results.yaml",
+      "result_file_sha256": "e314d2c502012459c9600ec9eb4c998c3120be10e7b5b786ac6126d3c63713d9",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T22-01-58-371Z/results.yaml",
+      "result_file_sha256": "dfeeb4d381bc042040304cbffdb1b9e1172ec457713120c1a6f245eb3baa5d6f",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T23-30-16-436Z/results.yaml",
+      "result_file_sha256": "376102e978082a64118be1d9f6511a6556594091b3e56ae78111f27efa504b43",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T08-07-41-570Z/results.yaml",
+      "result_file_sha256": "bcbfb2f5192ea187994aa481c3f5f6aed3e32bef89f4520445cbac93056f5106",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T10-08-21-643Z/results.yaml",
+      "result_file_sha256": "8391b0a859fa0730138ac8774cce3130af3ad55c8c5f9b35e667cf2e1a4e3d4f",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-30T13-36-15-966Z/results.yaml",
+      "result_file_sha256": "ed4235ccce63df4a3fbbb2bd9a87d5627a93722525e84fabc0c83196b1831f2e",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T12-14-03-898Z/results.yaml",
+      "result_file_sha256": "f797ee792e88d277c3a08fd2fc0bb0e964cc91e0399a2cfc588bda55bc86c65c",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T12-46-15-246Z/results.yaml",
+      "result_file_sha256": "73aa091636536f3e619ba38f215336d335964cf0d22295329467e475d7c05fe2",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T13-08-16-191Z/results.yaml",
+      "result_file_sha256": "438a3f4a6712be52265729b64ead395e79f777a939c7633237234cbb131d6d1e",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T15-17-52-663Z/results.yaml",
+      "result_file_sha256": "72bc3e7608a24f60c576cca50ed2dc142947ce98a2bedca9d4fbfe047533cd08",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-05T08-42-26-319Z/results.yaml",
+      "result_file_sha256": "e148ca9ea1a24458ba9221b235ecb236d031e3968ceb04b160fabc14d6752988",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-05T09-03-28-019Z/results.yaml",
+      "result_file_sha256": "fafb047e90283744d6829c061700fa658b664e8964ee753fcbb7697d3c358953",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-05T13-19-19-404Z/results.yaml",
+      "result_file_sha256": "d4a8fa27e21d2d156fec071581db224b830d1592ae1008549da171de47f03422",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-06T07-10-41-813Z/results.yaml",
+      "result_file_sha256": "6f36e6fa398990be89b567484b42879398d3b20fbda6fcafbdbbc6a5fd9a8dab",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-06T07-47-42-355Z/results.yaml",
+      "result_file_sha256": "ca4de9ebb8b41ce4a7e0008d22f1c54b51cb4f625867f524a90e38144bd6cc3a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-06T12-16-59-064Z/results.yaml",
+      "result_file_sha256": "bc9e97cb92eb983ccebef79d0146b4f86a0c7f041b02cac11fae99e324375b43",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T22-26-31-942Z/results.yaml",
+      "result_file_sha256": "f965e89a5a8720f2b8a9d107da56159c99698841c0cba4ef051d4e4574eeaeda",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T22-34-23-743Z/results.yaml",
+      "result_file_sha256": "7ed6e22c930308d1e3fe67f95df861ab5bbb059840c6ed96fdd11a90e82c8ee5",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T04-26-14-843Z/results.yaml",
+      "result_file_sha256": "9c16c07e561a48472f8726d579028aa049ed82e7ee7b0639c218d065e3c9d594",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T12-24-35-166Z/results.yaml",
+      "result_file_sha256": "8c8e3067fb9c3f5dc73ad274e71da07cd451425ce581d390e6dcc73ba6b5c30e",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T12-42-03-038Z/results.yaml",
+      "result_file_sha256": "b0385f31863b5d20f63e6203d552cf3dfcb76ae182536d5d9969a45b48974e8a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T15-09-52-296Z/results.yaml",
+      "result_file_sha256": "56a10ced25ba9d75f5e1281ef8a9b75174eaa02fadb702e3c0eab7d23ad9ffa5",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T00-16-45-421Z/results.yaml",
+      "result_file_sha256": "60fa7979368bbde38d48514b5d7e5d9c67911a0fc0676ee8276e1b8f284b9454",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T08-55-29-996Z/results.yaml",
+      "result_file_sha256": "b1daf951dadeaa8820c7ab15151f3448839e11885c4f4a9fcba4de043c6aac84",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T10-36-13-482Z/results.yaml",
+      "result_file_sha256": "12996b5015d1980f35855882d35f6ea06744db835b33d8d7c61806ab751cfcca",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-30T14-10-14-313Z/results.yaml",
+      "result_file_sha256": "8f1ad9b37c5d2e9f53fe62c06c7350e661a99cde21342204478cf1532cf4a2ea",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T12-28-37-649Z/results.yaml",
+      "result_file_sha256": "75eef86af00188e62380121eb1285c5023ffdccadc0b62d6114787c736174b74",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T12-49-04-876Z/results.yaml",
+      "result_file_sha256": "f3ef48cd9b1e79056d49f903f39713626f75b129d11ad18eea5ff95d41611a94",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T13-27-24-574Z/results.yaml",
+      "result_file_sha256": "29a0095ecb9882942ed4622c2f5352580bb2796938c67b5a23959f35299651de",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T08-35-40-925Z/results.yaml",
+      "result_file_sha256": "da368e7c534b041f671a519a803b7d1c1ba0daa1e3122db11cd39cee707f052d",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-05T08-37-09-235Z/results.yaml",
+      "result_file_sha256": "23b25da7f9a6b2bbef95e7e5bc3a44adf7baac3d876c1762fcdddfc30b5b441a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-05T08-58-17-872Z/results.yaml",
+      "result_file_sha256": "d395f621f3aaf546a7dfcfe056e2fb88498b57115179142da5d479523560f929",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-05T13-46-47-301Z/results.yaml",
+      "result_file_sha256": "bcea0761f89bbbdab653fc21e156f4b4e7b28a4390890cd32f2f64e015acb9fc",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-06T07-08-18-295Z/results.yaml",
+      "result_file_sha256": "78b9f950662253483a869fef17d3b139bcc65c0cef6537dc7a3063d243567f9f",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-06T08-15-53-186Z/results.yaml",
+      "result_file_sha256": "bbf5fee19d328f91c8dd292697d79b222e55472325f460d629078209d7f79876",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-06T12-48-07-096Z/results.yaml",
+      "result_file_sha256": "3c5800e7f731e6a7a64f734b71cf95036783a69de36a279fdc4441f2f33ae514",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T04-52-22-190Z/results.yaml",
+      "result_file_sha256": "2f902526a0c04592c19a1308324c3e08c18b0f9769d9e6a88fda0b36104c7dd9",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T12-28-43-747Z/results.yaml",
+      "result_file_sha256": "04c4b980ef32cc216fc88f32a72cc3f0f00ab82add10509c15537aefa432e15d",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T12-46-40-233Z/results.yaml",
+      "result_file_sha256": "115a2d8d4a7a357d268956aec26f7af30c6fe2bc1cec924de67f730580d03274",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T15-49-43-579Z/results.yaml",
+      "result_file_sha256": "b4742e3666866cd65258ee8b4aebf193f4e30447d4ba8f36193d466bb3a3fe7c",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-04T17-31-49-121Z/results.yaml",
+      "result_file_sha256": "755315fdcae3cc08e9abe54d9275e2f72f324c93d77c0ba6c7b75867ec1d6e2a",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-05T15-14-48-363Z/results.yaml",
+      "result_file_sha256": "46fbbae1c2fc6051a365ccd5188d30963dd5e24ca07fdb3122e634cbd0fb12c2",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-06T08-41-51-544Z/results.yaml",
+      "result_file_sha256": "766f8e28f16dc66f64ec0253607e98de35a88e2ebc93fd67880efb8fff2879ad",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "plan/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-06T13-13-22-075Z/results.yaml",
+      "result_file_sha256": "6256416be34f1845bd467e426dcf8bdd08fe979686703dc6e759a3c73f2c6d7c",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T22-19-06-683Z/results.yaml",
+      "result_file_sha256": "58019ca75083305e0a35e5c20a03f6b03fb5c647efe7d4a6dc60dd27eeaf75b8",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-02T23-38-28-089Z/results.yaml",
+      "result_file_sha256": "57c7dd50815d02e3249b3f1265e1901904ebedacad1746ef6c310f3c12141dfe",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T08-20-59-039Z/results.yaml",
+      "result_file_sha256": "5f8581ddf0891652fe0e7ad365dc050c2eb856058402473b71cf0e5444798afe",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-03T10-21-49-672Z/results.yaml",
+      "result_file_sha256": "97b7a608c8de629fd54ce6f8a7776a14a86edf5db0c916153a5b21107356bdf6",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-07-30T13-44-47-398Z/results.yaml",
+      "result_file_sha256": "31f8a759e99693e5fb0096a245780ca07bd75f42124df11b77057f8826d3b5ab",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T13-24-20-198Z/results.yaml",
+      "result_file_sha256": "a249d6c5362aa0580f1c5dddf112b0086d35491ad9bdb8b8d4987d686dde9ace",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T14-24-59-870Z/results.yaml",
+      "result_file_sha256": "b84bc064f89f1e358484a2346b7273b488cfc0f41b275f3bcd79e32c6afabc6a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-03T15-44-12-143Z/results.yaml",
+      "result_file_sha256": "5e5f81c8f6b93796e33adb6093988d1ddb9cc4c0c643b30f6af96c67b656573a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-06T13-36-32-213Z/results.yaml",
+      "result_file_sha256": "31a59a79874eaf3f76f4a750dbdb8fc33d5ebc265227d9c8020952fbe5898db6",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-08T22-19-38-019Z/results.yaml",
+      "result_file_sha256": "d3d927ca27e0dd3885db7e671d67e6ce4d081efd9404b863da179d8749de9804",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T05-27-45-573Z/results.yaml",
+      "result_file_sha256": "4c400478aedddda342bbf24720f5eb4fac9ffbc59884b9c20d286e6d7e4e8733",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T12-13-08-998Z/results.yaml",
+      "result_file_sha256": "a4a486e32add899ed46e85af8131053674c44ef7004a97eb08990223dec248e5",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T12-37-17-558Z/results.yaml",
+      "result_file_sha256": "8941e0c20ae1303e78cd6f6b26540beb7efe81f86ff99b68a3287c03671f5ff0",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-09T16-18-17-173Z/results.yaml",
+      "result_file_sha256": "882933a20860c654ed72d5e4d012ef216947e4c5e1b62778a79969f1e7553af3",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-deepseek-v4-pro/2026-08-10T08-22-07-384Z/results.yaml",
+      "result_file_sha256": "b5d8ba3fda10b693b2610cb4360613e269ce2a1f337327a3e6e93dca31fad937",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-03T00-25-11-955Z/results.yaml",
+      "result_file_sha256": "da42117e360a2a8349b6a9ca26e890ce13fa4fddddff6a1d1bb647e4529e96bf",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-07-30T14-27-12-247Z/results.yaml",
+      "result_file_sha256": "75803aba284bf564c09b6816f2b4fa3e83692fee9a7da59839c8abeb932d6594",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T13-48-30-092Z/results.yaml",
+      "result_file_sha256": "92b60a12cc8fdc5c121c6bf8bf8b0e045dbd63c8bc70197b1aa0b3b07f73f27e",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-03T14-26-33-990Z/results.yaml",
+      "result_file_sha256": "4caf6fa850ac1398ba9fecec1fc208ebbaa536a66be079cb523d1b5edf6e72b2",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-04T09-11-23-640Z/results.yaml",
+      "result_file_sha256": "24bbc7fa7c7b1fcf96c4ec51e27c3ba0d8d5407c1d623eeb17b637262c4aac0e",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-06T13-59-55-843Z/results.yaml",
+      "result_file_sha256": "33c34a89e3ab0fb0fcda1ff18b521e60040cbd2c201b18b8cdac7fb17289335f",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T05-57-00-467Z/results.yaml",
+      "result_file_sha256": "7a83a28da940837ce35e8c40bed2763cadb67833f999f00d98b3d8756870bf28",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T12-16-54-594Z/results.yaml",
+      "result_file_sha256": "5daf46a78f8b156718474e1ba97ad7ce00c9a80831d8f221b408e46bfd93acc4",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T12-39-28-417Z/results.yaml",
+      "result_file_sha256": "512cda46fdc146dbacb8833672c13aa6138104245147316edd20c9473e67461a",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-09T16-40-37-561Z/results.yaml",
+      "result_file_sha256": "ae3561b19386abe03f749387a9ec5e1ac21e8e008044f37d81c318309e8147cc",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-glm-5p2/2026-08-10T08-53-30-128Z/results.yaml",
+      "result_file_sha256": "a44199652933a7bade2795985bcb3899a8824ec79ed01fdb4e86966514fe8439",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-04T18-45-27-638Z/results.yaml",
+      "result_file_sha256": "90566740648b4e44633915669cb6772cb41f38d4a77c885c195aa6fe3e9bf1c4",
+      "classification": "probe",
+      "evidence_basis": "historical-probe",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory probe retained for diagnosis; excluded from scored efficacy, stability, and release claims."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-05T15-42-19-756Z/results.yaml",
+      "result_file_sha256": "00a66022ba46390402c742d268a997df42adc3fb39c6c1d75171388c5561edac",
+      "classification": "historical-baseline",
+      "evidence_basis": "historical-treatment",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": true
+      },
+      "reason": "Historical v2.4 treatment baseline; it does not measure the v3 prompts and is not current treatment evidence."
+    },
+    {
+      "path": "review/tests/results/pi-fireworks-accounts-fireworks-models-kimi-k3/2026-08-06T14-26-10-091Z/results.yaml",
+      "result_file_sha256": "e899bd0dec782c31c2da676105e301ea598e26cc18552d8911fa0862f223b1b3",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": true,
+        "stability": true,
+        "release_claims": false
+      },
+      "reason": "Historical no-skill control; usable only with a compatible historical treatment epoch, never as a treatment score."
+    },
+    {
+      "path": "review/tests/results/pi-openai-codex-gpt-5.6-terra-high+pi-daddy/2026-08-22T22-54-06-434Z/results.yaml",
+      "result_file_sha256": "10b3ea76d7c66c0433848b68ba66bf83dbac32a1e4d73e419dd6f80f7080c82b",
+      "classification": "invalid-infrastructure",
+      "evidence_basis": "invalid-infrastructure",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Unpinned executor selected an incompatible herdr path and did not reach a correlated terminal child lifecycle."
+    },
+    {
+      "path": "review/tests/results/pi-openai-codex-gpt-5.6-terra-high+pi-daddy/2026-08-22T23-38-49-800Z/results.yaml",
+      "result_file_sha256": "b8b460ded985c995d6c93fa7c23ae89cac26fe722e8088e3243b74a19f153141",
+      "classification": "delivery-unproven",
+      "evidence_basis": "delivery-unproven",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Subprocess executor was pinned, but zero ledger events and no immutable loading/lifecycle receipt prove treatment delivery."
+    },
+    {
+      "path": "review/tests/results/pi-openai-codex-gpt-5.6-terra-high/2026-08-22T22-30-00-257Z/results.yaml",
+      "result_file_sha256": "e2c6182c524a02a56459a9a6ef801cbf0e488d406fe128a7d0369e2e0787a2e4",
+      "classification": "control",
+      "evidence_basis": "historical-control",
+      "participates": {
+        "efficacy": false,
+        "stability": false,
+        "release_claims": false
+      },
+      "reason": "Exploratory Terra-high control observation; its treatment pair is invalid or delivery-unproven, so it supports no scored conclusion."
+    }
+  ]
+}

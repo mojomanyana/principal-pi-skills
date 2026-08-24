@@ -1,14 +1,39 @@
 # Handoff 1 — v3 risk-adaptive assurance
 
-**Status:** released as `3.0.0`; **statically verified, not model-measured**
-**Updated:** 2026-08-20
-**Source manifest:** `3.0.0` (tagged `v3.0.0`, published to npm 2026-08-20)
+**Status:** source `3.0.1 — Unreleased`; npm `latest` remains published `3.0.0`
+**Updated:** 2026-08-24
+**Source manifest:** `3.0.1` (unpublished; no tag or release)
 **Previous published release:** `2.4.0` (npm 2026-08-16; its git tag was backfilled 2026-08-20)
 **Branch:** merged to `main` via [PR #31](https://github.com/mojomanyana/principal-pi-skills/pull/31)
 **Base SHA:** `4dece8ca35648725234c7dc2eadead95cd084b07`
 
 PR #31 merged on 2026-08-19 (`b28a8d5`, CI green) and `3.0.0` was tagged and published on
-2026-08-20 with its evidence gap open and stated rather than closed. Paid skill-harness
+2026-08-20 with its evidence gap open and stated rather than closed. Source `3.0.1` adds only
+fail-closed result classification, external-attestation verification, tests, and documentation;
+it is unavailable from npm and changes no shipped runtime contract.
+
+All 205 committed result files are listed in `docs/validation/RESULTS-MANIFEST.v1.json` with
+raw SHA-256 and explicit participation flags. Terra-high Wave 0 is exploratory only: the control,
+unpinned-executor infrastructure failure, and subprocess-pinned delivery-unproven run are all
+excluded from efficacy, stability, release, and v3 scoring. No current pi-daddy result has a
+compatible external per-observation attestation, so valid treatment count is zero. Future treatment
+requires a closed enabled arm policy, canonical strict result, complete arm-bound trust store,
+exact observation/attestation bijection, and one atomic in-memory replay check across the complete
+validation session. A fresh session may revalidate the corpus; durable operational replay
+prevention remains the external producer/controller's responsibility.
+
+principal-pi-skills verifies external producer claims; it does not run artifacts, supervise
+children, protect signing authority, authenticate ledger production, prove loaded runtime state,
+or provide module/process/OS containment. Same-UID isolation and a real OS sandbox are not claimed.
+
+Two clean `3.0.1` source packs are byte-identical at SHA-256
+`e1875c7b5e3a658ac1533cda35edf2d81d407bb29690d55d3186f2acf5bc2fdd`
+(107,016 bytes). Against published-source `3.0.0` (`9ce4ab10…fff`, 105,706 bytes), both
+contain the same 28 paths; only `AGENTS.md`, `README.md`, `CHANGELOG.md`, and `package.json`
+differ. All other 24 packaged files and CLI contract `ad03c15…9fff` are byte-identical.
+Against the prior minimal candidate (`d08ee142…a4a06`, 106,770 bytes), only those three
+packaged documentation files differ; package metadata is unchanged.
+Paid skill-harness
 subjects/judges and the live workflow E2E cells are still unrun; they remain authorized-later
 work, and nothing in this repository may present the v2.4 board as v3 evidence. Sections 2–7
 below are the durable cross-repository contract and stay valid as written; sections 8–11 carry
@@ -596,11 +621,11 @@ check, scoped dependency completion gate, and precise hash/workspace limitations
 
 ## 8. Version/package consistency
 
-- `package.json`: `3.0.0`; includes the assurance CLI bin and `schemas/*.json`; published.
-- `package-lock.json`: root/package version `3.0.0`.
-- `CHANGELOG.md`: `[3.0.0] — 2026-08-20`; v2.4 history retained.
-- `README.md` and `AGENTS.md`: install command is immutable `@v3.0.0`, states that `3.0.0` is the
-  current published release and that `standard` keeps v2 invocation working, and links validation
+- Source `package.json` and root/package lock metadata are `3.0.1 — Unreleased`; the package
+  includes the assurance CLI bin and `schemas/*.json`. npm `latest` remains published `3.0.0`.
+- `CHANGELOG.md`: `[3.0.1] — Unreleased` precedes `[3.0.0] — 2026-08-20`; v2.4 history retained.
+- `README.md` and `AGENTS.md`: install command remains immutable `@v3.0.0`, states that `3.0.0`
+  is the current published release while source is unpublished `3.0.1`, and links validation
   before use because v3 carries no model score.
 - Clean-install examples using unversioned `npx -p principal-pi-skills` now resolve `3.0.0`;
   source/packed tests continue to test the local tarball rather than the registry.

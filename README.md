@@ -8,6 +8,11 @@ to isolated contexts (`plan`, `review`, `debug` — single-shot variants in `age
 generated from the same contract as the skill). The files follow the [Agent Skills](https://agentskills.io/specification)
 standard, so other harnesses can consume the skills, but pi is the supported target.
 
+**Source status:** `3.0.1 — Unreleased`. It is not published or available from npm.
+The npm `latest` release and supported install target remain `3.0.0`. This source update
+changes development-only measurement classification/verification, tests, and documentation; it does not change
+the shipped skills, agents, prompts, runtime scripts, or runtime schemas.
+
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
 **delegable trust** — an output carries the evidence needed to verify it without redoing
@@ -96,8 +101,10 @@ docs/demos/                           the chains running end to end, repo-verifi
    pi install git:github.com/mojomanyana/principal-pi-skills@v3.0.0
    ```
 
-   `3.0.0` is the current published npm release, and the tag matches this checkout's
-   manifest. It adds the risk-adaptive assurance profiles; `standard` is the default and
+   `3.0.0` is the current published npm release, npm `latest`, and supported install target;
+   source `3.0.1 — Unreleased` is available only as local test packs, not from npm or supported
+   installation guidance. The published tag matches the `3.0.0` manifest. It adds
+   the risk-adaptive assurance profiles; `standard` is the default and
    preserves v2 invocation, so upgrading from `2.4.0` changes no command you already type.
    Read [Validation](#validation) first: v3 ships with **no model score of its own** — the
    committed board is a historical v2.4 baseline. Do not turn a moving branch into
@@ -246,6 +253,22 @@ the model's own account:
   task had any reason to touch.
 
 ## Validation
+
+The exploratory Terra-high Wave 0 contains a control, an unpinned-executor infrastructure
+failure, and a subprocess-pinned run whose treatment delivery is unproven. None participates
+in efficacy, stability, release, or v3 scoring. No committed pi-daddy observation has the
+required externally produced per-observation attestation, so its current valid-treatment
+count is **zero**. Future treatment requires a closed arm policy, strict canonical result,
+eagerly validated arm-bound trust store, exact observation/attestation bijection, and atomic
+corpus-level replay check. Durable operational replay prevention remains external. The
+DeepSeek/GLM v3 wave and live workflow cells remain unrun.
+
+`principal-pi-skills` is only a classifier, evidence-policy consumer, and verifier of
+operator-trusted external attestations. It does not securely execute subjects, protect
+signing keys, authenticate producer ledgers, confine modules or process trees, or provide an
+OS sandbox/same-UID boundary. A valid signature proves that the configured producer made the
+attestation; it does not prove that producer is securely implemented. See
+[`docs/validation/VALIDATION.md`](docs/validation/VALIDATION.md).
 
 v3 changes model-visible contract text, adds one `E1` assurance scenario to each skill, and adds
 a Git-Ops stale-receipt negative, taking the static specification from 98 to **106 scenarios**.

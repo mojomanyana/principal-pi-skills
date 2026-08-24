@@ -1,5 +1,30 @@
 # Results manifest
 
+The authoritative machine index is [`RESULTS-MANIFEST.v1.json`](RESULTS-MANIFEST.v1.json),
+validated by its closed schema and `node scripts/measurement-evidence.mjs check-manifest`.
+It lists all 205 committed `results.yaml` files exactly once with raw SHA-256, classification,
+evidence basis, efficacy/stability/release participation, and reason. Unknown or unmanifested
+results never default to treatment.
+
+Allowed classifications are `control`, `historical-baseline`, `valid-treatment`,
+`invalid-infrastructure`, `delivery-unproven`, `probe`, and `excluded`. Existing v2.4 treatment
+rows are `historical-baseline`: they remain useful historical measurements but do not measure
+v3. A future `valid-treatment` row must use the canonical strict-JSON future-result v1 contract,
+a closed enabled arm policy, an eagerly validated exact arm-bound trust store, and one external
+attestation for each exact accepted observation. Validation requires a complete bijection: no
+result structure or attestation may be skipped. Replay identities are committed atomically across
+the complete in-memory validation session; durable operational replay prevention remains the
+external producer/controller's responsibility. There are currently **zero** valid-treatment
+pi-daddy results. Historical-baseline participation flags preserve whether a row supported its
+own v2.4 measurement epoch; they are not v3 release claims. The Terra rows below participate in
+neither their exploratory epoch nor v3.
+
+| Terra-high Wave 0 record | Classification | Efficacy | Stability | Release/v3 scoring |
+|---|---|---:|---:|---:|
+| control `2026-08-22T22-30-00-257Z` | `control` | no | no | no |
+| unpinned/herder failure `2026-08-22T22-54-06-434Z` | `invalid-infrastructure` | no | no | no |
+| subprocess-pinned, delivery unproven `2026-08-22T23-38-49-800Z` | `delivery-unproven` | no | no | no |
+
 Maps every committed `results.yaml` to its validation round and status. Policy:
 superseded runs are KEPT — they are the evidence for the round-over-round trajectory
 (DeepSeek 61% → 82% → 89% → ~92%; GLM 92% → 97% → ~99%) that no single current run shows.
