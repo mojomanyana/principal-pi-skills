@@ -48,9 +48,9 @@ test("PR35 provenance is canonical, complete, and has exact E1 model/repetition 
   }
 });
 
-test("PR35 provenance optionally verifies every allowlisted external byte without consuming extras", () => {
+test("PR35 provenance optionally verifies every allowlisted external byte without consuming extras", (t) => {
   const root = process.env.PR35_EVIDENCE_ROOT;
-  if (!root) return;
+  if (!root) return t.skip("set PR35_EVIDENCE_ROOT to run external-byte verification");
   const all = [...manifest.e1.subjects, ...manifest.e1.judgments];
   for (const item of all) {
     const candidate = join(root, item.path);
