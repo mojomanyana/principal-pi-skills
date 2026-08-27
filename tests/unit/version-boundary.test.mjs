@@ -55,24 +55,25 @@ test("all tracked authoritative source-version statements reject a current-sourc
   assert.deepEqual(contradictions, []);
 });
 
-test("all shipped executable runtime, schemas, skills, agents, and prompts remain byte-identical to 3.0.0", () => {
+test("runtime differences from 3.0.0 are exactly the generated Critical Plan contract outputs", () => {
   const paths = execFileSync("git", ["ls-tree", "-r", "--name-only", BASE], { cwd: ROOT, encoding: "utf8" })
     .trim().split("\n").filter((path) => /^(?:schemas\/|scripts\/(?:install-agents|snapshot-workspace|assurance-state)\.mjs$|(?:decide|architect|plan|build|review|debug|git-ops)\/SKILL\.md$|agents\/.*\.md$|prompts\/.*\.md$)/.test(path));
   assert.ok(paths.length >= 23, `runtime comparison unexpectedly covered ${paths.length} files`);
-  for (const path of paths) {
+  const changed = paths.filter((path) => {
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
-    assert.equal(Buffer.compare(before, readFileSync(join(ROOT, path))), 0, `${path} drifted from published runtime`);
-  }
+    return Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0;
+  });
+  assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "plan/SKILL.md"]);
 });
 
-test("packed differences from 3.0.0 are exactly the four authorized documentation/version files", () => {
+test("packed differences from 3.0.0 are exactly the authorized documentation, version, and Plan files", () => {
   const metadata = parsePackMetadata(execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: ROOT, encoding: "utf8" }));
   const changed = [];
   for (const { path } of metadata.files) {
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     if (Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0) changed.push(path);
   }
-  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "package.json"]);
+  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "package.json", "plan/SKILL.md"]);
 });
 
 test("unreleased notes describe evidence verification without claiming publication or measurement", () => {

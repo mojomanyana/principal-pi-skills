@@ -10,8 +10,8 @@ standard, so other harnesses can consume the skills, but pi is the supported tar
 
 **Source status:** `3.0.1 — Unreleased`. It is not published or available from npm.
 The npm `latest` release and supported install target remain `3.0.0`. This source update
-changes development-only measurement classification/verification, tests, and documentation; it does not change
-the shipped skills, agents, prompts, runtime scripts, or runtime schemas.
+strengthens the generated Critical Plan skill/agent prompts and development-only measurement
+evidence; it changes no other shipped skill, agent, prompt, runtime script, or runtime schema.
 
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
@@ -45,10 +45,12 @@ approval controls without creating another skill suite.
    cases, and each wrong absolute produced a measured over-refusal. A rule plus the cases it
    must not eat costs more words than an absolute; that is the trade. **When a fix and the
    ceiling conflict, the ceiling moves** — trimming to fit was quietly deleting reasons a weak
-   model needed, which is a worse outcome than a longer file. **Agents
-   get their own budget, ≤ ~1500**: a single-shot definition carries its output template
-   *and* the BLOCKED form *and* the no-questions mechanics, none of which a loaded skill
-   needs. Every count in the table below is checkable with `wc -w`. Nothing loads anything
+   model needed, which is a worse outcome than a longer file. Plan is the local exception at
+   ≤ ~1700 (agent ≤ ~1900): its Critical contract keeps packet ownership, concrete verification,
+   no-context discovery, and vertical-slice governors together after those omissions failed across
+   models. **Other agents get their own budget, ≤ ~1500**: a single-shot definition carries its
+   output template *and* the BLOCKED form *and* the no-questions mechanics, none of which a loaded
+   skill needs. Every count in the table below is checkable with `wc -w`. Nothing loads anything
    else — a subagent reads one file and has the whole contract.
 
 ## The set
@@ -57,7 +59,7 @@ approval controls without creating another skill suite.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 860 |
 | `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1142 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1467) or inline | 1257 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1851) or inline | 1641 |
 | `build` | Test-first implementation — code proven by a test you watched fail | inline | 1162 |
 | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1392) or inline | 1364 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1395) or inline | 1261 |

@@ -26,10 +26,18 @@ remains responsible for signing-key protection, ledger authenticity, runtime ide
 loaded-definition and artifact/module confinement, process-tree containment, and any OS
 sandbox.
 
-**Changed — source metadata only.** Source is `3.0.1 — Unreleased`; npm `latest` and install
-guidance remain published `3.0.0`. Shipped runtime schemas, scripts, skills, agents, and
-prompts are byte-identical to `3.0.0`. No 3.0.1 model score, publication, tag, or release is
-claimed.
+**Fixed — Critical Plan task definitions are concrete and attributable.** Critical plans now
+keep authority/scope before tasks, require named tests and literal targeted Done commands,
+separate Plan definitions from controller-owned canonical packet identity/digest fields, and
+forbid assurance-only delivery slices. With no repository context they propose concrete values
+as assumptions and require discovery/validation before execution rather than emitting
+placeholders or claiming guessed paths exist. Deterministic mutation coverage removes each
+load-bearing rule and canonical field independently.
+
+**Changed — source remains unreleased.** Source is `3.0.1 — Unreleased`; npm `latest` and
+install guidance remain published `3.0.0`. The three generated Plan runtime prompts now differ
+from `3.0.0`; other shipped runtime schemas, scripts, skills, agents, and prompts remain
+byte-identical. No 3.0.1 model score, publication, tag, or release is claimed.
 
 ## [3.0.0] — 2026-08-20
 
