@@ -104,7 +104,8 @@ test("workflow orders critique and discovery before packets, binds review roots,
   const text = read("contracts/workflows.md.tmpl");
   assert.match(text, /critique[^.]*discovery[^.]*then record its task packets/is);
   assert.match(text, /plan_discovery_recorded/);
-  assert.match(text, /Missing, stale, or\s+mismatched discovery fails closed/);
+  assert.match(text, /Missing or stale discovery fails closed/);
+  assert.match(text, /critical-test-runner-argv-v1/);
   assert.match(text, /Writer root.*canonical/i);
   assert.match(text, /task_packet_superseded/);
   assert.match(text, /gate finalize/);

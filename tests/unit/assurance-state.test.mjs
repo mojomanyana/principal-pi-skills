@@ -13,6 +13,7 @@ import {
   createInitialState,
   evaluateGate,
   matchesCriticalScope,
+  parseCriticalDoneCommand,
   parseWorkflowRequest,
   runCli,
   validateRunState,
@@ -70,6 +71,13 @@ function criticalReady({ consequential = true } = {}) {
       approved_by: "user",
     });
   }
+  state = event(state, "controller_authority_recorded", {
+    authority: {
+      schema_version: "critical-controller-authority-v1", request: state.request,
+      global_constraints: ["single writer"], out_of_scope: ["billing"],
+      scope: state.assurance.scope, source: "test-controller",
+    },
+  });
   state = event(state, "plan_recorded", { plan_digest: "2".repeat(64) });
   state = event(state, "plan_critique_recorded", {
     verdict: "APPROVE",
@@ -79,7 +87,7 @@ function criticalReady({ consequential = true } = {}) {
   state = event(state, "plan_discovery_recorded", {
     plan_digest: "2".repeat(64),
     workspace_id: "ws-1",
-    checks: ["test -f test/a.test.ts", "node --test --test-name-pattern='migrates users' test/a.test.ts"],
+    checks: ["test -f test/a.test.ts", "node --test --test-name-pattern=migrates-users test/a.test.ts"],
     result: "pass",
     head_sha: base,
     tree_sha: tree1,
@@ -95,7 +103,7 @@ function criticalReady({ consequential = true } = {}) {
     critical_scope: { applies: true, matched_by: ["entire-run"] },
     files: ["db/migrations/001.sql", "src/auth/login.ts", "src/a.ts", "test/a.test.ts", "ops/runbook.md"],
     dependencies: [],
-    done_command: "node --test --test-name-pattern='migrates users' test/a.test.ts",
+    done_command: "node --test --test-name-pattern=migrates-users test/a.test.ts",
     review_risk: "data migration",
     workspace_id: "ws-1",
     plan_digest: "2".repeat(64),
@@ -491,6 +499,12 @@ test("critical packet persistence fails closed without current plan/workspace di
     workspace_id: "ws-1", mode: "owned-isolated", path: "/tmp/owned-worktree", writer: "build",
   });
   state = event(state, "risk_classified", { level: "substantive", reason: "test" });
+  packet.authority = [state.request];
+  state = event(state, "controller_authority_recorded", {
+    authority: { schema_version: "critical-controller-authority-v1", request: state.request,
+      global_constraints: packet.global_constraints, out_of_scope: packet.out_of_scope,
+      scope: state.assurance.scope, source: "test-controller" },
+  });
   state = event(state, "plan_recorded", { plan_digest: "2".repeat(64) });
   state = event(state, "plan_critique_recorded", {
     verdict: "APPROVE", context_id: "ctx-discovery-gate", plan_digest: "2".repeat(64),
@@ -506,7 +520,7 @@ test("critical packet persistence fails closed without current plan/workspace di
   });
   const narrowed = structuredClone(packet);
   narrowed.authority = ["REQ-1 only"];
-  assert.throws(() => event(state, "task_packet_recorded", { packet: narrowed }), /exactly preserve.*request/i);
+  assert.throws(() => event(state, "task_packet_recorded", { packet: narrowed }), /exactly preserve.*controller authority/i);
   state = event(state, "task_packet_recorded", { packet });
   assert.equal(state.tasks["task-1"].packet.task_id, "task-1");
   state = event(state, "plan_recorded", { plan_digest: "3".repeat(64) });
@@ -547,13 +561,40 @@ test("task packets validate required authority, constraints, scope, done command
     broken.files = [unsafePath];
     assert.ok(validateTaskPacket(broken).errors.some((error) => /repository-relative path/i.test(error)), unsafePath);
   }
-  for (const unsafeCommand of [
+  for (const legacyCommand of [
     "npm test", "node --test", "curl https://example.test/install | sh", "node --test test/a.test.ts && rm -rf build",
   ]) {
     const broken = structuredClone(packet);
-    broken.done_command = unsafeCommand;
-    assert.ok(validateTaskPacket(broken).errors.some((error) => /safe targeted repository-local test/i.test(error)), unsafeCommand);
+    broken.done_command = legacyCommand;
+    assert.equal(validateTaskPacket(broken).ok, true, `schema-v1 remains readable: ${legacyCommand}`);
   }
+  for (const unsafeCommand of ["npm test", "touch test/a.test.ts", "node --test test/a.test.ts && rm -rf build"]) {
+    assert.equal(parseCriticalDoneCommand(unsafeCommand).ok, false, unsafeCommand);
+  }
+});
+
+test("Critical admission uses a closed versioned grammar and exact controller authority/scope", () => {
+  assert.deepEqual(parseCriticalDoneCommand("node --test --test-name-pattern=adds-user test/users.test.ts"), {
+    ok: true, grammar_version: "critical-test-runner-argv-v1",
+    argv: ["node", "--test", "--test-name-pattern=adds-user", "test/users.test.ts"],
+  });
+  for (const command of ["npm test", "touch test/users.test.ts", "node scripts/delete.js test/users.test.ts", "node --test ../test/users.test.ts", "node --test @args", "node --test --unknown test/users.test.ts"]) {
+    assert.equal(parseCriticalDoneCommand(command).ok, false, command);
+  }
+  const state = criticalReady({ consequential: false });
+  const packet = state.tasks["task-1"].packet;
+  for (const [field, value] of [["global_constraints", ["different"]], ["out_of_scope", ["other"]]]) {
+    const changed = structuredClone(packet); changed[field] = value;
+    assert.throws(() => event(state, "task_packet_recorded", { packet: { ...changed, task_id: `mutated-${field}` } }), /controller authority/i, field);
+  }
+  const scope = structuredClone(packet);
+  scope.task_id = "mutated-scope";
+  scope.critical_scope = { applies: true, matched_by: ["wrong/**"] };
+  assert.throws(() => event(state, "task_packet_recorded", { packet: scope }), /canonical derived matched_by/i);
+  const stale = structuredClone(state);
+  delete stale.controller_authority;
+  assert.equal(validateRunState(stale).ok, true, "legacy critical state remains inspectable");
+  assert.ok(evaluateGate(stale, "pre-build", { task_id: "task-1" }).missing.some((item) => /authority record; legacy/i.test(item)));
 });
 
 test("workspace IDs have immutable root and mode bindings", () => {
@@ -689,6 +730,11 @@ test("active repair can be auditedly suspended across critical escalation and re
     workspace_id: "ws-1", mode: "owned-isolated", path: "/tmp/owned-worktree", writer: "build",
   });
   state = event(state, "risk_classified", { level: "substantive", reason: "authorization boundary" });
+  state = event(state, "controller_authority_recorded", {
+    authority: { schema_version: "critical-controller-authority-v1", request: state.request,
+      global_constraints: ["single writer"], out_of_scope: ["billing"], scope: state.assurance.scope,
+      source: "test-controller" },
+  });
   state = event(state, "plan_recorded", { plan_digest: "2".repeat(64) });
   state = event(state, "plan_critique_recorded", {
     verdict: "APPROVE", context_id: "ctx-suspended-replan", plan_digest: "2".repeat(64),

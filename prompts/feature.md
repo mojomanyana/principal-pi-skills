@@ -30,7 +30,11 @@ derived. Pass `run_id`, effective assurance, scope, task/workspace IDs, authorit
 digests into every phase.
 
 First establish authority (the exact request/requirements), risk (`tiny`, `substantive`, or
-`consequential`), current base/head, dependencies, interfaces, and finish intent. A typo is tiny;
+`consequential`), current base/head, dependencies, interfaces, and finish intent. Before accepting a
+Critical plan, the controller records the versioned canonical authority record: exact request,
+sorted canonical global constraints and exclusions, effective Critical scope and source, digest,
+sequence, and timestamp. Plan may echo it but cannot author it; any change invalidates critique,
+discovery, and packet eligibility until explicit replan/supersession. A typo is tiny;
 it does not become consequential because a workflow exists. Policy may elevate standard to
 critical for migrations, auth/authz, billing, destructive data, public API breaks, credentials,
 protected history, production effects, or another evidenced one-way door. Record the trigger.
@@ -61,11 +65,15 @@ A task packet uses `schemas/assurance-task-packet-v1.schema.json` and contains T
 Global constraints, Out of scope, critical-scope match, files/dependencies, Done command, Review
 risk, workspace ID, and plan/definition digests. Plan remains read-only: its Done command is
 declarative and packet persistence never executes it. Before a Critical packet is persisted, the
-controller verifies Plan's authority/scope against the established request and effective Critical
-scope, performs every repository discovery check, and appends a passing `plan_discovery_recorded`
-event bound to the current plan digest, active workspace, and exact head/tree. Missing, stale, or
-mismatched discovery fails closed; unsafe shell composition or side-effecting Done commands are
-schema-invalid. If an approved replan makes an immutable packet stale, append
+controller verifies Plan authority, constraints, exclusions, and derived scope selectors against its
+canonical authority record. The CLI resolves the active owned workspace to its Git root, derives a
+clean `HEAD` and `HEAD^{tree}` through argv Git calls without a shell, rejects supplied mismatch, and
+then appends `plan_discovery_recorded`. Missing or stale discovery fails closed. The v1 packet schema
+keeps `done_command` readable for legacy inspection; Critical admission alone parses it using the
+versioned closed `critical-test-runner-argv-v1` grammar. Unsupported runners, shell syntax,
+indirection, response files, unsafe paths, broad commands, and unknown flags return
+`BLOCKED_CRITICAL_ASSURANCE`. Build may execute only the normalized equivalent through normal tool
+approval; packet persistence is never execution authorization. If an approved replan makes an immutable packet stale, append
 `task_packet_superseded` with its ID and reason, then issue a new ID; never silently rebind it.
 Build remains the only durable source writer and runs inline. For
 an owned workspace, bind Build to its canonical path as `WRITER_ROOT`: every read/edit/write/find/

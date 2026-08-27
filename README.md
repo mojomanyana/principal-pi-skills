@@ -11,7 +11,7 @@ standard, so other harnesses can consume the skills, but pi is the supported tar
 **Source status:** `3.0.1 — Unreleased`. It is not published or available from npm.
 The npm `latest` release and supported install target remain `3.0.0`. This source update
 strengthens the generated Critical Plan skill/agent prompts and development-only measurement
-evidence; it changes no other shipped skill, agent, prompt, runtime script, or runtime schema.
+evidence; its Critical Plan repair also changes the generated Plan/workflow prompts, assurance-state runtime script, and assurance schemas. Other shipped skills and agents remain unchanged.
 
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:

@@ -66,8 +66,7 @@ test("runtime differences from 3.0.0 are exactly the Critical Plan and fail-clos
   assert.deepEqual(changed.sort(), [
     "agents/plan.md", "agents/principal-plan.md", "plan/SKILL.md",
     "prompts/bugfix.md", "prompts/feature.md", "prompts/principal-bugfix.md", "prompts/principal-feature.md",
-    "schemas/assurance-run-state-v1.schema.json", "schemas/assurance-task-packet-v1.schema.json",
-    "scripts/assurance-state.mjs",
+    "schemas/assurance-run-state-v1.schema.json", "scripts/assurance-state.mjs",
   ]);
 });
 
@@ -81,8 +80,7 @@ test("packed differences from 3.0.0 are exactly the authorized Critical Plan/con
   assert.deepEqual(changed.sort(), [
     "AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "package.json",
     "plan/SKILL.md", "prompts/bugfix.md", "prompts/feature.md", "prompts/principal-bugfix.md", "prompts/principal-feature.md",
-    "schemas/assurance-run-state-v1.schema.json", "schemas/assurance-task-packet-v1.schema.json",
-    "scripts/assurance-state.mjs",
+    "schemas/assurance-run-state-v1.schema.json", "scripts/assurance-state.mjs",
   ]);
 });
 

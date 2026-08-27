@@ -115,6 +115,22 @@
       }
     },
     "plan_digest": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/digest" }] },
+    "controller_authority": {
+      "type": ["object", "null"],
+      "additionalProperties": false,
+      "required": ["schema_version", "request", "global_constraints", "out_of_scope", "scope", "source", "digest", "recorded_at", "seq"],
+      "properties": {
+        "schema_version": { "const": "critical-controller-authority-v1" },
+        "request": { "$ref": "#/$defs/nonEmpty" },
+        "global_constraints": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmpty" } },
+        "out_of_scope": { "type": "array", "uniqueItems": true, "items": { "$ref": "#/$defs/nonEmpty" } },
+        "scope": { "$ref": "#/$defs/scope" },
+        "source": { "$ref": "#/$defs/nonEmpty" },
+        "digest": { "$ref": "#/$defs/digest" },
+        "recorded_at": { "type": "string", "format": "date-time" },
+        "seq": { "type": "integer", "minimum": 1 }
+      }
+    },
     "plan_critique": { "type": ["object", "null"] },
     "plan_discovery": {
       "oneOf": [
