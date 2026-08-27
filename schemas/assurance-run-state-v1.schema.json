@@ -116,6 +116,26 @@
     },
     "plan_digest": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/digest" }] },
     "plan_critique": { "type": ["object", "null"] },
+    "plan_discovery": {
+      "oneOf": [
+        { "type": "null" },
+        {
+          "type": "object",
+          "additionalProperties": false,
+          "required": ["plan_digest", "workspace_id", "checks", "result", "head_sha", "tree_sha", "recorded_at", "seq"],
+          "properties": {
+            "plan_digest": { "$ref": "#/$defs/digest" },
+            "workspace_id": { "$ref": "#/$defs/entityId" },
+            "checks": { "type": "array", "minItems": 1, "items": { "$ref": "#/$defs/nonEmpty" } },
+            "result": { "const": "pass" },
+            "head_sha": { "$ref": "#/$defs/gitSha" },
+            "tree_sha": { "$ref": "#/$defs/gitSha" },
+            "recorded_at": { "type": "string", "format": "date-time" },
+            "seq": { "type": "integer", "minimum": 1 }
+          }
+        }
+      ]
+    },
     "current_head_sha": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/gitSha" }] },
     "current_tree_sha": { "oneOf": [{ "type": "null" }, { "$ref": "#/$defs/gitSha" }] },
     "last_change_seq": { "type": "integer", "minimum": 0 },

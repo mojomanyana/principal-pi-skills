@@ -67,7 +67,7 @@
       "uniqueItems": true,
       "items": { "$ref": "#/$defs/entityId" }
     },
-    "done_command": { "$ref": "#/$defs/nonEmpty" },
+    "done_command": { "$ref": "#/$defs/safeDoneCommand" },
     "review_risk": { "$ref": "#/$defs/nonEmpty" },
     "workspace_id": { "$ref": "#/$defs/entityId" },
     "plan_digest": { "$ref": "#/$defs/digest" },
@@ -79,6 +79,16 @@
   },
   "$defs": {
     "nonEmpty": { "type": "string", "minLength": 1, "pattern": "\\S" },
+    "safeDoneCommand": {
+      "type": "string",
+      "minLength": 1,
+      "allOf": [
+        { "pattern": "\\S" },
+        { "not": { "pattern": "[\\r\\n;&|><`$]" } },
+        { "not": { "pattern": "^\\s*((npm|pnpm|yarn)\\s+(run\\s+)?test|node\\s+--test|pytest|cargo\\s+test|go\\s+test(\\s+\\.\\/\\.\\.)?)\\s*$" } },
+        { "not": { "pattern": "\\b(curl|wget|sudo|su|rm|rmdir|mkfs|dd|shutdown|reboot|ssh|scp)\\b" } }
+      ]
+    },
     "runId": { "type": "string", "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,127}$" },
     "entityId": { "type": "string", "pattern": "^(?!(?:constructor|prototype)$)[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$" },
     "repoPathPattern": {

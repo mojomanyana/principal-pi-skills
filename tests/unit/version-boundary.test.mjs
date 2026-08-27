@@ -55,7 +55,7 @@ test("all tracked authoritative source-version statements reject a current-sourc
   assert.deepEqual(contradictions, []);
 });
 
-test("runtime differences from 3.0.0 are exactly the generated Critical Plan contract outputs", () => {
+test("runtime differences from 3.0.0 are exactly the Critical Plan and fail-closed controller outputs", () => {
   const paths = execFileSync("git", ["ls-tree", "-r", "--name-only", BASE], { cwd: ROOT, encoding: "utf8" })
     .trim().split("\n").filter((path) => /^(?:schemas\/|scripts\/(?:install-agents|snapshot-workspace|assurance-state)\.mjs$|(?:decide|architect|plan|build|review|debug|git-ops)\/SKILL\.md$|agents\/.*\.md$|prompts\/.*\.md$)/.test(path));
   assert.ok(paths.length >= 23, `runtime comparison unexpectedly covered ${paths.length} files`);
@@ -63,17 +63,27 @@ test("runtime differences from 3.0.0 are exactly the generated Critical Plan con
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     return Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0;
   });
-  assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "plan/SKILL.md"]);
+  assert.deepEqual(changed.sort(), [
+    "agents/plan.md", "agents/principal-plan.md", "plan/SKILL.md",
+    "prompts/bugfix.md", "prompts/feature.md", "prompts/principal-bugfix.md", "prompts/principal-feature.md",
+    "schemas/assurance-run-state-v1.schema.json", "schemas/assurance-task-packet-v1.schema.json",
+    "scripts/assurance-state.mjs",
+  ]);
 });
 
-test("packed differences from 3.0.0 are exactly the authorized documentation, version, and Plan files", () => {
+test("packed differences from 3.0.0 are exactly the authorized Critical Plan/controller boundary", () => {
   const metadata = parsePackMetadata(execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: ROOT, encoding: "utf8" }));
   const changed = [];
   for (const { path } of metadata.files) {
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     if (Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0) changed.push(path);
   }
-  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "package.json", "plan/SKILL.md"]);
+  assert.deepEqual(changed.sort(), [
+    "AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "package.json",
+    "plan/SKILL.md", "prompts/bugfix.md", "prompts/feature.md", "prompts/principal-bugfix.md", "prompts/principal-feature.md",
+    "schemas/assurance-run-state-v1.schema.json", "schemas/assurance-task-packet-v1.schema.json",
+    "scripts/assurance-state.mjs",
+  ]);
 });
 
 test("unreleased notes describe evidence verification without claiming publication or measurement", () => {

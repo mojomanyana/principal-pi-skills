@@ -27,17 +27,21 @@ loaded-definition and artifact/module confinement, process-tree containment, and
 sandbox.
 
 **Fixed — Critical Plan task definitions are concrete and attributable.** Critical plans now
-keep authority/scope before tasks, require named tests and literal targeted Done commands,
-separate Plan definitions from controller-owned canonical packet identity/digest fields, and
-forbid assurance-only delivery slices. With no repository context they propose concrete values
-as assumptions and require discovery/validation before execution rather than emitting
-placeholders or claiming guessed paths exist. Deterministic mutation coverage removes each
-load-bearing rule and canonical field independently.
+keep global authority/constraints/exclusions before tasks, put Critical scope on every task,
+require named tests and safe literal targeted Done commands, separate Plan definitions from
+controller-owned canonical packet identity/digest fields, and forbid assurance-only delivery
+slices. With no repository context they propose concrete values as assumptions rather than
+placeholders or invented observations. The controller now fails closed unless discovery is bound
+to the current plan, workspace, and exact source identity before packet persistence; persistence
+never executes a Plan command. Structural mutation coverage independently removes every
+load-bearing rule and all 15 canonical packet fields. Behavioral efficacy remains for fresh
+qualification and is not claimed by deterministic tests.
 
 **Changed — source remains unreleased.** Source is `3.0.1 — Unreleased`; npm `latest` and
-install guidance remain published `3.0.0`. The three generated Plan runtime prompts now differ
-from `3.0.0`; other shipped runtime schemas, scripts, skills, agents, and prompts remain
-byte-identical. No 3.0.1 model score, publication, tag, or release is claimed.
+install guidance remain published `3.0.0`. Generated Plan and workflow prompts, the two assurance
+schemas, and the assurance-state controller now differ from `3.0.0`; unrelated shipped skills and
+agents remain byte-identical. This E1-informed repair is benchmark-aware tuning.
+No 3.0.1 model score, publication, tag, or release is claimed.
 
 ## [3.0.0] — 2026-08-20
 

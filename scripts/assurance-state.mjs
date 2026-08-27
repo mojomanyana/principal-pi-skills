@@ -79,7 +79,8 @@ The CLI supplies at, seq, run_id and hash-chain fields. Payload shapes:
   design_approved {type, design_digest, validation_strategy, observability, rollback_strategy, abort_strategy, one_way_doors:[], approved_by:"user"}
   plan_recorded {type, plan_digest}
   plan_critique_recorded {type, verdict:APPROVE|CHANGES-REQUESTED, context_id, plan_digest}
-  task_packet_recorded {type, packet:<assurance-task-packet-v1>; critical packets follow plan critique; task IDs are immutable}
+  plan_discovery_recorded {type, plan_digest, workspace_id, checks:[], result:"pass", head_sha, tree_sha; binds pre-packet discovery to the current plan/workspace}
+  task_packet_recorded {type, packet:<assurance-task-packet-v1>; critical packets follow critique and passing discovery; task IDs are immutable}
   task_packet_superseded {type, task_id, reason; only after a new plan makes the packet stale}
   phase_started {type, phase, task_id?, workspace_id?, definition_digest?; all three bindings required for critical Build}
   phase_completed {type, phase; plan changes require plan_recorded}
@@ -115,6 +116,12 @@ const validTimestamp = (value) => {
     (offsetHour === undefined || (Number(offsetHour) <= 23 && Number(offsetMinute) <= 59));
 };
 const safeEntityId = (value) => ENTITY_ID_RE.test(value ?? "");
+const safeDoneCommand = (value) => {
+  if (!nonEmpty(value) || /[\r\n;&|><`$]/.test(value)) return false;
+  if (/\b(?:curl|wget|sudo|su|rm|rmdir|mkfs|dd|shutdown|reboot|ssh|scp)\b/i.test(value)) return false;
+  if (/^\s*(?:(?:npm|pnpm|yarn)\s+(?:run\s+)?test|node\s+--test|pytest|cargo\s+test|go\s+test(?:\s+\.\/\.\.\.)?)\s*$/i.test(value)) return false;
+  return /(?:--test-name-pattern|--filter|--grep|-t\b|-k\b|-run\b|::|(?:^|\s)[^\s]+\/(?:[^\s]+\/)*[^\s]+|(?:^|\s)[^\s]+\.(?:[cm]?[jt]sx?|py|rs|go)(?:\s|$))/i.test(value);
+};
 const safeRepoPath = (value, { allowGlob = false } = {}) => {
   if (!nonEmpty(value) || isAbsolute(value) || /^[A-Za-z]:[\\/]/.test(value) || value.includes("\\")) return false;
   const segments = value.split("/");
@@ -365,6 +372,9 @@ export function validateTaskPacket(packet) {
   for (const field of ["run_id", "task_id", "title", "done_command", "review_risk", "workspace_id"]) {
     if (Object.hasOwn(packet, field) && !nonEmpty(packet[field])) errors.push(`task_packet.${field} must be a non-empty string`);
   }
+  if (Object.hasOwn(packet, "done_command") && !safeDoneCommand(packet.done_command)) {
+    errors.push("task_packet.done_command must be one safe targeted repository-local test invocation without shell composition or side effects");
+  }
   if (packet.run_id && !RUN_ID_RE.test(packet.run_id)) errors.push("task_packet.run_id must be a safe path-independent identifier");
   for (const field of ["task_id", "workspace_id"]) {
     if (packet[field] && !safeEntityId(packet[field])) errors.push(`task_packet.${field} must be a safe identifier`);
@@ -449,7 +459,7 @@ export function validateRunState(state) {
   ];
   const errors = errorsForObject(state, required, "run_state");
   if (errors.length === 1 && errors[0] === "run_state must be an object") return { ok: false, errors };
-  const allowedStateFields = new Set([...required, "backfill", "plan_critique", "design"]);
+  const allowedStateFields = new Set([...required, "backfill", "plan_critique", "plan_discovery", "design"]);
   for (const field of Object.keys(state)) {
     if (!allowedStateFields.has(field)) errors.push(`run_state.${field} is not allowed`);
   }
@@ -494,6 +504,20 @@ export function validateRunState(state) {
   }
   if (state.plan_digest !== null && !DIGEST_RE.test(state.plan_digest ?? "")) {
     errors.push("run_state.plan_digest must be sha256 or null");
+  }
+  if (state.plan_discovery != null) {
+    const fields = ["plan_digest", "workspace_id", "checks", "result", "head_sha", "tree_sha", "recorded_at", "seq"];
+    errors.push(...errorsForObject(state.plan_discovery, fields, "run_state.plan_discovery"));
+    if (Object.keys(state.plan_discovery ?? {}).some((field) => !fields.includes(field)) ||
+        !DIGEST_RE.test(state.plan_discovery?.plan_digest ?? "") ||
+        !safeEntityId(state.plan_discovery?.workspace_id) ||
+        !Array.isArray(state.plan_discovery?.checks) || state.plan_discovery.checks.length === 0 ||
+        state.plan_discovery.checks.some((check) => !nonEmpty(check)) ||
+        state.plan_discovery?.result !== "pass" || !SHA_RE.test(state.plan_discovery?.head_sha ?? "") ||
+        !SHA_RE.test(state.plan_discovery?.tree_sha ?? "") || !validTimestamp(state.plan_discovery?.recorded_at) ||
+        !Number.isInteger(state.plan_discovery?.seq) || state.plan_discovery.seq < 1) {
+      errors.push("run_state.plan_discovery must be a passing plan/workspace-bound discovery receipt");
+    }
   }
   if (state.design !== undefined) {
     const designFields = [
@@ -713,6 +737,7 @@ export function createInitialState({ workflow, request, runId, now, definitionDi
     frozen_diff: null,
     critical_backfill_required: false,
     plan_digest: null,
+    plan_discovery: null,
     current_head_sha: null,
     current_tree_sha: null,
     last_change_seq: 0,
@@ -813,6 +838,11 @@ export function evaluateGate(state, gate, { task_id = null, action = null } = {}
     const critique = state.plan_critique;
     if (!critique || critique.verdict !== "APPROVE" || critique.plan_digest !== state.plan_digest) {
       missing.push("an independent APPROVE plan critique for the current plan digest");
+    }
+    const discovery = state.plan_discovery;
+    if (!discovery || discovery.result !== "pass" || discovery.plan_digest !== state.plan_digest ||
+        discovery.workspace_id !== state.active_workspace_id) {
+      missing.push("passing discovery bound to the current plan, workspace, and exact head/tree");
     }
     const task = task_id ? ownValue(state.tasks, task_id) : null;
     if (!task) missing.push(`a validated task packet${task_id ? ` for ${task_id}` : ""}`);
@@ -1173,6 +1203,7 @@ export function applyEvent(input, rawEvent) {
       }
       state.plan_digest = event.plan_digest;
       state.plan_critique = null;
+      state.plan_discovery = null;
       state.last_authority_seq = seq;
       break;
     case "plan_critique_recorded":
@@ -1189,6 +1220,34 @@ export function applyEvent(input, rawEvent) {
       state.used_context_ids.push(event.context_id);
       state.last_authority_seq = seq;
       break;
+    case "plan_discovery_recorded": {
+      if (state.assurance.effective !== "critical") fail("plan discovery receipts are required only for critical assurance");
+      if (!DIGEST_RE.test(event.plan_digest ?? "") || event.plan_digest !== state.plan_digest) {
+        fail("plan discovery must bind the current plan digest");
+      }
+      if (!safeEntityId(event.workspace_id) || event.workspace_id !== state.active_workspace_id ||
+          !ownValue(state.workspaces, event.workspace_id)) {
+        fail("plan discovery must bind the active recorded workspace");
+      }
+      if (!Array.isArray(event.checks) || event.checks.length === 0 || event.checks.some((check) => !nonEmpty(check))) {
+        fail("plan discovery requires concrete non-empty checks");
+      }
+      if (event.result !== "pass" || !SHA_RE.test(event.head_sha ?? "") || !SHA_RE.test(event.tree_sha ?? "")) {
+        fail("plan discovery requires a passing result and exact head/tree identity");
+      }
+      state.plan_discovery = {
+        plan_digest: event.plan_digest,
+        workspace_id: event.workspace_id,
+        checks: clone(event.checks),
+        result: "pass",
+        head_sha: event.head_sha,
+        tree_sha: event.tree_sha,
+        recorded_at: event.at,
+        seq,
+      };
+      state.last_authority_seq = seq;
+      break;
+    }
     case "task_packet_recorded": {
       const result = validateTaskPacket(event.packet);
       if (!result.ok) fail(`invalid task packet: ${result.errors.join("; ")}`);
@@ -1197,6 +1256,16 @@ export function applyEvent(input, rawEvent) {
           (!state.plan_critique || state.plan_critique.verdict !== "APPROVE" ||
            state.plan_critique.plan_digest !== state.plan_digest)) {
         fail("critical task packets require an independent APPROVE critique of the current plan first");
+      }
+      if (state.assurance.effective === "critical" &&
+          (!state.plan_discovery || state.plan_discovery.result !== "pass" ||
+           state.plan_discovery.plan_digest !== state.plan_digest ||
+           state.plan_discovery.workspace_id !== event.packet.workspace_id)) {
+        fail("critical task packets require passing discovery bound to the current plan and packet workspace");
+      }
+      if (state.assurance.effective === "critical" &&
+          (event.packet.authority.length !== 1 || event.packet.authority[0] !== state.request)) {
+        fail("critical task packet authority must exactly preserve the controller-established request");
       }
       if (ownValue(state.tasks, event.packet.task_id)) {
         fail(`task packet ${event.packet.task_id} already exists; task definitions are immutable`);
