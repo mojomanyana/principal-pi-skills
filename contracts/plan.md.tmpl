@@ -99,44 +99,33 @@ behavior, and the test that proves it.
 ## Critical plan contract
 These rules apply only to Critical scope; non-Critical plans keep the right-sized forms below.
 Critical plans never abbreviate. Before `Steps:`, emit concrete `Authority:`, `Global constraints:`,
-and `Out of scope:` values, then `Discovery/validation:` and `Task-packet handoff:`. Every task emits
-concrete `Task ID:`, `Critical scope:`, `Files:`, `Dependencies:`, `Change:`, `Test:`, `Done command:`,
-`Expected result:`, `Review risk:`, and `Ripples:` values. Critical scope is per task, not a fourth
-global field.
+`Out of scope:`, and a `Critical scope:` summary, then `Assumptions:` and `Task-packet handoff:`.
+Every task repeats its concrete `Critical scope:` match and emits `Task ID:`, `Files:`,
+`Dependencies:`, `Change:`, `Test:`, `Done command:`, `Expected result:`, `Review risk:`, and
+`Ripples:` values.
 
-Every Critical task names one or more stable tests by test file and test name; test level and edge
-cases remain explicit. `Done command:` is one literal, targeted, repository-local test-runner
-invocation selecting that file or test name, with the expected result in its separate field. It is
-declarative Plan output, never a command that Plan or packet persistence executes. Exclude pipes,
-redirections, command chaining/substitution, network access, privilege changes, and destructive
-operations; Build may run the validated command only through its normal tool-approval boundary.
+Every Critical task names a stable test file and test name; test level and edge cases remain explicit.
+`Done command:` is one literal, targeted, proposed repository-local verification invocation selecting
+that file or test name, with the expected result in its separate field. It is declarative, untrusted
+Plan output—not execution authorization—and is never automatically executed by Plan or packet
+persistence. Build independently validates it against the repository and its existing tool-approval
+boundary before any execution. Do not emit `TBD`, angle-bracket tokens, bare `node --test`, generic
+“run tests” prose, or another broad untargeted command.
 
 When repository context supplies real paths, tests, and commands, use those exact observed values.
-When context is absent, propose concrete values, label them as assumptions, and never claim they
-exist. Do not emit `TBD`, angle-bracket tokens, broad commands such as bare `node --test`, or generic
-instructions such as “run tests”. `Discovery/validation:` lists the exact reads or safe commands the
-controller must perform before packet persistence to verify assumed paths, runner syntax, and test
-selection. The controller records a passing `plan_discovery_recorded` event bound to the current
-plan and workspace; missing, stale, or mismatched discovery stops execution for replan and packet
-supersession.
+When context is absent, propose concrete paths, names, and commands under clearly labelled
+Assumptions requiring validation; never claim they were observed. Runtime enforcement of command
+syntax, discovery identity, authority digests, and event-log migration is deferred to a future
+versioned runtime contract and is not claimed here.
 
-The controller—not Plan—owns packet persistence. Plan emits task definitions; it never fills a
-persisted packet. The canonical `assurance-task-packet-v1` partition is exact and exhaustive:
-
-- Plan defines `task_id`, `title`, `authority`, `global_constraints`, `out_of_scope`,
-  `critical_scope`, `files`, `dependencies`, `done_command`, and `review_risk`.
-- Controller supplies `schema_version`, `run_id`, `workspace_id`, `plan_digest`, and
-  `definition_digests`.
-
-Plan's authority, constraints, exclusions, and scope must echo the controller-established request
-and Critical scope; before persistence the controller rejects any narrowing, expansion, or mismatch.
-Include the partition in `Task-packet handoff:` using the field names above; do not emit IDs, digests,
-or packet values the controller owns.
+The controller—not Plan—owns packet persistence. Plan defines task content and stable `task_id`;
+the controller supplies `schema_version`, `run_id`, `workspace_id`, `plan_digest`, and
+`definition_digests`. Include that distinction in `Task-packet handoff:` without inventing
+controller-owned identities or digests.
 
 Every task remains a vertical behavioral slice delivering an independently testable user or system
-outcome. Discovery happens before those slices; critique, packet persistence, review, and other
-assurance-only activities are controller work, not tasks. Never add a final assurance, review,
-test-only, packet, or handoff slice that delivers no behavior.
+outcome. Critique, packet persistence, review, handoff, and test-only ceremony are controller work,
+not delivery slices; never add one as a final task.
 
 ## Right-sizing
 A one-file, clearly-specified change (a config value, a small flag): reply in three lines —

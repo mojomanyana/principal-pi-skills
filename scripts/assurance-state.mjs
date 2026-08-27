@@ -23,12 +23,10 @@ import {
 import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { homedir } from "node:os";
-import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { dirname, isAbsolute, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 export const SCHEMA_VERSION = "1.0";
-export const CRITICAL_DONE_COMMAND_GRAMMAR_VERSION = "critical-test-runner-argv-v1";
-export const CONTROLLER_AUTHORITY_SCHEMA_VERSION = "critical-controller-authority-v1";
 export const PROFILES = ["lean", "standard", "critical"];
 export const FINISH_CHOICES = ["merge", "pr", "keep", "discard"];
 const RISK_LEVELS = ["unknown", "tiny", "substantive", "consequential"];
@@ -80,10 +78,8 @@ The CLI supplies at, seq, run_id and hash-chain fields. Payload shapes:
   workspace_attached {type, workspace_id, mode:caller|owned-isolated, path, writer:"build"; ID/root binding is immutable}
   design_approved {type, design_digest, validation_strategy, observability, rollback_strategy, abort_strategy, one_way_doors:[], approved_by:"user"}
   plan_recorded {type, plan_digest}
-  controller_authority_recorded {type, authority:<critical-controller-authority-v1>; establishes canonical policy before Critical plan acceptance}
   plan_critique_recorded {type, verdict:APPROVE|CHANGES-REQUESTED, context_id, plan_digest}
-  plan_discovery_recorded {type, plan_digest, workspace_id, checks:[], result:"pass", head_sha?, tree_sha?; CLI derives active-worktree identity and rejects supplied mismatch}
-  task_packet_recorded {type, packet:<assurance-task-packet-v1>; Critical packets require current authority, critique, derived discovery, and grammar validation; task IDs are immutable}
+  task_packet_recorded {type, packet:<assurance-task-packet-v1>; critical packets follow plan critique; task IDs are immutable}
   task_packet_superseded {type, task_id, reason; only after a new plan makes the packet stale}
   phase_started {type, phase, task_id?, workspace_id?, definition_digest?; all three bindings required for critical Build}
   phase_completed {type, phase; plan changes require plan_recorded}
@@ -119,7 +115,6 @@ const validTimestamp = (value) => {
     (offsetHour === undefined || (Number(offsetHour) <= 23 && Number(offsetMinute) <= 59));
 };
 const safeEntityId = (value) => ENTITY_ID_RE.test(value ?? "");
-const safeDoneCommand = (value) => nonEmpty(value);
 const safeRepoPath = (value, { allowGlob = false } = {}) => {
   if (!nonEmpty(value) || isAbsolute(value) || /^[A-Za-z]:[\\/]/.test(value) || value.includes("\\")) return false;
   const segments = value.split("/");
@@ -127,28 +122,6 @@ const safeRepoPath = (value, { allowGlob = false } = {}) => {
   if (!allowGlob && /[*?\[\]]/.test(value)) return false;
   return true;
 };
-const safeCommandPath = (value) => safeRepoPath(value, { allowGlob: false }) && !value.startsWith("@") && !value.includes(":");
-
-/** Parses, but never executes, the closed Critical test-runner grammar. */
-export function parseCriticalDoneCommand(value) {
-  if (!nonEmpty(value) || /[\r\n'"`$;&|><\\]/.test(value) || /^\s|\s$|\s{2,}/.test(value)) return { ok: false, error: "ambiguous quoting or shell composition" };
-  const argv = value.split(" ");
-  const testPath = (path) => safeCommandPath(path) && /(?:^|\/)(?:test|tests|__tests__)\/|\.(?:[cm]?[jt]sx?|py|rs|go)$/.test(path);
-  if (argv.some((item) => item.startsWith("@"))) return { ok: false, error: "response files are not allowed" };
-  if (argv[0] === "node" && argv[1] === "--test") {
-    const rest = argv.slice(2), flags = rest.filter((item) => item.startsWith("--")), paths = rest.filter((item) => !item.startsWith("--"));
-    if (!paths.some(testPath) || flags.some((item) => !/^--test-name-pattern=[A-Za-z0-9_.:-]+$/.test(item))) return { ok: false, error: "node --test requires targeted test paths and only --test-name-pattern selectors" };
-  } else if (argv[0] === "pytest") {
-    const rest = argv.slice(1), flags = rest.filter((item) => item.startsWith("-")), paths = rest.filter((item) => !item.startsWith("-"));
-    if (!paths.some((item) => testPath(item.split("::")[0])) || flags.some((item) => !/^-k[A-Za-z0-9_.:-]+$/.test(item))) return { ok: false, error: "pytest requires a targeted path or selector" };
-  } else if (argv[0] === "go" && argv[1] === "test") {
-    if (argv.length !== 4 || !safeCommandPath(argv[2]) || !/^-run[A-Za-z0-9_.:-]+$/.test(argv[3])) return { ok: false, error: "go test requires one relative package and -run selector" };
-  } else if (argv[0] === "cargo" && argv[1] === "test") {
-    if (argv.length !== 3 || !/^[A-Za-z0-9_:-]+$/.test(argv[2])) return { ok: false, error: "cargo test requires one exact test selector" };
-  } else return { ok: false, error: "unsupported Critical test runner" };
-  return { ok: true, grammar_version: CRITICAL_DONE_COMMAND_GRAMMAR_VERSION, argv };
-}
-
 const ownValue = (object, key) => (object && Object.hasOwn(object, key) ? object[key] : undefined);
 const clone = (value) => structuredClone(value);
 
@@ -327,13 +300,14 @@ function selectorPattern(selector) {
   return new RegExp(`^${globbed}$`);
 }
 
-export function scopeMatches(scope, { task_id = null, paths = [] } = {}) {
-  if (!scope || scope.type === "entire-run") return ["entire-run"];
-  return (scope.selectors ?? []).filter((selector) => selector === task_id || paths.some((path) => selectorPattern(selector).test(path)));
-}
-
-export function matchesCriticalScope(scope, task) {
-  return scopeMatches(scope, task).length > 0;
+export function matchesCriticalScope(scope, { task_id = null, paths = [] } = {}) {
+  if (!scope || scope.type === "entire-run") return true;
+  for (const selector of scope.selectors ?? []) {
+    if (task_id && selector === task_id) return true;
+    const pattern = selectorPattern(selector);
+    if (paths.some((path) => pattern.test(path))) return true;
+  }
+  return false;
 }
 
 function errorsForObject(value, required, label) {
@@ -390,9 +364,6 @@ export function validateTaskPacket(packet) {
   if (packet.schema_version !== SCHEMA_VERSION) errors.push(`task_packet.schema_version must be ${SCHEMA_VERSION}`);
   for (const field of ["run_id", "task_id", "title", "done_command", "review_risk", "workspace_id"]) {
     if (Object.hasOwn(packet, field) && !nonEmpty(packet[field])) errors.push(`task_packet.${field} must be a non-empty string`);
-  }
-  if (Object.hasOwn(packet, "done_command") && !safeDoneCommand(packet.done_command)) {
-    errors.push("task_packet.done_command must be one safe targeted repository-local test invocation without shell composition or side effects");
   }
   if (packet.run_id && !RUN_ID_RE.test(packet.run_id)) errors.push("task_packet.run_id must be a safe path-independent identifier");
   for (const field of ["task_id", "workspace_id"]) {
@@ -478,7 +449,7 @@ export function validateRunState(state) {
   ];
   const errors = errorsForObject(state, required, "run_state");
   if (errors.length === 1 && errors[0] === "run_state must be an object") return { ok: false, errors };
-  const allowedStateFields = new Set([...required, "backfill", "controller_authority", "plan_critique", "plan_discovery", "design"]);
+  const allowedStateFields = new Set([...required, "backfill", "plan_critique", "design"]);
   for (const field of Object.keys(state)) {
     if (!allowedStateFields.has(field)) errors.push(`run_state.${field} is not allowed`);
   }
@@ -523,33 +494,6 @@ export function validateRunState(state) {
   }
   if (state.plan_digest !== null && !DIGEST_RE.test(state.plan_digest ?? "")) {
     errors.push("run_state.plan_digest must be sha256 or null");
-  }
-  if (state.controller_authority != null) {
-    const fields = ["schema_version", "request", "global_constraints", "out_of_scope", "scope", "source", "digest", "recorded_at", "seq"];
-    errors.push(...errorsForObject(state.controller_authority, fields, "run_state.controller_authority"));
-    if (Object.keys(state.controller_authority ?? {}).some((field) => !fields.includes(field)) ||
-        state.controller_authority?.schema_version !== CONTROLLER_AUTHORITY_SCHEMA_VERSION ||
-        !nonEmpty(state.controller_authority?.request) || !Array.isArray(state.controller_authority?.global_constraints) ||
-        !Array.isArray(state.controller_authority?.out_of_scope) || !nonEmpty(state.controller_authority?.source) ||
-        !DIGEST_RE.test(state.controller_authority?.digest ?? "") || !validTimestamp(state.controller_authority?.recorded_at) ||
-        !Number.isInteger(state.controller_authority?.seq) || state.controller_authority.seq < 1 ||
-        validateScope(state.controller_authority?.scope, "run_state.controller_authority.scope").length) {
-      errors.push("run_state.controller_authority must be a canonical Critical authority record");
-    }
-  }
-  if (state.plan_discovery != null) {
-    const fields = ["plan_digest", "workspace_id", "checks", "result", "head_sha", "tree_sha", "recorded_at", "seq"];
-    errors.push(...errorsForObject(state.plan_discovery, fields, "run_state.plan_discovery"));
-    if (Object.keys(state.plan_discovery ?? {}).some((field) => !fields.includes(field)) ||
-        !DIGEST_RE.test(state.plan_discovery?.plan_digest ?? "") ||
-        !safeEntityId(state.plan_discovery?.workspace_id) ||
-        !Array.isArray(state.plan_discovery?.checks) || state.plan_discovery.checks.length === 0 ||
-        state.plan_discovery.checks.some((check) => !nonEmpty(check)) ||
-        state.plan_discovery?.result !== "pass" || !SHA_RE.test(state.plan_discovery?.head_sha ?? "") ||
-        !SHA_RE.test(state.plan_discovery?.tree_sha ?? "") || !validTimestamp(state.plan_discovery?.recorded_at) ||
-        !Number.isInteger(state.plan_discovery?.seq) || state.plan_discovery.seq < 1) {
-      errors.push("run_state.plan_discovery must be a passing plan/workspace-bound discovery receipt");
-    }
   }
   if (state.design !== undefined) {
     const designFields = [
@@ -769,8 +713,6 @@ export function createInitialState({ workflow, request, runId, now, definitionDi
     frozen_diff: null,
     critical_backfill_required: false,
     plan_digest: null,
-    controller_authority: null,
-    plan_discovery: null,
     current_head_sha: null,
     current_tree_sha: null,
     last_change_seq: 0,
@@ -868,16 +810,9 @@ export function evaluateGate(state, gate, { task_id = null, action = null } = {}
     if (state.risk.level === "consequential" && !state.design?.approved) {
       missing.push("an approved design with rollback, abort strategy, and one-way doors");
     }
-    const authority = state.controller_authority;
-    if (!authority || authority.request !== state.request) missing.push("a current controller authority record; legacy Critical packets require explicit replan and supersession");
     const critique = state.plan_critique;
     if (!critique || critique.verdict !== "APPROVE" || critique.plan_digest !== state.plan_digest) {
       missing.push("an independent APPROVE plan critique for the current plan digest");
-    }
-    const discovery = state.plan_discovery;
-    if (!discovery || discovery.result !== "pass" || discovery.plan_digest !== state.plan_digest ||
-        discovery.workspace_id !== state.active_workspace_id) {
-      missing.push("passing discovery bound to the current plan, workspace, and exact head/tree");
     }
     const task = task_id ? ownValue(state.tasks, task_id) : null;
     if (!task) missing.push(`a validated task packet${task_id ? ` for ${task_id}` : ""}`);
@@ -891,18 +826,13 @@ export function evaluateGate(state, gate, { task_id = null, action = null } = {}
         ([name, value]) => state.definition_digests[name] !== value,
       );
       if (staleDefinitions.length) missing.push(`current definition digest(s): ${staleDefinitions.map(([name]) => name).join(", ")}`);
-      const authoritativeScope = authority?.scope ?? state.assurance.scope;
-      const matchedBy = scopeMatches(authoritativeScope, { task_id, paths: task.packet.files });
-      if (task.packet.critical_scope.applies !== (matchedBy.length > 0) ||
-          canonicalJson(task.packet.critical_scope.matched_by) !== canonicalJson(matchedBy)) {
-        missing.push("a task packet with an accurate canonical critical-scope match");
+      const applies = matchesCriticalScope(state.assurance.scope, {
+        task_id,
+        paths: task.packet.files,
+      });
+      if (task.packet.critical_scope.applies !== applies || (applies && task.packet.critical_scope.matched_by.length === 0)) {
+        missing.push("a task packet with an accurate critical-scope match");
       }
-      if (authority && (task.packet.authority.length !== 1 || task.packet.authority[0] !== authority.request ||
-          canonicalJson(task.packet.global_constraints) !== canonicalJson(authority.global_constraints) ||
-          canonicalJson(task.packet.out_of_scope) !== canonicalJson(authority.out_of_scope))) {
-        missing.push("a task packet bound to the current controller authority record");
-      }
-      if (!parseCriticalDoneCommand(task.packet.done_command).ok) missing.push("a packet with a supported Critical test-runner command");
       for (const dependencyId of task.packet.dependencies) {
         const dependency = ownValue(state.tasks, dependencyId);
         if (!dependency) {
@@ -1236,28 +1166,6 @@ export function applyEvent(input, rawEvent) {
       };
       state.last_authority_seq = seq;
       break;
-    case "controller_authority_recorded": {
-      const authority = event.authority;
-      if (state.assurance.effective !== "critical") fail("controller authority records are required only for critical assurance");
-      const fields = ["schema_version", "request", "global_constraints", "out_of_scope", "scope", "source"];
-      if (errorsForObject(authority, fields, "controller authority").length || Object.keys(authority ?? {}).some((field) => !fields.includes(field)) ||
-          authority?.schema_version !== CONTROLLER_AUTHORITY_SCHEMA_VERSION || authority?.request !== state.request ||
-          canonicalJson(authority?.scope) !== canonicalJson(state.assurance.scope) || !Array.isArray(authority?.global_constraints) || !Array.isArray(authority?.out_of_scope) || !nonEmpty(authority?.source) ||
-          validateScope(authority?.scope, "controller authority scope").length) {
-        fail("controller authority must canonically establish this exact request, constraints, exclusions, and scope");
-      }
-      for (const key of ["global_constraints", "out_of_scope"]) {
-        if (authority[key].some((value) => !nonEmpty(value)) || new Set(authority[key]).size !== authority[key].length ||
-            [...authority[key]].sort().some((value, index) => value !== authority[key][index])) fail(`controller authority ${key} must be sorted unique non-empty values`);
-      }
-      const canonical = { ...authority };
-      const authorityDigest = digest(canonical);
-      state.controller_authority = { ...canonical, digest: authorityDigest, recorded_at: event.at, seq };
-      state.plan_critique = null;
-      state.plan_discovery = null;
-      state.last_authority_seq = seq;
-      break;
-    }
     case "plan_recorded":
       if (!DIGEST_RE.test(event.plan_digest ?? "")) fail("plan event requires a sha256 plan_digest");
       if (Object.values(state.findings).some((finding) => finding.repair?.status === "started")) {
@@ -1265,7 +1173,6 @@ export function applyEvent(input, rawEvent) {
       }
       state.plan_digest = event.plan_digest;
       state.plan_critique = null;
-      state.plan_discovery = null;
       state.last_authority_seq = seq;
       break;
     case "plan_critique_recorded":
@@ -1282,34 +1189,6 @@ export function applyEvent(input, rawEvent) {
       state.used_context_ids.push(event.context_id);
       state.last_authority_seq = seq;
       break;
-    case "plan_discovery_recorded": {
-      if (state.assurance.effective !== "critical") fail("plan discovery receipts are required only for critical assurance");
-      if (!DIGEST_RE.test(event.plan_digest ?? "") || event.plan_digest !== state.plan_digest) {
-        fail("plan discovery must bind the current plan digest");
-      }
-      if (!safeEntityId(event.workspace_id) || event.workspace_id !== state.active_workspace_id ||
-          !ownValue(state.workspaces, event.workspace_id)) {
-        fail("plan discovery must bind the active recorded workspace");
-      }
-      if (!Array.isArray(event.checks) || event.checks.length === 0 || event.checks.some((check) => !nonEmpty(check))) {
-        fail("plan discovery requires concrete non-empty checks");
-      }
-      if (event.result !== "pass" || !SHA_RE.test(event.head_sha ?? "") || !SHA_RE.test(event.tree_sha ?? "")) {
-        fail("plan discovery requires a passing result and exact head/tree identity");
-      }
-      state.plan_discovery = {
-        plan_digest: event.plan_digest,
-        workspace_id: event.workspace_id,
-        checks: clone(event.checks),
-        result: "pass",
-        head_sha: event.head_sha,
-        tree_sha: event.tree_sha,
-        recorded_at: event.at,
-        seq,
-      };
-      state.last_authority_seq = seq;
-      break;
-    }
     case "task_packet_recorded": {
       const result = validateTaskPacket(event.packet);
       if (!result.ok) fail(`invalid task packet: ${result.errors.join("; ")}`);
@@ -1318,28 +1197,6 @@ export function applyEvent(input, rawEvent) {
           (!state.plan_critique || state.plan_critique.verdict !== "APPROVE" ||
            state.plan_critique.plan_digest !== state.plan_digest)) {
         fail("critical task packets require an independent APPROVE critique of the current plan first");
-      }
-      if (state.assurance.effective === "critical" &&
-          (!state.plan_discovery || state.plan_discovery.result !== "pass" ||
-           state.plan_discovery.plan_digest !== state.plan_digest ||
-           state.plan_discovery.workspace_id !== event.packet.workspace_id)) {
-        fail("critical task packets require passing discovery bound to the current plan and packet workspace");
-      }
-      if (state.assurance.effective === "critical") {
-        const authority = state.controller_authority;
-        if (!authority || authority.request !== state.request) fail("critical task packets require a current controller authority record; legacy packets require explicit replan and supersession");
-        if (event.packet.authority.length !== 1 || event.packet.authority[0] !== authority.request ||
-            canonicalJson(event.packet.global_constraints) !== canonicalJson(authority.global_constraints) ||
-            canonicalJson(event.packet.out_of_scope) !== canonicalJson(authority.out_of_scope)) {
-          fail("critical task packet authority, constraints, and exclusions must exactly preserve the controller authority record");
-        }
-        const matchedBy = scopeMatches(authority.scope, { task_id: event.packet.task_id, paths: event.packet.files });
-        if (event.packet.critical_scope.applies !== (matchedBy.length > 0) ||
-            canonicalJson(event.packet.critical_scope.matched_by) !== canonicalJson(matchedBy)) {
-          fail("critical task packet scope must exactly equal canonical derived matched_by selectors");
-        }
-        const command = parseCriticalDoneCommand(event.packet.done_command);
-        if (!command.ok) fail(`BLOCKED_CRITICAL_ASSURANCE: invalid Critical Done command: ${command.error}`);
       }
       if (ownValue(state.tasks, event.packet.task_id)) {
         fail(`task packet ${event.packet.task_id} already exists; task definitions are immutable`);
@@ -1886,10 +1743,7 @@ function definitionDigests() {
     ...["principal-plan", "principal-review", "principal-debug"].map((name) => [`agent:${name}`, `agents/${name}.md`]),
     ...["principal-feature", "principal-bugfix"].map((name) => [`prompt:${name}`, `prompts/${name}.md`]),
   ];
-  return {
-    ...Object.fromEntries(paths.map(([name, path]) => [name, digest(readFileSync(join(ROOT, path), "utf8"))])),
-    "toolchain:critical-done-command-grammar": digest(`${CRITICAL_DONE_COMMAND_GRAMMAR_VERSION}\n${parseCriticalDoneCommand.toString()}`),
-  };
+  return Object.fromEntries(paths.map(([name, path]) => [name, digest(readFileSync(join(ROOT, path), "utf8"))]));
 }
 
 function cliFlag(args, name, fallback = null) {
@@ -1901,29 +1755,6 @@ function cliFlag(args, name, fallback = null) {
 
 function stdin() {
   return readFileSync(0, "utf8");
-}
-
-function deriveCriticalDiscoveryIdentity(state, payload) {
-  const workspace = ownValue(state.workspaces, payload.workspace_id);
-  if (!workspace || payload.workspace_id !== state.active_workspace_id || workspace.mode !== "owned-isolated") {
-    fail("BLOCKED_CRITICAL_ASSURANCE: discovery requires the active owned workspace");
-  }
-  const root = realpathSync(workspace.path);
-  const git = (args) => execFileSync("git", ["-C", root, ...args], { encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-  let top, head, tree, dirty;
-  try {
-    top = realpathSync(git(["rev-parse", "--show-toplevel"]));
-    head = git(["rev-parse", "HEAD"]);
-    tree = git(["rev-parse", "HEAD^{tree}"]);
-    dirty = git(["status", "--porcelain"]);
-  } catch {
-    fail("BLOCKED_CRITICAL_ASSURANCE: cannot derive Git identity from the active workspace");
-  }
-  if (top !== root || relative(root, top) || dirty) fail("BLOCKED_CRITICAL_ASSURANCE: discovery workspace must be a clean Git worktree root");
-  if ((payload.head_sha && payload.head_sha !== head) || (payload.tree_sha && payload.tree_sha !== tree)) {
-    fail("BLOCKED_CRITICAL_ASSURANCE: supplied discovery identity does not match derived workspace identity");
-  }
-  return { head_sha: head, tree_sha: tree };
 }
 
 export function runCli(argv, { cwd = process.cwd(), env = process.env, out = console.log, err = console.error, input = stdin } = {}) {
@@ -1953,10 +1784,6 @@ export function runCli(argv, { cwd = process.cwd(), env = process.env, out = con
       const runId = cliFlag(argv, "--run-id");
       const raw = cliFlag(argv, "--json", null) ?? stdin();
       const payload = JSON.parse(raw);
-      if (payload.type === "plan_discovery_recorded") {
-        const state = store.load(runId);
-        Object.assign(payload, deriveCriticalDiscoveryIdentity(state, payload));
-      }
       out(JSON.stringify(store.append(runId, payload), null, 2));
       return 0;
     }

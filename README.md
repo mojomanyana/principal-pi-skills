@@ -11,7 +11,7 @@ standard, so other harnesses can consume the skills, but pi is the supported tar
 **Source status:** `3.0.1 — Unreleased`. It is not published or available from npm.
 The npm `latest` release and supported install target remain `3.0.0`. This source update
 strengthens the generated Critical Plan skill/agent prompts and development-only measurement
-evidence; its Critical Plan repair also changes the generated Plan/workflow prompts, assurance-state runtime script, and assurance schemas. Other shipped skills and agents remain unchanged.
+evidence; it changes no other shipped skill, agent, prompt, runtime script, or runtime schema.
 
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
@@ -59,7 +59,7 @@ approval controls without creating another skill suite.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 860 |
 | `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1142 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1909) or inline | 1699 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1804) or inline | 1594 |
 | `build` | Test-first implementation — code proven by a test you watched fail | inline | 1162 |
 | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1392) or inline | 1364 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1395) or inline | 1261 |
