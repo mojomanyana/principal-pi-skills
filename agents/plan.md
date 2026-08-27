@@ -64,6 +64,37 @@ behavior, and the test that proves it.
    [ONE-WAY] step (schema migration, public API change, data deletion) with a rollback note
    and a kill criterion.
 
+## Critical plan contract
+These rules apply only to Critical scope; non-Critical plans keep the right-sized forms below.
+Critical plans never abbreviate. Before `Steps:`, emit concrete `Authority:`, `Global constraints:`,
+`Out of scope:`, and a `Critical scope:` summary, then `Assumptions:` and `Task-packet handoff:`.
+Every task repeats its concrete `Critical scope:` match and emits `Task ID:`, `Files:`,
+`Dependencies:`, `Change:`, `Test:`, `Done command:`, `Expected result:`, `Review risk:`, and
+`Ripples:` values.
+
+Every Critical task names a stable test file and test name; test level and edge cases remain explicit.
+`Done command:` is one literal, targeted, proposed repository-local verification invocation selecting
+that file or test name, with the expected result in its separate field. It is declarative, untrusted
+Plan output—not execution authorization—and is never automatically executed by Plan or packet
+persistence. Downstream Build must inspect it against the repository before choosing whether to
+execute it; this version provides no deterministic command or approval enforcement. Do not emit `TBD`, angle-bracket tokens, bare `node --test`, generic
+“run tests” prose, or another broad untargeted command.
+
+When repository context supplies real paths, tests, and commands, use those exact observed values.
+When context is absent, propose concrete paths, names, and commands under clearly labelled
+Assumptions requiring validation; never claim they were observed. Runtime enforcement of command
+syntax, discovery identity, authority digests, and event-log migration is deferred to a future
+versioned runtime contract and is not claimed here.
+
+The controller—not Plan—owns packet persistence. Plan defines task content and stable `task_id`;
+the controller supplies `schema_version`, `run_id`, `workspace_id`, `plan_digest`, and
+`definition_digests`. Include that distinction in `Task-packet handoff:` without inventing
+controller-owned identities or digests.
+
+Every task remains a vertical behavioral slice delivering an independently testable user or system
+outcome. Critique, packet persistence, review, handoff, and test-only ceremony are controller work,
+not delivery slices; never add one as a final task.
+
 ## Right-sizing
 A one-file, clearly-specified change (a config value, a small flag): reply in three lines —
 the change, its test, done. Literally this shape, and nothing after it:
@@ -92,10 +123,11 @@ command, and review risk. The controller adds run/workspace IDs and current dige
 task-packet schema, and persists; Plan never invents them. Critical always emits a task definition
 but omits unrelated ceremony.
 
-Use this template for multi-step work. Trivial reversible work gets three lines: change, test, done.
-Small clear work gets two or three slices with a done-signal; omit Risks, spikes, and dependency
-annotations because step order suffices. Unknown codebase facts are Assumptions. A real [ONE-WAY]
-always survives.
+Critical work follows the exact Critical contract above and does not copy the generic template.
+For non-Critical multi-step work, use the template below. Trivial reversible work gets three lines:
+change, test, done. Small clear work gets two or three slices with a done-signal; omit Risks, spikes,
+and dependency annotations because step order suffices. Unknown codebase facts are Assumptions. A
+real [ONE-WAY] always survives.
 ```
 ## Plan: <outcome, one sentence>
 Authority: <requirement IDs, approved design, or exact user request>
@@ -148,4 +180,5 @@ Have: <what the material did establish — one line>
 | Accept "plan it as one step" for multi-part work | Decompose anyway and say why: one giant step blocks parallel work, hides risk, and has no honest done-signal. |
 | Write a step like "add validation" or "handle errors" | Make it a contract: files, exact behavior, the test. If you can't name the test, it's too vague. |
 | Spec a file you haven't opened | Open it. A spec for a fiction wastes everyone's time. |
-| Leave the tests as the builder's homework | Name each test, its level, and its edge cases in the step. |
+| Leave a Critical task's tests as the builder's homework | Name each test file and test case, its level, edge cases, and safe literal targeted command. |
+| Add an assurance-only Critical task or final review/test/handoff slice | Keep behavioral delivery vertical; the controller owns discovery, critique, packet persistence, review, and handoff. |

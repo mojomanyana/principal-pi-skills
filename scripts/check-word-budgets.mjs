@@ -41,13 +41,15 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // model needed. Prose that earns its place should not be squeezed by a number that was
 // guessed before the content existed.
 //
-// `git-ops` is the standing exception at 2000: v3 moved it 1900 -> 2000 for the
-// fresh-evidence finish gate and explicit merge/PR/keep choice. The safety-critical operator
-// carries the most arming of all, and trimming its incident rules to fit would be the defect.
+// `git-ops` is a standing exception at 2000 for its safety playbook. `plan` is 1700 and its
+// single-shot agent is 1900 because the Critical contract must carry canonical packet ownership,
+// concrete-test/command rules, no-context discovery, and vertical-slice governors in the same
+// model-visible file. Trimming those coupled requirements to the generic ceiling reproduced a
+// measured cross-model omission; the exception is local rather than raising every contract's cap.
 //
 // These are still ceilings, not targets — the check exists so growth is a decision someone
 // makes, not something that happens.
-const BUDGETS = { skill: 1400, agent: 1500, "git-ops": 2000 };
+const BUDGETS = { skill: 1400, agent: 1500, plan: 1700, "plan-agent": 1900, "git-ops": 2000 };
 
 const words = (p) => {
   const t = readFileSync(join(ROOT, p), "utf8").trim();
@@ -67,7 +69,7 @@ for (const line of readme.split("\n")) {
 
   const targets = [[`${skill}/SKILL.md`, Number(claimed), BUDGETS[skill] ?? BUDGETS.skill]];
   const twin = middle.match(/`(agents\/[a-z-]+\.md)`\s*,\s*(\d+)/);
-  if (twin) targets.push([twin[1], Number(twin[2]), BUDGETS.agent]);
+  if (twin) targets.push([twin[1], Number(twin[2]), BUDGETS[`${skill}-agent`] ?? BUDGETS.agent]);
 
   for (const [path, claim, ceiling] of targets) {
     let actual;
