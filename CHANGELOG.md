@@ -32,8 +32,8 @@ separate Plan definitions from controller-owned canonical packet identity/digest
 forbid assurance-only delivery slices. With no repository context they propose concrete values
 as assumptions and require discovery/validation before execution rather than emitting
 placeholders or claiming guessed paths exist. `Done command` is explicitly declarative and untrusted:
-Build validates it against the repository and existing approval boundary before any execution.
-Deterministic mutation coverage is structural only; a fresh Wave A remains required for behavioral
+this version provides no deterministic command or approval enforcement. Deterministic mutation
+coverage is structural only; a fresh Wave A remains required for behavioral
 validation. `docs/evidence/pr35-e1-repair-provenance-v1.json` hashes the E1-informed evidence,
 including contextual D1/D2 diagnosis material; preserved measurements are unchanged.
 

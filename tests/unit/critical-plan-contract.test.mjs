@@ -21,7 +21,7 @@ const requirements = [
   ["literal targeted command", "`Done command:` is one literal, targeted, proposed repository-local verification invocation"],
   ["separate result", "with the expected result in its separate field"],
   ["declarative untrusted boundary", "It is declarative, untrusted\nPlan output—not execution authorization—and is never automatically executed by Plan or packet\npersistence."],
-  ["Build validation boundary", "Build independently validates it against the repository and its existing tool-approval\nboundary before any execution."],
+  ["deferred enforcement boundary", "Downstream Build must inspect it against the repository before choosing whether to\nexecute it; this version provides no deterministic command or approval enforcement."],
   ["observed repository values", "repository context supplies real paths, tests, and commands, use those exact observed values"],
   ["assumptions", "under clearly labelled\nAssumptions requiring validation; never claim they were observed"],
   ["placeholder rejection", "Do not emit `TBD`, angle-bracket tokens, bare `node --test`, generic\n“run tests” prose, or another broad untargeted command."],

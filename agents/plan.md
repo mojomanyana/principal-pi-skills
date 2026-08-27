@@ -76,8 +76,8 @@ Every Critical task names a stable test file and test name; test level and edge 
 `Done command:` is one literal, targeted, proposed repository-local verification invocation selecting
 that file or test name, with the expected result in its separate field. It is declarative, untrusted
 Plan output—not execution authorization—and is never automatically executed by Plan or packet
-persistence. Build independently validates it against the repository and its existing tool-approval
-boundary before any execution. Do not emit `TBD`, angle-bracket tokens, bare `node --test`, generic
+persistence. Downstream Build must inspect it against the repository before choosing whether to
+execute it; this version provides no deterministic command or approval enforcement. Do not emit `TBD`, angle-bracket tokens, bare `node --test`, generic
 “run tests” prose, or another broad untargeted command.
 
 When repository context supplies real paths, tests, and commands, use those exact observed values.
