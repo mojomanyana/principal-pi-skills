@@ -8,6 +8,18 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ## [3.0.1] — Unreleased
 
+**Added — gate outcomes are recorded, not just printed.** `principal-pi-assurance gate` now appends a
+`gate_evaluated {gate, code, missing_count, task_id?, action?}` event for every evaluation it performs,
+pass or block. The gate was a pure read, which is precisely why no downstream observer could prove that
+a gate ran or how it answered; a completion claim and an unexamined run were indistinguishable in the
+ledger. Because the workflows already invoke the gate at each control point, recording inside the
+command required no workflow or skill text change. The event is an observation: it mutates no derived
+state, so it cannot advance `last_change_seq` or `last_authority_seq` and can never make a receipt
+stale, and it is accepted after `finalization_completed` so the `finish` gate can record its own
+outcome. `missing_count` is recorded rather than the missing-control strings, which are human
+diagnostics and not a machine contract. A ledger containing this event requires this version or newer
+to replay. Rationale and the downstream assertion mapping: `docs/handoff/2026-09-event-vocabulary-decision.md`.
+
 **Fixed — fail-closed measurement classification.** A closed machine-readable manifest now
 classifies all 205 committed `results.yaml` files exactly once and binds each entry to its
 raw SHA-256. The Terra-high control, unpinned-executor infrastructure failure, and

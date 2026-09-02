@@ -63,7 +63,9 @@ test("runtime differences from 3.0.0 are exactly the generated Critical Plan con
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     return Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0;
   });
-  assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "plan/SKILL.md"]);
+  // scripts/assurance-state.mjs: the gate command now records gate_evaluated, which is what makes a
+  // gate outcome observable evidence (docs/handoff/2026-09-event-vocabulary-decision.md).
+  assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
 });
 
 test("packed differences from 3.0.0 are exactly the authorized documentation, version, and Plan files", () => {
@@ -73,7 +75,7 @@ test("packed differences from 3.0.0 are exactly the authorized documentation, ve
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     if (Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0) changed.push(path);
   }
-  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "package.json", "plan/SKILL.md"]);
+  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "package.json", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
 });
 
 test("unreleased notes describe evidence verification without claiming publication or measurement", () => {

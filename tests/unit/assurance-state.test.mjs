@@ -1391,6 +1391,7 @@ test("CLI contract exposes every event shape the generated workflows must persis
     "code_changed", "evidence_recorded", "review_recorded", "finding_adjudicated", "repair_suspended",
     "assurance_escalated", "assurance_downgraded", "backfill_completed",
     "side_effect_approved", "finish_selected", "finalization_completed",
+    "gate_evaluated",
   ]) assert.ok(contract.includes(eventType), eventType);
   assert.match(contract, /event --run-id/);
   assert.match(contract, /gate --run-id/);
@@ -1500,4 +1501,94 @@ test("AssuranceStore writes a hash-chained log and rejects unsupported versions 
   } finally {
     rmSync(dir, { recursive: true, force: true });
   }
+});
+
+const gateLog = (dir, runId) =>
+  readFileSync(new AssuranceStore({ baseDir: dir }).paths(runId).log, "utf8")
+    .trim().split("\n").map((line) => JSON.parse(line));
+
+test("the gate command records every evaluation it performs, pass and block alike", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ppa-gate-record-"));
+  const sink = () => {
+    const lines = [];
+    return { lines, out: (line) => lines.push(line), err: (line) => lines.push(line) };
+  };
+  try {
+    const runId = "run-gate-record";
+    assert.equal(runCli(["init", "--workflow", "feature", "--run-id", runId, "--request", "add export", "--state-dir", dir], sink()), 0);
+
+    assert.equal(runCli(["gate", "--run-id", runId, "--gate", "pre-build", "--state-dir", dir], sink()), 0);
+    const passed = gateLog(dir, runId).at(-1);
+    assert.equal(passed.type, "gate_evaluated");
+    assert.equal(passed.gate, "pre-build");
+    assert.equal(passed.code, "OK");
+    assert.equal(passed.missing_count, 0);
+
+    // A block is the outcome most worth recording: without it a run that never satisfied its
+    // controls and a run that was never checked look identical in the ledger.
+    const blocked = sink();
+    assert.equal(runCli(["gate", "--run-id", runId, "--gate", "finalize", "--state-dir", dir], blocked), 3);
+    const recorded = gateLog(dir, runId).at(-1);
+    assert.equal(recorded.type, "gate_evaluated");
+    assert.equal(recorded.gate, "finalize");
+    assert.equal(recorded.code, "BLOCKED_ASSURANCE");
+    assert.ok(recorded.missing_count > 0, "a blocked gate records how many controls were missing");
+    assert.match(blocked.lines.join("\n"), /BLOCKED_ASSURANCE/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("the finish gate records its own outcome after finalization has finished the run", () => {
+  let state = initial();
+  state = event(state, "risk_classified", { level: "tiny", reason: "small local correction" });
+  state = event(state, "code_changed", { head_sha: head1, tree_sha: tree1, changed_paths: ["src/a.ts"] });
+  state = event(state, "evidence_recorded", {
+    kind: "exact-target", command: "node --test test/a.test.mjs", exit_code: 0, head_sha: head1, tree_sha: tree1,
+  });
+  state = event(state, "finish_selected", { choice: "keep" });
+  state = event(state, "phase_started", { phase: "git-ops" });
+  state = event(state, "finalization_completed", { final_branch: "principal/run-test-001", head_sha: head2, tree_sha: tree1 });
+  assert.equal(state.status, "finished");
+
+  // The run is immutable...
+  assert.throws(() => event(state, "phase_started", { phase: "review" }), /immutable/i);
+  // ...but the finish gate runs after finalization by contract, so its outcome must still be
+  // recordable or the last gate of every run would be the one gate nobody can prove ran.
+  const gated = event(state, "gate_evaluated", { gate: "finish", code: "OK", missing_count: 0 });
+  assert.equal(gated.status, "finished");
+  assert.equal(gated.event_seq, state.event_seq + 1);
+});
+
+test("recording a gate evaluation cannot make existing evidence stale", () => {
+  let state = initial();
+  state = event(state, "risk_classified", { level: "tiny", reason: "typo fix" });
+  state = event(state, "code_changed", { head_sha: head1, tree_sha: tree1, changed_paths: ["src/a.ts"] });
+  state = event(state, "evidence_recorded", {
+    kind: "exact-target", command: "npm test", exit_code: 0, head_sha: head1, tree_sha: tree1,
+  });
+  state = event(state, "finish_selected", { choice: "keep" });
+  const before = evaluateGate(state, "finalize");
+  const gated = event(state, "gate_evaluated", {
+    gate: "finalize", code: before.ok ? "OK" : "BLOCKED_ASSURANCE", missing_count: before.missing.length,
+  });
+  assert.equal(gated.last_change_seq, state.last_change_seq);
+  assert.equal(gated.last_authority_seq, state.last_authority_seq);
+  assert.deepEqual(evaluateGate(gated, "finalize"), before);
+});
+
+test("gate_evaluated refuses payloads that would record an outcome that never happened", () => {
+  const state = event(initial(), "risk_classified", { level: "tiny", reason: "typo fix" });
+  const corpus = [
+    ["unknown gate", { gate: "vibes", code: "OK", missing_count: 0 }],
+    ["unknown code", { gate: "finish", code: "PROBABLY_FINE", missing_count: 0 }],
+    ["absent count", { gate: "finish", code: "OK" }],
+    ["negative count", { gate: "finish", code: "BLOCKED_ASSURANCE", missing_count: -1 }],
+    ["pass claiming missing controls", { gate: "finish", code: "OK", missing_count: 2 }],
+    ["block claiming nothing missing", { gate: "finish", code: "BLOCKED_CRITICAL_ASSURANCE", missing_count: 0 }],
+  ];
+  for (const [label, payload] of corpus) {
+    assert.throws(() => event(state, "gate_evaluated", payload), /gate_evaluated/i, label);
+  }
+  assert.equal(event(state, "gate_evaluated", { gate: "pre-build", code: "OK", missing_count: 0 }).status, state.status);
 });

@@ -67,6 +67,8 @@ const SIDE_EFFECTS = new Set([
 ]);
 const BACKFILL_CONTROLS = ["frozen-diff-review", "requirements-trace", "risk-specific"];
 const ASSURANCE_SOURCES = new Set(["default", "flag", "alias", "natural-language", "policy", "user", "user-downgrade"]);
+const GATES = ["pre-build", "task-complete", "finalize", "finish", "repair", "side-effect"];
+const GATE_CODES = new Set(["OK", "BLOCKED_ASSURANCE", "BLOCKED_CRITICAL_ASSURANCE"]);
 const ISO_TIMESTAMP_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|([+-])(\d{2}):(\d{2}))$/;
 
 export const EVENT_CONTRACT = `# principal-pi-assurance event contract v1
@@ -98,6 +100,7 @@ The CLI supplies at, seq, run_id and hash-chain fields. Payload shapes:
   side_effect_approved {type, action:migration|push|publish|deletion|credential-rotation|production-access, approved_by:"user", reason}
   finish_selected {type, choice:merge|pr|keep|discard, explicit_request:true only for discard}
   finalization_completed {type, final_branch, head_sha, tree_sha; only after gate finalize and the Git operation}
+  gate_evaluated {type, gate, code:OK|BLOCKED_ASSURANCE|BLOCKED_CRITICAL_ASSURANCE, missing_count, task_id?, action?; the gate command appends this itself — never append it by hand}
 Never edit events.jsonl/snapshot.json. A failed critical gate prints BLOCKED_CRITICAL_ASSURANCE.`;
 
 const fail = (message) => {
@@ -1056,7 +1059,9 @@ export function applyEvent(input, rawEvent) {
   const event = clone(rawEvent);
   if (!nonEmpty(event.type)) fail("event.type is required");
   if (!validTimestamp(event.at)) fail("event.at must be an ISO date-time");
-  if (state.status === "finished") fail("finished run state is immutable");
+  // `gate_evaluated` observes and never mutates the derived state, so the `finish` gate can still
+  // record its own outcome after `finalization_completed` has already finished the run.
+  if (state.status === "finished" && event.type !== "gate_evaluated") fail("finished run state is immutable");
   const seq = event.seq ?? state.event_seq + 1;
   if (!Number.isInteger(seq) || seq !== state.event_seq + 1) fail(`event sequence must be ${state.event_seq + 1}`);
   for (const field of ["task_id", "workspace_id", "context_id", "finding_id"]) {
@@ -1579,6 +1584,17 @@ export function applyEvent(input, rawEvent) {
       if (event.approved_by !== "user" || !nonEmpty(event.reason)) fail("side-effect approval requires the user and a consequence-aware reason");
       state.approvals.push({ action: event.action, approved_by: "user", reason: event.reason, approved_at: event.at, seq });
       break;
+    case "gate_evaluated":
+      // Observation only. The log records that a gate ran and how it answered; the derived state is
+      // deliberately unchanged, which is what lets this event exist without a snapshot schema change
+      // and without disturbing the freshness floors (`last_change_seq`, `last_authority_seq`).
+      if (!GATES.includes(event.gate)) fail(`gate_evaluated gate ${JSON.stringify(event.gate)} is invalid`);
+      if (!GATE_CODES.has(event.code)) fail("gate_evaluated code must be OK, BLOCKED_ASSURANCE, or BLOCKED_CRITICAL_ASSURANCE");
+      if (!Number.isInteger(event.missing_count) || event.missing_count < 0) {
+        fail("gate_evaluated missing_count must be a non-negative integer");
+      }
+      if ((event.code === "OK") !== (event.missing_count === 0)) fail("gate_evaluated code and missing_count disagree");
+      break;
     default:
       fail(`unknown event type ${JSON.stringify(event.type)}`);
   }
@@ -1789,14 +1805,32 @@ export function runCli(argv, { cwd = process.cwd(), env = process.env, out = con
     }
     if (command === "gate") {
       const runId = cliFlag(argv, "--run-id");
-      const result = evaluateGate(store.load(runId), cliFlag(argv, "--gate"), {
-        task_id: cliFlag(argv, "--task-id"),
-        action: cliFlag(argv, "--action"),
-      });
+      const gate = cliFlag(argv, "--gate");
+      const taskId = cliFlag(argv, "--task-id");
+      const action = cliFlag(argv, "--action");
+      const result = evaluateGate(store.load(runId), gate, { task_id: taskId, action });
+      // A gate outcome nobody can produce as evidence is the hole this event closes, so recording
+      // failure is an error rather than a silent pass. A blocked gate still returns 3: the block is
+      // the more important fact, and swallowing it to report a logging problem would invert them.
+      let recorded = true;
+      try {
+        store.append(runId, {
+          type: "gate_evaluated",
+          gate,
+          code: result.code,
+          missing_count: result.missing.length,
+          ...(taskId ? { task_id: taskId } : {}),
+          ...(action ? { action } : {}),
+        });
+      } catch (error) {
+        recorded = false;
+        err(`gate outcome could not be recorded: ${error.message}`);
+      }
       if (!result.ok) {
         err(`${result.code}\nMissing controls:\n${result.missing.map((item) => `- ${item}`).join("\n")}`);
         return 3;
       }
+      if (!recorded) return 1;
       out("OK");
       return 0;
     }

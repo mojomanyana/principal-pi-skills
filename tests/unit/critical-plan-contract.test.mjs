@@ -57,11 +57,24 @@ test("each load-bearing static requirement is independently mutation-sensitive",
   assert.equal(requirements.length, 15);
 });
 
-test("runtime-v2 enforcement is explicitly deferred and all runtime surfaces remain main-identical", async () => {
+// Runtime files this branch is authorized to change since BASE, each with the change that earned the
+// entry. The list is asserted to be minimal below, so an entry that stops being true fails the guard
+// rather than quietly widening it.
+const authorizedRuntimeChanges = new Map([
+  ["scripts/assurance-state.mjs", "the gate command records gate_evaluated (docs/handoff/2026-09-event-vocabulary-decision.md)"],
+]);
+
+test("runtime-v2 enforcement is explicitly deferred and unauthorized runtime surfaces remain main-identical", async () => {
   assert.match(read("plan/SKILL.md"), /future\nversioned runtime contract and is not claimed here/);
+  const { execFileSync } = await import("node:child_process");
   for (const path of runtimePaths) {
-    const { execFileSync } = await import("node:child_process");
     const main = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
-    assert.deepEqual(readFileSync(join(ROOT, path)), main, path);
+    const current = readFileSync(join(ROOT, path));
+    if (authorizedRuntimeChanges.has(path)) {
+      // A stale authorization is as bad as a missing one: it would hide the next drift in this file.
+      assert.notDeepEqual(current, main, `${path} is authorized to change but is identical to BASE`);
+      continue;
+    }
+    assert.deepEqual(current, main, path);
   }
 });
