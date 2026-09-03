@@ -1453,6 +1453,7 @@ test("CLI contract exposes every event shape the generated workflows must persis
     "gate_evaluated",
   ]) assert.ok(contract.includes(eventType), eventType);
   assert.match(contract, /event --run-id/);
+  assert.match(contract, /report --run-id/);
   assert.match(contract, /gate --run-id/);
 });
 
@@ -1650,4 +1651,265 @@ test("gate_evaluated refuses payloads that would record an outcome that never ha
     assert.throws(() => event(state, "gate_evaluated", payload), /gate_evaluated/i, label);
   }
   assert.equal(event(state, "gate_evaluated", { gate: "pre-build", code: "OK", missing_count: 0 }).status, state.status);
+});
+
+function reportFixture({ targetCommand = "node --test tests/unit/assurance-state.test.mjs" } = {}) {
+  const dir = mkdtempSync(join(tmpdir(), "ppa-report-"));
+  const runId = "run-report-golden";
+  const definitionDigest = "d".repeat(64);
+  const planDigest = "2".repeat(64);
+  const packet = {
+    schema_version: "1.0",
+    run_id: runId,
+    task_id: "task-1",
+    title: "Render report",
+    authority: ["P9"],
+    global_constraints: ["read-only"],
+    out_of_scope: ["signing"],
+    critical_scope: { applies: false, matched_by: [] },
+    files: ["scripts/assurance-state.mjs"],
+    dependencies: [],
+    done_command: "node --test tests/unit/assurance-state.test.mjs",
+    review_risk: "projection fidelity",
+    workspace_id: "ws-1",
+    plan_digest: planDigest,
+    definition_digests: { "skill:build": definitionDigest },
+  };
+  const store = new AssuranceStore({ baseDir: dir, now: () => "2026-09-03T12:00:00.000Z" });
+  store.init({
+    workflow: "feature",
+    request: "Add report projection",
+    runId,
+    definitionDigests: { "skill:build": definitionDigest },
+  });
+  const append = (type, payload = {}) => store.append(runId, { type, ...payload });
+  append("workspace_attached", { workspace_id: "ws-1", mode: "caller", path: "/repo", writer: "build" });
+  append("risk_classified", { level: "substantive", reason: "report behavior" });
+  append("plan_recorded", { plan_digest: planDigest });
+  append("task_packet_recorded", { packet });
+  append("code_changed", {
+    head_sha: head1,
+    tree_sha: tree1,
+    task_id: "task-1",
+    changed_paths: ["scripts/assurance-state.mjs", "tests/unit/assurance-state.test.mjs"],
+  });
+  append("evidence_recorded", {
+    kind: "exact-target", command: targetCommand, exit_code: 0, head_sha: head1, tree_sha: tree1, workspace_id: "ws-1",
+  });
+  append("evidence_recorded", {
+    kind: "full-suite", command: "npm test", exit_code: 1, head_sha: head1, tree_sha: tree1, workspace_id: "ws-1",
+  });
+  append("review_recorded", {
+    axis: "combined", verdict: "CHANGES-REQUESTED", context_id: "ctx-review-1",
+    head_sha: head1, tree_sha: tree1, workspace_id: "ws-1",
+  });
+  append("review_recorded", {
+    axis: "combined", verdict: "APPROVE", context_id: "ctx-review-2",
+    head_sha: head1, tree_sha: tree1, workspace_id: "ws-1",
+  });
+  append("gate_evaluated", { gate: "finalize", code: "OK", missing_count: 0 });
+  append("finding_recorded", {
+    finding_id: "REV-001", summary: "missing failed-test projection", evidence: "receipt seq 8",
+  });
+  append("finding_adjudicated", {
+    finding_id: "REV-001", disposition: "rejected", reason: "fixture deliberately includes it",
+  });
+  append("finish_selected", { choice: "keep" });
+  append("phase_started", { phase: "git-ops" });
+  append("finalization_completed", {
+    final_branch: "wave1/audit-followups", head_sha: head2, tree_sha: tree1,
+  });
+  append("gate_evaluated", { gate: "finish", code: "OK", missing_count: 0 });
+  return { dir, runId, packet };
+}
+
+const goldenStatement = {
+  _type: "https://in-toto.io/Statement/v1",
+  subject: [
+    { name: "head_sha", digest: { gitCommit: head2 } },
+    { name: "tree_sha", digest: { gitTree: tree1 } },
+  ],
+  predicateType: "https://in-toto.io/attestation/test-result/v0.1",
+  predicate: {
+    result: "FAILED",
+    configuration: [
+      { name: "node --test tests/unit/assurance-state.test.mjs" },
+      { name: "npm test" },
+    ],
+    passedTests: ["exact-target (seq 7): node --test tests/unit/assurance-state.test.mjs"],
+    warnedTests: [],
+    failedTests: ["full-suite (seq 8): npm test"],
+    ledger: {
+      runId: "run-report-golden",
+      schemaVersion: "1.0",
+      eventCount: 17,
+      hashChainHead: "538d446a2d06829fa987a4d0ca860ac975b3197104b309bd41209330c2e72909",
+    },
+  },
+};
+
+test("report renders the complete ledger in stable human-section order", () => {
+  const fixture = reportFixture();
+  const output = [];
+  const logPath = join(fixture.dir, "runs", fixture.runId, "events.jsonl");
+  const before = readFileSync(logPath, "utf8");
+  try {
+    assert.equal(runCli(
+      ["report", "--run-id", fixture.runId, "--state-dir", fixture.dir],
+      { out: (line) => output.push(line), err: (line) => output.push(line) },
+    ), 0);
+    const expected = [
+      "# Assurance report: run-report-golden",
+      "",
+      "## Authority",
+      '- Request: "Add report projection"',
+      "- Effective assurance: standard",
+      "- Assurance source: default",
+      "- Risk level: substantive",
+      "",
+      "## Tasks and their packets",
+      `- task-1: ${JSON.stringify(fixture.packet)}`,
+      "",
+      "## Changed paths",
+      "- seq 6: scripts/assurance-state.mjs, tests/unit/assurance-state.test.mjs",
+      "",
+      "## Evidence receipts",
+      `- seq 7: kind=exact-target; command="node --test tests/unit/assurance-state.test.mjs"; exit_code=0; head_sha=${head1}; tree_sha=${tree1}`,
+      `- seq 8: kind=full-suite; command="npm test"; exit_code=1; head_sha=${head1}; tree_sha=${tree1}`,
+      "",
+      "## Review verdicts by axis",
+      "- seq 9: axis=combined; verdict=CHANGES-REQUESTED; context_id=ctx-review-1",
+      "- seq 10: axis=combined; verdict=APPROVE; context_id=ctx-review-2",
+      "",
+      "## Gate evaluations",
+      "- seq 11: gate=finalize; code=OK; missing_count=0",
+      "- seq 17: gate=finish; code=OK; missing_count=0",
+      "",
+      "## Findings and their adjudications",
+      '- REV-001: summary="missing failed-test projection"; evidence="receipt seq 8"; disposition=rejected; reason="fixture deliberately includes it"',
+      "",
+      "## Finish and finalization",
+      "- Finish choice: keep",
+      `- Finalization: branch="wave1/audit-followups"; head_sha=${head2}; tree_sha=${tree1}`,
+      "",
+      "## Evidence gaps",
+      "- None among the reportable ledger sections.",
+      "",
+      "## Assumptions",
+      "- None. Absent ledger facts are not inferred.",
+      "",
+      "## Machine section — unsigned in-toto Statement",
+      "No signature is produced by this projection.",
+      "",
+      "```json",
+      JSON.stringify(goldenStatement, null, 2),
+      "```",
+    ].join("\n");
+    assert.equal(output.join("\n"), expected);
+    assert.equal(readFileSync(logPath, "utf8"), before, "report must not append to or rewrite the ledger");
+  } finally {
+    rmSync(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test("report renders missing ledger facts as absent instead of assuming them", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ppa-report-empty-"));
+  const runId = "run-report-empty";
+  const store = new AssuranceStore({ baseDir: dir, now: () => "2026-09-03T12:00:00.000Z" });
+  store.init({ workflow: "feature", request: "Inspect incomplete run", runId, definitionDigests: {} });
+  const output = [];
+  try {
+    assert.equal(runCli(
+      ["report", "--run-id", runId, "--state-dir", dir],
+      { out: (line) => output.push(line), err: (line) => output.push(line) },
+    ), 0);
+    const emptyStatement = {
+      _type: "https://in-toto.io/Statement/v1",
+      subject: [],
+      predicateType: "https://in-toto.io/attestation/test-result/v0.1",
+      predicate: {
+        result: "FAILED",
+        configuration: [],
+        passedTests: [],
+        warnedTests: [],
+        failedTests: [],
+        ledger: {
+          runId,
+          schemaVersion: "1.0",
+          eventCount: 1,
+          hashChainHead: "5f1ddb9ff7b856eee165ef1b1ba1dbd7cd38ad7560a93efd21441035f5005d1b",
+        },
+      },
+    };
+    const expected = [
+      "# Assurance report: run-report-empty",
+      "",
+      "## Authority",
+      '- Request: "Inspect incomplete run"',
+      "- Effective assurance: standard",
+      "- Assurance source: default",
+      "- Risk level: unknown",
+      "",
+      "## Tasks and their packets", "- Absent.",
+      "", "## Changed paths", "- Absent.",
+      "", "## Evidence receipts", "- Absent.",
+      "", "## Review verdicts by axis", "- Absent.",
+      "", "## Gate evaluations", "- Absent.",
+      "", "## Findings and their adjudications", "- Absent.",
+      "", "## Finish and finalization", "- Finish choice: Absent.", "- Finalization: Absent.",
+      "", "## Evidence gaps",
+      "- Risk classification is absent.",
+      "- Task packets are absent.",
+      "- Changed paths are absent.",
+      "- Evidence receipts are absent.",
+      "- Review verdicts are absent.",
+      "- Gate evaluations are absent.",
+      "- Findings are absent.",
+      "- Finish choice is absent.",
+      "- Finalization identity is absent.",
+      "", "## Assumptions", "- None. Absent ledger facts are not inferred.",
+      "", "## Machine section — unsigned in-toto Statement",
+      "No signature is produced by this projection.",
+      "", "```json", JSON.stringify(emptyStatement, null, 2), "```",
+    ].join("\n");
+    assert.equal(output.join("\n"), expected);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("report emits the exact in-toto test-result Statement as machine JSON", () => {
+  const fixture = reportFixture();
+  const output = [];
+  try {
+    assert.equal(runCli(
+      ["report", "--run-id", fixture.runId, "--format", "in-toto", "--state-dir", fixture.dir],
+      { out: (line) => output.push(line), err: (line) => output.push(line) },
+    ), 0);
+    assert.equal(output.join("\n"), JSON.stringify(goldenStatement, null, 2));
+  } finally {
+    rmSync(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test("report attestation changes when a receipt changes in an otherwise equivalent ledger", () => {
+  const before = reportFixture();
+  const after = reportFixture({ targetCommand: "node --test tests/unit/assurance-state.test.mjs --test-name-pattern report" });
+  const render = (fixture) => {
+    const output = [];
+    assert.equal(runCli(
+      ["report", "--run-id", fixture.runId, "--format", "in-toto", "--state-dir", fixture.dir],
+      { out: (line) => output.push(line), err: (line) => output.push(line) },
+    ), 0);
+    return JSON.parse(output.join("\n"));
+  };
+  try {
+    const original = render(before);
+    const mutated = render(after);
+    assert.notDeepEqual(mutated, original);
+    assert.notEqual(mutated.predicate.ledger.hashChainHead, original.predicate.ledger.hashChainHead);
+  } finally {
+    rmSync(before.dir, { recursive: true, force: true });
+    rmSync(after.dir, { recursive: true, force: true });
+  }
 });

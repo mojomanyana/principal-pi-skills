@@ -8,6 +8,15 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ## [3.0.1] — Unreleased
 
+**Added — assurance ledgers have a read-only evidence projection.**
+`principal-pi-assurance report --run-id <id>` renders authority, packets, changed paths, receipts,
+reviews, recorded gate outcomes, findings/adjudications, and finish identity in deterministic human
+sections, with absent facts and assumptions labelled rather than inferred. It also emits an unsigned
+in-toto Statement v1 using the test-result v0.1 predicate; final head/tree subjects, receipt-derived
+configuration and pass/fail lists, and the ledger hash-chain head bind the output to facts already in
+the validated log. `--format in-toto` emits only Statement JSON. The command does not append events,
+sign output, or claim a signature.
+
 **Added — gate outcomes are recorded, not just printed.** `principal-pi-assurance gate` now appends a
 `gate_evaluated {gate, code, missing_count, task_id?, action?}` event for every evaluation it performs,
 pass or block. The gate was a pure read, which is precisely why no downstream observer could prove that
@@ -50,9 +59,10 @@ validation. `docs/evidence/pr35-e1-repair-provenance-v1.json` hashes the E1-info
 including contextual D1/D2 diagnosis material; preserved measurements are unchanged.
 
 **Changed — source remains unreleased.** Source is `3.0.1 — Unreleased`; npm `latest` and
-install guidance remain published `3.0.0`. The three generated Plan runtime prompts now differ
-from `3.0.0`; other shipped runtime schemas, scripts, skills, agents, and prompts remain
-byte-identical. No 3.0.1 model score, publication, tag, or release is claimed.
+install guidance remain published `3.0.0`. The three generated Plan runtime prompts and the
+explicitly authorized assurance-state additions now differ from `3.0.0`; other shipped runtime
+schemas, scripts, skills, agents, and prompts remain byte-identical. No 3.0.1 model score,
+publication, tag, or release is claimed.
 
 ## [3.0.0] — 2026-08-20
 

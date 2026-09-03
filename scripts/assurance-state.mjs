@@ -74,6 +74,7 @@ const ISO_TIMESTAMP_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\
 export const EVENT_CONTRACT = `# principal-pi-assurance event contract v1
 Append: principal-pi-assurance event --run-id ID <<<'{"type":"...",...}'
 Inspect: principal-pi-assurance show --run-id ID
+Report: principal-pi-assurance report --run-id ID [--format human|in-toto]
 Gate: principal-pi-assurance gate --run-id ID --gate pre-build|task-complete|finalize|finish|repair|side-effect [--task-id ID] [--action ACTION]
 The CLI supplies at, seq, run_id and hash-chain fields. Payload shapes:
   risk_classified {type, level:tiny|substantive|consequential, reason; level is monotonic}
@@ -1694,7 +1695,7 @@ export class AssuranceStore {
     });
   }
 
-  load(runId) {
+  load(runId, { withEvents = false } = {}) {
     const paths = this.paths(runId);
     if (!existsSync(paths.log)) fail(`unknown run ${runId}`);
     const lines = readFileSync(paths.log, "utf8")
@@ -1703,6 +1704,7 @@ export class AssuranceStore {
     if (lines.length === 0) fail("event-log integrity failure: log is empty");
     let state = null;
     let previous = null;
+    const events = [];
     for (let index = 0; index < lines.length; index++) {
       let event;
       try {
@@ -1733,8 +1735,9 @@ export class AssuranceStore {
         state.event_digest = event.event_digest;
       }
       previous = event.event_digest;
+      events.push(event);
     }
-    return state;
+    return withEvents ? { state, events } : state;
   }
 
   append(runId, payload) {
@@ -1784,6 +1787,135 @@ function stdin() {
   return readFileSync(0, "utf8");
 }
 
+const quoted = (value) => JSON.stringify(value);
+const receiptName = (event) => `${event.kind} (seq ${event.seq}): ${event.command}`;
+
+/** Project validated ledger events into an unsigned in-toto test-result Statement. */
+export function buildAssuranceStatement(events) {
+  const evidence = events.filter((event) => event.type === "evidence_recorded");
+  const finalization = events.findLast((event) => event.type === "finalization_completed") ?? null;
+  const subject = finalization
+    ? [
+        { name: "head_sha", digest: { gitCommit: finalization.head_sha } },
+        { name: "tree_sha", digest: { gitTree: finalization.tree_sha } },
+      ]
+    : [];
+  return {
+    _type: "https://in-toto.io/Statement/v1",
+    subject,
+    predicateType: "https://in-toto.io/attestation/test-result/v0.1",
+    predicate: {
+      result: evidence.length > 0 && evidence.every((receipt) => receipt.exit_code === 0) ? "PASSED" : "FAILED",
+      configuration: evidence.map((receipt) => ({ name: receipt.command })),
+      passedTests: evidence.filter((receipt) => receipt.exit_code === 0).map(receiptName),
+      warnedTests: [],
+      failedTests: evidence.filter((receipt) => receipt.exit_code !== 0).map(receiptName),
+      ledger: {
+        runId: events[0]?.run_id ?? null,
+        schemaVersion: events[0]?.schema_version ?? null,
+        eventCount: events.length,
+        hashChainHead: events.at(-1)?.event_digest ?? null,
+      },
+    },
+  };
+}
+
+/** Render only facts carried by a validated ledger; absent categories stay explicitly absent. */
+export function renderAssuranceReport(state, events) {
+  const taskEvents = events.filter((event) => event.type === "task_packet_recorded");
+  const changes = events.filter((event) => event.type === "code_changed");
+  const evidence = events.filter((event) => event.type === "evidence_recorded");
+  const reviews = events.filter((event) => event.type === "review_recorded");
+  const gates = events.filter((event) => event.type === "gate_evaluated");
+  const findingEvents = events.filter((event) => event.type === "finding_recorded");
+  const adjudications = new Map(events
+    .filter((event) => event.type === "finding_adjudicated")
+    .map((event) => [event.finding_id, event]));
+  const finish = events.find((event) => event.type === "finish_selected") ?? null;
+  const finalization = events.find((event) => event.type === "finalization_completed") ?? null;
+  const lines = [
+    `# Assurance report: ${state.run_id}`,
+    "",
+    "## Authority",
+    `- Request: ${quoted(state.request)}`,
+    `- Effective assurance: ${state.assurance.effective}`,
+    `- Assurance source: ${state.assurance.source}`,
+    `- Risk level: ${state.risk.level}`,
+    "",
+    "## Tasks and their packets",
+    ...(taskEvents.length
+      ? taskEvents.map((event) => `- ${event.packet.task_id}: ${JSON.stringify(event.packet)}`)
+      : ["- Absent."]),
+    "",
+    "## Changed paths",
+    ...(changes.length
+      ? changes.map((event) => `- seq ${event.seq}: ${event.changed_paths.join(", ")}`)
+      : ["- Absent."]),
+    "",
+    "## Evidence receipts",
+    ...(evidence.length
+      ? evidence.map((event) =>
+          `- seq ${event.seq}: kind=${event.kind}; command=${quoted(event.command)}; exit_code=${event.exit_code}; head_sha=${event.head_sha}; tree_sha=${event.tree_sha}`)
+      : ["- Absent."]),
+    "",
+    "## Review verdicts by axis",
+    ...(reviews.length
+      ? reviews.map((event) => `- seq ${event.seq}: axis=${event.axis}; verdict=${event.verdict}; context_id=${event.context_id}`)
+      : ["- Absent."]),
+    "",
+    "## Gate evaluations",
+    ...(gates.length
+      ? gates.map((event) =>
+          `- seq ${event.seq}: gate=${event.gate}; code=${event.code}; missing_count=${event.missing_count}` +
+          `${event.task_id ? `; task_id=${event.task_id}` : ""}${event.action ? `; action=${event.action}` : ""}`)
+      : ["- Absent."]),
+    "",
+    "## Findings and their adjudications",
+    ...(findingEvents.length
+      ? findingEvents.map((event) => {
+          const adjudication = adjudications.get(event.finding_id);
+          return `- ${event.finding_id}: summary=${quoted(event.summary)}; evidence=${event.evidence == null ? "Absent." : quoted(event.evidence)}; ` +
+            `disposition=${adjudication?.disposition ?? "Absent."}; reason=${adjudication ? quoted(adjudication.reason) : "Absent."}`;
+        })
+      : ["- Absent."]),
+    "",
+    "## Finish and finalization",
+    `- Finish choice: ${finish?.choice ?? "Absent."}`,
+    finalization
+      ? `- Finalization: branch=${quoted(finalization.final_branch)}; head_sha=${finalization.head_sha}; tree_sha=${finalization.tree_sha}`
+      : "- Finalization: Absent.",
+  ];
+  const gaps = [
+    ...(state.risk.level === "unknown" ? ["Risk classification is absent."] : []),
+    ...(taskEvents.length === 0 ? ["Task packets are absent."] : []),
+    ...(changes.length === 0 ? ["Changed paths are absent."] : []),
+    ...(evidence.length === 0 ? ["Evidence receipts are absent."] : []),
+    ...(reviews.length === 0 ? ["Review verdicts are absent."] : []),
+    ...(gates.length === 0 ? ["Gate evaluations are absent."] : []),
+    ...(findingEvents.length === 0 ? ["Findings are absent."] : []),
+    ...findingEvents.filter((event) => !adjudications.has(event.finding_id))
+      .map((event) => `Adjudication for ${event.finding_id} is absent.`),
+    ...(!finish ? ["Finish choice is absent."] : []),
+    ...(!finalization ? ["Finalization identity is absent."] : []),
+  ];
+  lines.push(
+    "",
+    "## Evidence gaps",
+    ...(gaps.length ? gaps.map((gap) => `- ${gap}`) : ["- None among the reportable ledger sections."]),
+    "",
+    "## Assumptions",
+    "- None. Absent ledger facts are not inferred.",
+    "",
+    "## Machine section — unsigned in-toto Statement",
+    "No signature is produced by this projection.",
+    "",
+    "```json",
+    JSON.stringify(buildAssuranceStatement(events), null, 2),
+    "```",
+  );
+  return lines.join("\n");
+}
+
 export function runCli(argv, { cwd = process.cwd(), env = process.env, out = console.log, err = console.error, input = stdin } = {}) {
   try {
     const [command] = argv;
@@ -1805,6 +1937,16 @@ export function runCli(argv, { cwd = process.cwd(), env = process.env, out = con
     }
     if (command === "show") {
       out(JSON.stringify(store.load(cliFlag(argv, "--run-id")), null, 2));
+      return 0;
+    }
+    if (command === "report") {
+      const runId = cliFlag(argv, "--run-id");
+      const format = cliFlag(argv, "--format", "human");
+      if (!["human", "in-toto"].includes(format)) fail("--format must be human or in-toto");
+      const { state, events } = store.load(runId, { withEvents: true });
+      out(format === "in-toto"
+        ? JSON.stringify(buildAssuranceStatement(events), null, 2)
+        : renderAssuranceReport(state, events));
       return 0;
     }
     if (command === "event") {
@@ -1866,7 +2008,7 @@ export function runCli(argv, { cwd = process.cwd(), env = process.env, out = con
       return 0;
     }
 
-    err("usage: principal-pi-assurance <contract|init|show|event|gate|validate-task|digest|where> [options]");
+    err("usage: principal-pi-assurance <contract|init|show|report|event|gate|validate-task|digest|where> [options]");
     return 2;
   } catch (error) {
     err(`✗ ${error instanceof Error ? error.message : String(error)}`);

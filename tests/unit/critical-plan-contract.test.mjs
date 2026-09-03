@@ -72,6 +72,11 @@ const authorizedRuntimeChanges = new Map([
       reason: "policy and natural-language parsing recognizes audited risk paraphrases without inflating tiny artifacts",
       markers: ["wipe (?:all\\s+)?", "backwards-incompatible", "roll out[^.\\n]", "this work", "test (?:file|helper|utility|title)"],
     },
+    {
+      name: "assurance-report-projection",
+      reason: "approved P9 adds a read-only human and in-toto projection over validated ledger events",
+      markers: ["buildAssuranceStatement", "renderAssuranceReport", 'command === "report"'],
+    },
   ]],
 ]);
 

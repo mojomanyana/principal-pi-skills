@@ -21,6 +21,11 @@ const assuranceStateAuthorizations = [
     reason: "audited risk paraphrases elevate while explicit tiny artifact references remain right-sized",
     markers: ["wipe (?:all\\s+)?", "backwards-incompatible", "roll out[^.\\n]", "this work", "test (?:file|helper|utility|title)"],
   },
+  {
+    name: "assurance-report-projection",
+    reason: "approved P9 adds a read-only human and in-toto projection over validated ledger events",
+    markers: ["buildAssuranceStatement", "renderAssuranceReport", 'command === "report"'],
+  },
 ];
 function assertAssuranceStateAuthorizations() {
   const source = read("scripts/assurance-state.mjs");
@@ -84,8 +89,8 @@ test("runtime differences from 3.0.0 are exactly the generated Critical Plan con
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     return Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0;
   });
-  // scripts/assurance-state.mjs has two named authorizations: gate-evaluated-event makes gate
-  // outcomes observable, and assurance-elevation-adversarial-corpus covers audited parser phrasing.
+  // scripts/assurance-state.mjs has three named authorizations: recorded gate outcomes, the audited
+  // elevation corpus, and approved P9's read-only assurance report projection.
   assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
   assertAssuranceStateAuthorizations();
 });
