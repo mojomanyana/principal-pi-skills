@@ -191,12 +191,12 @@ function shellWords(text) {
 const POLICY_TRIGGERS = [
   ["database/schema migration", /\b(migrat(?:e|ion|ing)|schema change|drop(?:ping)? (?:a )?(?:production\s+)?(?:table|column))\b/i],
   ["authentication or authorization", /\b(auth(?:entication|orization)?|authn|authz|authoriz(?:e|ation|ing)|oauth|permission boundary|access control)\b/i],
-  ["billing or payments", /\b(billing|payment|invoice|charge|refund)\b/i],
-  ["destructive data operation", /\b(truncate|destructive data|delete (?:all\s+)?(?:(?:production|customer)\s+)?data|data purge)\b/i],
-  ["public API break", /\b(breaking (?:api|change)|public api break|remove public endpoint)\b/i],
+  ["billing or payments", /\b(billing|payments?|invoices?|charges?|refunds?)\b/i],
+  ["destructive data operation", /\b(truncate|destructive data|delete (?:all\s+)?(?:(?:production|customer)\s+)?data|data purge|wipe (?:all\s+)?(?:customer\s+)?records?)\b/i],
+  ["public API break", /\b(breaking (?:api|change)|public api break|backwards-incompatible (?:api )?change|remove (?:a )?public endpoint)\b/i],
   ["credential or secrets work", /\b(credentials?|secrets?|api key|token rotation|private key)\b/i],
-  ["protected history", /\b(force[- ]push|rewrite (?:main|master|develop)|protected history)\b/i],
-  ["production side effect", /\b(production (?:deploy|access|change|operation)|run in prod)\b/i],
+  ["protected history", /\b(force[- ]push|rewrite (?:main|master|develop)|rewrite history[^.\n]{0,60}protected (?:[a-z0-9._/-]+ )?branch|protected history)\b/i],
+  ["production side effect", /\b(production (?:deploy|access|change|operation)|run in prod|roll out[^.\n]{0,60}to production)\b/i],
 ];
 
 function flagValue(words, name) {
@@ -215,7 +215,7 @@ function flagValue(words, name) {
   return values.at(-1) ?? null;
 }
 
-/** Parse command flags and the two documented natural-language critical requests. */
+/** Parse command flags and the bounded natural-language critical request patterns. */
 export function parseWorkflowRequest(request) {
   if (!nonEmpty(request)) fail("workflow request must be a non-empty string");
   const words = shellWords(request);
@@ -227,6 +227,19 @@ export function parseWorkflowRequest(request) {
   let requested = "standard";
   let source = "default";
   let reason = "No assurance profile was requested; standard is the default.";
+  // Interpret explicit assurance intent per clause so a local negation does not veto a later,
+  // affirmative escalation in the same request.
+  const naturalCriticalRequest = request.split(/\bthen\b|[,.;\n]/i).some((clause) => {
+    const affirmative =
+      /\btreat (?:this|the (?:run|task)|this work) as (?:a )?critical(?:[- ]assurance)?\b/i.test(clause) ||
+      /\b(?:escalate|elevate|raise) (?:this|the)?\s*(?:run|task)?\s*(?:to|into) critical(?: assurance| mode)?\b/i.test(clause) ||
+      /\b(?:use\s+)?critical assurance\b/i.test(clause) ||
+      /\bhigh assurance\b/i.test(clause);
+    const negated =
+      /\b(?:do not|don't|no need to|not)\b[^.\n]{0,40}\b(?:critical assurance|critical[- ]assurance|critical mode)\b/i.test(clause) ||
+      /\bcritical assurance\b[^.\n]{0,30}\b(?:is |seems )?(?:unnecessary|not needed)\b/i.test(clause);
+    return affirmative && !negated;
+  });
 
   if (rawProfile) {
     const normalized = rawProfile.toLowerCase();
@@ -243,12 +256,7 @@ export function parseWorkflowRequest(request) {
     requested = "critical";
     source = "flag";
     reason = "A critical scope was supplied, which explicitly requests critical assurance.";
-  } else if (
-    /\btreat (?:this|the (?:run|task)) as critical\b/i.test(request) ||
-    /\b(?:escalate|elevate) (?:this|the)?\s*(?:run|task)?\s*to critical\b/i.test(request) ||
-    /\b(?:use\s+)?critical assurance\b/i.test(request) ||
-    /\bhigh assurance\b/i.test(request)
-  ) {
+  } else if (naturalCriticalRequest) {
     requested = "critical";
     source = "natural-language";
     reason = "The user requested critical assurance in natural language.";
@@ -274,16 +282,19 @@ export function parseWorkflowRequest(request) {
   // The policy elevation is deliberately standard -> critical. An explicit lean request is
   // not silently rewritten; one-way operations still retain their existing approval gates.
   if (requested === "standard") {
+    // A risk word in the artifact being edited is not itself a risky operation. This narrow
+    // exemption covers explicit docs/comment corrections and test-only renames; coordinated or
+    // operational work below still wins and elevates.
     const tinyDocumentation =
-      /\b(typo|spelling|comment|readme|docs?|documentation|runbook wording)\b/i.test(request) &&
+      /\b(?:fix|correct|clarify|reword|rewrap|reformat|rename|update|remove)\b[^.\n]{0,80}\b(?:typo|spelling|comments?|readme|docs?|documentation|runbook wording|tests?[/\\][^\s]*|test (?:file|helper|utility|title))\b/i.test(request) &&
       !/\b(execute|apply|run (?:the )?migration|rotate|delete data|deploy|push|publish)\b/i.test(request);
     const riskAction = /\b(add|implement|enable|introduce|wire|change|modify|migrate|execute|apply|rotate|delete|deploy|integrate|drop|truncate|remove|break|refund|charge|revoke|purge|force|run|access|process|authorize)\b/i;
     const coordinatedWork = /\b(and|plus|then|also)\b|[,;]/i.test(request) && riskAction.test(request);
-    const mixedRiskImplementation = coordinatedWork ||
-      /\b(add|implement|enable|introduce|wire|change|modify|migrate|execute|apply|rotate|delete|deploy|integrate|drop|truncate|remove|break|refund|charge|revoke|purge|force|run|access|process|authorize)\b[^.\n]{0,100}\b(auth(?:entication|orization)?|authn|authz|authoriz(?:e|ation)|billing|payment|invoice|refund|charge|credential|secret|production|schema|migration|table|column|public api|customer data)\b/i.test(request) ||
-      /\b(auth(?:entication|orization)?|authn|authz|authoriz(?:e|ation)|billing|payment|invoice|refund|charge|credential|secret|production|schema|migration|table|column|public api|customer data)\b[^.\n]{0,100}\b(add|implement|enable|introduce|wire|change|modify|migrate|execute|apply|rotate|delete|deploy|integrate|drop|truncate|remove|break|refund|charge|revoke|purge|force|run|access|process|authorize)\b/i.test(request);
+    const riskImplementation =
+      /\b(?:add|implement|enable|introduce|wire|migrate|execute|apply|rotate|deploy|integrate|drop|truncate|refund|charge|revoke|purge|process|authorize)\b[^.\n]{0,100}\b(?:auth(?:entication|orization)?|authn|authz|billing|payments?|invoices?|charges?|refunds?|credentials?|secrets?|production|schema|migration|table|column|public api|customer data)\b/i.test(request) ||
+      /\b(?:delete (?:all )?(?:production |customer )?data|remove (?:a )?public endpoint|force[- ]push|rewrite history|roll out)\b/i.test(request);
     const candidate = POLICY_TRIGGERS.find(([, pattern]) => pattern.test(request))?.[0] ?? null;
-    riskTrigger = tinyDocumentation && !mixedRiskImplementation ? null : candidate;
+    riskTrigger = tinyDocumentation && !coordinatedWork && !riskImplementation ? null : candidate;
     if (riskTrigger) {
       effective = "critical";
       source = "policy";

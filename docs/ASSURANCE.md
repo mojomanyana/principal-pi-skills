@@ -45,15 +45,19 @@ Both namespaced prompts accept:
 
 A critical profile without a scope means `entire-run`; narrowing is never inferred. “Treat
 this as critical” and “escalate this run to critical before the migration” map to the same
-state. Supplying `--critical-scope` itself is explicit critical intent.
+state. Supplying `--critical-scope` itself is explicit critical intent: even without
+`--assurance`, it records requested/effective `critical` with assurance source `flag`.
 
 The parser can policy-elevate **standard** for an evidenced migration, auth/authz, billing,
 destructive data operation, public API break, credential/secrets operation, protected-history
 rewrite, or production side effect. It records the trigger in `assurance.reason`. A tiny
-reversible docs/comment correction is not elevated merely because its text mentions billing or
-auth, but a mixed docs-plus-auth/billing implementation request is elevated. An explicit lean
-request is not silently rewritten; existing one-way and Git-Ops safety
-gates still apply.
+reversible docs/comment correction or test-only rename is not elevated merely because its text
+or filename mentions a risk domain, but a mixed docs-plus-risk implementation request is elevated.
+These policy and natural-language matches are deliberately bounded regex heuristics, not semantic
+classification. Phrasings outside the recognized patterns are the workflow controller's
+responsibility: it must persist an explicit escalation before risky work proceeds, rather than
+treating the parser's unchanged default as a silent no-op. An explicit lean request is not silently
+rewritten; existing one-way and Git-Ops safety gates still apply.
 
 ## Persistence model
 

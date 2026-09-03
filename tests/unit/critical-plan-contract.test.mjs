@@ -61,7 +61,18 @@ test("each load-bearing static requirement is independently mutation-sensitive",
 // entry. The list is asserted to be minimal below, so an entry that stops being true fails the guard
 // rather than quietly widening it.
 const authorizedRuntimeChanges = new Map([
-  ["scripts/assurance-state.mjs", "the gate command records gate_evaluated (docs/handoff/2026-09-event-vocabulary-decision.md)"],
+  ["scripts/assurance-state.mjs", [
+    {
+      name: "gate-evaluated-event",
+      reason: "the gate command records gate_evaluated (docs/handoff/2026-09-event-vocabulary-decision.md)",
+      markers: ['case "gate_evaluated":'],
+    },
+    {
+      name: "assurance-elevation-adversarial-corpus",
+      reason: "policy and natural-language parsing recognizes audited risk paraphrases without inflating tiny artifacts",
+      markers: ["wipe (?:all\\s+)?", "backwards-incompatible", "roll out[^.\\n]", "this work", "test (?:file|helper|utility|title)"],
+    },
+  ]],
 ]);
 
 test("runtime-v2 enforcement is explicitly deferred and unauthorized runtime surfaces remain main-identical", async () => {
@@ -73,6 +84,13 @@ test("runtime-v2 enforcement is explicitly deferred and unauthorized runtime sur
     if (authorizedRuntimeChanges.has(path)) {
       // A stale authorization is as bad as a missing one: it would hide the next drift in this file.
       assert.notDeepEqual(current, main, `${path} is authorized to change but is identical to BASE`);
+      const text = current.toString("utf8");
+      const authorizations = authorizedRuntimeChanges.get(path);
+      assert.equal(new Set(authorizations.map(({ name }) => name)).size, authorizations.length, `${path}: authorization names must be unique`);
+      for (const { name, reason, markers } of authorizations) {
+        assert.ok(reason.length > 20, `${path}: ${name} must state why it is authorized`);
+        for (const marker of markers) assert.ok(text.includes(marker), `${path}: stale named authorization ${name}: ${marker}`);
+      }
       continue;
     }
     assert.deepEqual(current, main, path);

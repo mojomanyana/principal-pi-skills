@@ -150,6 +150,8 @@ test("parses lean, critical, high alias, scope flags, and natural-language escal
 test("a critical scope flag is explicit critical intent and omitted scope means entire run", () => {
   const scoped = parseWorkflowRequest('--critical-scope "db/migrations/**,src/auth/**" change files');
   assert.equal(scoped.assurance.requested, "critical");
+  assert.equal(scoped.assurance.effective, "critical");
+  assert.equal(scoped.assurance.source, "flag");
   assert.deepEqual(scoped.assurance.scope.selectors, ["db/migrations/**", "src/auth/**"]);
 
   const entire = parseWorkflowRequest("--assurance critical change files");
@@ -193,6 +195,63 @@ test("policy elevates standard for evidenced one-way doors but does not inflate 
     "Update docs and deploy a production change",
   ]) assert.equal(parseWorkflowRequest(mixed).assurance.effective, "critical", mixed);
   assert.equal(parseWorkflowRequest("--assurance lean update auth docs").assurance.effective, "lean");
+});
+
+test("adversarial assurance phrasing elevates real risk without inflating references and tiny artifacts", () => {
+  const mustElevate = [
+    ["Migrate the users table in production", "policy"],
+    ["Apply a schema change to customer records", "policy"],
+    ["Require MFA authentication for admin login", "policy"],
+    ["Tighten authorization at the permission boundary", "policy"],
+    ["Enable billing for annual plans", "policy"],
+    ["Process customer refunds for duplicate charges", "policy"],
+    ["Truncate the production sessions table", "policy"],
+    ["Wipe all customer records", "policy"],
+    ["Ship a backwards-incompatible change to the public API", "policy"],
+    ["Remove a public endpoint used by clients", "policy"],
+    ["Rotate the production credentials", "policy"],
+    ["Replace the service signing secret", "policy"],
+    ["Rewrite history on the protected release branch", "policy"],
+    ["Roll out this change to production", "policy"],
+    ["Treat this work as a critical-assurance run", "natural-language"],
+    ["Raise this run to critical assurance", "natural-language"],
+    ["Escalate the task into critical mode", "natural-language"],
+    ["Update docs to add authentication to the API", "policy"],
+    ["Update docs to enable billing charges at checkout", "policy"],
+    ["Do not use critical assurance for docs, then elevate this run to critical", "natural-language"],
+  ];
+  for (const [request, source] of mustElevate) {
+    const parsed = parseWorkflowRequest(request);
+    assert.equal(parsed.assurance.effective, "critical", request);
+    assert.equal(parsed.assurance.source, source, request);
+  }
+
+  const mustNotElevate = [
+    "Fix a docs typo that merely mentions billing",
+    "Fix a comment in a file named auth.ts",
+    "Rename a helper inside tests/user-migration.test.ts",
+    "Update a README line describing a past migration",
+    "Rename a local test helper",
+    "Reformat an ordinary unit test",
+    "Correct spelling in the payment glossary docs",
+    "Rewrap a comment about OAuth",
+    "Clarify runbook wording about production access",
+    "Fix a typo in public API break documentation",
+    "Update docs for a completed data purge",
+    "Correct a comment spelling around an authz example",
+    "Refactor local CSS selectors",
+    "Sort imports in a test utility",
+    "Rename an internal mock response",
+    "Remove stale billing docs",
+    "Do not use critical assurance for this typo fix",
+    "Critical assurance is unnecessary for this docs typo",
+    "This is not critical assurance; fix the typo",
+  ];
+  for (const request of mustNotElevate) {
+    const parsed = parseWorkflowRequest(request);
+    assert.equal(parsed.assurance.effective, "standard", request);
+    assert.equal(parsed.assurance.source, "default", request);
+  }
 });
 
 test("risk classification can stay level or increase but cannot silently decrease", () => {

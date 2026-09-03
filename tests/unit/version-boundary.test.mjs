@@ -10,6 +10,27 @@ import { parsePackMetadata } from "../../scripts/pack-meta.mjs";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const BASE = "c24d2b6afd641e9e3f23b6bf967ba535f1fcb0d7";
 const read = (path) => readFileSync(join(ROOT, path), "utf8");
+const assuranceStateAuthorizations = [
+  {
+    name: "gate-evaluated-event",
+    reason: "gate outcomes become ledger evidence rather than unprovable console output",
+    markers: ['case "gate_evaluated":'],
+  },
+  {
+    name: "assurance-elevation-adversarial-corpus",
+    reason: "audited risk paraphrases elevate while explicit tiny artifact references remain right-sized",
+    markers: ["wipe (?:all\\s+)?", "backwards-incompatible", "roll out[^.\\n]", "this work", "test (?:file|helper|utility|title)"],
+  },
+];
+function assertAssuranceStateAuthorizations() {
+  const source = read("scripts/assurance-state.mjs");
+  assert.equal(new Set(assuranceStateAuthorizations.map(({ name }) => name)).size, assuranceStateAuthorizations.length,
+    "runtime authorization names must be unique");
+  for (const { name, reason, markers } of assuranceStateAuthorizations) {
+    assert.ok(reason.length > 20, `${name} must state why it is authorized`);
+    for (const marker of markers) assert.ok(source.includes(marker), `stale named authorization ${name}: ${marker}`);
+  }
+}
 
 test("source is 3.0.1 Unreleased while npm latest and install guidance remain 3.0.0", () => {
   const pkg = JSON.parse(read("package.json"));
@@ -63,9 +84,10 @@ test("runtime differences from 3.0.0 are exactly the generated Critical Plan con
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     return Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0;
   });
-  // scripts/assurance-state.mjs: the gate command now records gate_evaluated, which is what makes a
-  // gate outcome observable evidence (docs/handoff/2026-09-event-vocabulary-decision.md).
+  // scripts/assurance-state.mjs has two named authorizations: gate-evaluated-event makes gate
+  // outcomes observable, and assurance-elevation-adversarial-corpus covers audited parser phrasing.
   assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
+  assertAssuranceStateAuthorizations();
 });
 
 test("packed differences from 3.0.0 are exactly the authorized documentation, version, and Plan files", () => {
@@ -76,6 +98,7 @@ test("packed differences from 3.0.0 are exactly the authorized documentation, ve
     if (Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0) changed.push(path);
   }
   assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "package.json", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
+  assertAssuranceStateAuthorizations();
 });
 
 test("unreleased notes describe evidence verification without claiming publication or measurement", () => {
