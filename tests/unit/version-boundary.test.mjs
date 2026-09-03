@@ -27,11 +27,18 @@ const assuranceStateAuthorizations = [
     markers: ["buildAssuranceStatement", "renderAssuranceReport", 'command === "report"'],
   },
 ];
-function assertAssuranceStateAuthorizations() {
-  const source = read("scripts/assurance-state.mjs");
-  assert.equal(new Set(assuranceStateAuthorizations.map(({ name }) => name)).size, assuranceStateAuthorizations.length,
-    "runtime authorization names must be unique");
-  for (const { name, reason, markers } of assuranceStateAuthorizations) {
+const decideSkillAuthorizations = [
+  {
+    name: "decide-p4-path-classification",
+    reason: "approved P4 adds advisory path classification, countable unknowns, and confirmation evidence to Decide only",
+    markers: ["## Classification — announce before questions", "Path: spike | bounded | architectural", "[NEEDS CLARIFICATION: <question>]", "Confirmation:"],
+  },
+];
+function assertNamedAuthorizations(path, authorizations) {
+  const source = read(path);
+  assert.equal(new Set(authorizations.map(({ name }) => name)).size, authorizations.length,
+    `${path}: runtime authorization names must be unique`);
+  for (const { name, reason, markers } of authorizations) {
     assert.ok(reason.length > 20, `${name} must state why it is authorized`);
     for (const marker of markers) assert.ok(source.includes(marker), `stale named authorization ${name}: ${marker}`);
   }
@@ -81,7 +88,7 @@ test("all tracked authoritative source-version statements reject a current-sourc
   assert.deepEqual(contradictions, []);
 });
 
-test("runtime differences from 3.0.0 are exactly the generated Critical Plan contract outputs", () => {
+test("runtime differences from 3.0.0 are exactly the named Plan, assurance, and Decide authorizations", () => {
   const paths = execFileSync("git", ["ls-tree", "-r", "--name-only", BASE], { cwd: ROOT, encoding: "utf8" })
     .trim().split("\n").filter((path) => /^(?:schemas\/|scripts\/(?:install-agents|snapshot-workspace|assurance-state)\.mjs$|(?:decide|architect|plan|build|review|debug|git-ops)\/SKILL\.md$|agents\/.*\.md$|prompts\/.*\.md$)/.test(path));
   assert.ok(paths.length >= 23, `runtime comparison unexpectedly covered ${paths.length} files`);
@@ -90,9 +97,11 @@ test("runtime differences from 3.0.0 are exactly the generated Critical Plan con
     return Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0;
   });
   // scripts/assurance-state.mjs has three named authorizations: recorded gate outcomes, the audited
-  // elevation corpus, and approved P9's read-only assurance report projection.
-  assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
-  assertAssuranceStateAuthorizations();
+  // elevation corpus, and approved P9's read-only assurance report projection. Decide has the sole
+  // P4 skill-text authorization.
+  assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "decide/SKILL.md", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
+  assertNamedAuthorizations("scripts/assurance-state.mjs", assuranceStateAuthorizations);
+  assertNamedAuthorizations("decide/SKILL.md", decideSkillAuthorizations);
 });
 
 test("packed differences from 3.0.0 are exactly the authorized documentation, version, and Plan files", () => {
@@ -102,8 +111,9 @@ test("packed differences from 3.0.0 are exactly the authorized documentation, ve
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     if (Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0) changed.push(path);
   }
-  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "package.json", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
-  assertAssuranceStateAuthorizations();
+  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "decide/SKILL.md", "package.json", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
+  assertNamedAuthorizations("scripts/assurance-state.mjs", assuranceStateAuthorizations);
+  assertNamedAuthorizations("decide/SKILL.md", decideSkillAuthorizations);
 });
 
 test("unreleased notes describe evidence verification without claiming publication or measurement", () => {

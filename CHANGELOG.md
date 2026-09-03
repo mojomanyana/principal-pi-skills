@@ -59,9 +59,10 @@ validation. `docs/evidence/pr35-e1-repair-provenance-v1.json` hashes the E1-info
 including contextual D1/D2 diagnosis material; preserved measurements are unchanged.
 
 **Changed — source remains unreleased.** Source is `3.0.1 — Unreleased`; npm `latest` and
-install guidance remain published `3.0.0`. The three generated Plan runtime prompts and the
-explicitly authorized assurance-state additions now differ from `3.0.0`; other shipped runtime
-schemas, scripts, skills, agents, and prompts remain byte-identical. No 3.0.1 model score,
+install guidance remain published `3.0.0`. The three generated Plan runtime prompts, the
+explicitly authorized assurance-state additions, and Decide's approved P4 text now differ from
+`3.0.0`; other shipped runtime schemas, scripts, skills, agents, and prompts remain byte-identical.
+No 3.0.1 model score,
 publication, tag, or release is claimed.
 
 ## [3.0.0] — 2026-08-20

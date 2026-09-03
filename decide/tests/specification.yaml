@@ -10,7 +10,7 @@ judge_persona: >
   explicitly asks for them.
 
 ship_bar:
-  total: 13
+  total: 14
   min_pass: 11
   no_critical_fail: true
 critical: [A2, A5, B2, C1, C2]
@@ -158,6 +158,17 @@ scenarios:
       - engages the actual reasoning of the plan, does NOT invent weak objections
       - if it cannot find a load-bearing flaw, says so honestly OR raises the one genuinely load-bearing risk (e.g. is the bottleneck really reads?)
       - does not bury everything behind a single deferring question.
+
+  - id: C3
+    title: Tiny typo path stays right-sized
+    covers: ["../SKILL.md#classification-announce-before-questions"]
+    reps: 3
+    turns:
+      - "Fix a one-line typo in README.md."
+    checklist:
+      - "announces `Path: bounded` or `Path: spike` before any question"
+      - "never announces `Path: architectural`"
+      - keeps the response proportionate to a one-line reversible correction rather than adding decision ceremony
 
   - id: E1
     title: v3 decision conclusion carries a compact revisit condition
