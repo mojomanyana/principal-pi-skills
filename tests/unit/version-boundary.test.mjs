@@ -10,6 +10,39 @@ import { parsePackMetadata } from "../../scripts/pack-meta.mjs";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const BASE = "c24d2b6afd641e9e3f23b6bf967ba535f1fcb0d7";
 const read = (path) => readFileSync(join(ROOT, path), "utf8");
+const assuranceStateAuthorizations = [
+  {
+    name: "gate-evaluated-event",
+    reason: "gate outcomes become ledger evidence rather than unprovable console output",
+    markers: ['case "gate_evaluated":'],
+  },
+  {
+    name: "assurance-elevation-adversarial-corpus",
+    reason: "audited risk paraphrases elevate while explicit tiny artifact references remain right-sized",
+    markers: ["wipe (?:all\\s+)?", "backwards-incompatible", "roll out[^.\\n]", "this work", "test (?:file|helper|utility|title)"],
+  },
+  {
+    name: "assurance-report-projection",
+    reason: "approved P9 adds a read-only human and in-toto projection over validated ledger events",
+    markers: ["buildAssuranceStatement", "renderAssuranceReport", 'command === "report"'],
+  },
+];
+const decideSkillAuthorizations = [
+  {
+    name: "decide-p4-path-classification",
+    reason: "approved P4 adds advisory path classification, countable unknowns, and confirmation evidence to Decide only",
+    markers: ["## Classification — announce before questions", "Path: spike | bounded | architectural", "[NEEDS CLARIFICATION: <question>]", "Confirmation:"],
+  },
+];
+function assertNamedAuthorizations(path, authorizations) {
+  const source = read(path);
+  assert.equal(new Set(authorizations.map(({ name }) => name)).size, authorizations.length,
+    `${path}: runtime authorization names must be unique`);
+  for (const { name, reason, markers } of authorizations) {
+    assert.ok(reason.length > 20, `${name} must state why it is authorized`);
+    for (const marker of markers) assert.ok(source.includes(marker), `stale named authorization ${name}: ${marker}`);
+  }
+}
 
 test("source is 3.0.1 Unreleased while npm latest and install guidance remain 3.0.0", () => {
   const pkg = JSON.parse(read("package.json"));
@@ -55,7 +88,7 @@ test("all tracked authoritative source-version statements reject a current-sourc
   assert.deepEqual(contradictions, []);
 });
 
-test("runtime differences from 3.0.0 are exactly the generated Critical Plan contract outputs", () => {
+test("runtime differences from 3.0.0 are exactly the named Plan, assurance, and Decide authorizations", () => {
   const paths = execFileSync("git", ["ls-tree", "-r", "--name-only", BASE], { cwd: ROOT, encoding: "utf8" })
     .trim().split("\n").filter((path) => /^(?:schemas\/|scripts\/(?:install-agents|snapshot-workspace|assurance-state)\.mjs$|(?:decide|architect|plan|build|review|debug|git-ops)\/SKILL\.md$|agents\/.*\.md$|prompts\/.*\.md$)/.test(path));
   assert.ok(paths.length >= 23, `runtime comparison unexpectedly covered ${paths.length} files`);
@@ -63,7 +96,12 @@ test("runtime differences from 3.0.0 are exactly the generated Critical Plan con
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     return Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0;
   });
-  assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "plan/SKILL.md"]);
+  // scripts/assurance-state.mjs has three named authorizations: recorded gate outcomes, the audited
+  // elevation corpus, and approved P9's read-only assurance report projection. Decide has the sole
+  // P4 skill-text authorization.
+  assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "decide/SKILL.md", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
+  assertNamedAuthorizations("scripts/assurance-state.mjs", assuranceStateAuthorizations);
+  assertNamedAuthorizations("decide/SKILL.md", decideSkillAuthorizations);
 });
 
 test("packed differences from 3.0.0 are exactly the authorized documentation, version, and Plan files", () => {
@@ -73,7 +111,9 @@ test("packed differences from 3.0.0 are exactly the authorized documentation, ve
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     if (Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0) changed.push(path);
   }
-  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "package.json", "plan/SKILL.md"]);
+  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "decide/SKILL.md", "package.json", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
+  assertNamedAuthorizations("scripts/assurance-state.mjs", assuranceStateAuthorizations);
+  assertNamedAuthorizations("decide/SKILL.md", decideSkillAuthorizations);
 });
 
 test("unreleased notes describe evidence verification without claiming publication or measurement", () => {

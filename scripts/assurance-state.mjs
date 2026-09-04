@@ -67,11 +67,14 @@ const SIDE_EFFECTS = new Set([
 ]);
 const BACKFILL_CONTROLS = ["frozen-diff-review", "requirements-trace", "risk-specific"];
 const ASSURANCE_SOURCES = new Set(["default", "flag", "alias", "natural-language", "policy", "user", "user-downgrade"]);
+const GATES = ["pre-build", "task-complete", "finalize", "finish", "repair", "side-effect"];
+const GATE_CODES = new Set(["OK", "BLOCKED_ASSURANCE", "BLOCKED_CRITICAL_ASSURANCE"]);
 const ISO_TIMESTAMP_RE = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})(?:\.\d+)?(?:Z|([+-])(\d{2}):(\d{2}))$/;
 
 export const EVENT_CONTRACT = `# principal-pi-assurance event contract v1
 Append: principal-pi-assurance event --run-id ID <<<'{"type":"...",...}'
 Inspect: principal-pi-assurance show --run-id ID
+Report: principal-pi-assurance report --run-id ID [--format human|in-toto]
 Gate: principal-pi-assurance gate --run-id ID --gate pre-build|task-complete|finalize|finish|repair|side-effect [--task-id ID] [--action ACTION]
 The CLI supplies at, seq, run_id and hash-chain fields. Payload shapes:
   risk_classified {type, level:tiny|substantive|consequential, reason; level is monotonic}
@@ -98,6 +101,7 @@ The CLI supplies at, seq, run_id and hash-chain fields. Payload shapes:
   side_effect_approved {type, action:migration|push|publish|deletion|credential-rotation|production-access, approved_by:"user", reason}
   finish_selected {type, choice:merge|pr|keep|discard, explicit_request:true only for discard}
   finalization_completed {type, final_branch, head_sha, tree_sha; only after gate finalize and the Git operation}
+  gate_evaluated {type, gate, code:OK|BLOCKED_ASSURANCE|BLOCKED_CRITICAL_ASSURANCE, missing_count, task_id?, action?; the gate command appends this itself — never append it by hand}
 Never edit events.jsonl/snapshot.json. A failed critical gate prints BLOCKED_CRITICAL_ASSURANCE.`;
 
 const fail = (message) => {
@@ -188,12 +192,12 @@ function shellWords(text) {
 const POLICY_TRIGGERS = [
   ["database/schema migration", /\b(migrat(?:e|ion|ing)|schema change|drop(?:ping)? (?:a )?(?:production\s+)?(?:table|column))\b/i],
   ["authentication or authorization", /\b(auth(?:entication|orization)?|authn|authz|authoriz(?:e|ation|ing)|oauth|permission boundary|access control)\b/i],
-  ["billing or payments", /\b(billing|payment|invoice|charge|refund)\b/i],
-  ["destructive data operation", /\b(truncate|destructive data|delete (?:all\s+)?(?:(?:production|customer)\s+)?data|data purge)\b/i],
-  ["public API break", /\b(breaking (?:api|change)|public api break|remove public endpoint)\b/i],
+  ["billing or payments", /\b(billing|payments?|invoices?|charges?|refunds?)\b/i],
+  ["destructive data operation", /\b(truncate|destructive data|delete (?:all\s+)?(?:(?:production|customer)\s+)?data|data purge|wipe (?:all\s+)?(?:customer\s+)?records?)\b/i],
+  ["public API break", /\b(breaking (?:api|change)|public api break|backwards-incompatible (?:api )?change|remove (?:a )?public endpoint)\b/i],
   ["credential or secrets work", /\b(credentials?|secrets?|api key|token rotation|private key)\b/i],
-  ["protected history", /\b(force[- ]push|rewrite (?:main|master|develop)|protected history)\b/i],
-  ["production side effect", /\b(production (?:deploy|access|change|operation)|run in prod)\b/i],
+  ["protected history", /\b(force[- ]push|rewrite (?:main|master|develop)|rewrite history[^.\n]{0,60}protected (?:[a-z0-9._/-]+ )?branch|protected history)\b/i],
+  ["production side effect", /\b(production (?:deploy|access|change|operation)|run in prod|roll out[^.\n]{0,60}to production)\b/i],
 ];
 
 function flagValue(words, name) {
@@ -212,7 +216,7 @@ function flagValue(words, name) {
   return values.at(-1) ?? null;
 }
 
-/** Parse command flags and the two documented natural-language critical requests. */
+/** Parse command flags and the bounded natural-language critical request patterns. */
 export function parseWorkflowRequest(request) {
   if (!nonEmpty(request)) fail("workflow request must be a non-empty string");
   const words = shellWords(request);
@@ -224,6 +228,19 @@ export function parseWorkflowRequest(request) {
   let requested = "standard";
   let source = "default";
   let reason = "No assurance profile was requested; standard is the default.";
+  // Interpret explicit assurance intent per clause so a local negation does not veto a later,
+  // affirmative escalation in the same request.
+  const naturalCriticalRequest = request.split(/\bthen\b|[,.;\n]/i).some((clause) => {
+    const affirmative =
+      /\btreat (?:this|the (?:run|task)|this work) as (?:a )?critical(?:[- ]assurance)?\b/i.test(clause) ||
+      /\b(?:escalate|elevate|raise) (?:this|the)?\s*(?:run|task)?\s*(?:to|into) critical(?: assurance| mode)?\b/i.test(clause) ||
+      /\b(?:use\s+)?critical assurance\b/i.test(clause) ||
+      /\bhigh assurance\b/i.test(clause);
+    const negated =
+      /\b(?:do not|don't|no need to|not)\b[^.\n]{0,40}\b(?:critical assurance|critical[- ]assurance|critical mode)\b/i.test(clause) ||
+      /\bcritical assurance\b[^.\n]{0,30}\b(?:is |seems )?(?:unnecessary|not needed)\b/i.test(clause);
+    return affirmative && !negated;
+  });
 
   if (rawProfile) {
     const normalized = rawProfile.toLowerCase();
@@ -240,12 +257,7 @@ export function parseWorkflowRequest(request) {
     requested = "critical";
     source = "flag";
     reason = "A critical scope was supplied, which explicitly requests critical assurance.";
-  } else if (
-    /\btreat (?:this|the (?:run|task)) as critical\b/i.test(request) ||
-    /\b(?:escalate|elevate) (?:this|the)?\s*(?:run|task)?\s*to critical\b/i.test(request) ||
-    /\b(?:use\s+)?critical assurance\b/i.test(request) ||
-    /\bhigh assurance\b/i.test(request)
-  ) {
+  } else if (naturalCriticalRequest) {
     requested = "critical";
     source = "natural-language";
     reason = "The user requested critical assurance in natural language.";
@@ -271,16 +283,19 @@ export function parseWorkflowRequest(request) {
   // The policy elevation is deliberately standard -> critical. An explicit lean request is
   // not silently rewritten; one-way operations still retain their existing approval gates.
   if (requested === "standard") {
+    // A risk word in the artifact being edited is not itself a risky operation. This narrow
+    // exemption covers explicit docs/comment corrections and test-only renames; coordinated or
+    // operational work below still wins and elevates.
     const tinyDocumentation =
-      /\b(typo|spelling|comment|readme|docs?|documentation|runbook wording)\b/i.test(request) &&
+      /\b(?:fix|correct|clarify|reword|rewrap|reformat|rename|update|remove)\b[^.\n]{0,80}\b(?:typo|spelling|comments?|readme|docs?|documentation|runbook wording|tests?[/\\][^\s]*|test (?:file|helper|utility|title))\b/i.test(request) &&
       !/\b(execute|apply|run (?:the )?migration|rotate|delete data|deploy|push|publish)\b/i.test(request);
     const riskAction = /\b(add|implement|enable|introduce|wire|change|modify|migrate|execute|apply|rotate|delete|deploy|integrate|drop|truncate|remove|break|refund|charge|revoke|purge|force|run|access|process|authorize)\b/i;
     const coordinatedWork = /\b(and|plus|then|also)\b|[,;]/i.test(request) && riskAction.test(request);
-    const mixedRiskImplementation = coordinatedWork ||
-      /\b(add|implement|enable|introduce|wire|change|modify|migrate|execute|apply|rotate|delete|deploy|integrate|drop|truncate|remove|break|refund|charge|revoke|purge|force|run|access|process|authorize)\b[^.\n]{0,100}\b(auth(?:entication|orization)?|authn|authz|authoriz(?:e|ation)|billing|payment|invoice|refund|charge|credential|secret|production|schema|migration|table|column|public api|customer data)\b/i.test(request) ||
-      /\b(auth(?:entication|orization)?|authn|authz|authoriz(?:e|ation)|billing|payment|invoice|refund|charge|credential|secret|production|schema|migration|table|column|public api|customer data)\b[^.\n]{0,100}\b(add|implement|enable|introduce|wire|change|modify|migrate|execute|apply|rotate|delete|deploy|integrate|drop|truncate|remove|break|refund|charge|revoke|purge|force|run|access|process|authorize)\b/i.test(request);
+    const riskImplementation =
+      /\b(?:add|implement|enable|introduce|wire|migrate|execute|apply|rotate|deploy|integrate|drop|truncate|refund|charge|revoke|purge|process|authorize)\b[^.\n]{0,100}\b(?:auth(?:entication|orization)?|authn|authz|billing|payments?|invoices?|charges?|refunds?|credentials?|secrets?|production|schema|migration|table|column|public api|customer data)\b/i.test(request) ||
+      /\b(?:delete (?:all )?(?:production |customer )?data|remove (?:a )?public endpoint|force[- ]push|rewrite history|roll out)\b/i.test(request);
     const candidate = POLICY_TRIGGERS.find(([, pattern]) => pattern.test(request))?.[0] ?? null;
-    riskTrigger = tinyDocumentation && !mixedRiskImplementation ? null : candidate;
+    riskTrigger = tinyDocumentation && !coordinatedWork && !riskImplementation ? null : candidate;
     if (riskTrigger) {
       effective = "critical";
       source = "policy";
@@ -1056,7 +1071,9 @@ export function applyEvent(input, rawEvent) {
   const event = clone(rawEvent);
   if (!nonEmpty(event.type)) fail("event.type is required");
   if (!validTimestamp(event.at)) fail("event.at must be an ISO date-time");
-  if (state.status === "finished") fail("finished run state is immutable");
+  // `gate_evaluated` observes and never mutates the derived state, so the `finish` gate can still
+  // record its own outcome after `finalization_completed` has already finished the run.
+  if (state.status === "finished" && event.type !== "gate_evaluated") fail("finished run state is immutable");
   const seq = event.seq ?? state.event_seq + 1;
   if (!Number.isInteger(seq) || seq !== state.event_seq + 1) fail(`event sequence must be ${state.event_seq + 1}`);
   for (const field of ["task_id", "workspace_id", "context_id", "finding_id"]) {
@@ -1579,6 +1596,17 @@ export function applyEvent(input, rawEvent) {
       if (event.approved_by !== "user" || !nonEmpty(event.reason)) fail("side-effect approval requires the user and a consequence-aware reason");
       state.approvals.push({ action: event.action, approved_by: "user", reason: event.reason, approved_at: event.at, seq });
       break;
+    case "gate_evaluated":
+      // Observation only. The log records that a gate ran and how it answered; the derived state is
+      // deliberately unchanged, which is what lets this event exist without a snapshot schema change
+      // and without disturbing the freshness floors (`last_change_seq`, `last_authority_seq`).
+      if (!GATES.includes(event.gate)) fail(`gate_evaluated gate ${JSON.stringify(event.gate)} is invalid`);
+      if (!GATE_CODES.has(event.code)) fail("gate_evaluated code must be OK, BLOCKED_ASSURANCE, or BLOCKED_CRITICAL_ASSURANCE");
+      if (!Number.isInteger(event.missing_count) || event.missing_count < 0) {
+        fail("gate_evaluated missing_count must be a non-negative integer");
+      }
+      if ((event.code === "OK") !== (event.missing_count === 0)) fail("gate_evaluated code and missing_count disagree");
+      break;
     default:
       fail(`unknown event type ${JSON.stringify(event.type)}`);
   }
@@ -1667,7 +1695,7 @@ export class AssuranceStore {
     });
   }
 
-  load(runId) {
+  load(runId, { withEvents = false } = {}) {
     const paths = this.paths(runId);
     if (!existsSync(paths.log)) fail(`unknown run ${runId}`);
     const lines = readFileSync(paths.log, "utf8")
@@ -1676,6 +1704,7 @@ export class AssuranceStore {
     if (lines.length === 0) fail("event-log integrity failure: log is empty");
     let state = null;
     let previous = null;
+    const events = [];
     for (let index = 0; index < lines.length; index++) {
       let event;
       try {
@@ -1706,8 +1735,9 @@ export class AssuranceStore {
         state.event_digest = event.event_digest;
       }
       previous = event.event_digest;
+      events.push(event);
     }
-    return state;
+    return withEvents ? { state, events } : state;
   }
 
   append(runId, payload) {
@@ -1757,6 +1787,135 @@ function stdin() {
   return readFileSync(0, "utf8");
 }
 
+const quoted = (value) => JSON.stringify(value);
+const receiptName = (event) => `${event.kind} (seq ${event.seq}): ${event.command}`;
+
+/** Project validated ledger events into an unsigned in-toto test-result Statement. */
+export function buildAssuranceStatement(events) {
+  const evidence = events.filter((event) => event.type === "evidence_recorded");
+  const finalization = events.findLast((event) => event.type === "finalization_completed") ?? null;
+  const subject = finalization
+    ? [
+        { name: "head_sha", digest: { gitCommit: finalization.head_sha } },
+        { name: "tree_sha", digest: { gitTree: finalization.tree_sha } },
+      ]
+    : [];
+  return {
+    _type: "https://in-toto.io/Statement/v1",
+    subject,
+    predicateType: "https://in-toto.io/attestation/test-result/v0.1",
+    predicate: {
+      result: evidence.length > 0 && evidence.every((receipt) => receipt.exit_code === 0) ? "PASSED" : "FAILED",
+      configuration: evidence.map((receipt) => ({ name: receipt.command })),
+      passedTests: evidence.filter((receipt) => receipt.exit_code === 0).map(receiptName),
+      warnedTests: [],
+      failedTests: evidence.filter((receipt) => receipt.exit_code !== 0).map(receiptName),
+      ledger: {
+        runId: events[0]?.run_id ?? null,
+        schemaVersion: events[0]?.schema_version ?? null,
+        eventCount: events.length,
+        hashChainHead: events.at(-1)?.event_digest ?? null,
+      },
+    },
+  };
+}
+
+/** Render only facts carried by a validated ledger; absent categories stay explicitly absent. */
+export function renderAssuranceReport(state, events) {
+  const taskEvents = events.filter((event) => event.type === "task_packet_recorded");
+  const changes = events.filter((event) => event.type === "code_changed");
+  const evidence = events.filter((event) => event.type === "evidence_recorded");
+  const reviews = events.filter((event) => event.type === "review_recorded");
+  const gates = events.filter((event) => event.type === "gate_evaluated");
+  const findingEvents = events.filter((event) => event.type === "finding_recorded");
+  const adjudications = new Map(events
+    .filter((event) => event.type === "finding_adjudicated")
+    .map((event) => [event.finding_id, event]));
+  const finish = events.find((event) => event.type === "finish_selected") ?? null;
+  const finalization = events.find((event) => event.type === "finalization_completed") ?? null;
+  const lines = [
+    `# Assurance report: ${state.run_id}`,
+    "",
+    "## Authority",
+    `- Request: ${quoted(state.request)}`,
+    `- Effective assurance: ${state.assurance.effective}`,
+    `- Assurance source: ${state.assurance.source}`,
+    `- Risk level: ${state.risk.level}`,
+    "",
+    "## Tasks and their packets",
+    ...(taskEvents.length
+      ? taskEvents.map((event) => `- ${event.packet.task_id}: ${JSON.stringify(event.packet)}`)
+      : ["- Absent."]),
+    "",
+    "## Changed paths",
+    ...(changes.length
+      ? changes.map((event) => `- seq ${event.seq}: ${event.changed_paths.join(", ")}`)
+      : ["- Absent."]),
+    "",
+    "## Evidence receipts",
+    ...(evidence.length
+      ? evidence.map((event) =>
+          `- seq ${event.seq}: kind=${event.kind}; command=${quoted(event.command)}; exit_code=${event.exit_code}; head_sha=${event.head_sha}; tree_sha=${event.tree_sha}`)
+      : ["- Absent."]),
+    "",
+    "## Review verdicts by axis",
+    ...(reviews.length
+      ? reviews.map((event) => `- seq ${event.seq}: axis=${event.axis}; verdict=${event.verdict}; context_id=${event.context_id}`)
+      : ["- Absent."]),
+    "",
+    "## Gate evaluations",
+    ...(gates.length
+      ? gates.map((event) =>
+          `- seq ${event.seq}: gate=${event.gate}; code=${event.code}; missing_count=${event.missing_count}` +
+          `${event.task_id ? `; task_id=${event.task_id}` : ""}${event.action ? `; action=${event.action}` : ""}`)
+      : ["- Absent."]),
+    "",
+    "## Findings and their adjudications",
+    ...(findingEvents.length
+      ? findingEvents.map((event) => {
+          const adjudication = adjudications.get(event.finding_id);
+          return `- ${event.finding_id}: summary=${quoted(event.summary)}; evidence=${event.evidence == null ? "Absent." : quoted(event.evidence)}; ` +
+            `disposition=${adjudication?.disposition ?? "Absent."}; reason=${adjudication ? quoted(adjudication.reason) : "Absent."}`;
+        })
+      : ["- Absent."]),
+    "",
+    "## Finish and finalization",
+    `- Finish choice: ${finish?.choice ?? "Absent."}`,
+    finalization
+      ? `- Finalization: branch=${quoted(finalization.final_branch)}; head_sha=${finalization.head_sha}; tree_sha=${finalization.tree_sha}`
+      : "- Finalization: Absent.",
+  ];
+  const gaps = [
+    ...(state.risk.level === "unknown" ? ["Risk classification is absent."] : []),
+    ...(taskEvents.length === 0 ? ["Task packets are absent."] : []),
+    ...(changes.length === 0 ? ["Changed paths are absent."] : []),
+    ...(evidence.length === 0 ? ["Evidence receipts are absent."] : []),
+    ...(reviews.length === 0 ? ["Review verdicts are absent."] : []),
+    ...(gates.length === 0 ? ["Gate evaluations are absent."] : []),
+    ...(findingEvents.length === 0 ? ["Findings are absent."] : []),
+    ...findingEvents.filter((event) => !adjudications.has(event.finding_id))
+      .map((event) => `Adjudication for ${event.finding_id} is absent.`),
+    ...(!finish ? ["Finish choice is absent."] : []),
+    ...(!finalization ? ["Finalization identity is absent."] : []),
+  ];
+  lines.push(
+    "",
+    "## Evidence gaps",
+    ...(gaps.length ? gaps.map((gap) => `- ${gap}`) : ["- None among the reportable ledger sections."]),
+    "",
+    "## Assumptions",
+    "- None. Absent ledger facts are not inferred.",
+    "",
+    "## Machine section — unsigned in-toto Statement",
+    "No signature is produced by this projection.",
+    "",
+    "```json",
+    JSON.stringify(buildAssuranceStatement(events), null, 2),
+    "```",
+  );
+  return lines.join("\n");
+}
+
 export function runCli(argv, { cwd = process.cwd(), env = process.env, out = console.log, err = console.error, input = stdin } = {}) {
   try {
     const [command] = argv;
@@ -1780,6 +1939,16 @@ export function runCli(argv, { cwd = process.cwd(), env = process.env, out = con
       out(JSON.stringify(store.load(cliFlag(argv, "--run-id")), null, 2));
       return 0;
     }
+    if (command === "report") {
+      const runId = cliFlag(argv, "--run-id");
+      const format = cliFlag(argv, "--format", "human");
+      if (!["human", "in-toto"].includes(format)) fail("--format must be human or in-toto");
+      const { state, events } = store.load(runId, { withEvents: true });
+      out(format === "in-toto"
+        ? JSON.stringify(buildAssuranceStatement(events), null, 2)
+        : renderAssuranceReport(state, events));
+      return 0;
+    }
     if (command === "event") {
       const runId = cliFlag(argv, "--run-id");
       const raw = cliFlag(argv, "--json", null) ?? stdin();
@@ -1789,14 +1958,32 @@ export function runCli(argv, { cwd = process.cwd(), env = process.env, out = con
     }
     if (command === "gate") {
       const runId = cliFlag(argv, "--run-id");
-      const result = evaluateGate(store.load(runId), cliFlag(argv, "--gate"), {
-        task_id: cliFlag(argv, "--task-id"),
-        action: cliFlag(argv, "--action"),
-      });
+      const gate = cliFlag(argv, "--gate");
+      const taskId = cliFlag(argv, "--task-id");
+      const action = cliFlag(argv, "--action");
+      const result = evaluateGate(store.load(runId), gate, { task_id: taskId, action });
+      // A gate outcome nobody can produce as evidence is the hole this event closes, so recording
+      // failure is an error rather than a silent pass. A blocked gate still returns 3: the block is
+      // the more important fact, and swallowing it to report a logging problem would invert them.
+      let recorded = true;
+      try {
+        store.append(runId, {
+          type: "gate_evaluated",
+          gate,
+          code: result.code,
+          missing_count: result.missing.length,
+          ...(taskId ? { task_id: taskId } : {}),
+          ...(action ? { action } : {}),
+        });
+      } catch (error) {
+        recorded = false;
+        err(`gate outcome could not be recorded: ${error.message}`);
+      }
       if (!result.ok) {
         err(`${result.code}\nMissing controls:\n${result.missing.map((item) => `- ${item}`).join("\n")}`);
         return 3;
       }
+      if (!recorded) return 1;
       out("OK");
       return 0;
     }
@@ -1821,7 +2008,7 @@ export function runCli(argv, { cwd = process.cwd(), env = process.env, out = con
       return 0;
     }
 
-    err("usage: principal-pi-assurance <contract|init|show|event|gate|validate-task|digest|where> [options]");
+    err("usage: principal-pi-assurance <contract|init|show|report|event|gate|validate-task|digest|where> [options]");
     return 2;
   } catch (error) {
     err(`✗ ${error instanceof Error ? error.message : String(error)}`);

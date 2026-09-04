@@ -301,6 +301,38 @@ test("`remove` preserves an owned path when Git refuses removal", () => {
   run(process.execPath, [CLI, "remove", path, "--repo", repo], { stdio: "pipe" });
 });
 
+test("`remove` refuses an unregistered ppw-* direct child of the temp directory", () => {
+  const repo = fixture();
+  const abandoned = mkdtempSync(join(tmpdir(), "ppw-"));
+  created.push(abandoned);
+  const marker = join(abandoned, "unregistered.txt");
+  writeFileSync(marker, "NOT OWNED BY THIS REPOSITORY\n");
+
+  assert.throws(
+    () => run(process.execPath, [CLI, "remove", abandoned, "--repo", repo], { encoding: "utf8", stdio: "pipe" }),
+    (error) => error.status === 1,
+  );
+  assert.equal(readFileSync(marker, "utf8"), "NOT OWNED BY THIS REPOSITORY\n");
+});
+
+test("`prune` drops gone registrations but does not discover abandoned ppw-* directories", () => {
+  const repo = fixture();
+  const registered = run(process.execPath, [CLI, "create", "--repo", repo], { encoding: "utf8" }).trim();
+  rmSync(registered, { recursive: true, force: true });
+
+  const abandoned = mkdtempSync(join(tmpdir(), "ppw-"));
+  created.push(abandoned);
+  const marker = join(abandoned, "abandoned.txt");
+  writeFileSync(marker, "PRUNE DOES NOT DISCOVER THIS\n");
+
+  run(process.execPath, [CLI, "prune", "--repo", repo], { stdio: "pipe" });
+
+  assert.ok(!git(["worktree", "list", "--porcelain"], repo).includes(registered),
+    "Git prune removes a registration after its directory is already gone");
+  assert.equal(readFileSync(marker, "utf8"), "PRUNE DOES NOT DISCOVER THIS\n",
+    "the CLI does not search the temp directory for abandoned snapshots");
+});
+
 test("`remove` still removes a real snapshot, and exits 0", () => {
   const repo = fixture();
   const path = run(process.execPath, [CLI, "create", "--repo", repo], { encoding: "utf8" }).trim();

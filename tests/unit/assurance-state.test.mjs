@@ -150,6 +150,8 @@ test("parses lean, critical, high alias, scope flags, and natural-language escal
 test("a critical scope flag is explicit critical intent and omitted scope means entire run", () => {
   const scoped = parseWorkflowRequest('--critical-scope "db/migrations/**,src/auth/**" change files');
   assert.equal(scoped.assurance.requested, "critical");
+  assert.equal(scoped.assurance.effective, "critical");
+  assert.equal(scoped.assurance.source, "flag");
   assert.deepEqual(scoped.assurance.scope.selectors, ["db/migrations/**", "src/auth/**"]);
 
   const entire = parseWorkflowRequest("--assurance critical change files");
@@ -193,6 +195,63 @@ test("policy elevates standard for evidenced one-way doors but does not inflate 
     "Update docs and deploy a production change",
   ]) assert.equal(parseWorkflowRequest(mixed).assurance.effective, "critical", mixed);
   assert.equal(parseWorkflowRequest("--assurance lean update auth docs").assurance.effective, "lean");
+});
+
+test("adversarial assurance phrasing elevates real risk without inflating references and tiny artifacts", () => {
+  const mustElevate = [
+    ["Migrate the users table in production", "policy"],
+    ["Apply a schema change to customer records", "policy"],
+    ["Require MFA authentication for admin login", "policy"],
+    ["Tighten authorization at the permission boundary", "policy"],
+    ["Enable billing for annual plans", "policy"],
+    ["Process customer refunds for duplicate charges", "policy"],
+    ["Truncate the production sessions table", "policy"],
+    ["Wipe all customer records", "policy"],
+    ["Ship a backwards-incompatible change to the public API", "policy"],
+    ["Remove a public endpoint used by clients", "policy"],
+    ["Rotate the production credentials", "policy"],
+    ["Replace the service signing secret", "policy"],
+    ["Rewrite history on the protected release branch", "policy"],
+    ["Roll out this change to production", "policy"],
+    ["Treat this work as a critical-assurance run", "natural-language"],
+    ["Raise this run to critical assurance", "natural-language"],
+    ["Escalate the task into critical mode", "natural-language"],
+    ["Update docs to add authentication to the API", "policy"],
+    ["Update docs to enable billing charges at checkout", "policy"],
+    ["Do not use critical assurance for docs, then elevate this run to critical", "natural-language"],
+  ];
+  for (const [request, source] of mustElevate) {
+    const parsed = parseWorkflowRequest(request);
+    assert.equal(parsed.assurance.effective, "critical", request);
+    assert.equal(parsed.assurance.source, source, request);
+  }
+
+  const mustNotElevate = [
+    "Fix a docs typo that merely mentions billing",
+    "Fix a comment in a file named auth.ts",
+    "Rename a helper inside tests/user-migration.test.ts",
+    "Update a README line describing a past migration",
+    "Rename a local test helper",
+    "Reformat an ordinary unit test",
+    "Correct spelling in the payment glossary docs",
+    "Rewrap a comment about OAuth",
+    "Clarify runbook wording about production access",
+    "Fix a typo in public API break documentation",
+    "Update docs for a completed data purge",
+    "Correct a comment spelling around an authz example",
+    "Refactor local CSS selectors",
+    "Sort imports in a test utility",
+    "Rename an internal mock response",
+    "Remove stale billing docs",
+    "Do not use critical assurance for this typo fix",
+    "Critical assurance is unnecessary for this docs typo",
+    "This is not critical assurance; fix the typo",
+  ];
+  for (const request of mustNotElevate) {
+    const parsed = parseWorkflowRequest(request);
+    assert.equal(parsed.assurance.effective, "standard", request);
+    assert.equal(parsed.assurance.source, "default", request);
+  }
 });
 
 test("risk classification can stay level or increase but cannot silently decrease", () => {
@@ -1391,8 +1450,10 @@ test("CLI contract exposes every event shape the generated workflows must persis
     "code_changed", "evidence_recorded", "review_recorded", "finding_adjudicated", "repair_suspended",
     "assurance_escalated", "assurance_downgraded", "backfill_completed",
     "side_effect_approved", "finish_selected", "finalization_completed",
+    "gate_evaluated",
   ]) assert.ok(contract.includes(eventType), eventType);
   assert.match(contract, /event --run-id/);
+  assert.match(contract, /report --run-id/);
   assert.match(contract, /gate --run-id/);
 });
 
@@ -1499,5 +1560,356 @@ test("AssuranceStore writes a hash-chained log and rejects unsupported versions 
     assert.throws(() => store.load(state.run_id), /integrity|digest/i);
   } finally {
     rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+const gateLog = (dir, runId) =>
+  readFileSync(new AssuranceStore({ baseDir: dir }).paths(runId).log, "utf8")
+    .trim().split("\n").map((line) => JSON.parse(line));
+
+test("the gate command records every evaluation it performs, pass and block alike", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ppa-gate-record-"));
+  const sink = () => {
+    const lines = [];
+    return { lines, out: (line) => lines.push(line), err: (line) => lines.push(line) };
+  };
+  try {
+    const runId = "run-gate-record";
+    assert.equal(runCli(["init", "--workflow", "feature", "--run-id", runId, "--request", "add export", "--state-dir", dir], sink()), 0);
+
+    assert.equal(runCli(["gate", "--run-id", runId, "--gate", "pre-build", "--state-dir", dir], sink()), 0);
+    const passed = gateLog(dir, runId).at(-1);
+    assert.equal(passed.type, "gate_evaluated");
+    assert.equal(passed.gate, "pre-build");
+    assert.equal(passed.code, "OK");
+    assert.equal(passed.missing_count, 0);
+
+    // A block is the outcome most worth recording: without it a run that never satisfied its
+    // controls and a run that was never checked look identical in the ledger.
+    const blocked = sink();
+    assert.equal(runCli(["gate", "--run-id", runId, "--gate", "finalize", "--state-dir", dir], blocked), 3);
+    const recorded = gateLog(dir, runId).at(-1);
+    assert.equal(recorded.type, "gate_evaluated");
+    assert.equal(recorded.gate, "finalize");
+    assert.equal(recorded.code, "BLOCKED_ASSURANCE");
+    assert.ok(recorded.missing_count > 0, "a blocked gate records how many controls were missing");
+    assert.match(blocked.lines.join("\n"), /BLOCKED_ASSURANCE/);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("the finish gate records its own outcome after finalization has finished the run", () => {
+  let state = initial();
+  state = event(state, "risk_classified", { level: "tiny", reason: "small local correction" });
+  state = event(state, "code_changed", { head_sha: head1, tree_sha: tree1, changed_paths: ["src/a.ts"] });
+  state = event(state, "evidence_recorded", {
+    kind: "exact-target", command: "node --test test/a.test.mjs", exit_code: 0, head_sha: head1, tree_sha: tree1,
+  });
+  state = event(state, "finish_selected", { choice: "keep" });
+  state = event(state, "phase_started", { phase: "git-ops" });
+  state = event(state, "finalization_completed", { final_branch: "principal/run-test-001", head_sha: head2, tree_sha: tree1 });
+  assert.equal(state.status, "finished");
+
+  // The run is immutable...
+  assert.throws(() => event(state, "phase_started", { phase: "review" }), /immutable/i);
+  // ...but the finish gate runs after finalization by contract, so its outcome must still be
+  // recordable or the last gate of every run would be the one gate nobody can prove ran.
+  const gated = event(state, "gate_evaluated", { gate: "finish", code: "OK", missing_count: 0 });
+  assert.equal(gated.status, "finished");
+  assert.equal(gated.event_seq, state.event_seq + 1);
+});
+
+test("recording a gate evaluation cannot make existing evidence stale", () => {
+  let state = initial();
+  state = event(state, "risk_classified", { level: "tiny", reason: "typo fix" });
+  state = event(state, "code_changed", { head_sha: head1, tree_sha: tree1, changed_paths: ["src/a.ts"] });
+  state = event(state, "evidence_recorded", {
+    kind: "exact-target", command: "npm test", exit_code: 0, head_sha: head1, tree_sha: tree1,
+  });
+  state = event(state, "finish_selected", { choice: "keep" });
+  const before = evaluateGate(state, "finalize");
+  const gated = event(state, "gate_evaluated", {
+    gate: "finalize", code: before.ok ? "OK" : "BLOCKED_ASSURANCE", missing_count: before.missing.length,
+  });
+  assert.equal(gated.last_change_seq, state.last_change_seq);
+  assert.equal(gated.last_authority_seq, state.last_authority_seq);
+  assert.deepEqual(evaluateGate(gated, "finalize"), before);
+});
+
+test("gate_evaluated refuses payloads that would record an outcome that never happened", () => {
+  const state = event(initial(), "risk_classified", { level: "tiny", reason: "typo fix" });
+  const corpus = [
+    ["unknown gate", { gate: "vibes", code: "OK", missing_count: 0 }],
+    ["unknown code", { gate: "finish", code: "PROBABLY_FINE", missing_count: 0 }],
+    ["absent count", { gate: "finish", code: "OK" }],
+    ["negative count", { gate: "finish", code: "BLOCKED_ASSURANCE", missing_count: -1 }],
+    ["pass claiming missing controls", { gate: "finish", code: "OK", missing_count: 2 }],
+    ["block claiming nothing missing", { gate: "finish", code: "BLOCKED_CRITICAL_ASSURANCE", missing_count: 0 }],
+  ];
+  for (const [label, payload] of corpus) {
+    assert.throws(() => event(state, "gate_evaluated", payload), /gate_evaluated/i, label);
+  }
+  assert.equal(event(state, "gate_evaluated", { gate: "pre-build", code: "OK", missing_count: 0 }).status, state.status);
+});
+
+function reportFixture({ targetCommand = "node --test tests/unit/assurance-state.test.mjs" } = {}) {
+  const dir = mkdtempSync(join(tmpdir(), "ppa-report-"));
+  const runId = "run-report-golden";
+  const definitionDigest = "d".repeat(64);
+  const planDigest = "2".repeat(64);
+  const packet = {
+    schema_version: "1.0",
+    run_id: runId,
+    task_id: "task-1",
+    title: "Render report",
+    authority: ["P9"],
+    global_constraints: ["read-only"],
+    out_of_scope: ["signing"],
+    critical_scope: { applies: false, matched_by: [] },
+    files: ["scripts/assurance-state.mjs"],
+    dependencies: [],
+    done_command: "node --test tests/unit/assurance-state.test.mjs",
+    review_risk: "projection fidelity",
+    workspace_id: "ws-1",
+    plan_digest: planDigest,
+    definition_digests: { "skill:build": definitionDigest },
+  };
+  const store = new AssuranceStore({ baseDir: dir, now: () => "2026-09-03T12:00:00.000Z" });
+  store.init({
+    workflow: "feature",
+    request: "Add report projection",
+    runId,
+    definitionDigests: { "skill:build": definitionDigest },
+  });
+  const append = (type, payload = {}) => store.append(runId, { type, ...payload });
+  append("workspace_attached", { workspace_id: "ws-1", mode: "caller", path: "/repo", writer: "build" });
+  append("risk_classified", { level: "substantive", reason: "report behavior" });
+  append("plan_recorded", { plan_digest: planDigest });
+  append("task_packet_recorded", { packet });
+  append("code_changed", {
+    head_sha: head1,
+    tree_sha: tree1,
+    task_id: "task-1",
+    changed_paths: ["scripts/assurance-state.mjs", "tests/unit/assurance-state.test.mjs"],
+  });
+  append("evidence_recorded", {
+    kind: "exact-target", command: targetCommand, exit_code: 0, head_sha: head1, tree_sha: tree1, workspace_id: "ws-1",
+  });
+  append("evidence_recorded", {
+    kind: "full-suite", command: "npm test", exit_code: 1, head_sha: head1, tree_sha: tree1, workspace_id: "ws-1",
+  });
+  append("review_recorded", {
+    axis: "combined", verdict: "CHANGES-REQUESTED", context_id: "ctx-review-1",
+    head_sha: head1, tree_sha: tree1, workspace_id: "ws-1",
+  });
+  append("review_recorded", {
+    axis: "combined", verdict: "APPROVE", context_id: "ctx-review-2",
+    head_sha: head1, tree_sha: tree1, workspace_id: "ws-1",
+  });
+  append("gate_evaluated", { gate: "finalize", code: "OK", missing_count: 0 });
+  append("finding_recorded", {
+    finding_id: "REV-001", summary: "missing failed-test projection", evidence: "receipt seq 8",
+  });
+  append("finding_adjudicated", {
+    finding_id: "REV-001", disposition: "rejected", reason: "fixture deliberately includes it",
+  });
+  append("finish_selected", { choice: "keep" });
+  append("phase_started", { phase: "git-ops" });
+  append("finalization_completed", {
+    final_branch: "wave1/audit-followups", head_sha: head2, tree_sha: tree1,
+  });
+  append("gate_evaluated", { gate: "finish", code: "OK", missing_count: 0 });
+  return { dir, runId, packet };
+}
+
+const goldenStatement = {
+  _type: "https://in-toto.io/Statement/v1",
+  subject: [
+    { name: "head_sha", digest: { gitCommit: head2 } },
+    { name: "tree_sha", digest: { gitTree: tree1 } },
+  ],
+  predicateType: "https://in-toto.io/attestation/test-result/v0.1",
+  predicate: {
+    result: "FAILED",
+    configuration: [
+      { name: "node --test tests/unit/assurance-state.test.mjs" },
+      { name: "npm test" },
+    ],
+    passedTests: ["exact-target (seq 7): node --test tests/unit/assurance-state.test.mjs"],
+    warnedTests: [],
+    failedTests: ["full-suite (seq 8): npm test"],
+    ledger: {
+      runId: "run-report-golden",
+      schemaVersion: "1.0",
+      eventCount: 17,
+      hashChainHead: "538d446a2d06829fa987a4d0ca860ac975b3197104b309bd41209330c2e72909",
+    },
+  },
+};
+
+test("report renders the complete ledger in stable human-section order", () => {
+  const fixture = reportFixture();
+  const output = [];
+  const logPath = join(fixture.dir, "runs", fixture.runId, "events.jsonl");
+  const before = readFileSync(logPath, "utf8");
+  try {
+    assert.equal(runCli(
+      ["report", "--run-id", fixture.runId, "--state-dir", fixture.dir],
+      { out: (line) => output.push(line), err: (line) => output.push(line) },
+    ), 0);
+    const expected = [
+      "# Assurance report: run-report-golden",
+      "",
+      "## Authority",
+      '- Request: "Add report projection"',
+      "- Effective assurance: standard",
+      "- Assurance source: default",
+      "- Risk level: substantive",
+      "",
+      "## Tasks and their packets",
+      `- task-1: ${JSON.stringify(fixture.packet)}`,
+      "",
+      "## Changed paths",
+      "- seq 6: scripts/assurance-state.mjs, tests/unit/assurance-state.test.mjs",
+      "",
+      "## Evidence receipts",
+      `- seq 7: kind=exact-target; command="node --test tests/unit/assurance-state.test.mjs"; exit_code=0; head_sha=${head1}; tree_sha=${tree1}`,
+      `- seq 8: kind=full-suite; command="npm test"; exit_code=1; head_sha=${head1}; tree_sha=${tree1}`,
+      "",
+      "## Review verdicts by axis",
+      "- seq 9: axis=combined; verdict=CHANGES-REQUESTED; context_id=ctx-review-1",
+      "- seq 10: axis=combined; verdict=APPROVE; context_id=ctx-review-2",
+      "",
+      "## Gate evaluations",
+      "- seq 11: gate=finalize; code=OK; missing_count=0",
+      "- seq 17: gate=finish; code=OK; missing_count=0",
+      "",
+      "## Findings and their adjudications",
+      '- REV-001: summary="missing failed-test projection"; evidence="receipt seq 8"; disposition=rejected; reason="fixture deliberately includes it"',
+      "",
+      "## Finish and finalization",
+      "- Finish choice: keep",
+      `- Finalization: branch="wave1/audit-followups"; head_sha=${head2}; tree_sha=${tree1}`,
+      "",
+      "## Evidence gaps",
+      "- None among the reportable ledger sections.",
+      "",
+      "## Assumptions",
+      "- None. Absent ledger facts are not inferred.",
+      "",
+      "## Machine section — unsigned in-toto Statement",
+      "No signature is produced by this projection.",
+      "",
+      "```json",
+      JSON.stringify(goldenStatement, null, 2),
+      "```",
+    ].join("\n");
+    assert.equal(output.join("\n"), expected);
+    assert.equal(readFileSync(logPath, "utf8"), before, "report must not append to or rewrite the ledger");
+  } finally {
+    rmSync(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test("report renders missing ledger facts as absent instead of assuming them", () => {
+  const dir = mkdtempSync(join(tmpdir(), "ppa-report-empty-"));
+  const runId = "run-report-empty";
+  const store = new AssuranceStore({ baseDir: dir, now: () => "2026-09-03T12:00:00.000Z" });
+  store.init({ workflow: "feature", request: "Inspect incomplete run", runId, definitionDigests: {} });
+  const output = [];
+  try {
+    assert.equal(runCli(
+      ["report", "--run-id", runId, "--state-dir", dir],
+      { out: (line) => output.push(line), err: (line) => output.push(line) },
+    ), 0);
+    const emptyStatement = {
+      _type: "https://in-toto.io/Statement/v1",
+      subject: [],
+      predicateType: "https://in-toto.io/attestation/test-result/v0.1",
+      predicate: {
+        result: "FAILED",
+        configuration: [],
+        passedTests: [],
+        warnedTests: [],
+        failedTests: [],
+        ledger: {
+          runId,
+          schemaVersion: "1.0",
+          eventCount: 1,
+          hashChainHead: "5f1ddb9ff7b856eee165ef1b1ba1dbd7cd38ad7560a93efd21441035f5005d1b",
+        },
+      },
+    };
+    const expected = [
+      "# Assurance report: run-report-empty",
+      "",
+      "## Authority",
+      '- Request: "Inspect incomplete run"',
+      "- Effective assurance: standard",
+      "- Assurance source: default",
+      "- Risk level: unknown",
+      "",
+      "## Tasks and their packets", "- Absent.",
+      "", "## Changed paths", "- Absent.",
+      "", "## Evidence receipts", "- Absent.",
+      "", "## Review verdicts by axis", "- Absent.",
+      "", "## Gate evaluations", "- Absent.",
+      "", "## Findings and their adjudications", "- Absent.",
+      "", "## Finish and finalization", "- Finish choice: Absent.", "- Finalization: Absent.",
+      "", "## Evidence gaps",
+      "- Risk classification is absent.",
+      "- Task packets are absent.",
+      "- Changed paths are absent.",
+      "- Evidence receipts are absent.",
+      "- Review verdicts are absent.",
+      "- Gate evaluations are absent.",
+      "- Findings are absent.",
+      "- Finish choice is absent.",
+      "- Finalization identity is absent.",
+      "", "## Assumptions", "- None. Absent ledger facts are not inferred.",
+      "", "## Machine section — unsigned in-toto Statement",
+      "No signature is produced by this projection.",
+      "", "```json", JSON.stringify(emptyStatement, null, 2), "```",
+    ].join("\n");
+    assert.equal(output.join("\n"), expected);
+  } finally {
+    rmSync(dir, { recursive: true, force: true });
+  }
+});
+
+test("report emits the exact in-toto test-result Statement as machine JSON", () => {
+  const fixture = reportFixture();
+  const output = [];
+  try {
+    assert.equal(runCli(
+      ["report", "--run-id", fixture.runId, "--format", "in-toto", "--state-dir", fixture.dir],
+      { out: (line) => output.push(line), err: (line) => output.push(line) },
+    ), 0);
+    assert.equal(output.join("\n"), JSON.stringify(goldenStatement, null, 2));
+  } finally {
+    rmSync(fixture.dir, { recursive: true, force: true });
+  }
+});
+
+test("report attestation changes when a receipt changes in an otherwise equivalent ledger", () => {
+  const before = reportFixture();
+  const after = reportFixture({ targetCommand: "node --test tests/unit/assurance-state.test.mjs --test-name-pattern report" });
+  const render = (fixture) => {
+    const output = [];
+    assert.equal(runCli(
+      ["report", "--run-id", fixture.runId, "--format", "in-toto", "--state-dir", fixture.dir],
+      { out: (line) => output.push(line), err: (line) => output.push(line) },
+    ), 0);
+    return JSON.parse(output.join("\n"));
+  };
+  try {
+    const original = render(before);
+    const mutated = render(after);
+    assert.notDeepEqual(mutated, original);
+    assert.notEqual(mutated.predicate.ledger.hashChainHead, original.predicate.ledger.hashChainHead);
+  } finally {
+    rmSync(before.dir, { recursive: true, force: true });
+    rmSync(after.dir, { recursive: true, force: true });
   }
 });

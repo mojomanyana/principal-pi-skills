@@ -27,9 +27,16 @@ test("v3 keeps exactly the seven stable public skill names and least-privilege c
   }
 });
 
-test("decide preserves a compact revisit condition without routing", () => {
+test("decide announces advisory paths and preserves a compact conclusion without routing", () => {
   const text = read("decide/SKILL.md");
   assert.match(text, /revisit (trigger|when)/i);
+  assert.match(text, /^Path:/m);
+  for (const path of ["spike", "bounded", "architectural"]) assert.match(text, new RegExp(`\\b${path}\\b`), path);
+  const classification = text.match(/## Classification[^\n]*\n([\s\S]*?)\n## Process/)?.[1] ?? "";
+  assert.match(classification, /advisory context[^.]*not routing/i);
+  assert.doesNotMatch(classification, /\b(?:lean|standard|critical)\b/i);
+  assert.match(text, /\[NEEDS CLARIFICATION: <question>\]/);
+  assert.match(text, /^Confirmation:/m);
   assert.doesNotMatch(text, /^Next:/m);
 });
 

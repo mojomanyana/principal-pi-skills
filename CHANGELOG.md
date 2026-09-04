@@ -8,6 +8,27 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ## [3.0.1] — Unreleased
 
+**Added — assurance ledgers have a read-only evidence projection.**
+`principal-pi-assurance report --run-id <id>` renders authority, packets, changed paths, receipts,
+reviews, recorded gate outcomes, findings/adjudications, and finish identity in deterministic human
+sections, with absent facts and assumptions labelled rather than inferred. It also emits an unsigned
+in-toto Statement v1 using the test-result v0.1 predicate; final head/tree subjects, receipt-derived
+configuration and pass/fail lists, and the ledger hash-chain head bind the output to facts already in
+the validated log. `--format in-toto` emits only Statement JSON. The command does not append events,
+sign output, or claim a signature.
+
+**Added — gate outcomes are recorded, not just printed.** `principal-pi-assurance gate` now appends a
+`gate_evaluated {gate, code, missing_count, task_id?, action?}` event for every evaluation it performs,
+pass or block. The gate was a pure read, which is precisely why no downstream observer could prove that
+a gate ran or how it answered; a completion claim and an unexamined run were indistinguishable in the
+ledger. Because the workflows already invoke the gate at each control point, recording inside the
+command required no workflow or skill text change. The event is an observation: it mutates no derived
+state, so it cannot advance `last_change_seq` or `last_authority_seq` and can never make a receipt
+stale, and it is accepted after `finalization_completed` so the `finish` gate can record its own
+outcome. `missing_count` is recorded rather than the missing-control strings, which are human
+diagnostics and not a machine contract. A ledger containing this event requires this version or newer
+to replay. Rationale and the downstream assertion mapping: `docs/handoff/2026-09-event-vocabulary-decision.md`.
+
 **Fixed — fail-closed measurement classification.** A closed machine-readable manifest now
 classifies all 205 committed `results.yaml` files exactly once and binds each entry to its
 raw SHA-256. The Terra-high control, unpinned-executor infrastructure failure, and
@@ -38,9 +59,11 @@ validation. `docs/evidence/pr35-e1-repair-provenance-v1.json` hashes the E1-info
 including contextual D1/D2 diagnosis material; preserved measurements are unchanged.
 
 **Changed — source remains unreleased.** Source is `3.0.1 — Unreleased`; npm `latest` and
-install guidance remain published `3.0.0`. The three generated Plan runtime prompts now differ
-from `3.0.0`; other shipped runtime schemas, scripts, skills, agents, and prompts remain
-byte-identical. No 3.0.1 model score, publication, tag, or release is claimed.
+install guidance remain published `3.0.0`. The three generated Plan runtime prompts, the
+explicitly authorized assurance-state additions, and Decide's approved P4 text now differ from
+`3.0.0`; other shipped runtime schemas, scripts, skills, agents, and prompts remain byte-identical.
+No 3.0.1 model score,
+publication, tag, or release is claimed.
 
 ## [3.0.0] — 2026-08-20
 

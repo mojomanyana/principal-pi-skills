@@ -45,15 +45,19 @@ Both namespaced prompts accept:
 
 A critical profile without a scope means `entire-run`; narrowing is never inferred. “Treat
 this as critical” and “escalate this run to critical before the migration” map to the same
-state. Supplying `--critical-scope` itself is explicit critical intent.
+state. Supplying `--critical-scope` itself is explicit critical intent: even without
+`--assurance`, it records requested/effective `critical` with assurance source `flag`.
 
 The parser can policy-elevate **standard** for an evidenced migration, auth/authz, billing,
 destructive data operation, public API break, credential/secrets operation, protected-history
 rewrite, or production side effect. It records the trigger in `assurance.reason`. A tiny
-reversible docs/comment correction is not elevated merely because its text mentions billing or
-auth, but a mixed docs-plus-auth/billing implementation request is elevated. An explicit lean
-request is not silently rewritten; existing one-way and Git-Ops safety
-gates still apply.
+reversible docs/comment correction or test-only rename is not elevated merely because its text
+or filename mentions a risk domain, but a mixed docs-plus-risk implementation request is elevated.
+These policy and natural-language matches are deliberately bounded regex heuristics, not semantic
+classification. Phrasings outside the recognized patterns are the workflow controller's
+responsibility: it must persist an explicit escalation before risky work proceeds, rather than
+treating the parser's unchanged default as a silent no-op. An explicit lean request is not silently
+rewritten; existing one-way and Git-Ops safety gates still apply.
 
 ## Persistence model
 
@@ -116,6 +120,8 @@ principal-pi-assurance contract                         # exact event payload re
 principal-pi-assurance init --workflow feature < request.json  # one-line {"request":...}; no shell interpolation
 principal-pi-assurance event --run-id <id> <<<'{"type":"risk_classified",...}'
 principal-pi-assurance show --run-id <id>
+principal-pi-assurance report --run-id <id>                     # human report plus unsigned in-toto Statement
+principal-pi-assurance report --run-id <id> --format in-toto    # Statement JSON only
 principal-pi-assurance gate --run-id <id> --gate pre-build --task-id task-1
 principal-pi-assurance gate --run-id <id> --gate task-complete --task-id task-1
 principal-pi-assurance gate --run-id <id> --gate finalize  # pre-operation readiness
@@ -123,6 +129,18 @@ principal-pi-assurance gate --run-id <id> --gate finish    # post-operation comp
 principal-pi-assurance gate --run-id <id> --gate side-effect --action push
 principal-pi-assurance validate-task < packet.json
 ```
+
+`report` is a read-only projection over the validated event log. Its human sections preserve
+ledger order for authority, task packets, changed paths, evidence, reviews, recorded gate
+outcomes, findings/adjudications, and finish/finalization identity. Missing categories are labelled
+absent under `Evidence gaps`; the `Assumptions` block makes explicit that no missing fact was
+inferred. The machine section is an unsigned
+[`https://in-toto.io/Statement/v1`](https://in-toto.io/Statement/v1) with test-result predicate
+`https://in-toto.io/attestation/test-result/v0.1`. Its configuration and passed/failed test names
+come directly from evidence receipt commands and exit codes; `PASSED` requires at least one receipt
+and every receipt to have exit code zero. Final head/tree subjects appear only after
+`finalization_completed`, and `predicate.ledger.hashChainHead` binds the projection to the exact
+validated log. The command does not sign or claim a signature.
 
 A failed critical gate exits nonzero with the exact token
 `BLOCKED_CRITICAL_ASSURANCE` and all missing controls.
