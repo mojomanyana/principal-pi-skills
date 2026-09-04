@@ -6,7 +6,7 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
-## [3.0.1] — Unreleased
+## [3.0.1] — 2026-09-04
 
 **Added — assurance ledgers have a read-only evidence projection.**
 `principal-pi-assurance report --run-id <id>` renders authority, packets, changed paths, receipts,
@@ -58,12 +58,13 @@ coverage is structural only; a fresh Wave A remains required for behavioral
 validation. `docs/evidence/pr35-e1-repair-provenance-v1.json` hashes the E1-informed evidence,
 including contextual D1/D2 diagnosis material; preserved measurements are unchanged.
 
-**Changed — source remains unreleased.** Source is `3.0.1 — Unreleased`; npm `latest` and
-install guidance remain published `3.0.0`. The three generated Plan runtime prompts, the
-explicitly authorized assurance-state additions, and Decide's approved P4 text now differ from
-`3.0.0`; other shipped runtime schemas, scripts, skills, agents, and prompts remain byte-identical.
-No 3.0.1 model score,
-publication, tag, or release is claimed.
+**Changed — release evidence does not claim model measurement.** `3.0.1` contains three
+generated Plan runtime prompt changes, the explicitly authorized assurance-state additions, and
+Decide's approved P4 text; other shipped runtime schemas, scripts, skills, agents, and prompts remain
+byte-identical to `3.0.0`. No 3.0.1 model score is claimed: deterministic/static checks are the
+release evidence, while the required DeepSeek/GLM wave and live workflow cells remain unrun. At
+release candidate cut, the remote `v3.0.1` tag is pending and npm `latest` remains `3.0.0`; neither external
+publication result is claimed before verification.
 
 ## [3.0.0] — 2026-08-20
 

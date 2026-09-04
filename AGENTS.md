@@ -119,10 +119,11 @@ to every output.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v3.0.0` — the current
-   published release and supported install target. This source tree is `3.0.1 — Unreleased`;
-   local packs are test artifacts, not a published or supported install target. `standard` is the
-   default assurance profile, so a v2 invocation keeps working unchanged. It registers the
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v3.0.1` — the immutable install
+   coordinate for this source tree's `3.0.1` release candidate. The remote `v3.0.1` tag is pending
+   and npm `latest` remains `3.0.0`; verify both before installing. After publication they must
+   resolve this same version. `standard` is the default assurance
+   profile, so a v2 invocation keeps working unchanged. It registers the
    skills and the `/principal-feature` + `/principal-bugfix` commands via the `pi`
    manifest. Install a tag, not a branch.
 2. Subagents need pi-mono's subagent extension (`examples/extensions/subagent`, which ships

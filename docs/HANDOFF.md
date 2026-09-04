@@ -1,16 +1,18 @@
 # Handoff 1 — v3 risk-adaptive assurance
 
-**Status:** source `3.0.1 — Unreleased`; npm `latest` remains published `3.0.0`
-**Updated:** 2026-08-24
-**Source manifest:** `3.0.1` (unpublished; no tag or release)
-**Previous published release:** `2.4.0` (npm 2026-08-16; its git tag was backfilled 2026-08-20)
+**Status:** `3.0.1` release candidate; remote `v3.0.1` tag pending; npm `latest` remains `3.0.0`
+**Updated:** 2026-09-04
+**Source manifest:** `3.0.1` (release candidate)
+**Target install:** `pi install git:github.com/mojomanyana/principal-pi-skills@v3.0.1`
+**Current published release:** `3.0.0` (2026-08-20)
 **Branch:** merged to `main` via [PR #31](https://github.com/mojomanyana/principal-pi-skills/pull/31)
 **Base SHA:** `4dece8ca35648725234c7dc2eadead95cd084b07`
 
 PR #31 merged on 2026-08-19 (`b28a8d5`, CI green) and `3.0.0` was tagged and published on
-2026-08-20 with its evidence gap open and stated rather than closed. Source `3.0.1` adds only
-fail-closed result classification, external-attestation verification, tests, and documentation;
-it is unavailable from npm and changes no shipped runtime contract.
+2026-08-20 with its evidence gap open and stated rather than closed. Release `3.0.1` adds
+fail-closed result classification, external-attestation verification, assurance-ledger evidence,
+concrete Critical Plan contracts, Decide path classification, tests, and documentation. It keeps
+the model-measurement gap explicit rather than attaching historical v2.4 scores to changed prompts.
 
 All 205 committed result files are listed in `docs/validation/RESULTS-MANIFEST.v1.json` with
 raw SHA-256 and explicit participation flags. Terra-high Wave 0 is exploratory only: the control,
@@ -26,13 +28,12 @@ principal-pi-skills verifies external producer claims; it does not run artifacts
 children, protect signing authority, authenticate ledger production, prove loaded runtime state,
 or provide module/process/OS containment. Same-UID isolation and a real OS sandbox are not claimed.
 
-Two clean `3.0.1` source packs are byte-identical at SHA-256
-`e1875c7b5e3a658ac1533cda35edf2d81d407bb29690d55d3186f2acf5bc2fdd`
-(107,016 bytes). Against published-source `3.0.0` (`9ce4ab10…fff`, 105,706 bytes), both
-contain the same 28 paths; only `AGENTS.md`, `README.md`, `CHANGELOG.md`, and `package.json`
-differ. All other 24 packaged files and CLI contract `ad03c15…9fff` are byte-identical.
-Against the prior minimal candidate (`d08ee142…a4a06`, 106,770 bytes), only those three
-packaged documentation files differ; package metadata is unchanged.
+Two packs generated from this exact `3.0.1` release-candidate tree are byte-identical at
+SHA-256 `d4121d6e16fc223573a9a9b0838ad0649464d8e7221e3599d443314c75dee358`
+(114,374 bytes compressed; 384,223 bytes unpacked; 28 files). Published `3.0.0` packs at
+`9ce4ab10…fff` (105,706 bytes). The nine changed packaged files are `AGENTS.md`, `CHANGELOG.md`,
+`README.md`, `package.json`, `agents/{plan,principal-plan}.md`, `decide/SKILL.md`,
+`plan/SKILL.md`, and `scripts/assurance-state.mjs`; the other 19 packaged files are byte-identical.
 Paid skill-harness
 subjects/judges and the live workflow E2E cells are still unrun; they remain authorized-later
 work, and nothing in this repository may present the v2.4 board as v3 evidence. Sections 2–7
@@ -621,17 +622,18 @@ check, scoped dependency completion gate, and precise hash/workspace limitations
 
 ## 8. Version/package consistency
 
-- Source `package.json` and root/package lock metadata are `3.0.1 — Unreleased`; the package
-  includes the assurance CLI bin and `schemas/*.json`. npm `latest` remains published `3.0.0`.
-- `CHANGELOG.md`: `[3.0.1] — Unreleased` precedes `[3.0.0] — 2026-08-20`; v2.4 history retained.
-- `README.md` and `AGENTS.md`: install command remains immutable `@v3.0.0`, states that `3.0.0`
-  is the current published release while source is unpublished `3.0.1`, and links validation
-  before use because v3 carries no model score.
-- Clean-install examples using unversioned `npx -p principal-pi-skills` now resolve `3.0.0`;
-  source/packed tests continue to test the local tarball rather than the registry.
+- Source `package.json` and root/package lock metadata are the `3.0.1` release candidate; the
+  package includes the assurance CLI bin and `schemas/*.json`. npm `latest` remains `3.0.0` until
+  publication is independently verified.
+- `CHANGELOG.md`: `[3.0.1] — 2026-09-04` precedes `[3.0.0] — 2026-08-20`; v2.4 history retained.
+- `README.md` and `AGENTS.md`: the immutable release coordinate is `@v3.0.1`; both require the tag
+  to resolve before install and link validation because v3 carries no model score.
+- Clean-install examples using unversioned `npx -p principal-pi-skills` still resolve `3.0.0`;
+  source/packed tests test the local tarball rather than the registry.
 - Pack allowlist requires all runtime skills/prompts/agents, assurance CLI/workspace installer, and
   all three schemas; lockfile/tests/docs/contracts remain excluded as intended.
-- Tags: `v2.1.0`, `v2.2.0`, `v2.3.0`, `v2.3.1`, `v2.4.0` (backfilled at `4dece8c`), `v3.0.0`.
+- Existing tags before this release: `v2.1.0`, `v2.2.0`, `v2.3.0`, `v2.3.1`, `v2.4.0`
+  (backfilled at `4dece8c`), and `v3.0.0`. The `v3.0.1` tag must be created and verified before npm publication.
   2.4.0 shipped to npm without a git tag, which left the install command every doc printed
   resolving to nothing for four days — the same class of defect as 2.3.1's 404'ing npx
   invocations, and the reason the release procedure now tags before publishing.
@@ -884,19 +886,20 @@ tests/unit/snapshot-workspace.test.mjs
 
 ## 11. Handoff verdict
 
-- **RELEASED, STATICALLY VERIFIED** — `3.0.0` is tagged and published; deterministic/static checks
-  are green. This is not a measurement verdict and must never be quoted as one.
+- **RELEASE CANDIDATE, STATICALLY VERIFIED** — `3.0.1` deterministic/static checks are green;
+  tag and npm verification remain release operations. This is not a measurement verdict and must
+  never be quoted as one.
 - **READY FOR PI-DADDY INTEGRATION** — v1 protocol is specified; spawn-time CWD validation and
   governed-child lease coordination remain integration work, while raw-shell confinement requires
   an OS sandbox or constrained broker.
 - **READY FOR SKILL-HARNESS INTEGRATION** — static specs/fixtures lint; paid subjects/judges remain
   unauthorized.
-- **Still open after 3.0.0** — the release deliberately shipped ahead of these, and each is the
+- **Still open for 3.0.1** — the release candidate deliberately keeps these open, and each is the
   reason v3 quotes no score:
   1. the authorized two-model skill-harness wave (§9) — 106 scenarios × 3 reps × 2 models;
   2. the live eight-cell workflow E2E (§6, §9), plus the optional scoped/escalation/stale cells;
   3. pi-daddy runtime enforcement evidence for the ceilings and the writer lease.
-  A `3.1.0`/`3.0.1` that lands measurements changes no contract — it replaces the exempt-stale
+  A future release that lands measurements changes no contract — it replaces the exempt-stale
   board with a real v3 one and rewrites the validation boundary in `docs/validation/VALIDATION.md`.
 
 ## Standing hazards

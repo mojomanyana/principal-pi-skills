@@ -7,9 +7,9 @@ are in [`../evidence/`](../evidence/).
 
 ## Evidence eligibility and external trust boundary
 
-Current source is `3.0.1 — Unreleased`; published npm `latest` remains `3.0.0`. The
-machine-readable result manifest validates all 205 committed result bytes without needing Git
-history. Historical comparison is a separate optional audit and never substitutes for current
+Current source is the `3.0.1` release candidate; the remote `v3.0.1` tag is pending and npm
+`latest` remains `3.0.0` until publication is independently verified. The machine-readable result manifest validates all 205 committed result
+bytes without needing Git history. Historical comparison is a separate optional audit and never substitutes for current
 hash/completeness validation.
 
 A treatment observation is eligible only when a canonical strict-JSON future-result v1 document,
@@ -64,8 +64,8 @@ skill-harness or live E2E run was authorized**.
 Therefore v3 currently publishes no model score. The board below is explicitly the historical
 v2.4 baseline; it must not be attached to the v3 prompt digests.
 
-`3.0.0` was released, tagged and published on 2026-08-20 with that gap open and stated, not
-closed: the free gate (generated-contract parity, state-machine/schema transitions, install and
+The `3.0.1` release candidate keeps that gap open and stated rather than closed: the free gate
+(generated-contract parity, state-machine/schema transitions, install and
 packed-artifact behavior, worktree isolation, word budgets, skill-harness lint) is green, and
 every v2.4 cell is exempt-stale against the v3 text rather than re-measured. Anyone who needs a
 measured number for the v3 prompts must run the wave below; until then the honest statement about
