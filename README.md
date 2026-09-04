@@ -8,9 +8,9 @@ to isolated contexts (`plan`, `review`, `debug` — single-shot variants in `age
 generated from the same contract as the skill). The files follow the [Agent Skills](https://agentskills.io/specification)
 standard, so other harnesses can consume the skills, but pi is the supported target.
 
-**Version:** `3.0.1` release candidate. The remote `v3.0.1` tag is pending and npm `latest`
-remains `3.0.0` until both publication results are independently verified. Release coordinates
-are npm `principal-pi-skills@3.0.1` and the immutable git tag `v3.0.1`. This version strengthens the generated Critical Plan skill/agent
+**Current release:** `3.0.1`. The remote `v3.0.1` tag and npm `latest` were independently
+verified after publication. Release coordinates are npm `principal-pi-skills@3.0.1` and the
+immutable git tag `v3.0.1`. This version strengthens the generated Critical Plan skill/agent
 prompts, assurance-ledger evidence, and development-only measurement verification. It carries no
 new model score; the committed board remains a historical v2.4 baseline.
 
@@ -104,8 +104,8 @@ docs/demos/                           the chains running end to end, repo-verifi
    pi install git:github.com/mojomanyana/principal-pi-skills@v3.0.1
    ```
 
-   `3.0.1` is the release represented by this source tree. The immutable tag must match its
-   manifest before publication, and npm `latest` must resolve the same version afterward. v3 adds
+   `3.0.1` is the current published release and the immutable tag matches its manifest; npm
+   `latest` resolves the same version. v3 adds
    the risk-adaptive assurance profiles; `standard` is the default and preserves v2 invocation,
    so upgrading from `2.4.0` changes no command you already type.
    Read [Validation](#validation) first: v3 ships with **no model score of its own** — the
