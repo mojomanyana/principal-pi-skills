@@ -62,9 +62,8 @@ including contextual D1/D2 diagnosis material; preserved measurements are unchan
 generated Plan runtime prompt changes, the explicitly authorized assurance-state additions, and
 Decide's approved P4 text; other shipped runtime schemas, scripts, skills, agents, and prompts remain
 byte-identical to `3.0.0`. No 3.0.1 model score is claimed: deterministic/static checks are the
-release evidence, while the required DeepSeek/GLM wave and live workflow cells remain unrun. At
-release candidate cut, the remote `v3.0.1` tag is pending and npm `latest` remains `3.0.0`; neither external
-publication result is claimed before verification.
+release evidence, while the required DeepSeek/GLM wave and live workflow cells remain unrun. The
+remote `v3.0.1` tag and npm `latest` were independently verified after publication.
 
 ## [3.0.0] — 2026-08-20
 
