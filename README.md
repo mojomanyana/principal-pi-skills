@@ -8,10 +8,11 @@ to isolated contexts (`plan`, `review`, `debug` — single-shot variants in `age
 generated from the same contract as the skill). The files follow the [Agent Skills](https://agentskills.io/specification)
 standard, so other harnesses can consume the skills, but pi is the supported target.
 
-**Source status:** `3.0.1 — Unreleased`. It is not published or available from npm.
-The npm `latest` release and supported install target remain `3.0.0`. This source update
-strengthens the generated Critical Plan skill/agent prompts and development-only measurement
-evidence; it changes no other shipped skill, agent, prompt, runtime script, or runtime schema.
+**Version:** `3.0.1` release candidate. The remote `v3.0.1` tag is pending and npm `latest`
+remains `3.0.0` until both publication results are independently verified. Release coordinates
+are npm `principal-pi-skills@3.0.1` and the immutable git tag `v3.0.1`. This version strengthens the generated Critical Plan skill/agent
+prompts, assurance-ledger evidence, and development-only measurement verification. It carries no
+new model score; the committed board remains a historical v2.4 baseline.
 
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
@@ -100,14 +101,13 @@ docs/demos/                           the chains running end to end, repo-verifi
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v3.0.0
+   pi install git:github.com/mojomanyana/principal-pi-skills@v3.0.1
    ```
 
-   `3.0.0` is the current published npm release, npm `latest`, and supported install target;
-   source `3.0.1 — Unreleased` is available only as local test packs, not from npm or supported
-   installation guidance. The published tag matches the `3.0.0` manifest. It adds
-   the risk-adaptive assurance profiles; `standard` is the default and
-   preserves v2 invocation, so upgrading from `2.4.0` changes no command you already type.
+   `3.0.1` is the release represented by this source tree. The immutable tag must match its
+   manifest before publication, and npm `latest` must resolve the same version afterward. v3 adds
+   the risk-adaptive assurance profiles; `standard` is the default and preserves v2 invocation,
+   so upgrading from `2.4.0` changes no command you already type.
    Read [Validation](#validation) first: v3 ships with **no model score of its own** — the
    committed board is a historical v2.4 baseline. Do not turn a moving branch into
    production install guidance.
