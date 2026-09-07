@@ -142,6 +142,55 @@ and every receipt to have exit code zero. Final head/tree subjects appear only a
 `finalization_completed`, and `predicate.ledger.hashChainHead` binds the projection to the exact
 validated log. The command does not sign or claim a signature.
 
+### Local candidate: current-applicability projection v1 (P14)
+
+Opt in with `report --run-id <id> --format current-v1`. This JSON format identifies itself as
+`current-applicability-projection`, with `format_version: "current-v1"`. It is **not a fresh gate
+or attestation**, native acceptance, or execution authorization. It does not execute checks,
+invoke the mutating gate command, append events, or repair snapshots. This local candidate does
+not change the installed/published CLI or the ledger schema.
+
+Compatibility is explicit: `--format in-toto-legacy` and `--format human-legacy` select the
+original renderers byte-for-byte. Existing `in-toto`, `human`, and the default remain legacy,
+including all-history nonzero aggregation and empty-evidence `FAILED`. The embedded human
+machine section is also unchanged. The new format is deliberately not an in-toto Statement.
+
+The projection reports `candidate`, `finalization`, recorded `authority`, task applicability,
+`checks`, `requirements`, every receipt with its disposition/reasons, and the replayed
+`ledger` sequence/hash-chain head. Applicability uses the same pure candidate-identity and
+sequence-floor selectors as the gates: after the greater of the last change and authority
+sequence, matching candidate head/tree. After finalization the assured head is the recorded
+**candidate** head, not the possibly different final Git head. No live filesystem or current
+installed-definition freshness is inferred from a ledger-only report.
+
+- Checks are independent by exact command text, kind, and task. Receipts must match the task's
+  active workspace (or the run's active workspace). A later stale/wrong-workspace receipt cannot
+  erase a currently applicable result. Within one check, the latest applicable receipt wins,
+  including a later nonzero after an earlier zero.
+- Only `red` and `green` are paired: fresh `green` with the same literal command and task resolves
+  prior expected `red`, including across artifact changes. An unpaired current red means missing
+  qualifying evidence, not a failed final execution. `exact-target` is a separate requirement;
+  a green or another command/kind/task cannot substitute for it. A later expected red cannot clear
+  an unresolved current green execution failure. No command is executed or normalized.
+- Task plan/definition/workspace bindings are compared with replayed authority. Superseded tasks
+  and their evidence are labelled separately and excluded from current requirements. Stale tasks
+  remain stale even with a newly recorded zero. Task exact-target evidence must follow completed
+  Build and use the packet's literal `done_command` (a conservative report requirement, not new
+  gate enforcement).
+- Run requirements are exact-target for all profiles, plus full-suite, requirements-trace, and
+  risk-specific for critical, matching the existing gate's evidence kinds. Build/lint receipts,
+  and all other observed command checks, remain independent. Unrecorded generic-P03/P04 check
+  inventories are not invented: a renamed/disappeared check cannot silently retire an earlier
+  check. Without explicit retirement authority, an observed check with only old evidence stays stale.
+- Per-check/requirement statuses and aggregate precedence are `FAILED` (current nonzero), then
+  `STALE` (only inapplicable evidence/authority), then `MISSING` (no qualifying evidence), then
+  `PASSED`. `PASSED` means only this bounded evidence projection passes; it does not assert review,
+  dependency, backfill, finding, approval, finalization, or native acceptance completeness.
+
+No model-visible template or generated convention changes are part of this slice. Generic-P03/P04
+integration, independent batch review, real acceptance, and P17P comparison/dependency evidence
+remain separate, uncompleted work.
+
 A failed critical gate exits nonzero with the exact token
 `BLOCKED_CRITICAL_ASSURANCE` and all missing controls.
 

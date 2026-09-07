@@ -22,6 +22,11 @@ function assertNoStaleCandidateClaim(text, label) {
 }
 const assuranceStateAuthorizations = [
   {
+    name: "p14-current-applicability-projection",
+    reason: "bounded local P14 authorizes only a versioned read-only evidence projection with explicit legacy compatibility; gates and native acceptance remain unchanged",
+    markers: ["buildCurrentApplicabilityProjection", 'format_version: "current-v1"', '"in-toto-legacy"'],
+  },
+  {
     name: "gate-evaluated-event",
     reason: "gate outcomes become ledger evidence rather than unprovable console output",
     markers: ['case "gate_evaluated":'],
@@ -120,8 +125,8 @@ test("runtime differences from 3.0.0 are exactly the named Plan, assurance, and 
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     return Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0;
   });
-  // scripts/assurance-state.mjs has three named authorizations: recorded gate outcomes, the audited
-  // elevation corpus, and approved P9's read-only assurance report projection. Decide has the sole
+  // scripts/assurance-state.mjs has named authorizations for recorded gate outcomes, the audited
+  // elevation corpus, P9's report, and bounded P14 current applicability. Decide has the sole
   // P4 skill-text authorization.
   assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "decide/SKILL.md", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
   assertNamedAuthorizations("scripts/assurance-state.mjs", assuranceStateAuthorizations);

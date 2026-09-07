@@ -63,6 +63,11 @@ test("each load-bearing static requirement is independently mutation-sensitive",
 const authorizedRuntimeChanges = new Map([
   ["scripts/assurance-state.mjs", [
     {
+      name: "p14-current-applicability-projection",
+      reason: "bounded local P14 authorizes only a versioned read-only evidence projection with explicit legacy compatibility; gates and native acceptance remain unchanged",
+      markers: ["buildCurrentApplicabilityProjection", 'format_version: "current-v1"', '"in-toto-legacy"'],
+    },
+    {
       name: "gate-evaluated-event",
       reason: "the gate command records gate_evaluated (docs/handoff/2026-09-event-vocabulary-decision.md)",
       markers: ['case "gate_evaluated":'],
