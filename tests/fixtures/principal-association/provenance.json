@@ -49,6 +49,20 @@
       "sourcePath": "packages/pi-daddy/src/work-ledger-types.ts",
       "targetPath": "p04/work-ledger-types.ts",
       "sha256": "e1d1265c8643f1386bf98f43ee544755d9c44ec0a5cb21e91c819a9324c388a8"
+    },
+    {
+      "producer": "pi-daddy",
+      "commit": "2b3027e43fe9a418788f226e642e0bbde3f7806a",
+      "sourcePath": "packages/pi-daddy/contracts/daily-view/v1/fixtures/work.jsonl",
+      "targetPath": "p04/work.jsonl",
+      "sha256": "6e45ad5ab8ba57a8939ab0c23881e9278749801f025cfd966f1d5a7372b0fb86"
+    },
+    {
+      "producer": "pi-daddy",
+      "commit": "2b3027e43fe9a418788f226e642e0bbde3f7806a",
+      "sourcePath": "packages/pi-daddy/test/daily-view-fixture.ts",
+      "targetPath": "p04/daily-view-fixture.ts",
+      "sha256": "81c7ba235d8a16e0f44c7812b67feabe37e5d2bad99bb64d40a9e0ccc4b0c823"
     }
   ]
 }

@@ -20,6 +20,8 @@ const pins = [
     ["packages/pi-daddy/contracts/daily-view/v1/fixtures/view.json", "p04/view.json"],
     ["packages/pi-daddy/src/daily-view.ts", "p04/daily-view.ts"],
     ["packages/pi-daddy/src/work-ledger-types.ts", "p04/work-ledger-types.ts"],
+    ["packages/pi-daddy/contracts/daily-view/v1/fixtures/work.jsonl", "p04/work.jsonl"],
+    ["packages/pi-daddy/test/daily-view-fixture.ts", "p04/daily-view-fixture.ts"],
   ] },
 ];
 const base = resolve(root, "tests/fixtures/principal-association");

@@ -202,6 +202,12 @@ fixtures, and remaining deployment/acceptance gaps are in
 The opt-in [v2 declaration](handoff/P14-principal-binding-selection-v2.md) adds exact opaque
 `DailyObligation.key` selection and separate native/generic reference context; v1 output and
 unbound defaults remain unchanged. Neither version infers check equivalence or generic retirement.
+The opt-in [v3 reference adapter and native producer](../contracts/principal-native-references/v1/README.md)
+adds exact check/context/candidate, correction, finalization and retirement references and links them
+to explicit existing P01 receipt/artifact/evidence bindings. Its separate `record-native-reference`
+subcommand requires an explicit record and expected journal head; projections remain read-only.
+Reference links and author strings are not authentication or native acceptance; the remaining generic
+individual-check/retirement lifecycle connector and live qualification are still pending.
 
 A failed critical gate exits nonzero with the exact token
 `BLOCKED_CRITICAL_ASSURANCE` and all missing controls.
