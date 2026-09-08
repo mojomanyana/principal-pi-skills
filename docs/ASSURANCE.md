@@ -187,9 +187,18 @@ installed-definition freshness is inferred from a ledger-only report.
   `PASSED`. `PASSED` means only this bounded evidence projection passes; it does not assert review,
   dependency, backfill, finding, approval, finalization, or native acceptance completeness.
 
-No model-visible template or generated convention changes are part of this slice. Generic-P03/P04
-integration, independent batch review, real acceptance, and P17P comparison/dependency evidence
-remain separate, uncompleted work.
+No model-visible template or generated convention changes are part of this slice. Independent batch
+review, real acceptance, and P17P comparison/dependency evidence remain separate, uncompleted work.
+
+### Local host association v1
+
+The source-local `node scripts/principal-association.mjs --state-dir DIR --run-id ID --daily-view FILE
+[--bindings FILE]` entry point reuses validated native replay/current-v1 and consumes exact pinned
+P04 reference fields. It defaults unbound, requires explicit independently supplied host declarations,
+and produces structural associations only—never authenticated approval, launches, or accepted work.
+Existing report formats and gates are unchanged. The declaration contract, pinned inputs, bounds,
+fixtures, and remaining deployment/acceptance gaps are in
+[the named Principal association convention](handoff/P14-principal-association-v1.md).
 
 A failed critical gate exits nonzero with the exact token
 `BLOCKED_CRITICAL_ASSURANCE` and all missing controls.

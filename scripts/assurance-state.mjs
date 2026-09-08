@@ -12,9 +12,14 @@
 
 import {
   appendFileSync,
+  closeSync,
+  constants,
   existsSync,
+  fstatSync,
   mkdirSync,
+  openSync,
   readFileSync,
+  readSync,
   renameSync,
   realpathSync,
   rmSync,
@@ -1642,6 +1647,25 @@ function atomicJson(path, value) {
   renameSync(temp, path);
 }
 
+/** Optional bounded descriptor snapshot for read-only host integrations; default CLI loading is unchanged. */
+export function readBoundedAssuranceText(path, maxBytes) {
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 16 * 1024 * 1024) fail("bounded assurance input limit is invalid");
+  let fd;
+  try {
+    fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+    const before = fstatSync(fd);
+    if (!before.isFile() || before.size > maxBytes) fail("bounded assurance input exceeds limit or is not a regular file");
+    const bytes = Buffer.alloc(before.size + 1);
+    let length = 0, n;
+    while (length < bytes.length && (n = readSync(fd, bytes, length, bytes.length - length, null)) > 0) length += n;
+    const after = fstatSync(fd);
+    if (length !== before.size || after.size !== before.size || after.mtimeMs !== before.mtimeMs || after.ctimeMs !== before.ctimeMs) {
+      fail("bounded assurance input changed during read");
+    }
+    return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes.subarray(0, length));
+  } finally { if (fd !== undefined) closeSync(fd); }
+}
+
 /** Append-only store with a derived, replaceable snapshot. */
 export class AssuranceStore {
   constructor({ baseDir = defaultStateDir(), now = () => new Date().toISOString() } = {}) {
@@ -1695,12 +1719,15 @@ export class AssuranceStore {
     });
   }
 
-  load(runId, { withEvents = false } = {}) {
+  load(runId, { withEvents = false, maxBytes = null, maxEvents = null } = {}) {
     const paths = this.paths(runId);
     if (!existsSync(paths.log)) fail(`unknown run ${runId}`);
-    const lines = readFileSync(paths.log, "utf8")
+    const lines = (maxBytes === null ? readFileSync(paths.log, "utf8") : readBoundedAssuranceText(paths.log, maxBytes))
       .split("\n")
       .filter(Boolean);
+    if (maxEvents !== null && (!Number.isSafeInteger(maxEvents) || maxEvents < 1 || maxEvents > 10000 || lines.length > maxEvents)) {
+      fail("bounded assurance event limit exceeded or invalid");
+    }
     if (lines.length === 0) fail("event-log integrity failure: log is empty");
     let state = null;
     let previous = null;

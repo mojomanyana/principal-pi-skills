@@ -22,6 +22,11 @@ function assertNoStaleCandidateClaim(text, label) {
 }
 const assuranceStateAuthorizations = [
   {
+    name: "p14-host-association-bounded-replay",
+    reason: "local P14 host association uses opt-in bounded native replay; existing default loading, reports, event and gate semantics are unchanged",
+    markers: ["readBoundedAssuranceText", "maxBytes = null", "constants.O_NOFOLLOW"],
+  },
+  {
     name: "p14-current-applicability-projection",
     reason: "bounded local P14 authorizes only a versioned read-only evidence projection with explicit legacy compatibility; gates and native acceptance remain unchanged",
     markers: ["buildCurrentApplicabilityProjection", 'format_version: "current-v1"', '"in-toto-legacy"'],

@@ -1,0 +1,241 @@
+{
+  "version": "execution-archive-projection-v1",
+  "executions": [
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000001",
+      "parentExecutionIds": [
+        "exec:00000000-0000-4000-8000-000000000099"
+      ],
+      "retainedSessionIds": [],
+      "activeBranch": null,
+      "toolCallIds": [
+        "call:layout:1"
+      ],
+      "archiveIds": [
+        "00000000-0000-4000-8000-000000000001"
+      ],
+      "runtime": "terminal",
+      "outcome": {
+        "code": 0,
+        "signal": null,
+        "timedOut": false,
+        "aborted": false,
+        "truncated": false,
+        "failed": false
+      },
+      "sourceReferences": [
+        "aa913c6061b2e51e13a729facd19a0ca53c466cc603ba84d6da09842ff9d74f5"
+      ],
+      "issues": [
+        "active-branch-unknown",
+        "content-missing:checkReceipt",
+        "content-missing:paneSnapshot",
+        "content-missing:result",
+        "content-missing:session",
+        "content-missing:stderr",
+        "content-missing:stdout",
+        "native-session-unavailable",
+        "parent-not-in-snapshot"
+      ],
+      "coverage": "partial",
+      "acceptance": "not-assessed"
+    },
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000002",
+      "parentExecutionIds": [
+        "exec:00000000-0000-4000-8000-000000000099"
+      ],
+      "retainedSessionIds": [],
+      "activeBranch": null,
+      "toolCallIds": [
+        "call:layout:2"
+      ],
+      "archiveIds": [
+        "00000000-0000-4000-8000-000000000002"
+      ],
+      "runtime": "terminal",
+      "outcome": {
+        "code": 0,
+        "signal": null,
+        "timedOut": false,
+        "aborted": false,
+        "truncated": false,
+        "failed": false
+      },
+      "sourceReferences": [
+        "ce7f59468b935af873c7dbb063cac3431dc0d12ec5b969d9984dc12547d61192"
+      ],
+      "issues": [
+        "active-branch-unknown",
+        "content-missing:checkReceipt",
+        "content-missing:paneSnapshot",
+        "content-missing:result",
+        "content-missing:session",
+        "content-missing:stderr",
+        "content-missing:stdout",
+        "native-session-unavailable",
+        "parent-not-in-snapshot"
+      ],
+      "coverage": "partial",
+      "acceptance": "not-assessed"
+    },
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000003",
+      "parentExecutionIds": [
+        "exec:00000000-0000-4000-8000-000000000099"
+      ],
+      "retainedSessionIds": [
+        "11111111-1111-4111-8111-111111111111"
+      ],
+      "activeBranch": null,
+      "toolCallIds": [
+        "call:layout:3"
+      ],
+      "archiveIds": [
+        "00000000-0000-4000-8000-000000000003"
+      ],
+      "runtime": "terminal",
+      "outcome": {
+        "code": 0,
+        "signal": null,
+        "timedOut": false,
+        "aborted": false,
+        "truncated": false,
+        "failed": false
+      },
+      "sourceReferences": [
+        "a9b1899c783b41796342741fd38fdf5c77c7833047d4cb3d8f7829d1f62290bd"
+      ],
+      "issues": [
+        "active-branch-unknown",
+        "content-missing:checkReceipt",
+        "content-missing:paneSnapshot",
+        "content-missing:stderr",
+        "content-missing:stdout",
+        "not-acceptance-evidence",
+        "parent-not-in-snapshot"
+      ],
+      "coverage": "partial",
+      "acceptance": "not-assessed"
+    },
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000004",
+      "parentExecutionIds": [
+        "exec:00000000-0000-4000-8000-000000000099"
+      ],
+      "retainedSessionIds": [
+        "11111111-1111-4111-8111-111111111111"
+      ],
+      "activeBranch": null,
+      "toolCallIds": [
+        "call:layout:4"
+      ],
+      "archiveIds": [
+        "00000000-0000-4000-8000-000000000004"
+      ],
+      "runtime": "terminal",
+      "outcome": {
+        "code": 0,
+        "signal": null,
+        "timedOut": false,
+        "aborted": false,
+        "truncated": false,
+        "failed": false
+      },
+      "sourceReferences": [
+        "d0171dd7cf8e8853511eb5f5e85659de6c3348c82414bd6b77db93c4e243850f"
+      ],
+      "issues": [
+        "active-branch-not-independently-verified",
+        "content-missing:checkReceipt",
+        "content-missing:paneSnapshot",
+        "content-missing:stderr",
+        "content-missing:stdout",
+        "not-acceptance-evidence",
+        "parent-not-in-snapshot"
+      ],
+      "coverage": "partial",
+      "acceptance": "not-assessed"
+    },
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000005",
+      "parentExecutionIds": [
+        "exec:00000000-0000-4000-8000-000000000099"
+      ],
+      "retainedSessionIds": [
+        "11111111-1111-4111-8111-111111111111"
+      ],
+      "activeBranch": null,
+      "toolCallIds": [
+        "call:layout:5"
+      ],
+      "archiveIds": [
+        "00000000-0000-4000-8000-000000000005"
+      ],
+      "runtime": "terminal",
+      "outcome": {
+        "code": null,
+        "signal": "SIGTERM",
+        "timedOut": false,
+        "aborted": true,
+        "truncated": true,
+        "failed": true
+      },
+      "sourceReferences": [
+        "a6b253ade21351387e9df56fd2d686e022a356d72d46268a2feba346a6d616aa"
+      ],
+      "issues": [
+        "content-missing:checkReceipt",
+        "content-missing:paneSnapshot",
+        "content-missing:stderr",
+        "content-missing:stdout",
+        "native-session-incomplete-bytes",
+        "not-acceptance-evidence",
+        "parent-not-in-snapshot"
+      ],
+      "coverage": "partial",
+      "acceptance": "not-assessed"
+    },
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000006",
+      "parentExecutionIds": [
+        "exec:00000000-0000-4000-8000-000000000099"
+      ],
+      "retainedSessionIds": [],
+      "activeBranch": null,
+      "toolCallIds": [
+        "call:layout:6"
+      ],
+      "archiveIds": [
+        "00000000-0000-4000-8000-000000000006"
+      ],
+      "runtime": "terminal",
+      "outcome": {
+        "code": 0,
+        "signal": null,
+        "timedOut": false,
+        "aborted": false,
+        "truncated": false,
+        "failed": false
+      },
+      "sourceReferences": [
+        "4a3b22a4351f333b47a7b63ac7acf87757558ba16a2f80911f7055f205d2f795"
+      ],
+      "issues": [
+        "active-branch-unknown",
+        "content-missing:checkReceipt",
+        "content-missing:paneSnapshot",
+        "content-missing:result",
+        "content-missing:session",
+        "content-missing:stderr",
+        "content-missing:stdout",
+        "native-session-file-replaced",
+        "native-session-unavailable",
+        "parent-not-in-snapshot"
+      ],
+      "coverage": "partial",
+      "acceptance": "not-assessed"
+    }
+  ],
+  "acceptance": "not-assessed"
+}

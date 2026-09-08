@@ -1,0 +1,54 @@
+{
+  "version": "principal-association-input-pins-v1",
+  "entries": [
+    {
+      "producer": "skill-harness",
+      "commit": "a311df8c991108ada7b6f4b901332232a78e9a44",
+      "sourcePath": "contracts/execution-archive/v1/README.md",
+      "targetPath": "p03/README.md",
+      "sha256": "eae42c01ed7ac0749ba0a7d6187a2d29203f6c72e6db759b7184048628bfb0df"
+    },
+    {
+      "producer": "skill-harness",
+      "commit": "a311df8c991108ada7b6f4b901332232a78e9a44",
+      "sourcePath": "contracts/execution-archive/v1/projection.schema.json",
+      "targetPath": "p03/projection.schema.json",
+      "sha256": "860701885c2c6a1fc1bde39989f015b6354c8a5d392108d8e4f8afdb931b08c8"
+    },
+    {
+      "producer": "skill-harness",
+      "commit": "a311df8c991108ada7b6f4b901332232a78e9a44",
+      "sourcePath": "contracts/execution-archive/v1/fixtures/retained-executions.json",
+      "targetPath": "p03/retained-executions.json",
+      "sha256": "ef06d522a6430e9b3981eb133c8a3a56de774faeda239c3e5f3570c469a50641"
+    },
+    {
+      "producer": "pi-daddy",
+      "commit": "2b3027e43fe9a418788f226e642e0bbde3f7806a",
+      "sourcePath": "packages/pi-daddy/contracts/daily-view/v1/README.md",
+      "targetPath": "p04/README.md",
+      "sha256": "f8ecc65d91e2622207a722ea42f17c5034c40d181ac9c41a6eb8fdf7d377d007"
+    },
+    {
+      "producer": "pi-daddy",
+      "commit": "2b3027e43fe9a418788f226e642e0bbde3f7806a",
+      "sourcePath": "packages/pi-daddy/contracts/daily-view/v1/fixtures/view.json",
+      "targetPath": "p04/view.json",
+      "sha256": "5a0b9b94f03cf88783d710be845dd5316512cb51b325db623d31fb5939889628"
+    },
+    {
+      "producer": "pi-daddy",
+      "commit": "2b3027e43fe9a418788f226e642e0bbde3f7806a",
+      "sourcePath": "packages/pi-daddy/src/daily-view.ts",
+      "targetPath": "p04/daily-view.ts",
+      "sha256": "918668673c18333984799c0b4389802698dcd2464e2c81411732693de99f1465"
+    },
+    {
+      "producer": "pi-daddy",
+      "commit": "2b3027e43fe9a418788f226e642e0bbde3f7806a",
+      "sourcePath": "packages/pi-daddy/src/work-ledger-types.ts",
+      "targetPath": "p04/work-ledger-types.ts",
+      "sha256": "e1d1265c8643f1386bf98f43ee544755d9c44ec0a5cb21e91c819a9324c388a8"
+    }
+  ]
+}
