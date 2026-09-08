@@ -199,6 +199,9 @@ and produces structural associations only—never authenticated approval, launch
 Existing report formats and gates are unchanged. The declaration contract, pinned inputs, bounds,
 fixtures, and remaining deployment/acceptance gaps are in
 [the named Principal association convention](handoff/P14-principal-association-v1.md).
+The opt-in [v2 declaration](handoff/P14-principal-binding-selection-v2.md) adds exact opaque
+`DailyObligation.key` selection and separate native/generic reference context; v1 output and
+unbound defaults remain unchanged. Neither version infers check equivalence or generic retirement.
 
 A failed critical gate exits nonzero with the exact token
 `BLOCKED_CRITICAL_ASSURANCE` and all missing controls.

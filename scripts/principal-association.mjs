@@ -81,13 +81,15 @@ function selection(v) {
     keys(v.event, ["eventId", "digest"]) && text(v.event.eventId) && sha256(v.event.digest);
 }
 function declarations(input) {
-  if (!keys(input, ["version", "bindings"]) || input.version !== "principal-host-bindings-v1" || !list(input.bindings, object, 256)) invalid();
+  if (!keys(input, ["version", "bindings"]) || !["principal-host-bindings-v1", "principal-host-bindings-v2"].includes(input.version) || !list(input.bindings, object, 256)) invalid();
+  const keyed = input.version === "principal-host-bindings-v2";
   for (const b of input.bindings) {
     if (!keys(b, ["binding_id", "native", "generic"], ["execution_ids"]) || !text(b.binding_id, 128) ||
         !keys(b.native, ["run_id", "task_id", "workspace_id", "candidate"]) ||
         ![b.native.run_id, b.native.task_id, b.native.workspace_id].every((id) => text(id, 128)) ||
         !keys(b.native.candidate, ["head_sha", "tree_sha"]) || !gitId(b.native.candidate.head_sha) || !gitId(b.native.candidate.tree_sha) ||
-        !keys(b.generic, ["selectedSnapshot", "scope", "obligation"]) || !selection(b.generic.selectedSnapshot) ||
+        !keys(b.generic, ["selectedSnapshot", "scope", "obligation", ...(keyed ? ["binding_key"] : [])]) ||
+        (keyed && !text(b.generic.binding_key, 8192)) || !selection(b.generic.selectedSnapshot) ||
         !revision(b.generic.scope, "scope") || !revision(b.generic.obligation, "obligation") ||
         (b.execution_ids !== undefined && (!list(b.execution_ids, text, 256) || !unique(b.execution_ids)))) invalid();
   }
@@ -95,7 +97,7 @@ function declarations(input) {
 }
 
 /** Consumed reference fields only, pinned to P04 DailyView/RevisionRef; NOT full producer schema parity. */
-function dailyReferences(v) {
+function dailyReferences(v, keyed) {
   if (!object(v) || v.version !== "pi-daddy-daily-view-v1" || v.readOnly !== true || v.freshness !== "snapshot-unknown" ||
       v.coverage !== "partial" || (v.selectedSnapshot !== null && !selection(v.selectedSnapshot)) ||
       (v.scope !== null && !revision(v.scope, "scope")) || !text(v.scopeState) ||
@@ -116,9 +118,11 @@ function dailyReferences(v) {
   }
   for (const o of v.obligations) {
     if (!text(o.key, 8192) || !revision(o.obligation, "obligation") || !revision(o.intent) || !revision(o.policy, "policy") ||
-        !list(o.attempts, text) || !unique(o.attempts)) invalid();
-    const key = canonicalJson(o.obligation);
-    // This adapter cannot disambiguate multiple bindings of the same revision.
+        !list(o.attempts, text) || !unique(o.attempts) ||
+        (keyed && (!list(o.receiptIds, text) || !list(o.claimReferences, text)))) invalid();
+    // v1 keeps its original revision-only ambiguity rejection. v2 compares the
+    // producer's opaque key exactly, without parsing, canonicalizing or hashing it.
+    const key = keyed ? o.key : canonicalJson(o.obligation);
     if (obligations.has(key) || o.attempts.some((id) => !attempts.has(id))) invalid("GENERIC_REFERENCE_CONFLICT");
     obligations.set(key, o);
   }
@@ -128,8 +132,10 @@ function dailyReferences(v) {
 /** Existing authoritative replay/current-v1 seam; no snapshot trust, gate command, append or dispatch. */
 export function projectPrincipalAssociations({ stateDir, runId, dailyViewText, bindingsText }) {
   if (!text(stateDir, 4096) || !text(runId, 128)) invalid();
-  const daily = parseAssociationJson(dailyViewText), refs = dailyReferences(daily);
-  const bindings = bindingsText === undefined ? [] : declarations(parseAssociationJson(bindingsText));
+  const daily = parseAssociationJson(dailyViewText);
+  const declaration = bindingsText === undefined ? { version: "principal-host-bindings-v1", bindings: [] } : parseAssociationJson(bindingsText);
+  const bindings = declarations(declaration), keyed = declaration.version === "principal-host-bindings-v2";
+  const refs = dailyReferences(daily, keyed);
   const store = new AssuranceStore({ baseDir: stateDir });
   let state;
   try {
@@ -154,21 +160,30 @@ export function projectPrincipalAssociations({ stateDir, runId, dailyViewText, b
     if (!same(b.generic.selectedSnapshot, daily.selectedSnapshot)) issues.push("generic-snapshot-mismatch");
     if (!same(b.generic.scope, daily.scope)) issues.push("generic-scope-mismatch");
     if (daily.scopeState !== "valid" || daily.sources.work !== "read") issues.push("generic-scope-unavailable");
-    const obligation = refs.obligations.get(canonicalJson(b.generic.obligation));
-    if (!obligation) issues.push("generic-obligation-unknown");
+    const obligation = refs.obligations.get(keyed ? b.generic.binding_key : canonicalJson(b.generic.obligation));
+    if (!obligation) issues.push(keyed ? "generic-binding-key-unknown" : "generic-obligation-unknown");
+    else if (keyed && !same(obligation.obligation, b.generic.obligation)) issues.push("generic-binding-revision-mismatch");
     for (const id of b.execution_ids ?? []) {
       if (!refs.attempts.has(id)) issues.push("execution-unknown");
       else if (!obligation?.attempts.includes(id)) issues.push("execution-target-mismatch");
     }
     const conflict = issues.some((issue) => !["native-task-stale", "native-task-superseded"].includes(issue));
+    const status = conflict ? "conflict" : issues.length ? "inapplicable" : "bound";
     return {
       binding_id: b.binding_id, native: b.native, generic: b.generic, execution_ids: b.execution_ids ?? [],
-      status: conflict ? "conflict" : issues.length ? "inapplicable" : "bound", issues: [...new Set(issues)].sort(),
+      status, issues: [...new Set(issues)].sort(),
+      ...(keyed ? { reference_context: status === "bound" ? {
+        // Co-locate existing references under the explicit task/work association;
+        // neither input supplies an identity joining an individual check or retirement.
+        native: { evidence_seqs: applicability.receipts.filter((r) => r.task_id === b.native.task_id).map((r) => r.seq) },
+        generic: { receiptIds: obligation.receiptIds, claimReferences: obligation.claimReferences },
+        check_equivalence: "unbound", retirement_equivalence: "unbound",
+      } : null } : {}),
     };
   });
   const bound = associations.filter((a) => a.status === "bound");
   return {
-    version: "principal-work-associations-v1", readOnly: true,
+    version: keyed ? "principal-work-associations-v2" : "principal-work-associations-v1", readOnly: true,
     notice: "Structural Principal host declarations only; not authenticated approval, a fresh gate, accepted work, or execution authorization.",
     authority: "unauthenticated-host-declarations", acceptance: "not-assessed", coverage: "partial", freshness: "snapshot-unknown",
     native: { ledger: applicability.ledger, applicability },

@@ -16,6 +16,24 @@ const viewText = read("p04/view.json");
 const declarations = () => JSON.parse(read("host-bindings.json"));
 const view = () => JSON.parse(viewText);
 const head = "a".repeat(40), tree = "b".repeat(40), plan = "c".repeat(64), definition = "d".repeat(64);
+const keyedDeclarations = (daily = view()) => {
+  const input = declarations();
+  input.version = "principal-host-bindings-v2";
+  input.bindings[0].generic.binding_key = daily.obligations[0].key;
+  return input;
+};
+function multipleBindings() {
+  const daily = view(), second = structuredClone(daily.obligations[0]);
+  // Test-world P04 variant: same obligation, different existing artifact reference.
+  // Only the fixture builder understands key contents; the adapter must treat it as opaque.
+  const binding = JSON.parse(second.key);
+  binding.artifact = JSON.parse(daily.obligations[1].key).artifact;
+  second.key = JSON.stringify(binding);
+  second.receiptIds = [];
+  second.claimReferences = [];
+  daily.obligations.push(second);
+  return daily;
+}
 function nativeFixture(t) {
   const dir = mkdtempSync(join(tmpdir(), "ppa-association-"));
   t.after(() => rmSync(dir, { recursive: true, force: true }));
@@ -250,6 +268,159 @@ test("association-v1 actual direct Node host entry point defaults unbound and re
   assert.throws(() => readBoundedAssuranceText(link, 4 * 1024 * 1024));
   assert.equal(runAssociationCli(["--state-dir", f.dir, "--run-id", f.runId, "--daily-view", link],
     { out: () => assert.fail("symlink must not project"), err: () => {} }), 1);
+});
+
+test("association-v2 selects an exact opaque key among multiple bindings without first-match priority", (t) => {
+  const f = nativeFixture(t), daily = multipleBindings(), input = keyedDeclarations(daily);
+  for (const key of [daily.obligations[0].key, daily.obligations.at(-1).key]) {
+    input.bindings[0].generic.binding_key = key;
+    const p = f.project(input, daily);
+    assert.equal(p.version, "principal-work-associations-v2");
+    assert.equal(p.associations[0].status, "bound");
+    assert.equal(p.associations[0].generic.binding_key, key);
+    assert.equal(p.acceptance, "not-assessed");
+    const reversed = structuredClone(daily); reversed.obligations.reverse();
+    assert.deepEqual(f.project(input, reversed).associations, p.associations);
+  }
+  assert.throws(() => f.project(declarations(), daily), /GENERIC_REFERENCE_CONFLICT/, "v1 still refuses ambiguity");
+});
+
+test("association-v2 wrong, stale, foreign-revision and missing keys never fall back to a revision match", (t) => {
+  const f = nativeFixture(t), daily = multipleBindings();
+  for (const key of ["not-an-existing-key", daily.obligations[0].key + " "]) {
+    const input = keyedDeclarations(daily); input.bindings[0].generic.binding_key = key;
+    const row = f.project(input, daily).associations[0];
+    assert.equal(row.status, "conflict");
+    assert.ok(row.issues.includes("generic-binding-key-unknown"));
+    assert.equal(row.reference_context, null);
+  }
+  const stale = keyedDeclarations(daily), replaced = structuredClone(daily);
+  replaced.obligations.shift();
+  assert.ok(f.project(stale, replaced).associations[0].issues.includes("generic-binding-key-unknown"));
+  const foreign = keyedDeclarations(daily); foreign.bindings[0].generic.binding_key = daily.obligations[1].key;
+  assert.ok(f.project(foreign, daily).associations[0].issues.includes("generic-binding-revision-mismatch"));
+  const staleSelection = keyedDeclarations(daily); staleSelection.bindings[0].generic.selectedSnapshot.event.digest = "f".repeat(64);
+  const staleRow = f.project(staleSelection, daily).associations[0];
+  assert.ok(staleRow.issues.includes("generic-snapshot-mismatch"));
+  assert.equal(staleRow.reference_context, null);
+  const missing = keyedDeclarations(daily); delete missing.bindings[0].generic.binding_key;
+  assert.throws(() => f.project(missing, daily), /ASSOCIATION_INPUT_INVALID/);
+  assert.throws(() => f.project(missing), /ASSOCIATION_INPUT_INVALID/, "even an unambiguous v2 target requires its explicit key");
+});
+
+test("association-v2 treats keys as opaque strings and rejects duplicate generic key identities", (t) => {
+  const f = nativeFixture(t), daily = view();
+  daily.obligations[0].key = "opaque-not-json:existing-P04-key";
+  assert.equal(f.project(keyedDeclarations(daily), daily).associations[0].status, "bound");
+  for (const change of [
+    (o) => { o.receiptIds = []; },
+    (o) => { o.obligation = view().obligations[1].obligation; },
+  ]) {
+    const conflicting = structuredClone(daily), extra = structuredClone(daily.obligations[0]);
+    change(extra); conflicting.obligations.push(extra);
+    assert.throws(() => f.project(keyedDeclarations(daily), conflicting), /GENERIC_REFERENCE_CONFLICT/);
+  }
+});
+
+test("association-v2 duplicate declarations conflict symmetrically and shared executions stay single", (t) => {
+  const f = nativeFixture(t), daily = multipleBindings(), input = keyedDeclarations(daily);
+  const second = structuredClone(input.bindings[0]);
+  second.generic.binding_key = daily.obligations.at(-1).key;
+  input.bindings.push(second);
+  const conflicting = f.project(input, daily);
+  assert.ok(conflicting.associations.every((a) => a.status === "conflict" && a.issues.includes("binding-id-conflict")));
+  assert.ok(conflicting.associations.every((a) => a.reference_context === null));
+  second.binding_id = "explicit-second-binding";
+  const p = f.project(input, daily);
+  assert.ok(p.associations.every((a) => a.status === "bound"));
+  assert.equal(p.executions.length, daily.attempts.length);
+  assert.deepEqual(p.executions[0].association_ids, ["fixture-binding-1", "explicit-second-binding"]);
+});
+
+test("association-v2 maps only selected-row receipt/claim context, never cross-domain check or retirement identity", (t) => {
+  const f = nativeFixture(t), daily = multipleBindings(), input = keyedDeclarations(daily);
+  const nativeSeqs = f.store.load(f.runId).evidence.filter((r) => r.task_id === "task-1").map((r) => r.seq);
+  for (const authority of [undefined, "unavailable", "stale-for-selection", "supplied-host-context"]) {
+    daily.authority = authority;
+    const p = f.project(input, daily), context = p.associations[0].reference_context;
+    assert.deepEqual(context, {
+      native: { evidence_seqs: nativeSeqs },
+      generic: { receiptIds: daily.obligations[0].receiptIds, claimReferences: daily.obligations[0].claimReferences },
+      check_equivalence: "unbound", retirement_equivalence: "unbound",
+    });
+    assert.equal(p.acceptance, "not-assessed");
+    assert.equal(p.authority, "unauthenticated-host-declarations");
+  }
+  input.bindings[0].generic.binding_key = daily.obligations.at(-1).key;
+  assert.deepEqual(f.project(input, daily).associations[0].reference_context.generic, { receiptIds: [], claimReferences: [] });
+  f.append("risk_classified", { level: "substantive", reason: "new native authority" });
+  const stale = f.project(input, daily);
+  assert.equal(stale.native.applicability.result, "STALE");
+  assert.equal(stale.associations[0].reference_context.check_equivalence, "unbound");
+  f.append("plan_recorded", { plan_digest: "e".repeat(64) });
+  f.append("plan_critique_recorded", { verdict: "APPROVE", context_id: "fixture-key-replan", plan_digest: "e".repeat(64) });
+  f.append("task_packet_superseded", { task_id: "task-1", reason: "native-only supersession" });
+  const superseded = f.project(input, daily);
+  assert.equal(superseded.associations[0].status, "inapplicable");
+  assert.equal(superseded.associations[0].reference_context, null);
+});
+
+test("association-v2 requires exact selected-row execution membership and bounded consumed reference arrays", (t) => {
+  const f = nativeFixture(t), daily = multipleBindings(), input = keyedDeclarations(daily);
+  input.bindings[0].execution_ids = [daily.attempts[1].executionId];
+  assert.ok(f.project(input, daily).associations[0].issues.includes("execution-target-mismatch"));
+  for (const field of ["receiptIds", "claimReferences"]) {
+    const malformed = view(); malformed.obligations[0][field] = [42];
+    assert.throws(() => f.project(keyedDeclarations(malformed), malformed), /ASSOCIATION_INPUT_INVALID/);
+  }
+  const oversized = keyedDeclarations(); oversized.bindings[0].generic.binding_key = "x".repeat(8193);
+  assert.throws(() => f.project(oversized), /ASSOCIATION_INPUT_INVALID/);
+  for (const unsupported of ["check_id", "retirement_ref", "authority"]) {
+    const extra = keyedDeclarations(); extra.bindings[0].generic[unsupported] = "not-supported-by-pinned-inputs";
+    assert.throws(() => f.project(extra), /ASSOCIATION_INPUT_INVALID/);
+  }
+  const v1WithKey = keyedDeclarations(); v1WithKey.version = "principal-host-bindings-v1";
+  assert.throws(() => f.project(v1WithKey), /ASSOCIATION_INPUT_INVALID/, "v1 shape must not silently expand");
+  const empty = keyedDeclarations(); empty.bindings = [];
+  const p = f.project(empty, daily);
+  assert.equal(p.version, "principal-work-associations-v2");
+  assert.deepEqual(p.associations, []);
+  assert.ok(p.tasks.every((task) => task.status === "unbound"));
+});
+
+test("association-v1 output bytes remain identical to immutable 800bb2c adapter", async (t) => {
+  const f = nativeFixture(t), root = fileURLToPath(new URL("../../", import.meta.url));
+  const priorSource = execFileSync("git", ["show", "800bb2c:scripts/principal-association.mjs"], { cwd: root, encoding: "utf8" });
+  // Load the real baseline with only its relative import resolved to the same native module.
+  const resolved = priorSource.replace('"./assurance-state.mjs"', JSON.stringify(new URL("../../scripts/assurance-state.mjs", import.meta.url).href));
+  const baseline = await import(`data:text/javascript;base64,${Buffer.from(resolved).toString("base64")}`);
+  const wrong = declarations(); wrong.bindings[0].native.workspace_id = "wrong";
+  const cases = [undefined, JSON.stringify(declarations()), JSON.stringify(wrong)];
+  for (const bindingsText of cases) {
+    const options = { stateDir: f.dir, runId: f.runId, dailyViewText: viewText, bindingsText };
+    assert.equal(JSON.stringify(projectPrincipalAssociations(options)), JSON.stringify(baseline.projectPrincipalAssociations(options)));
+  }
+  assert.deepEqual(readFileSync(join(root, "scripts/assurance-state.mjs")),
+    execFileSync("git", ["show", "800bb2c:scripts/assurance-state.mjs"], { cwd: root }));
+});
+
+test("association-v2 CLI is read-only and leaves native legacy/current report bytes unchanged", (t) => {
+  const f = nativeFixture(t), root = fileURLToPath(new URL("../../", import.meta.url));
+  const inputPath = join(f.dir, "key-bindings.json");
+  writeFileSync(inputPath, JSON.stringify(keyedDeclarations()));
+  const args = ["--state-dir", f.dir, "--run-id", f.runId, "--daily-view", join(fixtures, "p04/view.json"), "--bindings", inputPath];
+  const paths = f.store.paths(f.runId);
+  const snapshot = () => Object.fromEntries(readdirSync(paths.dir).map((name) => {
+    const path = join(paths.dir, name), stat = statSync(path);
+    return [name, { bytes: readFileSync(path, "utf8"), mtime: stat.mtimeMs, ctime: stat.ctimeMs }];
+  }));
+  const report = (format) => execFileSync(process.execPath, [join(root, "scripts/assurance-state.mjs"),
+    "report", "--state-dir", f.dir, "--run-id", f.runId, "--format", format], { cwd: root, encoding: "utf8" });
+  const formats = ["human", "in-toto", "current-v1"], before = snapshot(), reports = formats.map(report);
+  const output = execFileSync(process.execPath, [join(root, "scripts/principal-association.mjs"), ...args], { cwd: root, encoding: "utf8" });
+  assert.equal(JSON.parse(output).version, "principal-work-associations-v2");
+  assert.deepEqual(snapshot(), before);
+  assert.deepEqual(formats.map(report), reports);
 });
 
 test("association-v1 real read-only host CLI leaves ledger and snapshot bytes/times unchanged", (t) => {

@@ -127,10 +127,12 @@ permission. The public programmatic parser rejects oversize input before parsing
    snapshot/obligation refs and existing execution attachments are still required; fixtures are not those bindings.
 2. P04 supplies no full output schema or independently authenticated transport. This consumer checks
    only pinned reference fields, not full producer parity, P01 decision/availability authority, or live freshness.
-3. Same-obligation multi-binding ambiguity needs an actual additional target primitive (for example an
-   explicit existing artifact/binding ref) before it can be supported. No guessed hash/name join is used.
-4. Generic check identities/retirement and evidence-to-P01 acceptance integration remain separate.
-   Native current-v1 keeps its conservative independent-check semantics; association does not accept work.
+3. V1 retains its same-obligation multi-binding ambiguity rejection. The repository-side
+   [v2 explicit key selector](P14-principal-binding-selection-v2.md) now supports the existing
+   `DailyObligation.key` without guessing or changing v1 semantics.
+4. V2 exposes selected-row receipt/claim references beside native task evidence sequences, without
+   equating them. Individual cross-domain check/retirement identities and evidence-to-P01 acceptance
+   still require real references/authority; native current-v1 semantics remain unchanged.
 5. Live passive P03/P04 transport, authenticated active-branch/source observation, behavioral adoption,
    full P14 acceptance and the one final overall independent review remain pending. P17P still needs its
    actual comparison/dependency requirements. No model calls or per-task reviews were performed.
