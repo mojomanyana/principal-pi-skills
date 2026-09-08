@@ -208,6 +208,10 @@ to explicit existing P01 receipt/artifact/evidence bindings. Its separate `recor
 subcommand requires an explicit record and expected journal head; projections remain read-only.
 Reference links and author strings are not authentication or native acceptance; the remaining generic
 individual-check/retirement lifecycle connector and live qualification are still pending.
+The subsequent [generic lifecycle/host assembly v1](../contracts/principal-generic-check-lifecycle/v1/README.md)
+adds the explicit `assemble-host` operation, a data-only lifecycle emitter/consumer and permitted-byte
+archive port. It preserves the v3 wire contract; actual downstream archive/host deployment and native
+acceptance remain pending, not inferred from emitted lifecycle references.
 
 A failed critical gate exits nonzero with the exact token
 `BLOCKED_CRITICAL_ASSURANCE` and all missing controls.

@@ -4,6 +4,8 @@ import { realpathSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { appendPrincipalNativeReference, readPrincipalNativeReferences, validPrincipalReference, referenceOf } from "./principal-native-references.mjs";
 export { appendPrincipalNativeReference } from "./principal-native-references.mjs";
+import { runHostAssemblyCli } from "./principal-host-assembly.mjs";
+export { assemblePrincipalHost, consumePrincipalLifecycle } from "./principal-host-assembly.mjs";
 import { AssuranceStore, buildCurrentApplicabilityProjection, canonicalJson, digest, readBoundedAssuranceText } from "./assurance-state.mjs";
 
 const INPUT_BYTES = 4 * 1024 * 1024;
@@ -288,8 +290,9 @@ export function projectPrincipalAssociations({ stateDir, runId, dailyViewText, b
 }
 
 /** Local host-integration entry point; paths are supplied by the caller, never discovered from a view. */
-export function runAssociationCli(args, { out = console.log, err = console.error } = {}) {
+export function runAssociationCli(args, { out = console.log, err = console.error, archivePort, sourcePermissions } = {}) {
   try {
+    if (args[0] === "assemble-host") return runHostAssemblyCli(args.slice(1), { out, err, archivePort, sourcePermissions });
     const writing = args[0] === "record-native-reference";
     const options = writing ? args.slice(1) : args;
     const allowed = writing ? ["--state-dir", "--run-id", "--record", "--expected-head"] : ["--state-dir", "--run-id", "--daily-view", "--bindings", "--work-context"];
@@ -321,4 +324,4 @@ export function runAssociationCli(args, { out = console.log, err = console.error
 }
 let direct = false;
 try { direct = Boolean(process.argv[1]) && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url); } catch { /* imported */ }
-if (direct) process.exitCode = runAssociationCli(process.argv.slice(2));
+if (direct) process.exitCode = await runAssociationCli(process.argv.slice(2));
