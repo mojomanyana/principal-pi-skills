@@ -219,7 +219,10 @@ export function projectPrincipalAssociations({ stateDir, runId, dailyViewText, b
   try {
     if (references) { const loaded = readPrincipalNativeReferences({ stateDir, runId }); state = loaded.state; nativeReferences = loaded.catalog; }
     else state = store.load(runId, { maxBytes: 16 * 1024 * 1024, maxEvents: 10000 });
-  } catch { invalid("native-ledger-invalid"); }
+  } catch (error) {
+    if (/^REFERENCE_[A-Z_]+$/.test(error.message) && error.message !== "REFERENCE_NATIVE_SNAPSHOT_CHANGED") throw error;
+    invalid("native-ledger-invalid");
+  }
   const applicability = buildCurrentApplicabilityProjection(state);
   const taskById = new Map(applicability.tasks.map((task) => [task.task_id, task]));
   const ids = new Map();

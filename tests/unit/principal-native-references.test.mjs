@@ -7,8 +7,9 @@ import { execFileSync } from "node:child_process";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
-import { AssuranceStore, digest } from "../../scripts/assurance-state.mjs";
+import { AssuranceStore, canonicalJson, digest } from "../../scripts/assurance-state.mjs";
 import * as adapter from "../../scripts/principal-association.mjs";
+import { readPrincipalNativeReferences } from "../../scripts/principal-native-references.mjs";
 import Ajv2020 from "ajv/dist/2020.js";
 const root = fileURLToPath(new URL("../../", import.meta.url));
 const fixtureRoot = join(root, "tests/fixtures/principal-association");
@@ -237,19 +238,50 @@ test("SPEC006 unrelated check zero cannot supersede the declared failing check a
   assert.equal(f.project(input).associations[0].reference_links[0].status, "retired");
 });
 
-test("SPEC006 corrupt or byte-replaced native references fail read without repairing history", (t) => {
+test("SPEC006 malformed Principal journal errors survive reader, projector and CLI boundaries", (t) => {
+  const f = fixture(t), receipt = f.record(f.proposal()), path = join(f.store.paths(f.runId).dir, "principal-references-v1.jsonl");
+  const entry = JSON.parse(readFileSync(path, "utf8"));
+  const replacement = entry.record.evidence_sha256[0] === "f" ? "e" : "f";
+  entry.record.evidence_sha256 = `${replacement}${entry.record.evidence_sha256.slice(1)}`;
+  const body = { ...entry }; delete body.digest;
+  entry.digest = digest(body);
+  writeFileSync(path, canonicalJson(entry) + "\n");
+  assert.throws(() => readPrincipalNativeReferences({ stateDir: f.dir, runId: f.runId }), /REFERENCE_CHECK_CONTEXT_MISMATCH/);
+  assert.throws(() => f.project(f.bindings(receipt)), /REFERENCE_CHECK_CONTEXT_MISMATCH/);
+  const bindings = join(f.dir, "bindings.json"), context = join(f.dir, "context.json");
+  writeFileSync(bindings, JSON.stringify(f.bindings(receipt))); writeFileSync(context, JSON.stringify(workContext()));
+  const errors = [], exit = adapter.runAssociationCli(["--state-dir", f.dir, "--run-id", f.runId,
+    "--daily-view", join(fixtureRoot, "p04/view.json"), "--bindings", bindings, "--work-context", context],
+  { out: () => assert.fail("invalid journal must not project"), err: message => errors.push(message) });
+  assert.equal(exit, 1); assert.deepEqual(errors, ["REFERENCE_CHECK_CONTEXT_MISMATCH"]);
+  assert.equal(readFileSync(path, "utf8"), canonicalJson(entry) + "\n", "read paths must not repair history");
+});
+
+test("SPEC006 well-formed noncanonical Principal journal is distinct from invalid JSON", (t) => {
+  const f = fixture(t), receipt = f.record(f.proposal()), path = join(f.store.paths(f.runId).dir, "principal-references-v1.jsonl");
+  const entry = JSON.parse(readFileSync(path, "utf8"));
+  const noncanonical = JSON.stringify(Object.fromEntries(Object.entries(entry).reverse())) + "\n";
+  writeFileSync(path, noncanonical);
+  assert.throws(() => readPrincipalNativeReferences({ stateDir: f.dir, runId: f.runId }), /REFERENCE_JOURNAL_NONCANONICAL/);
+  assert.throws(() => f.project(f.bindings(receipt)), /REFERENCE_JOURNAL_NONCANONICAL/);
+  writeFileSync(path, "{\n");
+  assert.throws(() => readPrincipalNativeReferences({ stateDir: f.dir, runId: f.runId }), /REFERENCE_JOURNAL_INVALID/);
+  assert.equal(readFileSync(path, "utf8"), "{\n", "read must not rewrite malformed bytes");
+});
+
+test("SPEC006 Principal reference corruption passes through without changing legacy readers", (t) => {
   const f = fixture(t), receipt = f.record(f.proposal()), path = join(f.store.paths(f.runId).dir, "principal-references-v1.jsonl");
   const before = readFileSync(path, "utf8"), entry = JSON.parse(before);
   entry.record.check_id = "forged";
   writeFileSync(path, JSON.stringify(entry) + "\n");
-  assert.throws(() => f.project(f.bindings(receipt)), /native-ledger-invalid/);
+  assert.throws(() => f.project(f.bindings(receipt)), /REFERENCE_JOURNAL_DIGEST_MISMATCH/);
   assert.equal(readFileSync(path, "utf8"), JSON.stringify(entry) + "\n", "read must not repair corruption");
   const legacy = f.bindings(null); legacy.version = "principal-host-bindings-v2"; delete legacy.bindings[0].reference_links;
   assert.equal(f.project(legacy, null).version, "principal-work-associations-v2", "corrupt opt-in reference data cannot change legacy readers");
   writeFileSync(path, before);
   const nativePath = f.store.paths(f.runId).log;
   writeFileSync(nativePath, readFileSync(nativePath, "utf8").replace(f.raw(f.first), JSON.stringify(f.first, null, 0) + " \n"));
-  assert.throws(() => f.project(f.bindings(receipt)), /native-ledger-invalid/, "canonical event equivalence cannot replace exact earlier event bytes");
+  assert.throws(() => f.project(f.bindings(receipt)), /REFERENCE_CHECK_CONTEXT_MISMATCH/, "changed native evidence bytes invalidate their Principal evidence hash");
 });
 
 test("SPEC006 duplicate/stale generic decision context and wrong finalization refs are explicit errors", (t) => {

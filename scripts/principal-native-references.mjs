@@ -42,8 +42,9 @@ function decode(text) {
   if (lines.length > MAX_RECORDS) fail("JOURNAL_LIMIT");
   return lines.map(line => {
     let entry;
-    try { entry = JSON.parse(line); if (canonicalJson(entry) !== line) fail("JOURNAL_NONCANONICAL"); }
+    try { entry = JSON.parse(line); }
     catch { fail("JOURNAL_INVALID"); }
+    if (canonicalJson(entry) !== line) fail("JOURNAL_NONCANONICAL");
     return entry;
   });
 }
