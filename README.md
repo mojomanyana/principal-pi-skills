@@ -8,11 +8,12 @@ to isolated contexts (`plan`, `review`, `debug` — single-shot variants in `age
 generated from the same contract as the skill). The files follow the [Agent Skills](https://agentskills.io/specification)
 standard, so other harnesses can consume the skills, but pi is the supported target.
 
-**Current release:** `3.0.1`. The remote `v3.0.1` tag and npm `latest` were independently
-verified after publication. Release coordinates are npm `principal-pi-skills@3.0.1` and the
-immutable git tag `v3.0.1`. This version strengthens the generated Critical Plan skill/agent
-prompts, assurance-ledger evidence, and development-only measurement verification. It carries no
-new model score; the committed board remains a historical v2.4 baseline.
+**Version:** `3.1.0` release candidate. The remote `v3.1.0` tag is pending and npm `latest`
+remains `3.0.1` until coordinated publication is independently verified. Release coordinates are
+npm `principal-pi-skills@3.1.0` and the immutable git tag `v3.1.0`. This version adds the opt-in
+`current-v1` assurance evidence projection and validates cross-repository compatibility without
+shipping the source-only host adapters. It carries no new model score; the committed board remains
+a historical v2.4 baseline.
 
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
@@ -101,11 +102,11 @@ docs/demos/                           the chains running end to end, repo-verifi
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v3.0.1
+   pi install git:github.com/mojomanyana/principal-pi-skills@v3.1.0
    ```
 
-   `3.0.1` is the current published release and the immutable tag matches its manifest; npm
-   `latest` resolves the same version. v3 adds
+   `3.1.0` is the release candidate represented by this source tree. Its immutable tag is pending,
+   and npm `latest` remains `3.0.1` until publication and independent verification. v3 adds
    the risk-adaptive assurance profiles; `standard` is the default and preserves v2 invocation,
    so upgrading from `2.4.0` changes no command you already type.
    Read [Validation](#validation) first: v3 ships with **no model score of its own** — the

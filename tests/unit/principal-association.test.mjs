@@ -254,8 +254,11 @@ test("association-v1 named host boundary preserves prior reports/gates and adds 
   const adapter = readFileSync(join(root, "scripts/principal-association.mjs"), "utf8");
   assert.doesNotMatch(adapter, /(?:evaluateGate|appendFileSync|writeFileSync|mkdirSync|execFileSync|spawnSync)\s*\(|\.append\s*\(/);
   assert.match(adapter, /store\.load\(runId, \{ maxBytes:/);
-  const pkg = readFileSync(join(root, "package.json"));
-  assert.deepEqual(pkg, execFileSync("git", ["show", "dcb54eb:package.json"], { cwd: root }));
+  const pkg = JSON.parse(readFileSync(join(root, "package.json")));
+  const baseline = JSON.parse(execFileSync("git", ["show", "dcb54eb:package.json"], { cwd: root }));
+  assert.equal(pkg.version, "3.1.0", "release metadata may advance without adding a package surface");
+  baseline.version = pkg.version;
+  assert.deepEqual(pkg, baseline);
 });
 
 test("association-v1 actual direct Node host entry point defaults unbound and refuses symlinks", (t) => {
