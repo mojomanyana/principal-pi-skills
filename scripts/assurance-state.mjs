@@ -12,9 +12,14 @@
 
 import {
   appendFileSync,
+  closeSync,
+  constants,
   existsSync,
+  fstatSync,
   mkdirSync,
+  openSync,
   readFileSync,
+  readSync,
   renameSync,
   realpathSync,
   rmSync,
@@ -1642,6 +1647,25 @@ function atomicJson(path, value) {
   renameSync(temp, path);
 }
 
+/** Optional bounded descriptor snapshot for read-only host integrations; default CLI loading is unchanged. */
+export function readBoundedAssuranceText(path, maxBytes) {
+  if (!Number.isSafeInteger(maxBytes) || maxBytes < 1 || maxBytes > 16 * 1024 * 1024) fail("bounded assurance input limit is invalid");
+  let fd;
+  try {
+    fd = openSync(path, constants.O_RDONLY | constants.O_NOFOLLOW | constants.O_NONBLOCK);
+    const before = fstatSync(fd);
+    if (!before.isFile() || before.size > maxBytes) fail("bounded assurance input exceeds limit or is not a regular file");
+    const bytes = Buffer.alloc(before.size + 1);
+    let length = 0, n;
+    while (length < bytes.length && (n = readSync(fd, bytes, length, bytes.length - length, null)) > 0) length += n;
+    const after = fstatSync(fd);
+    if (length !== before.size || after.size !== before.size || after.mtimeMs !== before.mtimeMs || after.ctimeMs !== before.ctimeMs) {
+      fail("bounded assurance input changed during read");
+    }
+    return new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes.subarray(0, length));
+  } finally { if (fd !== undefined) closeSync(fd); }
+}
+
 /** Append-only store with a derived, replaceable snapshot. */
 export class AssuranceStore {
   constructor({ baseDir = defaultStateDir(), now = () => new Date().toISOString() } = {}) {
@@ -1695,12 +1719,15 @@ export class AssuranceStore {
     });
   }
 
-  load(runId, { withEvents = false } = {}) {
+  load(runId, { withEvents = false, maxBytes = null, maxEvents = null } = {}) {
     const paths = this.paths(runId);
     if (!existsSync(paths.log)) fail(`unknown run ${runId}`);
-    const lines = readFileSync(paths.log, "utf8")
+    const lines = (maxBytes === null ? readFileSync(paths.log, "utf8") : readBoundedAssuranceText(paths.log, maxBytes))
       .split("\n")
       .filter(Boolean);
+    if (maxEvents !== null && (!Number.isSafeInteger(maxEvents) || maxEvents < 1 || maxEvents > 10000 || lines.length > maxEvents)) {
+      fail("bounded assurance event limit exceeded or invalid");
+    }
     if (lines.length === 0) fail("event-log integrity failure: log is empty");
     let state = null;
     let previous = null;
@@ -1790,7 +1817,123 @@ function stdin() {
 const quoted = (value) => JSON.stringify(value);
 const receiptName = (event) => `${event.kind} (seq ${event.seq}): ${event.command}`;
 
-/** Project validated ledger events into an unsigned in-toto test-result Statement. */
+/**
+ * Versioned evidence-only projection of a replayed state, NOT a gate evaluation.
+ * Keep the legacy Statement renderer below byte-compatible. In particular, do not
+ * reuse freshEvidence here: it searches for ANY zero, hiding a later failure.
+ */
+export function buildCurrentApplicabilityProjection(state) {
+  const valid = validateRunState(state);
+  if (!valid.ok) fail(`cannot project invalid state: ${valid.errors.join("; ")}`);
+  const candidate = assuredIdentity(state);
+  const floor = freshnessFloor(state);
+  const tasks = Object.entries(state.tasks).map(([task_id, task]) => {
+    const packet = task.packet;
+    const reasons = [];
+    if (packet.plan_digest !== state.plan_digest) reasons.push("changed-plan");
+    if (Object.entries(packet.definition_digests).some(([name, value]) => state.definition_digests[name] !== value)) {
+      reasons.push("changed-definitions");
+    }
+    if (!ownValue(state.workspaces, packet.workspace_id) || packet.workspace_id !== state.active_workspace_id) {
+      reasons.push("inactive-workspace");
+    }
+    return {
+      task_id, task_digest: task.task_digest, workspace_id: packet.workspace_id,
+      status: task.status, completed_seq: task.completed_seq,
+      applicability: task.status === "superseded" ? "superseded" : reasons.length ? "stale" : "current",
+      reasons,
+    };
+  });
+  const taskById = new Map(tasks.map((task) => [task.task_id, task]));
+  // Only red/green form a declared TDD pair. A different command, kind, or task
+  // never replaces another check. Exact-target remains independently required.
+  const keyFor = (receipt) => canonicalJson([receipt.task_id, receipt.kind === "red" ? "green" : receipt.kind, receipt.command]);
+  const groups = new Map();
+  const receipts = state.evidence.map((receipt) => {
+    const task = taskById.get(receipt.task_id);
+    const reasons = [];
+    if (receipt.task_id !== null && !task) reasons.push("unknown-task");
+    if (task?.applicability === "stale") reasons.push("stale-task");
+    if (!candidate.head_sha || !candidate.tree_sha) reasons.push("missing-candidate");
+    else if (receipt.head_sha !== candidate.head_sha || receipt.tree_sha !== candidate.tree_sha) reasons.push("changed-artifact");
+    if (receipt.seq <= floor) reasons.push("before-freshness-floor");
+    const workspaceId = task?.workspace_id ?? state.active_workspace_id;
+    if (receipt.workspace_id !== workspaceId || workspaceId !== state.active_workspace_id) reasons.push("inactive-workspace");
+    if (task && receipt.kind === "exact-target" &&
+        (task.status !== "completed" || receipt.seq <= (task.completed_seq ?? 0))) reasons.push("before-task-completion");
+    const projected = { ...receipt, disposition: task?.applicability === "superseded" ? "superseded-task" : reasons.length ? "stale" : "current", reasons };
+    if (projected.disposition !== "superseded-task") {
+      const key = keyFor(receipt);
+      if (!groups.has(key)) groups.set(key, []);
+      groups.get(key).push(projected);
+    }
+    return projected;
+  });
+  const checks = [...groups.values()].map((group) => {
+    const latest = group.findLast((receipt) => receipt.disposition === "current");
+    const execution = group.findLast((receipt) => receipt.disposition === "current" && receipt.kind !== "red");
+    // Expected-red is not qualifying evidence and cannot clear a green failure.
+    const selected = latest?.kind === "red" && execution?.exit_code !== undefined && execution.exit_code !== 0
+      ? execution : latest;
+    const last = selected ?? group.at(-1);
+    if (selected) {
+      for (const receipt of group) {
+        // An inapplicable later receipt cannot erase a current failure (or pass).
+        if (receipt.seq < selected.seq) receipt.disposition = "superseded";
+      }
+      for (const receipt of group) {
+        if (receipt.kind === "red" && receipt.disposition === "current") receipt.disposition = "expected-red";
+      }
+    }
+    return {
+      kind: last.kind === "red" ? "green" : last.kind, command: last.command,
+      task_id: last.task_id, workspace_id: taskById.get(last.task_id)?.workspace_id ?? state.active_workspace_id,
+      status: !selected ? "STALE" : selected.kind === "red" ? "MISSING" : selected.exit_code === 0 ? "PASSED" : "FAILED",
+      selected_seq: selected?.seq ?? null, receipt_seqs: group.map((receipt) => receipt.seq),
+    };
+  });
+  const requirements = [];
+  const requireEvidence = (kind, task_id = null, command = null) => {
+    const matching = checks.filter((check) => check.kind === kind && check.task_id === task_id &&
+      (command === null || check.command === command));
+    // Every observed command is independent; a passing command cannot conceal
+    // another failure. A fresh match may replace stale historical candidates.
+    const statuses = matching.map((check) => check.status);
+    const task = taskById.get(task_id);
+    const status = task?.applicability === "stale" ? "STALE"
+      : task && task.status !== "completed" ? "MISSING"
+      : statuses.includes("FAILED") ? "FAILED"
+      : statuses.includes("PASSED") ? "PASSED"
+      : statuses.includes("STALE") ? "STALE" : "MISSING";
+    requirements.push({ kind, task_id, command, status });
+  };
+  requireEvidence("exact-target");
+  if (state.assurance.effective === "critical") {
+    for (const kind of ["full-suite", "requirements-trace", "risk-specific"]) requireEvidence(kind);
+  }
+  for (const task of tasks) {
+    if (task.applicability !== "superseded") requireEvidence("exact-target", task.task_id, state.tasks[task.task_id].packet.done_command);
+  }
+  const statuses = [...checks, ...requirements].map((check) => check.status);
+  const result = ["FAILED", "STALE", "MISSING"].find((status) => statuses.includes(status)) ?? "PASSED";
+  return {
+    format_version: "current-v1",
+    kind: "current-applicability-projection",
+    notice: "Evidence-only ledger projection; not a fresh gate or attestation, native acceptance, or execution authorization.",
+    result,
+    candidate,
+    finalization: clone(state.finalization),
+    authority: {
+      assurance: clone(state.assurance), plan_digest: state.plan_digest,
+      definition_digests: clone(state.definition_digests), active_workspace_id: state.active_workspace_id,
+      last_change_seq: state.last_change_seq, last_authority_seq: state.last_authority_seq, freshness_floor: floor,
+    },
+    tasks, checks, requirements, receipts,
+    ledger: { runId: state.run_id, schemaVersion: state.schema_version, eventCount: state.event_seq, hashChainHead: state.event_digest },
+  };
+}
+
+/** Project validated ledger events into an unsigned in-toto test-result Statement (legacy semantics). */
 export function buildAssuranceStatement(events) {
   const evidence = events.filter((event) => event.type === "evidence_recorded");
   const finalization = events.findLast((event) => event.type === "finalization_completed") ?? null;
@@ -1942,11 +2085,15 @@ export function runCli(argv, { cwd = process.cwd(), env = process.env, out = con
     if (command === "report") {
       const runId = cliFlag(argv, "--run-id");
       const format = cliFlag(argv, "--format", "human");
-      if (!["human", "in-toto"].includes(format)) fail("--format must be human or in-toto");
+      if (!["human", "in-toto", "human-legacy", "in-toto-legacy", "current-v1"].includes(format)) {
+        fail("--format must be human, in-toto, human-legacy, in-toto-legacy, or current-v1");
+      }
       const { state, events } = store.load(runId, { withEvents: true });
-      out(format === "in-toto"
-        ? JSON.stringify(buildAssuranceStatement(events), null, 2)
-        : renderAssuranceReport(state, events));
+      out(format === "current-v1"
+        ? JSON.stringify(buildCurrentApplicabilityProjection(state), null, 2)
+        : ["in-toto", "in-toto-legacy"].includes(format)
+          ? JSON.stringify(buildAssuranceStatement(events), null, 2)
+          : renderAssuranceReport(state, events));
       return 0;
     }
     if (command === "event") {

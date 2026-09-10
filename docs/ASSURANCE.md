@@ -142,6 +142,77 @@ and every receipt to have exit code zero. Final head/tree subjects appear only a
 `finalization_completed`, and `predicate.ledger.hashChainHead` binds the projection to the exact
 validated log. The command does not sign or claim a signature.
 
+### Local candidate: current-applicability projection v1 (P14)
+
+Opt in with `report --run-id <id> --format current-v1`. This JSON format identifies itself as
+`current-applicability-projection`, with `format_version: "current-v1"`. It is **not a fresh gate
+or attestation**, native acceptance, or execution authorization. It does not execute checks,
+invoke the mutating gate command, append events, or repair snapshots. This local candidate does
+not change the installed/published CLI or the ledger schema.
+
+Compatibility is explicit: `--format in-toto-legacy` and `--format human-legacy` select the
+original renderers byte-for-byte. Existing `in-toto`, `human`, and the default remain legacy,
+including all-history nonzero aggregation and empty-evidence `FAILED`. The embedded human
+machine section is also unchanged. The new format is deliberately not an in-toto Statement.
+
+The projection reports `candidate`, `finalization`, recorded `authority`, task applicability,
+`checks`, `requirements`, every receipt with its disposition/reasons, and the replayed
+`ledger` sequence/hash-chain head. Applicability uses the same pure candidate-identity and
+sequence-floor selectors as the gates: after the greater of the last change and authority
+sequence, matching candidate head/tree. After finalization the assured head is the recorded
+**candidate** head, not the possibly different final Git head. No live filesystem or current
+installed-definition freshness is inferred from a ledger-only report.
+
+- Checks are independent by exact command text, kind, and task. Receipts must match the task's
+  active workspace (or the run's active workspace). A later stale/wrong-workspace receipt cannot
+  erase a currently applicable result. Within one check, the latest applicable receipt wins,
+  including a later nonzero after an earlier zero.
+- Only `red` and `green` are paired: fresh `green` with the same literal command and task resolves
+  prior expected `red`, including across artifact changes. An unpaired current red means missing
+  qualifying evidence, not a failed final execution. `exact-target` is a separate requirement;
+  a green or another command/kind/task cannot substitute for it. A later expected red cannot clear
+  an unresolved current green execution failure. No command is executed or normalized.
+- Task plan/definition/workspace bindings are compared with replayed authority. Superseded tasks
+  and their evidence are labelled separately and excluded from current requirements. Stale tasks
+  remain stale even with a newly recorded zero. Task exact-target evidence must follow completed
+  Build and use the packet's literal `done_command` (a conservative report requirement, not new
+  gate enforcement).
+- Run requirements are exact-target for all profiles, plus full-suite, requirements-trace, and
+  risk-specific for critical, matching the existing gate's evidence kinds. Build/lint receipts,
+  and all other observed command checks, remain independent. Unrecorded generic-P03/P04 check
+  inventories are not invented: a renamed/disappeared check cannot silently retire an earlier
+  check. Without explicit retirement authority, an observed check with only old evidence stays stale.
+- Per-check/requirement statuses and aggregate precedence are `FAILED` (current nonzero), then
+  `STALE` (only inapplicable evidence/authority), then `MISSING` (no qualifying evidence), then
+  `PASSED`. `PASSED` means only this bounded evidence projection passes; it does not assert review,
+  dependency, backfill, finding, approval, finalization, or native acceptance completeness.
+
+No model-visible template or generated convention changes are part of this slice. Independent batch
+review, real acceptance, and P17P comparison/dependency evidence remain separate, uncompleted work.
+
+### Local host association v1
+
+The source-local `node scripts/principal-association.mjs --state-dir DIR --run-id ID --daily-view FILE
+[--bindings FILE]` entry point reuses validated native replay/current-v1 and consumes exact pinned
+P04 reference fields. It defaults unbound, requires explicit independently supplied host declarations,
+and produces structural associations only—never authenticated approval, launches, or accepted work.
+Existing report formats and gates are unchanged. The declaration contract, pinned inputs, bounds,
+fixtures, and remaining deployment/acceptance gaps are in
+[the named Principal association convention](handoff/P14-principal-association-v1.md).
+The opt-in [v2 declaration](handoff/P14-principal-binding-selection-v2.md) adds exact opaque
+`DailyObligation.key` selection and separate native/generic reference context; v1 output and
+unbound defaults remain unchanged. Neither version infers check equivalence or generic retirement.
+The opt-in [v3 reference adapter and native producer](../contracts/principal-native-references/v1/README.md)
+adds exact check/context/candidate, correction, finalization and retirement references and links them
+to explicit existing P01 receipt/artifact/evidence bindings. Its separate `record-native-reference`
+subcommand requires an explicit record and expected journal head; projections remain read-only.
+Reference links and author strings are not authentication or native acceptance; the remaining generic
+individual-check/retirement lifecycle connector and live qualification are still pending.
+The subsequent [generic lifecycle/host assembly v1](../contracts/principal-generic-check-lifecycle/v1/README.md)
+adds the explicit `assemble-host` operation, a data-only lifecycle emitter/consumer and permitted-byte
+archive port. It preserves the v3 wire contract; actual downstream archive/host deployment and native
+acceptance remain pending, not inferred from emitted lifecycle references.
+
 A failed critical gate exits nonzero with the exact token
 `BLOCKED_CRITICAL_ASSURANCE` and all missing controls.
 

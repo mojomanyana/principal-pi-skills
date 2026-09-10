@@ -1,0 +1,525 @@
+{
+  "version": "pi-daddy-daily-view-v1",
+  "readOnly": true,
+  "freshness": "snapshot-unknown",
+  "model": "not-consulted-connectivity-unknown",
+  "continuity": "initial-snapshot",
+  "scopeChanged": false,
+  "scope": {
+    "kind": "scope",
+    "id": "daily-scope",
+    "revision": 1,
+    "digest": "a183590cd4dd4c8b5762782b50bd495bc58e29cc36a9364d67da50c58f725b7c"
+  },
+  "selectedSnapshot": {
+    "event": {
+      "digest": "afdef6f804e52f1e7bbb241a2431d074b2fcdad6741704d1c27e882a69c801e8",
+      "eventId": "daily:snapshot"
+    },
+    "snapshot": {
+      "digest": "c8036e5db5354f06df8aa599c4a423893cef907fbc10e67b0d7e7b155f8557f2",
+      "id": "daily-selected"
+    }
+  },
+  "scopeState": "valid",
+  "progress": {
+    "accepted": 2,
+    "total": 3
+  },
+  "authority": "supplied-host-context",
+  "coverage": "partial",
+  "sources": {
+    "archive": "read",
+    "work": "read",
+    "archiveSha256": "ef06d522a6430e9b3981eb133c8a3a56de774faeda239c3e5f3570c469a50641",
+    "workSha256": "6e45ad5ab8ba57a8939ab0c23881e9278749801f025cfd966f1d5a7372b0fb86"
+  },
+  "obligations": [
+    {
+      "key": "{\"artifact\":{\"digest\":\"34428e45f264ca6125d246ed999fafa97674da7c2b1aa4b26e3172b7eb9cfcfe\",\"id\":\"artifact-1\",\"kind\":\"artifact\",\"revision\":1},\"intent\":{\"digest\":\"0e0014e541bffa38ce48dedd9ad76bb4193a28d7816567dd7a57501ff2f5565a\",\"id\":\"intent-1\",\"kind\":\"goal\",\"revision\":1},\"obligation\":{\"digest\":\"e352f70479ce0611e5822ccd274f1636483a0304382f0ea44e94102883681661\",\"id\":\"obligation-1\",\"kind\":\"obligation\",\"revision\":1},\"policy\":{\"digest\":\"aa771e69db7d922dd497a3beb4b874e0b94f71a743f73e192dd94f42a466b056\",\"id\":\"daily-policy\",\"kind\":\"policy\",\"revision\":1}}",
+      "intent": {
+        "digest": "0e0014e541bffa38ce48dedd9ad76bb4193a28d7816567dd7a57501ff2f5565a",
+        "id": "intent-1",
+        "kind": "goal",
+        "revision": 1
+      },
+      "obligation": {
+        "digest": "e352f70479ce0611e5822ccd274f1636483a0304382f0ea44e94102883681661",
+        "id": "obligation-1",
+        "kind": "obligation",
+        "revision": 1
+      },
+      "policy": {
+        "digest": "aa771e69db7d922dd497a3beb4b874e0b94f71a743f73e192dd94f42a466b056",
+        "id": "daily-policy",
+        "kind": "policy",
+        "revision": 1
+      },
+      "acceptance": "accepted-under-supplied-authority",
+      "artifactCoverage": "available",
+      "evidenceCoverage": "available",
+      "receiptIds": [
+        "fixed-receipt-1"
+      ],
+      "claimReferences": [
+        "daily:claim:1:e4e48e94de0546cdb980012b2f846dbfc659de2c0e38cc363874d096dde288d1"
+      ],
+      "attempts": [
+        "exec:00000000-0000-4000-8000-000000000001"
+      ],
+      "activity": "attempts-attached",
+      "obstacles": []
+    },
+    {
+      "key": "{\"artifact\":{\"digest\":\"f316be953b1f8264975702e6a0d70584a514fd44847ef27011dc0c6334e1b361\",\"id\":\"artifact-2\",\"kind\":\"artifact\",\"revision\":1},\"intent\":{\"digest\":\"f51fb31058723a8807a039b2648c537277424b68acef1724ee521b045bdd2b09\",\"id\":\"intent-2\",\"kind\":\"goal\",\"revision\":1},\"obligation\":{\"digest\":\"09121f0e90f6737c4d46e1168b8dc47fb90285d2db8d0dd4280a31b73d494418\",\"id\":\"obligation-2\",\"kind\":\"obligation\",\"revision\":1},\"policy\":{\"digest\":\"aa771e69db7d922dd497a3beb4b874e0b94f71a743f73e192dd94f42a466b056\",\"id\":\"daily-policy\",\"kind\":\"policy\",\"revision\":1}}",
+      "intent": {
+        "digest": "f51fb31058723a8807a039b2648c537277424b68acef1724ee521b045bdd2b09",
+        "id": "intent-2",
+        "kind": "goal",
+        "revision": 1
+      },
+      "obligation": {
+        "digest": "09121f0e90f6737c4d46e1168b8dc47fb90285d2db8d0dd4280a31b73d494418",
+        "id": "obligation-2",
+        "kind": "obligation",
+        "revision": 1
+      },
+      "policy": {
+        "digest": "aa771e69db7d922dd497a3beb4b874e0b94f71a743f73e192dd94f42a466b056",
+        "id": "daily-policy",
+        "kind": "policy",
+        "revision": 1
+      },
+      "acceptance": "accepted-under-supplied-authority",
+      "artifactCoverage": "available",
+      "evidenceCoverage": "available",
+      "receiptIds": [
+        "fixed-receipt-2"
+      ],
+      "claimReferences": [
+        "daily:claim:2:8ced78eedd001ad5460d5ddd9dedd93f92d8614c1b797dd7235db5dadd89685b"
+      ],
+      "attempts": [
+        "exec:00000000-0000-4000-8000-000000000002"
+      ],
+      "activity": "attempts-attached",
+      "obstacles": []
+    },
+    {
+      "key": "{\"artifact\":{\"digest\":\"c563224d012b82fe5dd0a49742da45a416b086e10e48d134613b9d9d04c18246\",\"id\":\"artifact-3\",\"kind\":\"artifact\",\"revision\":1},\"intent\":{\"digest\":\"6bc0d8a965a8148879825be23be219c10eb430d224728d246b94ea469462306f\",\"id\":\"intent-3\",\"kind\":\"goal\",\"revision\":1},\"obligation\":{\"digest\":\"376ede207e70ab90dcf09f98f55e34593815f97b0aa8e7ff80754bef351f0e52\",\"id\":\"obligation-3\",\"kind\":\"obligation\",\"revision\":1},\"policy\":{\"digest\":\"aa771e69db7d922dd497a3beb4b874e0b94f71a743f73e192dd94f42a466b056\",\"id\":\"daily-policy\",\"kind\":\"policy\",\"revision\":1}}",
+      "intent": {
+        "digest": "6bc0d8a965a8148879825be23be219c10eb430d224728d246b94ea469462306f",
+        "id": "intent-3",
+        "kind": "goal",
+        "revision": 1
+      },
+      "obligation": {
+        "digest": "376ede207e70ab90dcf09f98f55e34593815f97b0aa8e7ff80754bef351f0e52",
+        "id": "obligation-3",
+        "kind": "obligation",
+        "revision": 1
+      },
+      "policy": {
+        "digest": "aa771e69db7d922dd497a3beb4b874e0b94f71a743f73e192dd94f42a466b056",
+        "id": "daily-policy",
+        "kind": "policy",
+        "revision": 1
+      },
+      "acceptance": "unaccepted",
+      "artifactCoverage": "unknown",
+      "evidenceCoverage": "unknown",
+      "receiptIds": [],
+      "claimReferences": [],
+      "attempts": [
+        "exec:00000000-0000-4000-8000-000000000003"
+      ],
+      "activity": "attempts-attached",
+      "obstacles": [
+        "P01:NO_CLAIM"
+      ]
+    }
+  ],
+  "attempts": [
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000001",
+      "logicalChildId": "reused-worker",
+      "intentRuntime": "completed",
+      "archive": {
+        "executionId": "exec:00000000-0000-4000-8000-000000000001",
+        "parentExecutionIds": [
+          "exec:00000000-0000-4000-8000-000000000099"
+        ],
+        "retainedSessionIds": [],
+        "activeBranch": null,
+        "toolCallIds": [
+          "call:layout:1"
+        ],
+        "archiveIds": [
+          "00000000-0000-4000-8000-000000000001"
+        ],
+        "runtime": "terminal",
+        "outcome": {
+          "code": 0,
+          "signal": null,
+          "timedOut": false,
+          "aborted": false,
+          "truncated": false,
+          "failed": false
+        },
+        "sourceReferences": [
+          "aa913c6061b2e51e13a729facd19a0ca53c466cc603ba84d6da09842ff9d74f5"
+        ],
+        "issues": [
+          "active-branch-unknown",
+          "content-missing:checkReceipt",
+          "content-missing:paneSnapshot",
+          "content-missing:result",
+          "content-missing:session",
+          "content-missing:stderr",
+          "content-missing:stdout",
+          "native-session-unavailable",
+          "parent-not-in-snapshot"
+        ],
+        "coverage": "partial",
+        "acceptance": "not-assessed"
+      },
+      "sourceAvailability": [
+        {
+          "sha256": "aa913c6061b2e51e13a729facd19a0ca53c466cc603ba84d6da09842ff9d74f5",
+          "state": "missing"
+        }
+      ],
+      "issues": [
+        "P01-P03-parent-disagreement",
+        "P03:active-branch-unknown",
+        "P03:content-missing:checkReceipt",
+        "P03:content-missing:paneSnapshot",
+        "P03:content-missing:result",
+        "P03:content-missing:session",
+        "P03:content-missing:stderr",
+        "P03:content-missing:stdout",
+        "P03:native-session-unavailable",
+        "P03:parent-not-in-snapshot",
+        "source-bytes-unavailable-or-mismatched"
+      ],
+      "activeBranch": null
+    },
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000002",
+      "logicalChildId": "reused-worker",
+      "intentRuntime": "completed",
+      "archive": {
+        "executionId": "exec:00000000-0000-4000-8000-000000000002",
+        "parentExecutionIds": [
+          "exec:00000000-0000-4000-8000-000000000099"
+        ],
+        "retainedSessionIds": [],
+        "activeBranch": null,
+        "toolCallIds": [
+          "call:layout:2"
+        ],
+        "archiveIds": [
+          "00000000-0000-4000-8000-000000000002"
+        ],
+        "runtime": "terminal",
+        "outcome": {
+          "code": 0,
+          "signal": null,
+          "timedOut": false,
+          "aborted": false,
+          "truncated": false,
+          "failed": false
+        },
+        "sourceReferences": [
+          "ce7f59468b935af873c7dbb063cac3431dc0d12ec5b969d9984dc12547d61192"
+        ],
+        "issues": [
+          "active-branch-unknown",
+          "content-missing:checkReceipt",
+          "content-missing:paneSnapshot",
+          "content-missing:result",
+          "content-missing:session",
+          "content-missing:stderr",
+          "content-missing:stdout",
+          "native-session-unavailable",
+          "parent-not-in-snapshot"
+        ],
+        "coverage": "partial",
+        "acceptance": "not-assessed"
+      },
+      "sourceAvailability": [
+        {
+          "sha256": "ce7f59468b935af873c7dbb063cac3431dc0d12ec5b969d9984dc12547d61192",
+          "state": "missing"
+        }
+      ],
+      "issues": [
+        "P01-P03-parent-disagreement",
+        "P03:active-branch-unknown",
+        "P03:content-missing:checkReceipt",
+        "P03:content-missing:paneSnapshot",
+        "P03:content-missing:result",
+        "P03:content-missing:session",
+        "P03:content-missing:stderr",
+        "P03:content-missing:stdout",
+        "P03:native-session-unavailable",
+        "P03:parent-not-in-snapshot",
+        "source-bytes-unavailable-or-mismatched"
+      ],
+      "activeBranch": null
+    },
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000003",
+      "logicalChildId": "reused-worker",
+      "intentRuntime": "completed",
+      "archive": {
+        "executionId": "exec:00000000-0000-4000-8000-000000000003",
+        "parentExecutionIds": [
+          "exec:00000000-0000-4000-8000-000000000099"
+        ],
+        "retainedSessionIds": [
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        "activeBranch": null,
+        "toolCallIds": [
+          "call:layout:3"
+        ],
+        "archiveIds": [
+          "00000000-0000-4000-8000-000000000003"
+        ],
+        "runtime": "terminal",
+        "outcome": {
+          "code": 0,
+          "signal": null,
+          "timedOut": false,
+          "aborted": false,
+          "truncated": false,
+          "failed": false
+        },
+        "sourceReferences": [
+          "a9b1899c783b41796342741fd38fdf5c77c7833047d4cb3d8f7829d1f62290bd"
+        ],
+        "issues": [
+          "active-branch-unknown",
+          "content-missing:checkReceipt",
+          "content-missing:paneSnapshot",
+          "content-missing:stderr",
+          "content-missing:stdout",
+          "not-acceptance-evidence",
+          "parent-not-in-snapshot"
+        ],
+        "coverage": "partial",
+        "acceptance": "not-assessed"
+      },
+      "sourceAvailability": [
+        {
+          "sha256": "a9b1899c783b41796342741fd38fdf5c77c7833047d4cb3d8f7829d1f62290bd",
+          "state": "missing"
+        }
+      ],
+      "issues": [
+        "P01-P03-parent-disagreement",
+        "P03:active-branch-unknown",
+        "P03:content-missing:checkReceipt",
+        "P03:content-missing:paneSnapshot",
+        "P03:content-missing:stderr",
+        "P03:content-missing:stdout",
+        "P03:not-acceptance-evidence",
+        "P03:parent-not-in-snapshot",
+        "source-bytes-unavailable-or-mismatched"
+      ],
+      "activeBranch": null
+    },
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000004",
+      "logicalChildId": null,
+      "intentRuntime": "unknown",
+      "archive": {
+        "executionId": "exec:00000000-0000-4000-8000-000000000004",
+        "parentExecutionIds": [
+          "exec:00000000-0000-4000-8000-000000000099"
+        ],
+        "retainedSessionIds": [
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        "activeBranch": null,
+        "toolCallIds": [
+          "call:layout:4"
+        ],
+        "archiveIds": [
+          "00000000-0000-4000-8000-000000000004"
+        ],
+        "runtime": "terminal",
+        "outcome": {
+          "code": 0,
+          "signal": null,
+          "timedOut": false,
+          "aborted": false,
+          "truncated": false,
+          "failed": false
+        },
+        "sourceReferences": [
+          "d0171dd7cf8e8853511eb5f5e85659de6c3348c82414bd6b77db93c4e243850f"
+        ],
+        "issues": [
+          "active-branch-not-independently-verified",
+          "content-missing:checkReceipt",
+          "content-missing:paneSnapshot",
+          "content-missing:stderr",
+          "content-missing:stdout",
+          "not-acceptance-evidence",
+          "parent-not-in-snapshot"
+        ],
+        "coverage": "partial",
+        "acceptance": "not-assessed"
+      },
+      "sourceAvailability": [
+        {
+          "sha256": "d0171dd7cf8e8853511eb5f5e85659de6c3348c82414bd6b77db93c4e243850f",
+          "state": "missing"
+        }
+      ],
+      "issues": [
+        "P03:active-branch-not-independently-verified",
+        "P03:content-missing:checkReceipt",
+        "P03:content-missing:paneSnapshot",
+        "P03:content-missing:stderr",
+        "P03:content-missing:stdout",
+        "P03:not-acceptance-evidence",
+        "P03:parent-not-in-snapshot",
+        "source-bytes-unavailable-or-mismatched"
+      ],
+      "activeBranch": null
+    },
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000005",
+      "logicalChildId": null,
+      "intentRuntime": "unknown",
+      "archive": {
+        "executionId": "exec:00000000-0000-4000-8000-000000000005",
+        "parentExecutionIds": [
+          "exec:00000000-0000-4000-8000-000000000099"
+        ],
+        "retainedSessionIds": [
+          "11111111-1111-4111-8111-111111111111"
+        ],
+        "activeBranch": null,
+        "toolCallIds": [
+          "call:layout:5"
+        ],
+        "archiveIds": [
+          "00000000-0000-4000-8000-000000000005"
+        ],
+        "runtime": "terminal",
+        "outcome": {
+          "code": null,
+          "signal": "SIGTERM",
+          "timedOut": false,
+          "aborted": true,
+          "truncated": true,
+          "failed": true
+        },
+        "sourceReferences": [
+          "a6b253ade21351387e9df56fd2d686e022a356d72d46268a2feba346a6d616aa"
+        ],
+        "issues": [
+          "content-missing:checkReceipt",
+          "content-missing:paneSnapshot",
+          "content-missing:stderr",
+          "content-missing:stdout",
+          "native-session-incomplete-bytes",
+          "not-acceptance-evidence",
+          "parent-not-in-snapshot"
+        ],
+        "coverage": "partial",
+        "acceptance": "not-assessed"
+      },
+      "sourceAvailability": [
+        {
+          "sha256": "a6b253ade21351387e9df56fd2d686e022a356d72d46268a2feba346a6d616aa",
+          "state": "missing"
+        }
+      ],
+      "issues": [
+        "P03:content-missing:checkReceipt",
+        "P03:content-missing:paneSnapshot",
+        "P03:content-missing:stderr",
+        "P03:content-missing:stdout",
+        "P03:native-session-incomplete-bytes",
+        "P03:not-acceptance-evidence",
+        "P03:parent-not-in-snapshot",
+        "source-bytes-unavailable-or-mismatched"
+      ],
+      "activeBranch": null
+    },
+    {
+      "executionId": "exec:00000000-0000-4000-8000-000000000006",
+      "logicalChildId": null,
+      "intentRuntime": "unknown",
+      "archive": {
+        "executionId": "exec:00000000-0000-4000-8000-000000000006",
+        "parentExecutionIds": [
+          "exec:00000000-0000-4000-8000-000000000099"
+        ],
+        "retainedSessionIds": [],
+        "activeBranch": null,
+        "toolCallIds": [
+          "call:layout:6"
+        ],
+        "archiveIds": [
+          "00000000-0000-4000-8000-000000000006"
+        ],
+        "runtime": "terminal",
+        "outcome": {
+          "code": 0,
+          "signal": null,
+          "timedOut": false,
+          "aborted": false,
+          "truncated": false,
+          "failed": false
+        },
+        "sourceReferences": [
+          "4a3b22a4351f333b47a7b63ac7acf87757558ba16a2f80911f7055f205d2f795"
+        ],
+        "issues": [
+          "active-branch-unknown",
+          "content-missing:checkReceipt",
+          "content-missing:paneSnapshot",
+          "content-missing:result",
+          "content-missing:session",
+          "content-missing:stderr",
+          "content-missing:stdout",
+          "native-session-file-replaced",
+          "native-session-unavailable",
+          "parent-not-in-snapshot"
+        ],
+        "coverage": "partial",
+        "acceptance": "not-assessed"
+      },
+      "sourceAvailability": [
+        {
+          "sha256": "4a3b22a4351f333b47a7b63ac7acf87757558ba16a2f80911f7055f205d2f795",
+          "state": "missing"
+        }
+      ],
+      "issues": [
+        "P03:active-branch-unknown",
+        "P03:content-missing:checkReceipt",
+        "P03:content-missing:paneSnapshot",
+        "P03:content-missing:result",
+        "P03:content-missing:session",
+        "P03:content-missing:stderr",
+        "P03:content-missing:stdout",
+        "P03:native-session-file-replaced",
+        "P03:native-session-unavailable",
+        "P03:parent-not-in-snapshot",
+        "source-bytes-unavailable-or-mismatched"
+      ],
+      "activeBranch": null
+    }
+  ],
+  "issues": [
+    "P01:NO_CLAIM"
+  ],
+  "narrative": "3 scoped obligation(s); 2/3 accepted under supplied P01 authority; 6 distinct attempt(s). Runtime exits do not establish acceptance. Snapshot freshness unknown."
+}

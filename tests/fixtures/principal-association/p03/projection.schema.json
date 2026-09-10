@@ -1,0 +1,194 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/mojomanyana/skill-harness/contracts/execution-archive/v1/projection.schema.json",
+  "type": "object",
+  "properties": {
+    "version": {
+      "const": "execution-archive-projection-v1"
+    },
+    "executions": {
+      "type": "array",
+      "maxItems": 4096,
+      "items": {
+        "type": "object",
+        "properties": {
+          "executionId": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 512
+          },
+          "parentExecutionIds": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "maxItems": 4096,
+            "uniqueItems": true
+          },
+          "retainedSessionIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "maxItems": 4096,
+            "uniqueItems": true
+          },
+          "activeBranch": {
+            "const": null
+          },
+          "toolCallIds": {
+            "type": "array",
+            "items": {
+              "anyOf": [
+                {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 512
+                },
+                {
+                  "type": "null"
+                }
+              ]
+            },
+            "maxItems": 4096,
+            "uniqueItems": true
+          },
+          "archiveIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "maxItems": 4096,
+            "uniqueItems": true
+          },
+          "runtime": {
+            "enum": [
+              "running",
+              "terminal",
+              "conflict"
+            ]
+          },
+          "outcome": {
+            "anyOf": [
+              {
+                "type": "object",
+                "properties": {
+                  "code": {
+                    "anyOf": [
+                      {
+                        "type": "integer",
+                        "minimum": -2147483648,
+                        "maximum": 2147483647
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "signal": {
+                    "anyOf": [
+                      {
+                        "type": "string",
+                        "minLength": 1,
+                        "maxLength": 512
+                      },
+                      {
+                        "type": "null"
+                      }
+                    ]
+                  },
+                  "timedOut": {
+                    "type": "boolean"
+                  },
+                  "aborted": {
+                    "type": "boolean"
+                  },
+                  "truncated": {
+                    "type": "boolean"
+                  },
+                  "failed": {
+                    "type": "boolean"
+                  }
+                },
+                "required": [
+                  "code",
+                  "signal",
+                  "timedOut",
+                  "aborted",
+                  "truncated",
+                  "failed"
+                ],
+                "additionalProperties": false
+              },
+              {
+                "type": "null"
+              }
+            ]
+          },
+          "sourceReferences": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[a-f0-9]{64}$"
+            },
+            "maxItems": 4096,
+            "uniqueItems": true
+          },
+          "issues": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 512
+            },
+            "maxItems": 4096,
+            "uniqueItems": true
+          },
+          "coverage": {
+            "const": "partial"
+          },
+          "acceptance": {
+            "const": "not-assessed"
+          }
+        },
+        "required": [
+          "executionId",
+          "parentExecutionIds",
+          "retainedSessionIds",
+          "activeBranch",
+          "toolCallIds",
+          "archiveIds",
+          "runtime",
+          "outcome",
+          "sourceReferences",
+          "issues",
+          "coverage",
+          "acceptance"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "acceptance": {
+      "const": "not-assessed"
+    }
+  },
+  "required": [
+    "version",
+    "executions",
+    "acceptance"
+  ],
+  "additionalProperties": false
+}
