@@ -8,16 +8,16 @@ import { fileURLToPath } from "node:url";
 import { parsePackMetadata } from "../../scripts/pack-meta.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const BASE = "c24d2b6afd641e9e3f23b6bf967ba535f1fcb0d7";
+const BASE = "8c7a475bdb3b25427ea587c7de2af23a01379293";
 const read = (path) => readFileSync(join(ROOT, path), "utf8");
-const staleCandidateClaims = [
-  /(?:3\.0\.1[^.!?\n]{0,80}release candidate|release candidate[^.!?\n]{0,80}3\.0\.1)/i,
-  /(?:v3\.0\.1[\s\S]{0,120}pending|pending[\s\S]{0,120}v3\.0\.1)/i,
-  /npm\s+[`]?latest[`]?\s+(?:remains?|is|resolves?\s+to)\s+[`]?3\.0\.0/i,
+const completedPublicationClaims = [
+  /npm\s+[`]?latest[`]?[^.!?\n]{0,80}\b(?:is(?:\s+now)?|points?\s+to|resolves?\s+to|=)\s+[`]?3\.1\.0/i,
+  /(?:the\s+)?[`]?v3\.1\.0[`]?\s+tag[^.!?\n]{0,80}\b(?:exists|has\s+been\s+created|is\s+(?:tagged|published|available))\b/i,
+  /3\.1\.0[^.!?\n]{0,80}\bavailable\s+from\s+npm\b/i,
 ];
-function assertNoStaleCandidateClaim(text, label) {
-  for (const pattern of staleCandidateClaims) {
-    assert.doesNotMatch(text, pattern, `${label}: stale candidate claim`);
+function assertNoCompletedPublicationClaim(text, label) {
+  for (const pattern of completedPublicationClaims) {
+    assert.doesNotMatch(text, pattern, `${label}: premature publication claim`);
   }
 }
 const assuranceStateAuthorizations = [
@@ -31,28 +31,6 @@ const assuranceStateAuthorizations = [
     reason: "bounded local P14 authorizes only a versioned read-only evidence projection with explicit legacy compatibility; gates and native acceptance remain unchanged",
     markers: ["buildCurrentApplicabilityProjection", 'format_version: "current-v1"', '"in-toto-legacy"'],
   },
-  {
-    name: "gate-evaluated-event",
-    reason: "gate outcomes become ledger evidence rather than unprovable console output",
-    markers: ['case "gate_evaluated":'],
-  },
-  {
-    name: "assurance-elevation-adversarial-corpus",
-    reason: "audited risk paraphrases elevate while explicit tiny artifact references remain right-sized",
-    markers: ["wipe (?:all\\s+)?", "backwards-incompatible", "roll out[^.\\n]", "this work", "test (?:file|helper|utility|title)"],
-  },
-  {
-    name: "assurance-report-projection",
-    reason: "approved P9 adds a read-only human and in-toto projection over validated ledger events",
-    markers: ["buildAssuranceStatement", "renderAssuranceReport", 'command === "report"'],
-  },
-];
-const decideSkillAuthorizations = [
-  {
-    name: "decide-p4-path-classification",
-    reason: "approved P4 adds advisory path classification, countable unknowns, and confirmation evidence to Decide only",
-    markers: ["## Classification — announce before questions", "Path: spike | bounded | architectural", "[NEEDS CLARIFICATION: <question>]", "Confirmation:"],
-  },
 ];
 function assertNamedAuthorizations(path, authorizations) {
   const source = read(path);
@@ -64,34 +42,38 @@ function assertNamedAuthorizations(path, authorizations) {
   }
 }
 
-test("3.0.1 publication records agree after external verification", () => {
+test("3.1.0 source coordinates are durable without claiming completed publication", () => {
   const pkg = JSON.parse(read("package.json"));
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(pkg.version, "3.0.1");
-  assert.equal(lock.version, "3.0.1");
-  assert.equal(lock.packages[""].version, "3.0.1");
-  assert.match(read("CHANGELOG.md"), /^## \[3\.0\.1\] — 2026-09-04$/m);
+  assert.equal(pkg.version, "3.1.0");
+  assert.equal(lock.version, "3.1.0");
+  assert.equal(lock.packages[""].version, "3.1.0");
+  assert.match(read("CHANGELOG.md"), /^## \[3\.1\.0\] — 2026-09-11$/m);
   for (const path of ["README.md", "AGENTS.md", "docs/HANDOFF.md"]) {
-    assert.match(read(path), /pi install[^\n]*@v3\.0\.1/, `${path}: release coordinate missing`);
+    assert.match(read(path), /pi install[^\n]*@v3\.1\.0/, `${path}: release coordinate missing`);
   }
-  for (const path of ["README.md", "AGENTS.md", "CHANGELOG.md", "docs/HANDOFF.md", "docs/validation/VALIDATION.md"]) {
+  for (const path of ["README.md", "AGENTS.md", "CHANGELOG.md"]) {
     const text = read(path);
-    assert.match(text, /(?:v3\.0\.1[\s\S]{0,160}verif|verif[\s\S]{0,160}v3\.0\.1)/i, `${path}: verified tag state missing`);
-    assert.match(text, /(?:npm\s+[`]?latest[`]?[\s\S]{0,160}3\.0\.1|3\.0\.1[\s\S]{0,160}npm\s+[`]?latest[`]?)/i,
-      `${path}: registry state missing`);
-    assertNoStaleCandidateClaim(text, path);
+    assert.match(text, /Preparation evidence \(2026-09-11\)/i, `${path}: dated preparation evidence missing`);
+    assert.match(text, /(?:v3\.1\.0[\s\S]{0,180}pending|pending[\s\S]{0,180}v3\.1\.0)/i, `${path}: prepared tag state missing`);
+    assert.match(text, /(?:npm\s+[`]?latest[`]?[\s\S]{0,180}3\.0\.1|3\.0\.1[\s\S]{0,180}npm\s+[`]?latest[`]?)/i,
+      `${path}: prepared registry state missing`);
+    assert.match(text, /npm view principal-pi-skills version dist-tags --json/, `${path}: live npm check missing`);
+    assert.match(text, /github\.com\/mojomanyana\/principal-pi-skills\/releases\/tag\/v3\.1\.0/, `${path}: live GitHub check missing`);
+    assertNoCompletedPublicationClaim(text, path);
   }
-  assert.match(read("README.md"), /pi install git:github\.com\/mojomanyana\/principal-pi-skills@v3\.0\.1/);
 });
 
-test("publication guard rejects stale candidate wording", () => {
+test("publication guard rejects ordinary completed-state wording", () => {
   for (const claim of [
-    "3.0.1 release candidate",
-    "The v3.0.1 tag is pending.",
-    "Pending publication of v3.0.1.",
-    "npm latest remains 3.0.0",
+    "npm latest is now 3.1.0",
+    "npm `latest` points to `3.1.0`.",
+    "npm latest resolves to 3.1.0",
+    "The v3.1.0 tag has been created.",
+    "The `v3.1.0` tag exists.",
+    "3.1.0 is available from npm.",
   ]) {
-    assert.throws(() => assertNoStaleCandidateClaim(claim, "mutation"), assert.AssertionError, claim);
+    assert.throws(() => assertNoCompletedPublicationClaim(claim, "mutation"), assert.AssertionError, claim);
   }
 });
 
@@ -105,24 +87,24 @@ test("CI fetches the immutable base history required by version-boundary gates",
   assert.match(workflow.slice(harnessCheckout), /repository: mojomanyana\/skill-harness[\s\S]*ref: latest[\s\S]*path: \.skill-harness/, "harness checkout remains independently configured");
 });
 
-test("all tracked authoritative source-version statements reject a current-source 3.0.0 claim", () => {
-  const paths = execFileSync("git", ["ls-files", "*.md", "package.json", "package-lock.json"], { cwd: ROOT, encoding: "utf8" }).trim().split("\n").filter(Boolean);
+test("current authoritative source-version statements reject a current-source 3.0.1 claim", () => {
+  const paths = ["README.md", "AGENTS.md", "docs/HANDOFF.md", "docs/validation/VALIDATION.md", "package.json", "package-lock.json"];
   const contradictions = [];
   const patterns = [
-    /(?:current\s+)?source(?:\s+(?:status|metadata|manifest|tree))?\s*(?:is|:|=|matches?)?[^\n]{0,40}`?3\.0\.0/i,
-    /source tree['’]s manifest matches[^\n]*3\.0\.0/i,
-    /(?:package\.json|package-lock\.json)[^\n]{0,30}:?\s*`?3\.0\.0/i,
+    /(?:current\s+)?source(?:\s+(?:status|metadata|manifest|tree))?\s*(?:is|:|=|matches?)?[^\n]{0,40}`?3\.0\.1/i,
+    /source tree['’]s manifest matches[^\n]*3\.0\.1/i,
+    /(?:package\.json|package-lock\.json)[^\n]{0,30}:?\s*`?3\.0\.1/i,
   ];
   for (const path of paths) {
     for (const [index, line] of read(path).split("\n").entries()) {
-      if (/published-source|published release|published tag|install|previous source|3\.0\.0 was|\[3\.0\.0\]/i.test(line)) continue;
+      if (/published-source|published release|published tag|install|previous source|3\.0\.1 was|\[3\.0\.1\]|npm [`]?latest[`]? remains/i.test(line)) continue;
       if (patterns.some((pattern) => pattern.test(line))) contradictions.push(`${path}:${index + 1}:${line}`);
     }
   }
   assert.deepEqual(contradictions, []);
 });
 
-test("runtime differences from 3.0.0 are exactly the named Plan, assurance, and Decide authorizations", () => {
+test("runtime differences from 3.0.1 are exactly the named assurance projection additions", () => {
   const paths = execFileSync("git", ["ls-tree", "-r", "--name-only", BASE], { cwd: ROOT, encoding: "utf8" })
     .trim().split("\n").filter((path) => /^(?:schemas\/|scripts\/(?:install-agents|snapshot-workspace|assurance-state)\.mjs$|(?:decide|architect|plan|build|review|debug|git-ops)\/SKILL\.md$|agents\/.*\.md$|prompts\/.*\.md$)/.test(path));
   assert.ok(paths.length >= 23, `runtime comparison unexpectedly covered ${paths.length} files`);
@@ -130,32 +112,41 @@ test("runtime differences from 3.0.0 are exactly the named Plan, assurance, and 
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     return Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0;
   });
-  // scripts/assurance-state.mjs has named authorizations for recorded gate outcomes, the audited
-  // elevation corpus, P9's report, and bounded P14 current applicability. Decide has the sole
-  // P4 skill-text authorization.
-  assert.deepEqual(changed.sort(), ["agents/plan.md", "agents/principal-plan.md", "decide/SKILL.md", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
+  assert.deepEqual(changed.sort(), ["scripts/assurance-state.mjs"]);
   assertNamedAuthorizations("scripts/assurance-state.mjs", assuranceStateAuthorizations);
-  assertNamedAuthorizations("decide/SKILL.md", decideSkillAuthorizations);
 });
 
-test("packed differences from 3.0.0 are exactly the authorized documentation, version, and Plan files", () => {
+test("3.1.0 keeps the 28-file package boundary and excludes local host adapters", () => {
   const metadata = parsePackMetadata(execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: ROOT, encoding: "utf8" }));
+  assert.equal(metadata.files.length, 28);
+  const packed = new Set(metadata.files.map(({ path }) => path));
+  for (const path of [
+    "scripts/principal-association.mjs",
+    "scripts/principal-host-assembly.mjs",
+    "scripts/principal-native-references.mjs",
+    "scripts/vendor-principal-association.mjs",
+    "contracts/principal-native-references/v1/record.schema.json",
+    "contracts/principal-generic-check-lifecycle/v1/envelope.schema.json",
+  ]) assert.equal(packed.has(path), false, `${path} must remain outside the npm package`);
+
   const changed = [];
   for (const { path } of metadata.files) {
     const before = execFileSync("git", ["show", `${BASE}:${path}`], { cwd: ROOT });
     if (Buffer.compare(before, readFileSync(join(ROOT, path))) !== 0) changed.push(path);
   }
-  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "agents/plan.md", "agents/principal-plan.md", "decide/SKILL.md", "package.json", "plan/SKILL.md", "scripts/assurance-state.mjs"]);
+  assert.deepEqual(changed.sort(), ["AGENTS.md", "CHANGELOG.md", "README.md", "package.json", "scripts/assurance-state.mjs"]);
   assertNamedAuthorizations("scripts/assurance-state.mjs", assuranceStateAuthorizations);
-  assertNamedAuthorizations("decide/SKILL.md", decideSkillAuthorizations);
 });
 
-test("3.0.1 release notes describe evidence verification without claiming measurement", () => {
-  const section = read("CHANGELOG.md").split(/^## \[3\.0\.0\]/m)[0];
-  assert.match(section, /external per-observation attestation/i);
-  assert.match(section, /205/);
-  assert.match(section, /3\.0\.1/);
-  assert.match(section, /No 3\.0\.1[^\n]*model score/i);
-  assert.match(section, /v3\.0\.1[\s\S]{0,160}npm [`]?latest[`]?[\s\S]{0,160}verified after publication/i);
-  assertNoStaleCandidateClaim(section, "CHANGELOG.md 3.0.1 section");
+test("3.1.0 release notes describe shipped behavior and cross-repository compatibility honestly", () => {
+  const section = read("CHANGELOG.md").split(/^## \[3\.0\.1\]/m)[0];
+  assert.match(section, /current-v1/i);
+  assert.match(section, /cross-repositor/i);
+  assert.match(section, /not shipped|outside the npm package/i);
+  assert.match(section, /28 files/i);
+  assert.match(section, /No 3\.1\.0[^\n]*model score/i);
+  assert.match(section, /Preparation evidence \(2026-09-11\)/i);
+  assert.match(section, /v3\.1\.0[\s\S]{0,200}pending/i);
+  assert.match(section, /npm\s+[`]?latest[`]?[\s\S]{0,200}3\.0\.1/i);
+  assertNoCompletedPublicationClaim(section, "CHANGELOG.md 3.1.0 section");
 });

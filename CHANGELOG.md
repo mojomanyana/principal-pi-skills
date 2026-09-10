@@ -6,6 +6,33 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [3.1.0] — 2026-09-11
+
+**Added — opt-in current evidence applicability projection.** The shipped assurance CLI now supports
+`report --format current-v1`, a deterministic read-only projection that distinguishes current,
+failed, missing, stale, and superseded evidence for cross-repository consumers. Bounded descriptor
+reads protect the opt-in replay path. Existing default human and in-toto report bytes, native gates,
+acceptance semantics, and ordinary ledger loading remain unchanged.
+
+**Validated — explicit cross-repository compatibility without expanding this package.** Source-only
+host adapters, native-reference journals, generic lifecycle envelopes, and pinned compatibility
+fixtures prove structural association with existing work views, receipt claims, check lifecycle, and
+caller-owned payload archive seams. They do not authenticate approval, grant execution authority, or
+package peer implementations. Those helper scripts and contracts are deliberately not shipped in the
+npm artifact; the package remains exactly 28 files and ships Principal's assurance projection only.
+
+**Fixed — Principal journal diagnostics remain attributable.** Journal/context failures retain their
+specific `REFERENCE_*` codes through the reader, projector, and CLI instead of blaming the native
+ledger. Well-formed noncanonical journal entries are distinct from invalid JSON. Validation remains
+fail-closed and historical journals are never rewritten.
+
+**Changed — release evidence remains static and model-free.** No skill, prompt, or agent text changed
+from `3.0.1`, and no 3.1.0 model score is claimed. Deterministic unit, generated-contract, clean-install,
+pack, and lint checks are the release evidence. Preparation evidence (2026-09-11): the remote
+`v3.1.0` tag was pending and npm `latest` was `3.0.1`; this records preparation, not current
+publication state. Check live status with `npm view principal-pi-skills version dist-tags --json` and
+the [GitHub release](https://github.com/mojomanyana/principal-pi-skills/releases/tag/v3.1.0).
+
 ## [3.0.1] — 2026-09-04
 
 **Added — assurance ledgers have a read-only evidence projection.**

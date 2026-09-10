@@ -119,9 +119,12 @@ to every output.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v3.0.1` — the current published
-   release and immutable install coordinate. The remote `v3.0.1` tag and npm `latest` were
-   independently verified and both resolve `3.0.1`. `standard` is the default assurance
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v3.1.0` — the immutable install
+   coordinate for source version `3.1.0`. Publication status is external to these package bytes:
+   run `npm view principal-pi-skills version dist-tags --json` and check the
+   [GitHub release](https://github.com/mojomanyana/principal-pi-skills/releases/tag/v3.1.0) before
+   installing. Preparation evidence (2026-09-11): `v3.1.0` was pending and npm `latest` was `3.0.1`;
+   this dated fact is not current registry guidance. `standard` is the default assurance
    profile, so a v2 invocation keeps working unchanged. It registers the
    skills and the `/principal-feature` + `/principal-bugfix` commands via the `pi`
    manifest. Install a tag, not a branch.
