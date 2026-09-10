@@ -8,9 +8,12 @@ to isolated contexts (`plan`, `review`, `debug` — single-shot variants in `age
 generated from the same contract as the skill). The files follow the [Agent Skills](https://agentskills.io/specification)
 standard, so other harnesses can consume the skills, but pi is the supported target.
 
-**Version:** `3.1.0` release candidate. The remote `v3.1.0` tag is pending and npm `latest`
-remains `3.0.1` until coordinated publication is independently verified. Release coordinates are
-npm `principal-pi-skills@3.1.0` and the immutable git tag `v3.1.0`. This version adds the opt-in
+**Source version:** `3.1.0`. Release coordinates are npm `principal-pi-skills@3.1.0` and the
+immutable git tag `v3.1.0`. Publication status lives outside these immutable package bytes: run
+`npm view principal-pi-skills version dist-tags --json` and check the
+[GitHub release](https://github.com/mojomanyana/principal-pi-skills/releases/tag/v3.1.0) before
+installing. Preparation evidence (2026-09-11): the `v3.1.0` tag was pending and npm `latest` was
+`3.0.1`; this dated fact is not a claim about current registry state. This version adds the opt-in
 `current-v1` assurance evidence projection and validates cross-repository compatibility without
 shipping the source-only host adapters. It carries no new model score; the committed board remains
 a historical v2.4 baseline.
@@ -105,9 +108,9 @@ docs/demos/                           the chains running end to end, repo-verifi
    pi install git:github.com/mojomanyana/principal-pi-skills@v3.1.0
    ```
 
-   `3.1.0` is the release candidate represented by this source tree. Its immutable tag is pending,
-   and npm `latest` remains `3.0.1` until publication and independent verification. v3 adds
-   the risk-adaptive assurance profiles; `standard` is the default and preserves v2 invocation,
+   This source tree represents `3.1.0`. Before installing, use the live npm and GitHub checks above
+   to confirm publication; do not infer registry state from immutable README text. v3 adds the
+   risk-adaptive assurance profiles; `standard` is the default and preserves v2 invocation,
    so upgrading from `2.4.0` changes no command you already type.
    Read [Validation](#validation) first: v3 ships with **no model score of its own** — the
    committed board is a historical v2.4 baseline. Do not turn a moving branch into

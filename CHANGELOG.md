@@ -28,9 +28,10 @@ fail-closed and historical journals are never rewritten.
 
 **Changed — release evidence remains static and model-free.** No skill, prompt, or agent text changed
 from `3.0.1`, and no 3.1.0 model score is claimed. Deterministic unit, generated-contract, clean-install,
-pack, and lint checks are the release evidence. This is the `3.1.0` release candidate: the remote
-`v3.1.0` tag is pending and npm `latest` remains `3.0.1` until coordinated publication is completed
-and independently verified.
+pack, and lint checks are the release evidence. Preparation evidence (2026-09-11): the remote
+`v3.1.0` tag was pending and npm `latest` was `3.0.1`; this records preparation, not current
+publication state. Check live status with `npm view principal-pi-skills version dist-tags --json` and
+the [GitHub release](https://github.com/mojomanyana/principal-pi-skills/releases/tag/v3.1.0).
 
 ## [3.0.1] — 2026-09-04
 

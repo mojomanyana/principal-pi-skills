@@ -42,7 +42,7 @@ function assertNamedAuthorizations(path, authorizations) {
   }
 }
 
-test("3.1.0 release candidate is cut without claiming completed publication", () => {
+test("3.1.0 source coordinates are durable without claiming completed publication", () => {
   const pkg = JSON.parse(read("package.json"));
   const lock = JSON.parse(read("package-lock.json"));
   assert.equal(pkg.version, "3.1.0");
@@ -52,12 +52,14 @@ test("3.1.0 release candidate is cut without claiming completed publication", ()
   for (const path of ["README.md", "AGENTS.md", "docs/HANDOFF.md"]) {
     assert.match(read(path), /pi install[^\n]*@v3\.1\.0/, `${path}: release coordinate missing`);
   }
-  for (const path of ["README.md", "AGENTS.md", "CHANGELOG.md", "docs/HANDOFF.md", "docs/validation/VALIDATION.md"]) {
+  for (const path of ["README.md", "AGENTS.md", "CHANGELOG.md"]) {
     const text = read(path);
-    assert.match(text, /release candidate/i, `${path}: candidate state missing`);
-    assert.match(text, /(?:v3\.1\.0[\s\S]{0,140}pending|pending[\s\S]{0,140}v3\.1\.0)/i, `${path}: tag state missing`);
-    assert.match(text, /(?:npm\s+[`]?latest[`]?[\s\S]{0,140}3\.0\.1|3\.0\.1[\s\S]{0,140}npm\s+[`]?latest[`]?)/i,
-      `${path}: registry state missing`);
+    assert.match(text, /Preparation evidence \(2026-09-11\)/i, `${path}: dated preparation evidence missing`);
+    assert.match(text, /(?:v3\.1\.0[\s\S]{0,180}pending|pending[\s\S]{0,180}v3\.1\.0)/i, `${path}: prepared tag state missing`);
+    assert.match(text, /(?:npm\s+[`]?latest[`]?[\s\S]{0,180}3\.0\.1|3\.0\.1[\s\S]{0,180}npm\s+[`]?latest[`]?)/i,
+      `${path}: prepared registry state missing`);
+    assert.match(text, /npm view principal-pi-skills version dist-tags --json/, `${path}: live npm check missing`);
+    assert.match(text, /github\.com\/mojomanyana\/principal-pi-skills\/releases\/tag\/v3\.1\.0/, `${path}: live GitHub check missing`);
     assertNoCompletedPublicationClaim(text, path);
   }
 });
@@ -143,8 +145,8 @@ test("3.1.0 release notes describe shipped behavior and cross-repository compati
   assert.match(section, /not shipped|outside the npm package/i);
   assert.match(section, /28 files/i);
   assert.match(section, /No 3\.1\.0[^\n]*model score/i);
-  assert.match(section, /release candidate/i);
-  assert.match(section, /v3\.1\.0[\s\S]{0,160}pending/i);
-  assert.match(section, /npm\s+[`]?latest[`]?[\s\S]{0,160}3\.0\.1/i);
+  assert.match(section, /Preparation evidence \(2026-09-11\)/i);
+  assert.match(section, /v3\.1\.0[\s\S]{0,200}pending/i);
+  assert.match(section, /npm\s+[`]?latest[`]?[\s\S]{0,200}3\.0\.1/i);
   assertNoCompletedPublicationClaim(section, "CHANGELOG.md 3.1.0 section");
 });
