@@ -1,12 +1,12 @@
 # Handoff 1 — v3 risk-adaptive assurance
 
-**Status:** source version `3.1.0`; check live npm/GitHub publication status before install
+**Status:** source version `3.2.0`; check live npm/GitHub publication status before install
 **Updated:** 2026-09-11
-**Source manifest:** `3.1.0`
-**Install coordinate:** `pi install git:github.com/mojomanyana/principal-pi-skills@v3.1.0`
+**Source manifest:** `3.2.0`
+**Install coordinate:** `pi install git:github.com/mojomanyana/principal-pi-skills@v3.2.0`
 **Live checks:** `npm view principal-pi-skills version dist-tags --json` and
-[GitHub release](https://github.com/mojomanyana/principal-pi-skills/releases/tag/v3.1.0)
-**Preparation evidence (2026-09-11):** `v3.1.0` was pending and npm `latest` was `3.0.1`
+[GitHub release](https://github.com/mojomanyana/principal-pi-skills/releases/tag/v3.2.0)
+**Preparation evidence (2026-09-11):** `v3.2.0` was pending and npm `latest` was `3.1.0`
 **Branch:** merged to `main` via [PR #31](https://github.com/mojomanyana/principal-pi-skills/pull/31)
 **Base SHA:** `4dece8ca35648725234c7dc2eadead95cd084b07`
 
@@ -17,7 +17,9 @@ concrete Critical Plan contracts, Decide path classification, tests, and documen
 the model-measurement gap explicit rather than attaching historical v2.4 scores to changed prompts.
 The `3.1.0` source adds Principal's shipped opt-in `current-v1` evidence applicability
 projection. Source-only host adapters and pinned fixtures validate cross-repository compatibility,
-but neither those helpers nor peer implementations are part of this npm package.
+but neither those helpers nor peer implementations are part of this npm package. The `3.2.0`
+source makes that current applicability projection the ordinary human default while preserving
+`human-legacy`, explicit `current-v1` and in-toto output.
 
 All 205 committed result files are listed in `docs/validation/RESULTS-MANIFEST.v1.json` with
 raw SHA-256 and explicit participation flags. Terra-high Wave 0 is exploratory only: the control,
