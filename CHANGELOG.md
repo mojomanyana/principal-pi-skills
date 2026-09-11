@@ -6,9 +6,13 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
-## Unreleased
+## [3.2.0] — 2026-09-11
 
-**Changed — ordinary assurance status is current by default.** `report --format human` and the no-format default now render current/stale/superseded task and check applicability. The original all-history report remains byte-preserved as `--format human-legacy`; in-toto machine formats are unchanged.
+**Changed — ordinary assurance status is current by default.** `report --format human` and the no-format default now render the existing `current-v1` applicability semantics for current, stale and superseded task/check evidence. The original all-history report remains byte-preserved as `--format human-legacy`; explicit `current-v1` JSON and in-toto machine formats are unchanged.
+
+**Compatibility — presentation default only.** Native assurance gates, event replay, acceptance semantics, generated skill/agent/prompt text, external compatibility adapters and the 28-file npm package boundary are unchanged. A current status is not retrospective truth or human acceptance.
+
+**Changed — release evidence remains static and model-free.** No skill, prompt or agent text changed from 3.1.0, and no 3.2.0 model score is claimed. Deterministic unit, generated-contract, clean-install, pack and lint checks are the release evidence. Preparation evidence (2026-09-11): `v3.2.0` was pending and npm `latest` was `3.1.0`; check live status with `npm view principal-pi-skills version dist-tags --json` and the [GitHub release](https://github.com/mojomanyana/principal-pi-skills/releases/tag/v3.2.0).
 
 ## [3.1.0] — 2026-09-11
 

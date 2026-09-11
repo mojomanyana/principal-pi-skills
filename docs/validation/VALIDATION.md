@@ -7,9 +7,9 @@ are in [`../evidence/`](../evidence/).
 
 ## Evidence eligibility and external trust boundary
 
-This source documents version `3.1.0`. Publication status is external: query npm and the GitHub
+This source documents version `3.2.0`. Publication status is external: query npm and the GitHub
 release rather than inferring it from this document. Preparation evidence dated 2026-09-11 recorded
-`v3.1.0` as pending and npm `latest` as `3.0.1`. The machine-readable result manifest validates all 205 committed result
+`v3.2.0` as pending and npm `latest` as `3.1.0`. The machine-readable result manifest validates all 205 committed result
 bytes without needing Git history. Historical comparison is a separate optional audit and never substitutes for current
 hash/completeness validation.
 

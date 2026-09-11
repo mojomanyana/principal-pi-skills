@@ -11,9 +11,9 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const BASE = "8c7a475bdb3b25427ea587c7de2af23a01379293";
 const read = (path) => readFileSync(join(ROOT, path), "utf8");
 const completedPublicationClaims = [
-  /npm\s+[`]?latest[`]?[^.!?\n]{0,80}\b(?:is(?:\s+now)?|points?\s+to|resolves?\s+to|=)\s+[`]?3\.1\.0/i,
-  /(?:the\s+)?[`]?v3\.1\.0[`]?\s+tag[^.!?\n]{0,80}\b(?:exists|has\s+been\s+created|is\s+(?:tagged|published|available))\b/i,
-  /3\.1\.0[^.!?\n]{0,80}\bavailable\s+from\s+npm\b/i,
+  /npm\s+[`]?latest[`]?[^.!?\n]{0,80}\b(?:is(?:\s+now)?|points?\s+to|resolves?\s+to|=)\s+[`]?3\.2\.0/i,
+  /(?:the\s+)?[`]?v3\.2\.0[`]?\s+tag[^.!?\n]{0,80}\b(?:exists|has\s+been\s+created|is\s+(?:tagged|published|available))\b/i,
+  /3\.2\.0[^.!?\n]{0,80}\bavailable\s+from\s+npm\b/i,
 ];
 function assertNoCompletedPublicationClaim(text, label) {
   for (const pattern of completedPublicationClaims) {
@@ -42,36 +42,36 @@ function assertNamedAuthorizations(path, authorizations) {
   }
 }
 
-test("3.1.0 source coordinates are durable without claiming completed publication", () => {
+test("3.2.0 source coordinates are durable without claiming completed publication", () => {
   const pkg = JSON.parse(read("package.json"));
   const lock = JSON.parse(read("package-lock.json"));
-  assert.equal(pkg.version, "3.1.0");
-  assert.equal(lock.version, "3.1.0");
-  assert.equal(lock.packages[""].version, "3.1.0");
-  assert.match(read("CHANGELOG.md"), /^## \[3\.1\.0\] — 2026-09-11$/m);
+  assert.equal(pkg.version, "3.2.0");
+  assert.equal(lock.version, "3.2.0");
+  assert.equal(lock.packages[""].version, "3.2.0");
+  assert.match(read("CHANGELOG.md"), /^## \[3\.2\.0\] — 2026-09-11$/m);
   for (const path of ["README.md", "AGENTS.md", "docs/HANDOFF.md"]) {
-    assert.match(read(path), /pi install[^\n]*@v3\.1\.0/, `${path}: release coordinate missing`);
+    assert.match(read(path), /pi install[^\n]*@v3\.2\.0/, `${path}: release coordinate missing`);
   }
   for (const path of ["README.md", "AGENTS.md", "CHANGELOG.md"]) {
     const text = read(path);
     assert.match(text, /Preparation evidence \(2026-09-11\)/i, `${path}: dated preparation evidence missing`);
-    assert.match(text, /(?:v3\.1\.0[\s\S]{0,180}pending|pending[\s\S]{0,180}v3\.1\.0)/i, `${path}: prepared tag state missing`);
-    assert.match(text, /(?:npm\s+[`]?latest[`]?[\s\S]{0,180}3\.0\.1|3\.0\.1[\s\S]{0,180}npm\s+[`]?latest[`]?)/i,
+    assert.match(text, /(?:v3\.2\.0[\s\S]{0,180}pending|pending[\s\S]{0,180}v3\.2\.0)/i, `${path}: prepared tag state missing`);
+    assert.match(text, /(?:npm\s+[`]?latest[`]?[\s\S]{0,180}3\.1\.0|3\.1\.0[\s\S]{0,180}npm\s+[`]?latest[`]?)/i,
       `${path}: prepared registry state missing`);
     assert.match(text, /npm view principal-pi-skills version dist-tags --json/, `${path}: live npm check missing`);
-    assert.match(text, /github\.com\/mojomanyana\/principal-pi-skills\/releases\/tag\/v3\.1\.0/, `${path}: live GitHub check missing`);
+    assert.match(text, /github\.com\/mojomanyana\/principal-pi-skills\/releases\/tag\/v3\.2\.0/, `${path}: live GitHub check missing`);
     assertNoCompletedPublicationClaim(text, path);
   }
 });
 
 test("publication guard rejects ordinary completed-state wording", () => {
   for (const claim of [
-    "npm latest is now 3.1.0",
-    "npm `latest` points to `3.1.0`.",
-    "npm latest resolves to 3.1.0",
-    "The v3.1.0 tag has been created.",
-    "The `v3.1.0` tag exists.",
-    "3.1.0 is available from npm.",
+    "npm latest is now 3.2.0",
+    "npm `latest` points to `3.2.0`.",
+    "npm latest resolves to 3.2.0",
+    "The v3.2.0 tag has been created.",
+    "The `v3.2.0` tag exists.",
+    "3.2.0 is available from npm.",
   ]) {
     assert.throws(() => assertNoCompletedPublicationClaim(claim, "mutation"), assert.AssertionError, claim);
   }
@@ -116,7 +116,7 @@ test("runtime differences from 3.0.1 are exactly the named assurance projection 
   assertNamedAuthorizations("scripts/assurance-state.mjs", assuranceStateAuthorizations);
 });
 
-test("3.1.0 keeps the 28-file package boundary and excludes local host adapters", () => {
+test("3.2.0 keeps the 28-file package boundary and excludes local host adapters", () => {
   const metadata = parsePackMetadata(execFileSync("npm", ["pack", "--dry-run", "--json"], { cwd: ROOT, encoding: "utf8" }));
   assert.equal(metadata.files.length, 28);
   const packed = new Set(metadata.files.map(({ path }) => path));
@@ -138,15 +138,15 @@ test("3.1.0 keeps the 28-file package boundary and excludes local host adapters"
   assertNamedAuthorizations("scripts/assurance-state.mjs", assuranceStateAuthorizations);
 });
 
-test("3.1.0 release notes describe shipped behavior and cross-repository compatibility honestly", () => {
-  const section = read("CHANGELOG.md").split(/^## \[3\.0\.1\]/m)[0];
+test("3.2.0 release notes describe shipped behavior and compatibility honestly", () => {
+  const section = read("CHANGELOG.md").split(/^## \[3\.1\.0\]/m)[0];
   assert.match(section, /current-v1/i);
-  assert.match(section, /cross-repositor/i);
-  assert.match(section, /not shipped|outside the npm package/i);
-  assert.match(section, /28 files/i);
-  assert.match(section, /No 3\.1\.0[^\n]*model score/i);
+  assert.match(section, /human-legacy/i);
+  assert.match(section, /in-toto/i);
+  assert.match(section, /28[- ]file/i);
+  assert.match(section, /No 3\.2\.0[^\n]*model score/i);
   assert.match(section, /Preparation evidence \(2026-09-11\)/i);
-  assert.match(section, /v3\.1\.0[\s\S]{0,200}pending/i);
-  assert.match(section, /npm\s+[`]?latest[`]?[\s\S]{0,200}3\.0\.1/i);
-  assertNoCompletedPublicationClaim(section, "CHANGELOG.md 3.1.0 section");
+  assert.match(section, /v3\.2\.0[\s\S]{0,200}pending/i);
+  assert.match(section, /npm\s+[`]?latest[`]?[\s\S]{0,200}3\.1\.0/i);
+  assertNoCompletedPublicationClaim(section, "CHANGELOG.md 3.2.0 section");
 });
