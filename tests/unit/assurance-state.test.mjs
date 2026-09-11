@@ -1748,14 +1748,14 @@ const goldenStatement = {
   },
 };
 
-test("report renders the complete ledger in stable human-section order", () => {
+test("human-legacy report preserves the complete ledger in stable section order", () => {
   const fixture = reportFixture();
   const output = [];
   const logPath = join(fixture.dir, "runs", fixture.runId, "events.jsonl");
   const before = readFileSync(logPath, "utf8");
   try {
     assert.equal(runCli(
-      ["report", "--run-id", fixture.runId, "--state-dir", fixture.dir],
+      ["report", "--run-id", fixture.runId, "--state-dir", fixture.dir, "--format", "human-legacy"],
       { out: (line) => output.push(line), err: (line) => output.push(line) },
     ), 0);
     const expected = [
@@ -1812,7 +1812,7 @@ test("report renders the complete ledger in stable human-section order", () => {
   }
 });
 
-test("report renders missing ledger facts as absent instead of assuming them", () => {
+test("human-legacy report renders missing facts as absent instead of assuming them", () => {
   const dir = mkdtempSync(join(tmpdir(), "ppa-report-empty-"));
   const runId = "run-report-empty";
   const store = new AssuranceStore({ baseDir: dir, now: () => "2026-09-03T12:00:00.000Z" });
@@ -1820,7 +1820,7 @@ test("report renders missing ledger facts as absent instead of assuming them", (
   const output = [];
   try {
     assert.equal(runCli(
-      ["report", "--run-id", runId, "--state-dir", dir],
+      ["report", "--run-id", runId, "--state-dir", dir, "--format", "human-legacy"],
       { out: (line) => output.push(line), err: (line) => output.push(line) },
     ), 0);
     const emptyStatement = {

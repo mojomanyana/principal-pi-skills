@@ -18,6 +18,8 @@ installing. Preparation evidence (2026-09-11): the `v3.1.0` tag was pending and 
 shipping the source-only host adapters. It carries no new model score; the committed board remains
 a historical v2.4 baseline.
 
+**Unreleased C05 continuation:** the ordinary assurance human report now uses current applicability semantics. `--format human-legacy` retains the original all-history bytes; `--format current-v1` retains the complete machine-readable projection, and in-toto formats are unchanged.
+
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
 **delegable trust** — an output carries the evidence needed to verify it without redoing

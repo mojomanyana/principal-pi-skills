@@ -6,6 +6,10 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## Unreleased
+
+**Changed — ordinary assurance status is current by default.** `report --format human` and the no-format default now render current/stale/superseded task and check applicability. The original all-history report remains byte-preserved as `--format human-legacy`; in-toto machine formats are unchanged.
+
 ## [3.1.0] — 2026-09-11
 
 **Added — opt-in current evidence applicability projection.** The shipped assurance CLI now supports
