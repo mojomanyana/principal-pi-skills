@@ -1933,6 +1933,33 @@ export function buildCurrentApplicabilityProjection(state) {
   };
 }
 
+export function renderCurrentApplicabilityReport(state) {
+  const projection = buildCurrentApplicabilityProjection(state);
+  const lines = [
+    `# Current assurance: ${projection.ledger.runId}`,
+    "",
+    `Result: ${projection.result}`,
+    `Candidate: head=${projection.candidate.head_sha ?? "UNKNOWN"}; tree=${projection.candidate.tree_sha ?? "UNKNOWN"}`,
+    `Freshness floor: seq ${projection.authority.freshness_floor}`,
+    "",
+    "## Current tasks",
+    ...(projection.tasks.length ? projection.tasks.map(task =>
+      `- ${task.task_id}: ${task.applicability}; status=${task.status}` + (task.reasons.length ? `; ${task.reasons.join(",")}` : "")) : ["- None declared."]),
+    "",
+    "## Current checks",
+    ...(projection.checks.length ? projection.checks.map(check =>
+      `- ${check.status}: ${check.kind}; task=${check.task_id ?? "run"}; command=${quoted(check.command)}`) : ["- None recorded."]),
+    "",
+    "## Required evidence",
+    ...projection.requirements.map(requirement =>
+      `- ${requirement.status}: ${requirement.kind}; task=${requirement.task_id ?? "run"}` + (requirement.command ? `; command=${quoted(requirement.command)}` : "")),
+    "",
+    "Historical/stale/superseded receipts remain in --format current-v1. Use --format human-legacy for the original all-history report.",
+    projection.notice,
+  ];
+  return lines.join("\n");
+}
+
 /** Project validated ledger events into an unsigned in-toto test-result Statement (legacy semantics). */
 export function buildAssuranceStatement(events) {
   const evidence = events.filter((event) => event.type === "evidence_recorded");
@@ -2091,9 +2118,11 @@ export function runCli(argv, { cwd = process.cwd(), env = process.env, out = con
       const { state, events } = store.load(runId, { withEvents: true });
       out(format === "current-v1"
         ? JSON.stringify(buildCurrentApplicabilityProjection(state), null, 2)
-        : ["in-toto", "in-toto-legacy"].includes(format)
-          ? JSON.stringify(buildAssuranceStatement(events), null, 2)
-          : renderAssuranceReport(state, events));
+        : format === "human"
+          ? renderCurrentApplicabilityReport(state)
+          : ["in-toto", "in-toto-legacy"].includes(format)
+            ? JSON.stringify(buildAssuranceStatement(events), null, 2)
+            : renderAssuranceReport(state, events));
       return 0;
     }
     if (command === "event") {

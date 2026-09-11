@@ -229,6 +229,18 @@ test("current-v1: finalization preserves candidate identity without hiding unres
   assert.equal(p.result, "FAILED");
 });
 
+test("ordinary human report defaults to current applicability while named legacy remains inspectable", (t) => {
+  const f = fixture(t, { task: true });
+  f.evidence("exact-target", "node target.mjs", 1, { task_id: "task-1", workspace_id: "ws-1" });
+  const run = (args = []) => { const output = []; assert.equal(runCli(["report", "--run-id", f.runId, "--state-dir", f.dir, ...args], { cwd: f.dir, out: line => output.push(line) }), 0); return output.join("\n"); };
+  const ordinary = run();
+  assert.match(ordinary, /^# Current assurance:/);
+  assert.match(ordinary, /Result: STALE/);
+  assert.match(ordinary, /task-1.*current/);
+  assert.equal(run(["--format", "human"]), ordinary);
+  assert.match(run(["--format", "human-legacy"]), /^# Assurance report:/);
+});
+
 test("current-v1: reporting and explicit legacy aliases are deterministic and never write ledger or snapshot", (t) => {
   const f = fixture(t);
   f.evidence("exact-target", "node target.mjs");
@@ -240,7 +252,7 @@ test("current-v1: reporting and explicit legacy aliases are deterministic and ne
   const before = snapshot();
   assert.equal(f.render(), f.render());
   assert.equal(f.render("in-toto-legacy"), f.render("in-toto"));
-  assert.equal(f.render("human-legacy"), f.render("human"));
+  assert.notEqual(f.render("human-legacy"), f.render("human"));
   assert.deepEqual(snapshot(), before);
   const p = f.project(), state = f.store.load(f.runId);
   assert.equal(p.ledger.hashChainHead, state.event_digest);

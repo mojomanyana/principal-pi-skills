@@ -142,18 +142,14 @@ and every receipt to have exit code zero. Final head/tree subjects appear only a
 `finalization_completed`, and `predicate.ledger.hashChainHead` binds the projection to the exact
 validated log. The command does not sign or claim a signature.
 
-### Local candidate: current-applicability projection v1 (P14)
+### Current-applicability projection v1 (P14)
 
-Opt in with `report --run-id <id> --format current-v1`. This JSON format identifies itself as
+The ordinary `report --run-id <id>` human view now summarizes current task/check/requirement applicability. Use `--format current-v1` for the complete JSON evidence projection. That JSON format identifies itself as
 `current-applicability-projection`, with `format_version: "current-v1"`. It is **not a fresh gate
 or attestation**, native acceptance, or execution authorization. It does not execute checks,
-invoke the mutating gate command, append events, or repair snapshots. This local candidate does
-not change the installed/published CLI or the ledger schema.
+invoke the mutating gate command, append events, or repair snapshots. The ledger schema is unchanged.
 
-Compatibility is explicit: `--format in-toto-legacy` and `--format human-legacy` select the
-original renderers byte-for-byte. Existing `in-toto`, `human`, and the default remain legacy,
-including all-history nonzero aggregation and empty-evidence `FAILED`. The embedded human
-machine section is also unchanged. The new format is deliberately not an in-toto Statement.
+Compatibility is explicit: `--format human-legacy` selects the original all-history human renderer byte-for-byte. `--format human` names the new ordinary current view. `in-toto` and `in-toto-legacy` remain the existing machine format to avoid silently changing consumers. The current-v1 JSON is deliberately not an in-toto Statement.
 
 The projection reports `candidate`, `finalization`, recorded `authority`, task applicability,
 `checks`, `requirements`, every receipt with its disposition/reasons, and the replayed
