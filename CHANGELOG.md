@@ -187,9 +187,10 @@ nothing executed.
 **Changed — released with the measurement gap stated, not closed.** `3.0.0` ships statically
 verified and unmeasured, and every document that could be read as a claim now says so at the
 point of reading: the README install step, `docs/ASSURANCE.md`, `docs/validation/VALIDATION.md`,
-and the handoff verdict. All 101 skill-harness findings are exempt-stale against the v3 text —
-that is the honest state of a v3 cell, not a passing one. The authorized two-model wave and the
-live eight-cell E2E remain the work that would replace the historical v2.4 board with a v3 one.
+and the handoff verdict (both removed in 4.0). All 101 skill-harness findings are exempt-stale
+against the v3 text — that is the honest state of a v3 cell, not a passing one. The authorized
+two-model wave and the live eight-cell E2E remain the work that would replace the historical
+v2.4 board with a v3 one.
 
 **Changed — `ajv`/`ajv-formats` are the first devDependencies.** The Draft 2020-12 parity test
 needs a real validator. Runtime install stays dependency-free — they are not in the pack

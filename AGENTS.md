@@ -31,9 +31,9 @@ The set:
 | Input shape | Route to | How |
 |---|---|---|
 | Exploring a decision, not executing one ("should I…", "what are my options", "I'm stuck") | `decide` | inline — the dialogue is the value |
-| A system to design or a significant/irreversible choice ("design X", "Postgres or DynamoDB") | `architect` | inline — drivers come from asking |
+| A system to design or a significant/irreversible choice ("design X", "Postgres or DynamoDB", "review our architecture") | `architect` | inline — drivers come from asking |
 | A task needing order of work and code-level specs ("plan this", "break this down") | `plan` | **subagent** — it opens every file it names; keep that out of this context |
-| Code to write ("implement", "fix this", "make the test pass") | `build` | inline, or `principal-build` per approved plan step when the subagent tool exists — never fan parallel writers into one working tree |
+| Code to write ("implement", "fix this known bug", "make the test pass") | `build` | inline, or `principal-build` per approved plan step when the subagent tool exists — never fan parallel writers into one working tree |
 | A change to judge before landing ("review this", "ready to merge?") | `review` | **subagent, always when available** — a fresh context judging the diff cold beats self-review; inline review of code you just wrote is anchored on its own reasoning |
 | An unknown failure to diagnose ("why is this failing", "find the bug") | `debug` | **subagent** when reproduction is noisy (flaky loops, bisects); inline when the user is driving |
 | A git or GitHub operation ("commit", "push", "open a PR", "I leaked a secret") | `git-ops` | inline, never delegated — needs this session's working-tree state, and destructive ops require user consequence-acceptance no subagent can obtain |
