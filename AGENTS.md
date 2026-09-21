@@ -79,6 +79,8 @@ Typical spines (available as prompt templates):
   phase's skill inline instead and say so in the digest. Fall back on *absence* only —
   any other agent failure stops the workflow. Build↔review repair loops stop after two
   rounds; a third means the plan or the diagnosis was wrong, not the code.
+- Multi-step plans are written to `.principal/plans/<slug>.md` (git-ignored) so a delegated
+  build reads its step from the file and a compacted or fresh session resumes from it.
 - Tiny change: build → git-ops, both inline — every contract carries a Right-sizing
   rule; don't add ceremony the file itself would refuse.
 
@@ -106,7 +108,7 @@ to every output.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.0.0` — installs the seven
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.0.1` — installs the seven
    skills, the `/principal-feature` and `/principal-bugfix` commands, and the bootstrap
    extension, which loads automatically with the package. Install a tag, not a branch.
 2. Subagents (optional): `npx -p principal-pi-skills principal-pi-agents install` copies

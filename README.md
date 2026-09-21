@@ -7,7 +7,7 @@ that double as subagents.** Dialogue and session state run inline (`decide`, `ar
 (`plan`, `build`, `review`, `debug` — single-shot variants in `agents/`, generated from the
 same contract as the skill). The files follow the [Agent Skills](https://agentskills.io/specification)
 standard, so other harnesses can consume the skills, but pi is the supported target. This
-is **4.0.0**: a thin orchestration layer over the seven skills, with the risk-adaptive
+is **4.x**: a thin orchestration layer over the seven skills, with the risk-adaptive
 assurance controller and model measurement removed to a separate track (see
 [Validation](#validation)).
 
@@ -43,7 +43,7 @@ around.
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1053 |
-| `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1146 |
+| `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1145 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1425) or inline | 1204 |
 | `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1195) or inline | 1111 |
 | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1202) or inline | 1174 |
@@ -91,12 +91,8 @@ bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary + model t
 extensions/bootstrap.ts               pi extension: injects BOOTSTRAP.md at session start and after compaction
 scripts/                              generator, installers, and checks behind `npm test`
 tests/{unit,install}/                 unit + clean-home install tests (node:test)
-<skill>/tests/fixtures/<ID>/          seeded repos kept as raw material for the external measurement repo
 AGENTS.md                             routing + dispatch reference; the bootstrap injects its table automatically
 CHANGELOG.md                          release history
-docs/specs/                           design specs for each refactor, e.g. this one
-docs/plans/                           the SDD task plans a spec was executed from
-docs/demos/                           the chains running end to end, repo-verified (historical, v2-shaped runs)
 ```
 
 ## Install (pi)
@@ -104,7 +100,7 @@ docs/demos/                           the chains running end to end, repo-verifi
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.0.0
+   pi install git:github.com/mojomanyana/principal-pi-skills@v4.0.1
    ```
 
    The `pi` manifest registers the seven skills, the `/principal-feature` and
@@ -148,9 +144,38 @@ docs/demos/                           the chains running end to end, repo-verifi
 
 4.0 ships with no model score. The skill-harness specifications and the v2.4 DeepSeek/GLM
 board were removed in this release; model measurement restarts in a separate repository,
-starting from the seeded fixtures under `<skill>/tests/fixtures/`. `npm test` remains the
+from scratch. `npm test` remains the
 free gate: generated-contract drift, word budgets, frontmatter lint, installer and tarball
 behavior, and `Next:` transition parity.
+
+## Why 4.0
+
+Version 3.x grew a risk-adaptive assurance controller — a hash-chained event ledger, task
+packets, digests, fail-closed gates — whose protocol leaked into the model-facing skill text
+and whose init step ran before every workflow, including a typo fix. The routing layer in
+`AGENTS.md` was never loaded by pi, the feature spine had no human approval point outside
+critical mode, and every build ran inline so long features filled the steering context with
+diffs and test output. The seven skills were the strongest part of the repo and 12% of its
+Markdown. 4.0 returns the repo to skills plus a thin orchestration layer and borrows four
+mechanisms from [superpowers](https://github.com/obra/superpowers) that serve the north star.
+
+Decisions taken for 4.0, all closed:
+
+| Decision | Chosen |
+|---|---|
+| Target harness | pi only |
+| Assurance ledger and profiles | removed; per-skill right-sizing is the mechanism; the tool lives on the `v3.2.0` tag for porting to pi-daddy |
+| Human approval | always, after plan (feature) or after the debug note (bugfix); the artifact scales, the stop does not |
+| Routing delivery | a pi extension injects `bootstrap/BOOTSTRAP.md` at session start and after compaction |
+| Build delegation | `principal-build` agent; inline when there is no multi-step plan file or no subagent tool |
+| Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; no date prefix because plan has no clock, and resume matches on the `## Plan:` line |
+| Decide vs architect | both kept; decide answers "should we / which", architect answers "how is it structured" |
+| Measurement | skill-harness specs, results, fixtures and E2E removed; restarts in a separate repo |
+
+Two implementation notes that differ from the obvious reading: the bootstrap is injected as
+a user-role message wrapped in `<IMPORTANT>`, because pi's `context` hook can only insert
+messages; and a delegated `principal-build` may run without a plan file (the bugfix spine and
+repair rounds), in which case the prompt's task is its whole spec.
 
 ## Deliberate design rules
 
