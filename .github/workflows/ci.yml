@@ -7,8 +7,8 @@ on:
     branches: [main]
   # No labeled/unlabeled: those existed only so the agents-lockstep `lockstep-exempt` label
   # took effect without a push. That job is gone and `generate:check` has no escape hatch, so
-  # keeping them meant every label change re-ran the whole suite — `npm pack` and a live
-  # skill-harness lint included — for nothing.
+  # keeping them meant every label change re-ran the whole suite — `npm test`, `npm pack`
+  # included — for nothing.
   pull_request:
     types: [opened, synchronize, reopened]
 

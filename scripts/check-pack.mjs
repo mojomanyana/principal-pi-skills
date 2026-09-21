@@ -5,7 +5,7 @@
  * Two failures this catches, which pull in opposite directions:
  *
  *   - **Shipping too much.** Before the allowlist, `npm pack` produced 287 files and ~1 MB:
- *     every fixture, every committed `results.yaml`, the evidence directory, CI config, the
+ *     every fixture and benchmark record, the evidence directory, CI config, the
  *     contract templates. None of it runs at install time, all of it is in the repo for
  *     anyone who wants it, and shipping benchmark transcripts to every consumer is
  *     bandwidth spent on nothing.
