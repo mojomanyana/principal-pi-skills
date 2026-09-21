@@ -69,10 +69,6 @@ test("the tarball ships every runtime file a user needs", () => {
     if (!files.includes(`agents/${a}.md`)) missing.push(`agents/${a}.md`);
   }
   if (!files.includes("scripts/install-agents.mjs")) missing.push("scripts/install-agents.mjs");
-  if (!files.includes("scripts/assurance-state.mjs")) missing.push("scripts/assurance-state.mjs");
-  for (const schema of ["assurance-run-state-v1.schema.json", "assurance-task-packet-v1.schema.json", "assurance-evidence-receipt-v1.schema.json"]) {
-    if (!files.includes(`schemas/${schema}`)) missing.push(`schemas/${schema}`);
-  }
   if (!files.includes("package.json")) missing.push("package.json");
 
   assert.deepEqual(missing, [], `not shipped: ${missing.join(", ")}`);
@@ -85,7 +81,6 @@ test("the packed manifest registers the skills and prompts pi will look for", ()
   assert.deepEqual(pkg.pi.skills, SKILLS.map((s) => `./${s}`));
   assert.deepEqual(pkg.pi.prompts, ["./prompts"]);
   assert.ok(pkg.bin?.["principal-pi-agents"], "the installer must be exposed as a bin entry");
-  assert.ok(pkg.bin?.["principal-pi-assurance"], "the assurance state tool must be exposed as a bin entry");
 });
 
 test("installing the tarball into a clean HOME sets up the namespaced agents", () => {
@@ -143,8 +138,7 @@ test("the installed bins actually run — not a silent exit 0", () => {
 
   const agentsBin = join(proj, "node_modules", ".bin", "principal-pi-agents");
   const wsBin = join(proj, "node_modules", ".bin", "principal-pi-workspace");
-  const assuranceBin = join(proj, "node_modules", ".bin", "principal-pi-assurance");
-  assert.ok(existsSync(agentsBin) && existsSync(wsBin) && existsSync(assuranceBin), "all three bins must be linked");
+  assert.ok(existsSync(agentsBin) && existsSync(wsBin), "both bins must be linked");
 
   const out = execFileSync(agentsBin, ["install"], { cwd: proj, env, encoding: "utf8" });
   assert.match(out, /installed|current/, "the installer must report what it did, not print nothing");
@@ -160,13 +154,6 @@ test("the installed bins actually run — not a silent exit 0", () => {
   const path = execFileSync(wsBin, ["create"], { cwd: proj, env, encoding: "utf8" }).trim();
   assert.ok(path.length > 0 && existsSync(path), `create must print a real worktree path, got ${JSON.stringify(path)}`);
   execFileSync(wsBin, ["remove", path], { cwd: proj, env, stdio: "pipe" });
-
-  const stateDir = join(home, "assurance-state");
-  const assurance = JSON.parse(execFileSync(assuranceBin, [
-    "init", "--workflow", "feature", "--request", "--assurance critical add auth", "--state-dir", stateDir,
-  ], { cwd: proj, env, encoding: "utf8" }));
-  assert.equal(assurance.assurance.effective, "critical");
-  assert.ok(existsSync(join(stateDir, "runs", assurance.run_id, "events.jsonl")), "the installed state tool must persist its event log");
 });
 
 test("the bin invocations the docs print are resolvable", () => {

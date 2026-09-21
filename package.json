@@ -45,8 +45,7 @@
     },
     "bin": {
         "principal-pi-agents": "./scripts/install-agents.mjs",
-        "principal-pi-workspace": "./scripts/snapshot-workspace.mjs",
-        "principal-pi-assurance": "./scripts/assurance-state.mjs"
+        "principal-pi-workspace": "./scripts/snapshot-workspace.mjs"
     },
     "files": [
         "AGENTS.md",
@@ -60,10 +59,8 @@
         "git-ops/SKILL.md",
         "prompts/*.md",
         "agents/*.md",
-        "schemas/*.json",
         "scripts/install-agents.mjs",
-        "scripts/snapshot-workspace.mjs",
-        "scripts/assurance-state.mjs"
+        "scripts/snapshot-workspace.mjs"
     ],
     "devDependencies": {
         "ajv": "^8.20.0",
