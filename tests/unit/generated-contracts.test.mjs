@@ -67,12 +67,12 @@ test("errors name the template and line so a failure is actionable", () => {
 // Driven off the generator's own MODES table rather than a second list here: a mode added
 // to the generator and forgotten here would ship an unchecked file, which is precisely the
 // class of drift this whole mechanism exists to remove.
-test("workflow assurance rules render identically into both namespaced spines", () => {
+test("shared orchestration rules render identically into both spines", () => {
   const template = read("contracts/workflows.md.tmpl");
   const feature = render(template, "feature", "contracts/workflows.md.tmpl");
   const bugfix = render(template, "bugfix", "contracts/workflows.md.tmpl");
-  const section = (text) => text.match(/<!-- assurance:shared:start -->([\s\S]*?)<!-- assurance:shared:end -->/)?.[1];
-  assert.ok(section(feature), "feature rendering has no shared assurance section");
+  const section = (text) => text.match(/<!-- shared:start -->([\s\S]*?)<!-- shared:end -->/)?.[1];
+  assert.ok(section(feature), "feature rendering has no shared section");
   assert.equal(section(feature), section(bugfix));
 });
 
