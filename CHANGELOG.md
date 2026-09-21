@@ -6,6 +6,27 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.0.0] — 2026-09-21
+
+**Breaking.** The assurance controller (`principal-pi-assurance`), its schemas, and the
+`--assurance` / `--critical-scope` flags are gone; they move to pi-daddy. The generic
+`plan`/`review`/`debug` agents and `/feature` `/bugfix` prompts are removed; only
+`principal-*` names ship. Skill-harness specifications, results, E2E cells, and the v2.4
+board are removed; measurement restarts in a separate repository.
+
+**Added.** A pi extension injects a 300-word routing bootstrap at session start and after
+compaction. Both workflows stop for approval after planning, write multi-step plans to
+`.principal/plans/`, resume from that file, and may delegate build per step to the new
+`principal-build` agent. Debug fans out over independent failures. Build's repair mode
+covers human review feedback.
+
+**Changed.** Plan loses the Critical contract; review's header is verdict, workspace,
+verified, findings, top concern; git-ops finish mode is a fresh suite plus three choices;
+decide and architect are separated by output rather than topic.
+
+**Migration.** Reinstall agents: `npx -p principal-pi-skills principal-pi-agents install`
+(four files). Drop any `--assurance` flag from saved prompts; it is no longer parsed.
+
 ## [3.2.0] — 2026-09-11
 
 **Changed — ordinary assurance status is current by default.** `report --format human` and the no-format default now render the existing `current-v1` applicability semantics for current, stale and superseded task/check evidence. The original all-history report remains byte-preserved as `--format human-legacy`; explicit `current-v1` JSON and in-toto machine formats are unchanged.

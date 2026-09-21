@@ -1,7 +1,7 @@
 {
     "name": "principal-pi-skills",
-    "version": "3.2.0",
-    "description": "Skill framework for principal-level software engineering: seven dual-use skills (decide, architect, plan, build, review, debug, git-ops) that work unedited as loaded skills or as subagent system prompts.",
+    "version": "4.0.0",
+    "description": "Skill framework for principal-level software engineering: seven dual-use skills (decide, architect, plan, build, review, debug, git-ops), a pi bootstrap, and two approval-gated workflows.",
     "license": "MIT",
     "author": "Nemanja Alavanja",
     "repository": {
