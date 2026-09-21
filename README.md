@@ -91,7 +91,6 @@ bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary + model t
 extensions/bootstrap.ts               pi extension: injects BOOTSTRAP.md at session start and after compaction
 scripts/                              generator, installers, and checks behind `npm test`
 tests/{unit,install}/                 unit + clean-home install tests (node:test)
-<skill>/tests/fixtures/<ID>/          seeded repos kept as raw material for the external measurement repo
 AGENTS.md                             routing + dispatch reference; the bootstrap injects its table automatically
 CHANGELOG.md                          release history
 docs/specs/                           design specs for each refactor, e.g. this one
@@ -148,7 +147,7 @@ docs/demos/                           the chains running end to end, repo-verifi
 
 4.0 ships with no model score. The skill-harness specifications and the v2.4 DeepSeek/GLM
 board were removed in this release; model measurement restarts in a separate repository,
-starting from the seeded fixtures under `<skill>/tests/fixtures/`. `npm test` remains the
+from scratch. `npm test` remains the
 free gate: generated-contract drift, word budgets, frontmatter lint, installer and tarball
 behavior, and `Next:` transition parity.
 

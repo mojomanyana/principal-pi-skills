@@ -6,6 +6,13 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.0.1] — 2026-09-21
+
+Removed the seeded `<skill>/tests/fixtures/` trees (build, debug, git-ops) and the
+fixture-hygiene unit test that guarded them. They were kept in 4.0.0 as raw material for an
+external measurement repo, which will start from scratch instead; they remain on the `v4.0.0`
+tag. No skill, agent, prompt, or bootstrap text changed.
+
 ## [4.0.0] — 2026-09-21
 
 **Breaking.** The assurance controller (`principal-pi-assurance`), its schemas, and the
