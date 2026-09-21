@@ -25,8 +25,12 @@ allowed-tools: read, grep, find, ls, edit, write, bash
 
 {{#agent}}
 You run in an isolated context and cannot ask questions. **The caller receives ONLY your
-final message**, so your last message must be the complete implementation report below. You
-receive a plan file path and a step number: read that step and implement exactly it. When no
+final message.** Write the complete implementation report below to the report path the
+caller names (default `.principal/reports/<step>-build.md`; create the directory), then make
+your final message exactly five lines: `Next:`, `Changed paths:`, `Findings applied:`,
+`Tests:` (the verbatim result line), `Report:` (the path). The caller reads the file only
+when routing needs more; everything else you print is lost. You receive a plan file path and
+a step number: read that step and implement exactly it. When no
 plan file is given, the task in your prompt — a fix with a known cause, or a list of
 accepted `[REV-…]` findings to repair — is the whole spec; implement exactly that. If the
 step contradicts the codebase, implement nothing on the contested point and report it under

@@ -6,6 +6,20 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.2.0] — 2026-09-21
+
+**Cheaper loops, borrowed from superpowers' subagent-driven development.** A delegated
+`principal-build` now writes its full report to `.principal/reports/<step>-build.md` and
+returns five status lines, so reports stop accumulating in the steering context. Review is
+handed a diff package (`git diff --stat` + full diff, one file) and the build reports; it
+treats a verbatim `Full evidence:` line as test evidence and runs a test only for a named
+doubt, instead of rebuilding a worktree and re-running the suite on every call. Repair rounds
+resume the build agent when the tool allows and get a **scoped re-review** (agent form only):
+each open finding ID is verdicted ADDRESSED or NOT ADDRESSED, new breakage is checked in the
+fix diff alone. Plan batches same-shape edits across files into one step. The spines name
+the model tier per review: strongest for the whole-change review, mid-tier for scoped
+re-reviews. Skill forms of build and review are unchanged except review's evidence rule.
+
 ## [4.1.0] — 2026-09-21
 
 **Added.** Two prompt templates. `/principal-refactor <scope>` is the feature spine with a

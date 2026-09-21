@@ -21,17 +21,25 @@ build until the user says go. Presenting the artifact and starting to build in t
 is the failure. The artifact scales — three lines for a config change, full slices for a
 feature — the stop does not. A re-plan needs a new approval.
 
-**Build.** One writer at a time, on a branch the user can see. Inline when there is no multi-step plan file (a three-line plan, or a bugfix) or the subagent tool is absent. Otherwise dispatch one fresh `principal-build`
-per step with the plan file path and the step number; record its report's Changed paths,
-Tests, and Follow-ups; then the next step.
-Choose the cheapest model that can transcribe a complete step spec; the build report carries
-the evidence.
+**Build.** One writer at a time, on a branch the user can see. Inline when there is no
+multi-step plan file (a three-line plan, or a bugfix) or the subagent tool is absent.
+Otherwise dispatch one fresh `principal-build` per step — a batched step is one dispatch —
+with the plan file path, the step number, and a report path
+`.principal/reports/<step>-build.md`. It returns five status lines; read the report file only
+when routing needs more, and never paste a report into a later dispatch. Choose the cheapest
+model that can transcribe a complete step spec.
 
 **Review.** Always delegate to `principal-review` when the tool exists — a cold read beats
-self-review. `CHANGES-REQUESTED` → decide which findings are accepted, then Build in repair
-mode with exactly those IDs, then review again; at most two repair rounds, a third means
-the plan or diagnosis was wrong. `UNVERIFIED` is not approval: fix whatever blocked verification, then review again; it counts as a repair round. `APPROVE` or
-`APPROVE-WITH-NITS` → git-ops.
+self-review. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
+for the whole change to `.principal/reports/review-diff.txt` and pass that path plus the build
+report paths; review judges from them and runs a test only for a named doubt. Use the
+strongest available model for this review. `CHANGES-REQUESTED` → decide which findings are
+accepted; then repair with exactly those IDs — resume the build agent that made the change
+when your tool can, otherwise a fresh dispatch — then a scoped re-review: the open IDs and the
+fix diff only, on a mid-tier model, verdicting each ID. At most two repair rounds; a third means
+the plan or diagnosis was wrong. `UNVERIFIED` is not approval: fix whatever blocked
+verification, then review again; it counts as a repair round. `APPROVE` or `APPROVE-WITH-NITS`
+→ git-ops.
 
 **Blocked.** A phase returning `BLOCKED` stops the chain: surface its one question and
 wait. Do not answer it yourself.

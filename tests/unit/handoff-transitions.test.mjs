@@ -162,3 +162,15 @@ test("the review-branch prompt reviews and finishes but never plans or builds", 
   assert.doesNotMatch(text, /principal-plan|principal-build|\.principal\/plans/, "review-branch has no plan or build phase");
   assert.match(text, /\$\{1:-main\}/, "base branch defaults to main via a template argument");
 });
+
+test("the spines hand artifacts to agents as files under .principal/reports", () => {
+  for (const wf of WORKFLOWS) {
+    const text = read(wf);
+    assert.match(text, /\.principal\/reports\/<step>-build\.md/, `${wf} must give build agents a report path`);
+    assert.match(text, /\.principal\/reports\/review-diff\.txt/, `${wf} must hand review a diff package`);
+    assert.match(text, /scoped re-review/, `${wf} must scope repair-round reviews`);
+  }
+  assert.match(read("agents/principal-review.md"), /## Scoped re-review/);
+  assert.doesNotMatch(read("review/SKILL.md"), /## Scoped re-review/, "scoped re-review is agent-only");
+  assert.match(read("agents/principal-build.md"), /Report:/);
+});

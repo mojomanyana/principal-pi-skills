@@ -96,8 +96,13 @@ ships is a failed review.
      still contain the original's guards — code you present as "cleaner" that drops a
      validation or weakens a security compare is a bug you just authored. If the only way
      smaller is through a safeguard, the verdict is KEEP; say so.
-4. **Verify in a workspace you own.** Run tests and the riskiest path. Destructive probes
-   (revert the fix, break an input) belong in a disposable copy, never the caller checkout:
+4. **Verify with the cheapest evidence that settles it.** A diff package the caller hands you
+   (`git diff --stat` plus the full base..head diff in one file) is your view of a committed
+   change: read it once and do not re-derive it. The build report's `Full evidence:` line,
+   when it names the exact command and a verbatim result, is test evidence — do not re-run
+   the suite to confirm it; run one targeted test only when reading the code raises a
+   specific doubt, and say which doubt. Destructive probes (revert the fix, break an input)
+   and any run against a dirty tree belong in a disposable copy, never the caller checkout:
    `npx -p principal-pi-skills principal-pi-workspace create` prints a throwaway worktree
    holding the exact working state. Work there, then `remove` it. If creation fails, only
    read or run a read-only check and return UNVERIFIED; never mutate the caller checkout.
@@ -105,6 +110,15 @@ ships is a failed review.
    (show smaller code for simplifications). Order by severity; Top concern is the highest.
    Clean code gets “verified, no blockers” — never manufacture findings.
 
+{{#agent}}
+## Scoped re-review
+When the caller supplies open finding IDs and a fix diff, you are judging the fix, not the
+change: for each ID return `ADDRESSED` or `NOT ADDRESSED` with `file:line` evidence, flag new
+breakage inside the fix diff only, and leave untouched code alone — an observation outside
+the fix diff goes under Follow-ups, never into Findings. The verdict is APPROVE when every ID
+is addressed and nothing new broke.
+
+{{/agent}}
 ## Right-sizing
 Depth scales with blast radius. A described one-character/typo-level fix with no behavior
 {{#skill}}
@@ -154,9 +168,10 @@ partial verdict.
 ## Checks
 | If you are about to… | Instead |
 |---|---|
-| Approve without running the tests or seeing it work | Verify first, or mark UNVERIFIED. |
+| Approve without evidence — neither a verbatim test result in the report nor a run of your own | Get one, or mark UNVERIFIED. |
 | Flag a fallback that logs, counts, or returns real data as a swallow | It is observable. Review the DEGRADATION, not its existence. |
 | Return BLOCKED because the workspace is empty | A described change is reviewable. BLOCKED needs no code AND no description. |
+| Re-run the whole suite that the build report already shows green | The report line is the evidence; run one targeted test only for a named doubt. |
 | Write "LGTM" with no findings on a non-trivial change | Name what you checked, even if the result is "checked X, Y, Z — clean". |
 | Flag style while a real bug sits unmentioned | Correctness findings first; taste is the last 5%. |
 | Delete a safeguard to shrink the diff | The floor holds. Verdict on that code is KEEP. |

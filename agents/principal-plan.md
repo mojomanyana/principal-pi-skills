@@ -56,7 +56,9 @@ behavior, and the test that proves it.
    done-signal. Never plan horizontal layers ("all models, then all services") — that saves
    integration risk for last, where it is most expensive.
 5. **Slice vertically.** Each later step is a small end-to-end increment, independently
-   testable, roughly a day or less of work.
+   testable, roughly a day or less of work. Small edits of the same shape repeated across files
+   (one rename, constant, or field, N places) are ONE step listing every file, not N steps —
+   each step costs a fresh builder.
 6. **Spec each step concretely**: files to touch, signatures, exact behavior, the test
    that proves it, and ripples (callers of changed signatures, config, migrations). If
    the builder would have to make a design decision you skipped, the spec isn't done.
