@@ -1,12 +1,12 @@
 ---
 name: decide
 description: >
-  Use when the user is exploring or deciding rather than executing — "should I", "what are
-  my options", "which approach", "is this a good idea", "what could go wrong", "I'm stuck",
-  or any engineering decision that isn't settled yet. Covers technical choices, product
-  delivery, and how a technical team works — build vs buy, which vendor, whether to migrate,
-  scope and sequencing, team process. Not for building code, designing system architecture,
-  planning implementation, or personal-life decisions.
+  Use when the user is choosing rather than executing — "should I", "what are my options",
+  "which approach", "is this a good idea", "what could go wrong", "I'm stuck" — on any
+  engineering, delivery, or team decision that isn't settled: build vs buy, which vendor,
+  whether to migrate, scope and sequencing, process. The output is a decision brief. Not for
+  designing how a system is structured (architect), planning implementation (plan), or
+  writing code (build).
 allowed-tools: read, grep, find, ls
 ---
 

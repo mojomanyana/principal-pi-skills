@@ -62,17 +62,13 @@ test("the tarball ships every runtime file a user needs", () => {
   const missing = [];
 
   for (const s of SKILLS) if (!files.includes(`${s}/SKILL.md`)) missing.push(`${s}/SKILL.md`);
-  for (const p of ["principal-feature", "principal-bugfix", "feature", "bugfix"]) {
+  for (const p of ["principal-feature", "principal-bugfix"]) {
     if (!files.includes(`prompts/${p}.md`)) missing.push(`prompts/${p}.md`);
   }
-  for (const a of ["principal-plan", "principal-review", "principal-debug"]) {
+  for (const a of ["principal-plan", "principal-review", "principal-debug", "principal-build"]) {
     if (!files.includes(`agents/${a}.md`)) missing.push(`agents/${a}.md`);
   }
   if (!files.includes("scripts/install-agents.mjs")) missing.push("scripts/install-agents.mjs");
-  if (!files.includes("scripts/assurance-state.mjs")) missing.push("scripts/assurance-state.mjs");
-  for (const schema of ["assurance-run-state-v1.schema.json", "assurance-task-packet-v1.schema.json", "assurance-evidence-receipt-v1.schema.json"]) {
-    if (!files.includes(`schemas/${schema}`)) missing.push(`schemas/${schema}`);
-  }
   if (!files.includes("package.json")) missing.push("package.json");
 
   assert.deepEqual(missing, [], `not shipped: ${missing.join(", ")}`);
@@ -85,7 +81,6 @@ test("the packed manifest registers the skills and prompts pi will look for", ()
   assert.deepEqual(pkg.pi.skills, SKILLS.map((s) => `./${s}`));
   assert.deepEqual(pkg.pi.prompts, ["./prompts"]);
   assert.ok(pkg.bin?.["principal-pi-agents"], "the installer must be exposed as a bin entry");
-  assert.ok(pkg.bin?.["principal-pi-assurance"], "the assurance state tool must be exposed as a bin entry");
 });
 
 test("installing the tarball into a clean HOME sets up the namespaced agents", () => {
@@ -107,7 +102,7 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   });
 
   const installed = join(proj, "node_modules", "principal-pi-skills");
-  assert.equal(JSON.parse(readFileSync(join(installed, "package.json"), "utf8")).version, "3.2.0", "clean install must use the unreleased source pack");
+  assert.equal(JSON.parse(readFileSync(join(installed, "package.json"), "utf8")).version, "4.0.0", "clean install must use the unreleased source pack");
   assert.ok(existsSync(join(installed, "git-ops", "SKILL.md")), "skills must survive the install");
   assert.ok(existsSync(join(installed, "prompts", "principal-feature.md")));
 
@@ -118,7 +113,7 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   });
 
   const agents = readdirSync(join(piDir, "agents")).filter((f) => f.endsWith(".md")).sort();
-  assert.deepEqual(agents, ["principal-debug.md", "principal-plan.md", "principal-review.md"]);
+  assert.deepEqual(agents, ["principal-build.md", "principal-debug.md", "principal-plan.md", "principal-review.md"]);
 
   const realAfter = existsSync(join(homedir(), ".pi", "agent", "agents"))
     ? readdirSync(join(homedir(), ".pi", "agent", "agents")).sort().join(",")
@@ -143,8 +138,7 @@ test("the installed bins actually run — not a silent exit 0", () => {
 
   const agentsBin = join(proj, "node_modules", ".bin", "principal-pi-agents");
   const wsBin = join(proj, "node_modules", ".bin", "principal-pi-workspace");
-  const assuranceBin = join(proj, "node_modules", ".bin", "principal-pi-assurance");
-  assert.ok(existsSync(agentsBin) && existsSync(wsBin) && existsSync(assuranceBin), "all three bins must be linked");
+  assert.ok(existsSync(agentsBin) && existsSync(wsBin), "both bins must be linked");
 
   const out = execFileSync(agentsBin, ["install"], { cwd: proj, env, encoding: "utf8" });
   assert.match(out, /installed|current/, "the installer must report what it did, not print nothing");
@@ -160,13 +154,6 @@ test("the installed bins actually run — not a silent exit 0", () => {
   const path = execFileSync(wsBin, ["create"], { cwd: proj, env, encoding: "utf8" }).trim();
   assert.ok(path.length > 0 && existsSync(path), `create must print a real worktree path, got ${JSON.stringify(path)}`);
   execFileSync(wsBin, ["remove", path], { cwd: proj, env, stdio: "pipe" });
-
-  const stateDir = join(home, "assurance-state");
-  const assurance = JSON.parse(execFileSync(assuranceBin, [
-    "init", "--workflow", "feature", "--request", "--assurance critical add auth", "--state-dir", stateDir,
-  ], { cwd: proj, env, encoding: "utf8" }));
-  assert.equal(assurance.assurance.effective, "critical");
-  assert.ok(existsSync(join(stateDir, "runs", assurance.run_id, "events.jsonl")), "the installed state tool must persist its event log");
 });
 
 test("the bin invocations the docs print are resolvable", () => {
@@ -205,7 +192,7 @@ test("the bin invocations the docs print are resolvable", () => {
   assert.ok(scanned.some((p) => p.startsWith("agents/")),
     "the sweep must cover agents/*.md — they are installed into the user's agent dir");
 
-  const bare = /npx\s+(principal-pi-(?:agents|workspace|assurance))/;
+  const bare = /npx\s+(principal-pi-(?:agents|workspace))/;
   for (const d of scanned) {
     const text = readFileSync(join(ROOT, d), "utf8");
     const m = text.match(bare);
@@ -284,7 +271,7 @@ test("pi resolves the package and materializes every resource it declares", { sk
   for (const rel of pkg.pi.skills) {
     assert.ok(existsSync(join(tree, rel, "SKILL.md")), `declared skill ${rel} is missing from the materialized tree`);
   }
-  for (const p of ["principal-feature", "principal-bugfix", "feature", "bugfix"]) {
+  for (const p of ["principal-feature", "principal-bugfix"]) {
     assert.ok(existsSync(join(tree, "prompts", `${p}.md`)), `declared prompt ${p} is missing`);
   }
   assert.equal(pkg.pi.skills.length, SKILLS.length, "all seven skills must be declared");

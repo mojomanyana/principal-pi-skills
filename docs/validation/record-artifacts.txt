@@ -1,8 +1,0 @@
-# Staleness findings where a published RECORD is unprovable but the measurement stands.
-#
-# Empty for v3: v3 publishes no model cells, so all historical staleness belongs in the
-# explicit remeasurement queue (unpublished-cells.txt). The old debug/A6 v2.4 voucher remains
-# documented in git history and CHANGELOG 2.4.0; it must not overlap broad v3 unpublished
-# entries, because the lint gate deliberately treats a double-listed artifact as dead.
-#
-# Format when needed: <skill>/<scenario> <model-substring> <message-substring>

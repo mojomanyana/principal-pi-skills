@@ -97,6 +97,12 @@ far as you verifiably got, ending with the one question that would branch the se
 An obvious one-line bug with an obvious cause doesn't need the full loop. But after two
 speculative edits with no traction, you are in a hard bug: return to step 1.
 
+## Several failures at once
+When a report names N failures with clearly different root causes and no shared files,
+each is its own diagnosis: in a workflow, the orchestrator dispatches one debug agent per
+failure in the same turn and then a single build. Failures that might share a cause (one
+fix could clear several) stay with one diagnosis.
+
 ## Output — debugging note
 ```
 ## Bug: <one line>

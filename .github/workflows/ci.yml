@@ -7,16 +7,14 @@ on:
     branches: [main]
   # No labeled/unlabeled: those existed only so the agents-lockstep `lockstep-exempt` label
   # took effect without a push. That job is gone and `generate:check` has no escape hatch, so
-  # keeping them meant every label change re-ran the whole suite — `npm pack` and a live
-  # skill-harness lint included — for nothing.
+  # keeping them meant every label change re-ran the whole suite — `npm test`, `npm pack`
+  # included — for nothing.
   pull_request:
     types: [opened, synchronize, reopened]
 
 jobs:
-  # `lint all` validates every spec (ship_bar arithmetic, critical ids, fixture
-  # paths), the committed results (recomputed grades, overrides carrying a note and
-  # a preserved transcript), and staleness — whether the newest full run per model
-  # still matches the current SKILL.md hash.
+  # `npm test` is the whole free gate — the same command a contributor runs locally, so a
+  # green local tree and a green CI tree cannot disagree.
   spec-lint:
     runs-on: ubuntu-latest
     steps:
@@ -25,22 +23,6 @@ jobs:
       # failure this repo can least afford to discover through a green check. The trailing
       # comment records which release the SHA was, so a bump is reviewable.
       - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-        with:
-          # Version-boundary tests compare shipped bytes to the immutable 3.0.0 base.
-          fetch-depth: 0
-
-      # The harness itself tracks its moving `latest` release tag (user decision
-      # 2026-08-06: track it everywhere — CI, npx, and docs alike). That is deliberate and
-      # is the opposite of the SHA pinning above, for a different reason: `latest`
-      # guarantees CI is at least as new as whatever wrote the committed results.yaml,
-      # which is exactly what the staleness rule needs to compare hashes at all. Pinning
-      # the harness would mean a released harness and a stale CI disagreeing about whether
-      # this tree is fresh.
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
-        with:
-          repository: mojomanyana/skill-harness
-          ref: latest
-          path: .skill-harness
 
       - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
         with:
@@ -48,23 +30,11 @@ jobs:
           cache: npm
           cache-dependency-path: |
             package-lock.json
-            .skill-harness/package-lock.json
 
       - name: Install root dependencies
         run: npm ci
 
-      - name: Build skill-harness
-        run: npm ci && npm run build
-        working-directory: .skill-harness
-
-      # `npm test` IS the gate — the same command a contributor runs locally, so a green
-      # local tree and a green CI tree cannot disagree. The severity policy (which staleness
-      # blocks and which is merely a notice) lives in scripts/lint-skills.mjs rather than in
-      # this file, because policy duplicated in CI shell is policy that drifts and cannot be
-      # tested. SKILL_HARNESS_CMD points it at the checkout built above instead of npx.
       - name: npm test (word budgets + spec lint)
-        env:
-          SKILL_HARNESS_CMD: node .skill-harness/bin/skill-harness.js
         run: npm test
 
   # The agents-lockstep job that used to live here is gone, replaced by `generate:check`

@@ -52,16 +52,7 @@ test("install writes only principal-* by default", () => {
   const { env, dir } = fresh();
   assert.equal(quiet(() => run(["install"], env)), 0);
   const files = ls(dir);
-  assert.deepEqual(files, ["principal-debug.md", "principal-plan.md", "principal-review.md"]);
-  assert.ok(!files.includes("plan.md"), "generic aliases must not install without the flag");
-});
-
-test("the generic aliases need an explicit compatibility flag", () => {
-  const { env, dir } = fresh();
-  quiet(() => run(["install", "--with-generic-aliases"], env));
-  assert.deepEqual(ls(dir), [
-    "debug.md", "plan.md", "principal-debug.md", "principal-plan.md", "principal-review.md", "review.md",
-  ]);
+  assert.deepEqual(files, ["principal-build.md", "principal-debug.md", "principal-plan.md", "principal-review.md"]);
 });
 
 test("installed agents are real files, not symlinks into the checkout", () => {
@@ -169,26 +160,15 @@ test("an already-current file is still recorded as owned", () => {
   // left uninstall a permanent no-op.
   const { env, dir } = fresh();
   mkdirSync(dir, { recursive: true });
-  for (const f of sources().namespaced) {
+  for (const f of sources()) {
     writeFileSync(join(dir, f), readFileSync(join(ROOT_AGENTS, f), "utf8"));
   }
   quiet(() => run(["install"], env));
   const manifest = JSON.parse(readFileSync(join(dir, ".principal-pi-skills.json"), "utf8"));
-  assert.equal(Object.keys(manifest.files).length, 3, "already-current files must be recorded");
+  assert.equal(Object.keys(manifest.files).length, 4, "already-current files must be recorded");
 
   quiet(() => run(["uninstall"], env));
   assert.deepEqual(ls(dir), [], "and uninstall must then remove them");
-});
-
-test("check verifies everything we own, not just what this run would install", () => {
-  // A check without --with-generic-aliases used to report green while previously-installed
-  // generic aliases rotted — the drift check blind to files it is responsible for.
-  const { env, dir } = fresh();
-  quiet(() => run(["install", "--with-generic-aliases"], env));
-  assert.equal(quiet(() => run(["check"], env)), 0);
-
-  writeFileSync(join(dir, "plan.md"), "locally edited generic alias\n");
-  assert.equal(quiet(() => run(["check"], env)), 1, "drift in an owned generic alias must fail check");
 });
 
 test("uninstall never touches an unrelated agent", () => {
@@ -206,10 +186,8 @@ test("unknown flags and commands are usage errors, not silent no-ops", () => {
   assert.equal(quiet(() => run([], env)), 2);
 });
 
-test("every source agent is namespaced or a known generic alias", () => {
-  const { namespaced, generic } = sources();
-  assert.deepEqual(namespaced, ["principal-debug.md", "principal-plan.md", "principal-review.md"]);
-  assert.deepEqual(generic, ["debug.md", "plan.md", "review.md"]);
+test("every source agent is namespaced", () => {
+  assert.deepEqual(sources(), ["principal-build.md", "principal-debug.md", "principal-plan.md", "principal-review.md"]);
 });
 
 test("the developer's real agents directory was never touched", () => {

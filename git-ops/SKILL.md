@@ -133,14 +133,11 @@ the rewrite IS the operation, and their version is not the primary or the fallba
 | Find the breaking commit | `git bisect run <test-command>` |
 
 ## Finish mode
-Standard and critical require a fresh attributable receipt: command, exit, head SHA, candidate
-tree SHA, and timestamp/sequence; “tests passed” is insufficient. Compute via an initially absent
-temporary `GIT_INDEX_FILE`: `git read-tree HEAD`, `git add -A`, `git write-tree`.
-Refuse without it. Offer exactly: **merge locally**, **push/open PR**, or **keep the branch**. Start
-recorded Git-Ops, record one choice, then run `finalize`. The staged `git write-tree` and final
-`HEAD^{tree}` must match the receipt; otherwise rerun evidence/review. For push, record approval last
-and run `side-effect` immediately before it. Append `finalization_completed` with final
-branch/head/tree, then run `finish`. Discard/cleanup requires an explicit request.
+When a workflow hands you a reviewed branch: run the full suite on the tree you are about
+to integrate and quote the result line — a green run earlier in the session proves nothing
+about this tree. Then offer exactly three choices and wait: **merge locally**, **push and
+open a PR**, or **keep the branch**. Discarding work happens only on an explicit request,
+with the branch, commits, and worktree named before the user confirms.
 
 ## Right-sizing
 A one-word docs fix gets a clean commit with a good message — not a branch-and-PR dance

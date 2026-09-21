@@ -5,7 +5,7 @@ description: >
   "break this down", "how should I implement this", "where do I start", "what's the order
   of work", "scope this refactor", "plan the fix". Produces the plan and per-step specs;
   writes no code. Not for system-level design (architect) or diagnosing failures (debug).
-allowed-tools: read, grep, find, ls
+allowed-tools: read, grep, find, ls, write
 ---
 
 # Plan — Slices and Specs
@@ -48,37 +48,6 @@ behavior, and the test that proves it.
    [ONE-WAY] step (schema migration, public API change, data deletion) with a rollback note
    and a kill criterion.
 
-## Critical plan contract
-These rules apply only to Critical scope; non-Critical plans keep the right-sized forms below.
-Critical plans never abbreviate. Before `Steps:`, emit concrete `Authority:`, `Global constraints:`,
-`Out of scope:`, and a `Critical scope:` summary, then `Assumptions:` and `Task-packet handoff:`.
-Every task repeats its concrete `Critical scope:` match and emits `Task ID:`, `Files:`,
-`Dependencies:`, `Change:`, `Test:`, `Done command:`, `Expected result:`, `Review risk:`, and
-`Ripples:` values.
-
-Every Critical task names a stable test file and test name; test level and edge cases remain explicit.
-`Done command:` is one literal, targeted, proposed repository-local verification invocation selecting
-that file or test name, with the expected result in its separate field. It is declarative, untrusted
-Plan output—not execution authorization—and is never automatically executed by Plan or packet
-persistence. Downstream Build must inspect it against the repository before choosing whether to
-execute it; this version provides no deterministic command or approval enforcement. Do not emit `TBD`, angle-bracket tokens, bare `node --test`, generic
-“run tests” prose, or another broad untargeted command.
-
-When repository context supplies real paths, tests, and commands, use those exact observed values.
-When context is absent, propose concrete paths, names, and commands under clearly labelled
-Assumptions requiring validation; never claim they were observed. Runtime enforcement of command
-syntax, discovery identity, authority digests, and event-log migration is deferred to a future
-versioned runtime contract and is not claimed here.
-
-The controller—not Plan—owns packet persistence. Plan defines task content and stable `task_id`;
-the controller supplies `schema_version`, `run_id`, `workspace_id`, `plan_digest`, and
-`definition_digests`. Include that distinction in `Task-packet handoff:` without inventing
-controller-owned identities or digests.
-
-Every task remains a vertical behavioral slice delivering an independently testable user or system
-outcome. Critique, packet persistence, review, handoff, and test-only ceremony are controller work,
-not delivery slices; never add one as a final task.
-
 ## Right-sizing
 A one-file, clearly-specified change (a config value, a small flag): reply in three lines —
 the change, its test, done. Literally this shape, and nothing after it:
@@ -109,43 +78,32 @@ pick the option most consistent with the codebase and record it under Assumption
 than asking.
 
 ## Output — plan
-Output **task definitions**: authority/constraints/scope, files/dependencies, behavior/test, done
-command, and review risk. The controller adds run/workspace IDs and current digests, validates the
-task-packet schema, and persists; Plan never invents them. Critical always emits a task definition
-but omits unrelated ceremony.
-
-Critical work follows the exact Critical contract above and does not copy the generic template.
-For non-Critical multi-step work, use the template below. Trivial reversible work gets three lines:
-change, test, done. Small clear work gets two or three slices with a done-signal; omit Risks, spikes,
-and dependency annotations because step order suffices. Unknown codebase facts are Assumptions. A
+Trivial reversible work gets three lines: change, test, done. Small clear work gets two or
+three slices with a done-signal; omit Risks and dependency annotations because step order
+suffices. Multi-step work uses the template below. Unknown codebase facts are Assumptions. A
 real [ONE-WAY] always survives.
+
+**Multi-step plans are written to a file.** When you emit the template below, also write it
+verbatim to `.principal/plans/<slug>.md` at the repository root (create
+`.principal/.gitignore` containing `*` if absent) and end your message with
+`Plan file: <path>`. Build agents read their step from it; a resumed session reads it
+instead of re-planning. Write no other file. No repository → plan in chat only.
 ```
 ## Plan: <outcome, one sentence>
-Authority: <requirement IDs, approved design, or exact user request>
-Global constraints: <limits every task must preserve>
+Authority: <approved design, requirement, or exact user request>
 Out of scope: <explicit exclusions> | none
 Conventions observed: <naming / error / test patterns found in the codebase>
 Risks: <risk → mitigation or spike step>
 Steps:
   1. Walking skeleton — <thinnest real path through every named seam> — proves: <each seam, exercised for real>
-     Task ID: task-1
-     Critical scope: <why this task matches> | not critical
      Files: <paths>
-     Dependencies: none
      Change: <signatures + exact behavior>
-     Test: <name, level, edge cases>
-     Done command: <exact command + expected result>
-     Review risk: <highest-risk behavior reviewers must attack>
+     Test: <name, level, edge cases; the command that runs it>
      Ripples: <callers, config, migrations> | none
   2. <step name>  [after: 1]  [ONE-WAY: <rollback + kill criterion>]
-     Task ID: <stable ID>
-     Critical scope: <matched task/path selector> | not critical
      Files: <paths>
-     Dependencies: <task IDs> | none
      Change: <signatures + exact behavior>
-     Test: <name, level, edge cases>
-     Done command: <exact command + expected result>
-     Review risk: <risk or boundary>
+     Test: <name, level, edge cases; the command that runs it>
      Ripples: <callers, config, migrations> | none
   3. …
 Parallel-safe: <which steps> | none
@@ -161,5 +119,3 @@ Next: build
 | Accept "plan it as one step" for multi-part work | Decompose anyway and say why: one giant step blocks parallel work, hides risk, and has no honest done-signal. |
 | Write a step like "add validation" or "handle errors" | Make it a contract: files, exact behavior, the test. If you can't name the test, it's too vague. |
 | Spec a file you haven't opened | Open it. A spec for a fiction wastes everyone's time. |
-| Leave a Critical task's tests as the builder's homework | Name each test file and test case, its level, edge cases, and safe literal targeted command. |
-| Add an assurance-only Critical task or final review/test/handoff slice | Keep behavioral delivery vertical; the controller owns discovery, critique, packet persistence, review, and handoff. |

@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 /**
- * Render dual-use skill/agent contracts plus the namespaced workflow prompts and their
- * deprecated full-workflow aliases from source templates.
+ * Render dual-use skill/agent contracts plus the namespaced workflow prompts from source
+ * templates.
  *
  * `plan`, `review` and `debug` each exist twice: an interactive contract loaded as a skill,
  * and a single-shot contract handed to a subagent as its system prompt. The two are 74–84%
@@ -14,7 +14,7 @@
  * explicit:
  *
  *     {{#skill}} …only in <skill>/SKILL.md… {{/skill}}
- *     {{#agent}} …only in agents/<skill>.md… {{/agent}}
+ *     {{#agent}} …only in agents/principal-<skill>.md… {{/agent}}
  *     {{#feature}} / {{#bugfix}} select workflow-specific steps; unblocked text is shared.
  *
  * Anything outside a block appears in both. Marker lines are consumed; they never reach the
@@ -46,35 +46,30 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const CONTRACTS = ["plan", "review", "debug"];
+const CONTRACTS = ["plan", "review", "debug", "build"];
 
 /**
- * Three outputs per contract:
+ * Two outputs per contract:
  *
- *   skill            <skill>/SKILL.md          the interactive contract
- *   agent            agents/<skill>.md         the subagent contract, generic name
- *   agent-namespaced agents/principal-<skill>.md  the same, under a collision-proof name
+ *   skill  <skill>/SKILL.md            the interactive contract
+ *   agent  agents/principal-<skill>.md the subagent contract, under a collision-proof name
  *
- * The namespaced pair exists because agent names are a flat global registry in the pi
- * agents directory: a bare `plan.md` from this package and a `plan.md` from anywhere else
- * are the same slot, and whichever lands second wins silently. `principal-*` is what the
- * workflows delegate to; the generic names stay as deprecated aliases and are only
- * installed behind an explicit compatibility flag.
+ * The agent is namespaced because agent names are a flat global registry in the pi agents
+ * directory: a bare `plan.md` from this package and a `plan.md` from anywhere else are the
+ * same slot, and whichever lands second wins silently. `principal-*` is the only name this
+ * package ever installs.
  *
  * It is generated rather than copied for the reason PR 3 exists: a hand-maintained third
  * copy of an 80%-shared contract is a third chance to drift.
  */
 export const MODES = {
   skill: { block: "skill", path: (s) => `${s}/SKILL.md`, name: (s) => s },
-  agent: { block: "agent", path: (s) => `agents/${s}.md`, name: (s) => s },
-  "agent-namespaced": { block: "agent", path: (s) => `agents/principal-${s}.md`, name: (s) => `principal-${s}` },
+  agent: { block: "agent", path: (s) => `agents/principal-${s}.md`, name: (s) => `principal-${s}` },
 };
 
 export const WORKFLOW_MODES = {
   feature: { block: "feature", path: "prompts/principal-feature.md" },
   bugfix: { block: "bugfix", path: "prompts/principal-bugfix.md" },
-  "feature-alias": { block: "feature", path: "prompts/feature.md", alias: "feature", supported: "principal-feature" },
-  "bugfix-alias": { block: "bugfix", path: "prompts/bugfix.md", alias: "bugfix", supported: "principal-bugfix" },
 };
 
 const OPEN = /^\{\{#(skill|agent|feature|bugfix)\}\}$/;
@@ -120,17 +115,7 @@ export function render(template, mode, source = "<template>", vars = {}) {
 }
 
 export function renderWorkflow(template, spec, source = "contracts/workflows.md.tmpl") {
-  const rendered = render(template, spec.block, source);
-  if (!spec.alias) return rendered;
-  const closingFrontmatter = rendered.indexOf("\n---\n", 4);
-  if (!rendered.startsWith("---\n") || closingFrontmatter === -1) {
-    throw new Error(`${source}: workflow rendering has no frontmatter for deprecated alias ${spec.alias}`);
-  }
-  const body = rendered.slice(closingFrontmatter + 5);
-  const notice =
-    `\`/${spec.alias}\` is a deprecated alias; \`/${spec.supported}\` is the supported command. ` +
-    `Execute the complete workflow below for \`$@\` and mention the deprecation once in the closing digest.\n\n`;
-  return `---\ndescription: DEPRECATED alias for /${spec.supported}. Same risk-adaptive workflow.\n---\n${notice}${body}`;
+  return render(template, spec.block, source);
 }
 
 // Importing this file (the unit tests do) must not run the CLI — otherwise `node --test`
