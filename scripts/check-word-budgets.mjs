@@ -41,15 +41,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // model needed. Prose that earns its place should not be squeezed by a number that was
 // guessed before the content existed.
 //
-// `git-ops` is a standing exception at 2000 for its safety playbook. `plan` is 1700 and its
-// single-shot agent is 1900 because the Critical contract must carry canonical packet ownership,
-// concrete-test/command rules, no-context discovery, and vertical-slice governors in the same
-// model-visible file. Trimming those coupled requirements to the generic ceiling reproduced a
-// measured cross-model omission; the exception is local rather than raising every contract's cap.
+// `git-ops` is a standing exception at 2000 for its safety playbook.
 //
 // These are still ceilings, not targets — the check exists so growth is a decision someone
 // makes, not something that happens.
-const BUDGETS = { skill: 1400, agent: 1500, plan: 1700, "plan-agent": 1900, "git-ops": 2000 };
+const BUDGETS = { skill: 1400, agent: 1500, "git-ops": 2000 };
 
 const words = (p) => {
   const t = readFileSync(join(ROOT, p), "utf8").trim();
@@ -61,7 +57,7 @@ const errors = [];
 const checked = [];
 
 // Table rows: | `skill` | what | how it runs | words |
-// The "how it runs" cell may name an agent twin and its own count: (`agents/plan.md`, 1315)
+// The "how it runs" cell may name an agent twin and its own count: (`agents/principal-plan.md`, 1425)
 for (const line of readme.split("\n")) {
   const row = line.match(/^\|\s*`([a-z-]+)`\s*\|(.*)\|\s*(\d+)\s*\|\s*$/);
   if (!row) continue;
