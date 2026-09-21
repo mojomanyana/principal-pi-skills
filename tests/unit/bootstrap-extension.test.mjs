@@ -55,6 +55,18 @@ test("after compaction the bootstrap lands after the summary", async () => {
   assert.equal(r.messages[2], user);
 });
 
+test("a compaction summary that quotes the marker does not suppress re-injection", async () => {
+  const h = await load();
+  await one(h, "session_compact")({}, {});
+  const summary = { role: "compactionSummary", summary: "…the principal-pi-skills bootstrap said…", content: [{ type: "text", text: "principal-pi-skills bootstrap" }], timestamp: 1 };
+  const user = { role: "user", content: [{ type: "text", text: "go" }], timestamp: 2 };
+  const r = await one(h, "context")({ messages: [summary, user] }, {});
+  assert.ok(r, "bootstrap must be injected");
+  assert.equal(r.messages[0], summary);
+  assert.match(text(r.messages[1]), /principal-pi-skills bootstrap/);
+  assert.equal(r.messages[2], user);
+});
+
 test("BOOTSTRAP.md stays under 300 words and carries the routing table", () => {
   const t = readFileSync(join(ROOT, "bootstrap/BOOTSTRAP.md"), "utf8");
   assert.ok(t.trim().split(/\s+/).length <= 300, "bootstrap over 300 words");

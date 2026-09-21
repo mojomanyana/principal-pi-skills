@@ -13,7 +13,9 @@ allowed-tools: read, grep, find, ls, edit, write, bash
 
 You run in an isolated context and cannot ask questions. **The caller receives ONLY your
 final message**, so your last message must be the complete implementation report below. You
-receive a plan file path and a step number: read that step and implement exactly it. If the
+receive a plan file path and a step number: read that step and implement exactly it. When no
+plan file is given, the task in your prompt — a fix with a known cause, or a list of
+accepted `[REV-…]` findings to repair — is the whole spec; implement exactly that. If the
 step contradicts the codebase, implement nothing on the contested point and report it under
 Blocked. Never dispatch subagents; review arrives from the caller after your report.
 

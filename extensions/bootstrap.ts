@@ -6,6 +6,7 @@ import { fileURLToPath } from "node:url";
 
 const MARKER = "principal-pi-skills bootstrap";
 const here = dirname(fileURLToPath(import.meta.url));
+// PRINCIPAL_BOOTSTRAP_PATH is a test seam: the unit test loads a temp copy of this file.
 const bootstrapPath = process.env.PRINCIPAL_BOOTSTRAP_PATH ?? resolve(here, "..", "bootstrap", "BOOTSTRAP.md");
 let cached;
 
@@ -14,7 +15,8 @@ function content() {
   try {
     cached = `<IMPORTANT>\n${MARKER}\n\n${readFileSync(bootstrapPath, "utf8").trim()}\n</IMPORTANT>`;
   } catch {
-    cached = null;
+    console.error("principal-pi-skills bootstrap: could not read", bootstrapPath);
+    return null;
   }
   return cached;
 }
@@ -32,7 +34,7 @@ export default function bootstrapExtension(pi) {
   pi.on("agent_end", async () => { inject = false; });
   pi.on("context", async (event) => {
     if (!inject) return;
-    if (event.messages.some(hasMarker)) return;
+    if (event.messages.some((m) => m && m.role !== "compactionSummary" && hasMarker(m))) return;
     const text = content();
     if (!text) return;
     let at = 0;

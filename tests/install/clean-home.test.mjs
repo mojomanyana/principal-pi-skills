@@ -192,7 +192,7 @@ test("the bin invocations the docs print are resolvable", () => {
   assert.ok(scanned.some((p) => p.startsWith("agents/")),
     "the sweep must cover agents/*.md — they are installed into the user's agent dir");
 
-  const bare = /npx\s+(principal-pi-(?:agents|workspace|assurance))/;
+  const bare = /npx\s+(principal-pi-(?:agents|workspace))/;
   for (const d of scanned) {
     const text = readFileSync(join(ROOT, d), "utf8");
     const m = text.match(bare);

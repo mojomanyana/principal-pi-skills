@@ -84,7 +84,7 @@ suffices. Multi-step work uses the template below. Unknown codebase facts are As
 real [ONE-WAY] always survives.
 
 **Multi-step plans are written to a file.** When you emit the template below, also write it
-verbatim to `.principal/plans/<YYYY-MM-DD>-<slug>.md` at the repository root (create
+verbatim to `.principal/plans/<slug>.md` at the repository root (create
 `.principal/.gitignore` containing `*` if absent) and end your message with
 `Plan file: <path>`. Build agents read their step from it; a resumed session reads it
 instead of re-planning. Write no other file. No repository → plan in chat only.

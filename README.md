@@ -45,7 +45,7 @@ around.
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1053 |
 | `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1146 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1425) or inline | 1204 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1160) or inline | 1111 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1195) or inline | 1111 |
 | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1202) or inline | 1174 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1455) or inline | 1321 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1976 |
@@ -72,7 +72,7 @@ failure the rule exists to catch. The artifact scales with the change (three lin
 config tweak, full slices for a feature); the stop does not.
 
 When plan's output is the multi-step template, it writes the plan to
-`.principal/plans/<date>-<slug>.md` and prints the path; `.principal/.gitignore` is created
+`.principal/plans/<slug>.md` and prints the path; `.principal/.gitignore` is created
 alongside it on first use, so the directory is git-ignored and self-ignoring. Delegated
 `principal-build` agents read their assigned step from that file, and a fresh or compacted
 session that finds a matching plan resumes from it: read the file and `git log`, mark done
