@@ -75,7 +75,12 @@ Typical spines (available as prompt templates):
   architectural or still contested.
 - Bug (`/principal-bugfix <symptom>`): debug → approval stop → build → review → git-ops
   finish. If debug's note says design flaw, stop and surface it.
-- Either spine, when the subagent tool is missing or reports an unknown agent: run that
+- Refactor (`/principal-refactor <scope>`): the feature spine with a no-behavior-change
+  frame — existing tests pass unchanged, uncovered behavior gets a characterization test first.
+- Review a branch (`/principal-review-branch [base]`): cold `principal-review` of
+  `merge-base <base> HEAD..HEAD`, then git-ops finish mode on APPROVE; findings stop for the
+  user otherwise. No plan, no build.
+- Any spine, when the subagent tool is missing or reports an unknown agent: run that
   phase's skill inline instead and say so in the digest. Fall back on *absence* only —
   any other agent failure stops the workflow. Build↔review repair loops stop after two
   rounds; a third means the plan or the diagnosis was wrong, not the code.
@@ -108,8 +113,8 @@ to every output.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.0.1` — installs the seven
-   skills, the `/principal-feature` and `/principal-bugfix` commands, and the bootstrap
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.1.0` — installs the seven
+   skills, the four `/principal-*` commands, and the bootstrap
    extension, which loads automatically with the package. Install a tag, not a branch.
 2. Subagents (optional): `npx -p principal-pi-skills principal-pi-agents install` copies
    the four agent definitions into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses

@@ -18,7 +18,9 @@ delegated. A subagent never invokes another agent — you read its `Next:` line 
 plan → `build`; debug → `build` `plan` `done` `blocked`; build → `review` `debug` `blocked`;
 review → `build` `git-ops`. `decide`, `architect`, `git-ops` end without a `Next:`.
 
-Multi-step work goes through `/principal-feature <task>` or `/principal-bugfix <symptom>`,
+Multi-step work goes through `/principal-feature <task>`, `/principal-bugfix <symptom>`, or
+`/principal-refactor <scope>`; `/principal-review-branch [base]` cold-reviews and finishes a
+branch built outside them. The spines
 which stop for your approval after planning and can resume from `.principal/plans/`.
 
 Model choice when you dispatch: cheapest model for a build agent working from a complete

@@ -58,15 +58,16 @@ automatically at session start, so nothing needs to point pi at it by hand.
 ## Bootstrap and workflows
 
 A pi extension (`extensions/bootstrap.ts`) injects `bootstrap/BOOTSTRAP.md` — about 250
-words — as a system message at session start and again after compaction, so the routing
+words — as a leading message at session start and again after compaction, so the routing
 context survives a context reset instead of depending on someone re-reading a file. It
 carries the routing table compressed to input shape → skill → inline/subagent, the closed
 `Next:` vocabulary the phases hand off with, and model tiering: the cheapest model for a
 build agent working a complete step spec, the session default for plan and debug, the
 strongest available for review and architect.
 
-Both workflow prompts (`/principal-feature`, `/principal-bugfix`) stop for your approval
-after the planning phase (feature) or the debug note (bugfix) and wait for an explicit go
+The three spines (`/principal-feature <task>`, `/principal-bugfix <symptom>`,
+`/principal-refactor <scope>`) stop for your approval after the planning phase or the debug
+note and wait for an explicit go
 before building — presenting the artifact and starting to build in the same turn is the
 failure the rule exists to catch. The artifact scales with the change (three lines for a
 config tweak, full slices for a feature); the stop does not.
@@ -100,11 +101,11 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.0.1
+   pi install git:github.com/mojomanyana/principal-pi-skills@v4.1.0
    ```
 
-   The `pi` manifest registers the seven skills, the `/principal-feature` and
-   `/principal-bugfix` commands, and the bootstrap extension — it loads automatically with
+   The `pi` manifest registers the seven skills, the four `/principal-*` commands, and the
+   bootstrap extension — it loads automatically with
    the package; there is no separate extension-install step. Unpinned `main` moves under
    you, so install a tag if you want a fixed, nameable behavior.
 

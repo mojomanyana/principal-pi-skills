@@ -39,7 +39,7 @@ const SOURCES = {
   build: "contracts/build.md.tmpl",
 };
 
-const WORKFLOWS = ["prompts/principal-feature.md", "prompts/principal-bugfix.md"];
+const WORKFLOWS = ["prompts/principal-feature.md", "prompts/principal-bugfix.md", "prompts/principal-refactor.md"];
 
 /** Verdicts review can actually return, read from the contract rather than restated here. */
 const REVIEW_VERDICTS = readFileSync(join(ROOT, "contracts/review.md.tmpl"), "utf8")
@@ -151,4 +151,14 @@ test("AGENTS.md documents the same set the contracts declare", () => {
       assert.ok(row.includes(`\`${v}\``), `AGENTS.md's ${phase} row omits \`${v}\``);
     }
   }
+});
+
+test("the review-branch prompt reviews and finishes but never plans or builds", () => {
+  const text = read("prompts/principal-review-branch.md");
+  assert.match(text, /principal-review/, "must delegate to the review agent");
+  assert.match(text, /CHANGES-REQUESTED/);
+  assert.match(text, /UNVERIFIED/);
+  assert.match(text, /finish mode/i, "must hand off to git-ops finish mode on approval");
+  assert.doesNotMatch(text, /principal-plan|principal-build|\.principal\/plans/, "review-branch has no plan or build phase");
+  assert.match(text, /\$\{1:-main\}/, "base branch defaults to main via a template argument");
 });
