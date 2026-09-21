@@ -1,11 +1,11 @@
 ---
 name: architect
 description: >
-  Use for system design, significant technical choices (SQL vs NoSQL, monolith vs services,
-  build vs buy, sync vs async), architecture review, migration planning, scaling questions,
-  or recording an architecture decision — "how should I structure", "design a system that",
-  "should we adopt X", "plan the migration", "review our architecture", "write an ADR".
-  Not for code-level planning of a single change.
+  Use for how a system should be structured — "how should I structure", "design a system
+  that", "SQL vs NoSQL for this workload", "monolith vs services", "review our
+  architecture", "plan the migration", "write an ADR". The output is a design note with
+  measurable drivers. Not for a yes/no or which-vendor decision without a structure to
+  design (decide), or code-level planning of one change (plan).
 allowed-tools: read, grep, find, ls
 ---
 
