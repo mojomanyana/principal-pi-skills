@@ -36,7 +36,7 @@ const SOURCES = {
   plan: "contracts/plan.md.tmpl",
   debug: "contracts/debug.md.tmpl",
   review: "contracts/review.md.tmpl",
-  build: "build/SKILL.md",
+  build: "contracts/build.md.tmpl",
 };
 
 const WORKFLOWS = ["prompts/principal-feature.md", "prompts/principal-bugfix.md"];

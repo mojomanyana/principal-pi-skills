@@ -65,7 +65,7 @@ test("the tarball ships every runtime file a user needs", () => {
   for (const p of ["principal-feature", "principal-bugfix"]) {
     if (!files.includes(`prompts/${p}.md`)) missing.push(`prompts/${p}.md`);
   }
-  for (const a of ["principal-plan", "principal-review", "principal-debug"]) {
+  for (const a of ["principal-plan", "principal-review", "principal-debug", "principal-build"]) {
     if (!files.includes(`agents/${a}.md`)) missing.push(`agents/${a}.md`);
   }
   if (!files.includes("scripts/install-agents.mjs")) missing.push("scripts/install-agents.mjs");
@@ -113,7 +113,7 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   });
 
   const agents = readdirSync(join(piDir, "agents")).filter((f) => f.endsWith(".md")).sort();
-  assert.deepEqual(agents, ["principal-debug.md", "principal-plan.md", "principal-review.md"]);
+  assert.deepEqual(agents, ["principal-build.md", "principal-debug.md", "principal-plan.md", "principal-review.md"]);
 
   const realAfter = existsSync(join(homedir(), ".pi", "agent", "agents"))
     ? readdirSync(join(homedir(), ".pi", "agent", "agents")).sort().join(",")

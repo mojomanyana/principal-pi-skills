@@ -46,7 +46,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const CONTRACTS = ["plan", "review", "debug"];
+const CONTRACTS = ["plan", "review", "debug", "build"];
 
 /**
  * Two outputs per contract:

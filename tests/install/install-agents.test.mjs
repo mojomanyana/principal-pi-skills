@@ -52,7 +52,7 @@ test("install writes only principal-* by default", () => {
   const { env, dir } = fresh();
   assert.equal(quiet(() => run(["install"], env)), 0);
   const files = ls(dir);
-  assert.deepEqual(files, ["principal-debug.md", "principal-plan.md", "principal-review.md"]);
+  assert.deepEqual(files, ["principal-build.md", "principal-debug.md", "principal-plan.md", "principal-review.md"]);
 });
 
 test("installed agents are real files, not symlinks into the checkout", () => {
@@ -165,7 +165,7 @@ test("an already-current file is still recorded as owned", () => {
   }
   quiet(() => run(["install"], env));
   const manifest = JSON.parse(readFileSync(join(dir, ".principal-pi-skills.json"), "utf8"));
-  assert.equal(Object.keys(manifest.files).length, 3, "already-current files must be recorded");
+  assert.equal(Object.keys(manifest.files).length, 4, "already-current files must be recorded");
 
   quiet(() => run(["uninstall"], env));
   assert.deepEqual(ls(dir), [], "and uninstall must then remove them");
@@ -187,7 +187,7 @@ test("unknown flags and commands are usage errors, not silent no-ops", () => {
 });
 
 test("every source agent is namespaced", () => {
-  assert.deepEqual(sources(), ["principal-debug.md", "principal-plan.md", "principal-review.md"]);
+  assert.deepEqual(sources(), ["principal-build.md", "principal-debug.md", "principal-plan.md", "principal-review.md"]);
 });
 
 test("the developer's real agents directory was never touched", () => {
