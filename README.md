@@ -93,9 +93,6 @@ scripts/                              generator, installers, and checks behind `
 tests/{unit,install}/                 unit + clean-home install tests (node:test)
 AGENTS.md                             routing + dispatch reference; the bootstrap injects its table automatically
 CHANGELOG.md                          release history
-docs/specs/                           design specs for each refactor, e.g. this one
-docs/plans/                           the SDD task plans a spec was executed from
-docs/demos/                           the chains running end to end, repo-verified (historical, v2-shaped runs)
 ```
 
 ## Install (pi)
@@ -150,6 +147,35 @@ board were removed in this release; model measurement restarts in a separate rep
 from scratch. `npm test` remains the
 free gate: generated-contract drift, word budgets, frontmatter lint, installer and tarball
 behavior, and `Next:` transition parity.
+
+## Why 4.0
+
+Version 3.x grew a risk-adaptive assurance controller — a hash-chained event ledger, task
+packets, digests, fail-closed gates — whose protocol leaked into the model-facing skill text
+and whose init step ran before every workflow, including a typo fix. The routing layer in
+`AGENTS.md` was never loaded by pi, the feature spine had no human approval point outside
+critical mode, and every build ran inline so long features filled the steering context with
+diffs and test output. The seven skills were the strongest part of the repo and 12% of its
+Markdown. 4.0 returns the repo to skills plus a thin orchestration layer and borrows four
+mechanisms from [superpowers](https://github.com/obra/superpowers) that serve the north star.
+
+Decisions taken for 4.0, all closed:
+
+| Decision | Chosen |
+|---|---|
+| Target harness | pi only |
+| Assurance ledger and profiles | removed; per-skill right-sizing is the mechanism; the tool lives on the `v3.2.0` tag for porting to pi-daddy |
+| Human approval | always, after plan (feature) or after the debug note (bugfix); the artifact scales, the stop does not |
+| Routing delivery | a pi extension injects `bootstrap/BOOTSTRAP.md` at session start and after compaction |
+| Build delegation | `principal-build` agent; inline when there is no multi-step plan file or no subagent tool |
+| Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; no date prefix because plan has no clock, and resume matches on the `## Plan:` line |
+| Decide vs architect | both kept; decide answers "should we / which", architect answers "how is it structured" |
+| Measurement | skill-harness specs, results, fixtures and E2E removed; restarts in a separate repo |
+
+Two implementation notes that differ from the obvious reading: the bootstrap is injected as
+a user-role message wrapped in `<IMPORTANT>`, because pi's `context` hook can only insert
+messages; and a delegated `principal-build` may run without a plan file (the bugfix spine and
+repair rounds), in which case the prompt's task is its whole spec.
 
 ## Deliberate design rules
 
