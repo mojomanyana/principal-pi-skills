@@ -1,17 +1,27 @@
-{{! GENERATED WORKFLOWS — this template is the source of truth for both spines.
-{{! Edit here, then npm run generate. Text outside feature/bugfix blocks is shared.
+{{! GENERATED WORKFLOWS — this template is the source of truth for the three spines.
+{{! Edit here, then npm run generate. Text outside feature/bugfix/refactor blocks is shared.
+{{! prompts/principal-review-branch.md is hand-written: it has no planning phase, so it shares nothing here.
 {{#feature}}
 ---
 description: Feature spine — plan, approval, build, review, git-ops.
+argument-hint: "<task>"
 ---
 Execute this workflow for: $@
 {{/feature}}
 {{#bugfix}}
 ---
 description: Bugfix spine — debug, approval, build, review, git-ops.
+argument-hint: "<symptom>"
 ---
 Execute this workflow for: $@
 {{/bugfix}}
+{{#refactor}}
+---
+description: Refactor spine — the feature spine with a no-behavior-change frame.
+argument-hint: "<scope>"
+---
+Execute this workflow for: refactor $@ without changing behavior.
+{{/refactor}}
 
 <!-- shared:start -->
 ## How this chain runs
@@ -79,3 +89,19 @@ No transcript narration after it.
 5. Git-Ops finish mode and the Digest, which here gains one extra label first:
    `Root cause: <the diagnosed cause>` before `Ref:` — seven lines in total.
 {{/bugfix}}
+{{#refactor}}
+## Refactor path
+
+The request is a refactor of `$@`: structure changes, behavior does not.
+
+1. Invoke `principal-plan` (or Plan inline) with this frame: every step keeps the existing
+   tests passing unchanged — a test needing new assertions means behavior changed, so it is
+   a finding, not a step. Behavior the refactor touches that has no test gets a
+   characterization test pinning it first, as its own step. A `[ONE-WAY]` step (public API,
+   schema, data) must carry its rollback note.
+2. Approval stop. Then Build, step by step, as above.
+3. Review, with one extra question: does the diff change any observable behavior? If yes,
+   that is a `[BLOCKER]` finding regardless of quality. Repair loop as above. `Next: debug`
+   → `principal-debug` (or Debug inline); `Next: blocked` → stop.
+4. Git-Ops finish mode and the Digest.
+{{/refactor}}

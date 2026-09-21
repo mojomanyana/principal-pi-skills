@@ -6,6 +6,17 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.1.0] — 2026-09-21
+
+**Added.** Two prompt templates. `/principal-refactor <scope>` is the feature spine with a
+no-behavior-change frame: plan steps keep existing tests passing unchanged, uncovered behavior
+gets a characterization test first, and review treats any observable behavior change as a
+`[BLOCKER]`. `/principal-review-branch [base]` cold-reviews the current branch against `base`
+(default `main`) with `principal-review`, runs git-ops finish mode on APPROVE, and stops with
+findings otherwise; it has no plan or build phase and is hand-written rather than generated.
+All four prompts now carry an `argument-hint` for pi's autocomplete. The bootstrap and
+AGENTS.md name the two new commands. No skill or agent text changed.
+
 ## [4.0.1] — 2026-09-21
 
 Removed the seeded `<skill>/tests/fixtures/` trees (build, debug, git-ops) and the

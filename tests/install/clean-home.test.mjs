@@ -62,7 +62,7 @@ test("the tarball ships every runtime file a user needs", () => {
   const missing = [];
 
   for (const s of SKILLS) if (!files.includes(`${s}/SKILL.md`)) missing.push(`${s}/SKILL.md`);
-  for (const p of ["principal-feature", "principal-bugfix"]) {
+  for (const p of ["principal-feature", "principal-bugfix", "principal-refactor", "principal-review-branch"]) {
     if (!files.includes(`prompts/${p}.md`)) missing.push(`prompts/${p}.md`);
   }
   for (const a of ["principal-plan", "principal-review", "principal-debug", "principal-build"]) {
@@ -102,7 +102,7 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   });
 
   const installed = join(proj, "node_modules", "principal-pi-skills");
-  assert.equal(JSON.parse(readFileSync(join(installed, "package.json"), "utf8")).version, "4.0.1", "clean install must use the unreleased source pack");
+  assert.equal(JSON.parse(readFileSync(join(installed, "package.json"), "utf8")).version, "4.1.0", "clean install must use the unreleased source pack");
   assert.ok(existsSync(join(installed, "git-ops", "SKILL.md")), "skills must survive the install");
   assert.ok(existsSync(join(installed, "prompts", "principal-feature.md")));
 
@@ -271,7 +271,7 @@ test("pi resolves the package and materializes every resource it declares", { sk
   for (const rel of pkg.pi.skills) {
     assert.ok(existsSync(join(tree, rel, "SKILL.md")), `declared skill ${rel} is missing from the materialized tree`);
   }
-  for (const p of ["principal-feature", "principal-bugfix"]) {
+  for (const p of ["principal-feature", "principal-bugfix", "principal-refactor", "principal-review-branch"]) {
     assert.ok(existsSync(join(tree, "prompts", `${p}.md`)), `declared prompt ${p} is missing`);
   }
   assert.equal(pkg.pi.skills.length, SKILLS.length, "all seven skills must be declared");

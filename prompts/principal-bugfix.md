@@ -1,5 +1,6 @@
 ---
 description: Bugfix spine — debug, approval, build, review, git-ops.
+argument-hint: "<symptom>"
 ---
 Execute this workflow for: $@
 

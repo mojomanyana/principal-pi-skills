@@ -1,8 +1,8 @@
 ---
-description: Feature spine — plan, approval, build, review, git-ops.
-argument-hint: "<task>"
+description: Refactor spine — the feature spine with a no-behavior-change frame.
+argument-hint: "<scope>"
 ---
-Execute this workflow for: $@
+Execute this workflow for: refactor $@ without changing behavior.
 
 <!-- shared:start -->
 ## How this chain runs
@@ -44,13 +44,17 @@ force-push, or clean up. End with `Digest:` followed by one line per label, in t
 No transcript narration after it.
 <!-- shared:end -->
 
-## Feature path
+## Refactor path
 
-1. If the request is an architectural choice ("Postgres or DynamoDB", "design X"), run
-   Architect inline first and get the design approved before planning.
-2. Invoke `principal-plan` (or Plan inline). Any `[ONE-WAY]` step must carry its rollback
-   note; the approval stop covers it.
-3. Approval stop. Then Build, step by step, as above.
-4. Review. Repair loop as above. `Next: debug` → `principal-debug` (or Debug inline);
-   `Next: blocked` → stop.
-5. Git-Ops finish mode and the Digest.
+The request is a refactor of `$@`: structure changes, behavior does not.
+
+1. Invoke `principal-plan` (or Plan inline) with this frame: every step keeps the existing
+   tests passing unchanged — a test needing new assertions means behavior changed, so it is
+   a finding, not a step. Behavior the refactor touches that has no test gets a
+   characterization test pinning it first, as its own step. A `[ONE-WAY]` step (public API,
+   schema, data) must carry its rollback note.
+2. Approval stop. Then Build, step by step, as above.
+3. Review, with one extra question: does the diff change any observable behavior? If yes,
+   that is a `[BLOCKER]` finding regardless of quality. Repair loop as above. `Next: debug`
+   → `principal-debug` (or Debug inline); `Next: blocked` → stop.
+4. Git-Ops finish mode and the Digest.

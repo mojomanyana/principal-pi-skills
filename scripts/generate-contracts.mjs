@@ -15,7 +15,7 @@
  *
  *     {{#skill}} …only in <skill>/SKILL.md… {{/skill}}
  *     {{#agent}} …only in agents/principal-<skill>.md… {{/agent}}
- *     {{#feature}} / {{#bugfix}} select workflow-specific steps; unblocked text is shared.
+ *     {{#feature}} / {{#bugfix}} / {{#refactor}} select workflow-specific steps; unblocked text is shared.
  *
  * Anything outside a block appears in both. Marker lines are consumed; they never reach the
  * output. Blocks do not nest — a nested marker is an error rather than a guess.
@@ -70,10 +70,11 @@ export const MODES = {
 export const WORKFLOW_MODES = {
   feature: { block: "feature", path: "prompts/principal-feature.md" },
   bugfix: { block: "bugfix", path: "prompts/principal-bugfix.md" },
+  refactor: { block: "refactor", path: "prompts/principal-refactor.md" },
 };
 
-const OPEN = /^\{\{#(skill|agent|feature|bugfix)\}\}$/;
-const CLOSE = /^\{\{\/(skill|agent|feature|bugfix)\}\}$/;
+const OPEN = /^\{\{#(skill|agent|feature|bugfix|refactor)\}\}$/;
+const CLOSE = /^\{\{\/(skill|agent|feature|bugfix|refactor)\}\}$/;
 const COMMENT = /^\{\{!/;
 
 /**
