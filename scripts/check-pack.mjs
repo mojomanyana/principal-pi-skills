@@ -38,6 +38,8 @@ const REQUIRED = [
   ...["principal-plan", "principal-review", "principal-debug", "principal-build"].map((a) => `agents/${a}.md`),
   "scripts/install-agents.mjs",
   "scripts/snapshot-workspace.mjs",
+  "extensions/bootstrap.ts",
+  "bootstrap/BOOTSTRAP.md",
 ];
 
 /**

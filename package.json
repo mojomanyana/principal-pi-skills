@@ -41,6 +41,9 @@
         ],
         "prompts": [
             "./prompts"
+        ],
+        "extensions": [
+            "./extensions/bootstrap.ts"
         ]
     },
     "bin": {
@@ -60,7 +63,9 @@
         "prompts/*.md",
         "agents/*.md",
         "scripts/install-agents.mjs",
-        "scripts/snapshot-workspace.mjs"
+        "scripts/snapshot-workspace.mjs",
+        "extensions/bootstrap.ts",
+        "bootstrap/BOOTSTRAP.md"
     ],
     "devDependencies": {}
 }
