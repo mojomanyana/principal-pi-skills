@@ -34,8 +34,8 @@ const REQUIRED = [
   "CHANGELOG.md",
   "AGENTS.md",
   ...SKILLS.map((s) => `${s}/SKILL.md`),
-  ...["principal-feature", "principal-bugfix", "feature", "bugfix"].map((p) => `prompts/${p}.md`),
-  ...["principal-plan", "principal-review", "principal-debug", "plan", "review", "debug"].map((a) => `agents/${a}.md`),
+  ...["principal-feature", "principal-bugfix"].map((p) => `prompts/${p}.md`),
+  ...["principal-plan", "principal-review", "principal-debug"].map((a) => `agents/${a}.md`),
   "scripts/install-agents.mjs",
   "scripts/snapshot-workspace.mjs",
 ];

@@ -83,17 +83,6 @@ for (const [mode, spec] of Object.entries(WORKFLOW_MODES)) {
   });
 }
 
-for (const alias of ["feature-alias", "bugfix-alias"]) {
-  test(`${WORKFLOW_MODES[alias].path} embeds the complete workflow rather than a literal slash-command handoff`, () => {
-    const text = read(WORKFLOW_MODES[alias].path);
-    assert.match(text, /DEPRECATED alias/);
-    assert.match(text, /assurance-state\.mjs/);
-    assert.match(text, /node <tool> init --workflow/);
-    assert.match(text, /BLOCKED_CRITICAL_ASSURANCE/);
-    assert.doesNotMatch(text, /Run `\/principal-(feature|bugfix)` for:/);
-  });
-}
-
 for (const contract of ["plan", "review", "debug"]) {
   for (const [mode, spec] of Object.entries(MODES)) {
     test(`${contract}: ${spec.path(contract)} matches the template (${mode})`, () => {
@@ -112,12 +101,5 @@ for (const contract of ["plan", "review", "debug"]) {
     const template = read(`contracts/${contract}.md.tmpl`);
     const vars = { name: contract };
     assert.notEqual(render(template, "skill", "t", vars), render(template, "agent", "t", vars));
-  });
-
-  test(`${contract}: the namespaced agent differs from the generic one only in its name`, () => {
-    const template = read(`contracts/${contract}.md.tmpl`);
-    const generic = render(template, "agent", "t", { name: contract });
-    const namespaced = render(template, "agent", "t", { name: `principal-${contract}` });
-    assert.equal(namespaced.replace(`name: principal-${contract}`, `name: ${contract}`), generic);
   });
 }

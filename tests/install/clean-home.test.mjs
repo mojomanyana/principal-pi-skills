@@ -62,7 +62,7 @@ test("the tarball ships every runtime file a user needs", () => {
   const missing = [];
 
   for (const s of SKILLS) if (!files.includes(`${s}/SKILL.md`)) missing.push(`${s}/SKILL.md`);
-  for (const p of ["principal-feature", "principal-bugfix", "feature", "bugfix"]) {
+  for (const p of ["principal-feature", "principal-bugfix"]) {
     if (!files.includes(`prompts/${p}.md`)) missing.push(`prompts/${p}.md`);
   }
   for (const a of ["principal-plan", "principal-review", "principal-debug"]) {
@@ -271,7 +271,7 @@ test("pi resolves the package and materializes every resource it declares", { sk
   for (const rel of pkg.pi.skills) {
     assert.ok(existsSync(join(tree, rel, "SKILL.md")), `declared skill ${rel} is missing from the materialized tree`);
   }
-  for (const p of ["principal-feature", "principal-bugfix", "feature", "bugfix"]) {
+  for (const p of ["principal-feature", "principal-bugfix"]) {
     assert.ok(existsSync(join(tree, "prompts", `${p}.md`)), `declared prompt ${p} is missing`);
   }
   assert.equal(pkg.pi.skills.length, SKILLS.length, "all seven skills must be declared");

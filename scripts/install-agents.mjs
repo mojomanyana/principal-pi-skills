@@ -11,9 +11,8 @@
  *   and the workflow quietly falls back to inline. The previous documented install did
  *   exactly this (`ln -sf "$(pwd)"/agents/*.md`), and it also encoded whatever `$(pwd)`
  *   happened to be at the time.
- * - **`principal-*` only, by default.** A bare `plan.md` is a name anyone can claim. The
- *   generic aliases install only under --with-generic-aliases, and even then never over a
- *   file this package does not own.
+ * - **Only `principal-*` agents exist.** A bare `plan.md` is a name anyone can claim, so
+ *   this package never ships or installs one, and never writes over a file it does not own.
  * - **Never overwrite what we do not own.** Ownership is recorded in a manifest beside the
  *   agents, keyed by content hash. An unknown file with a name we want is a refusal, not a
  *   backup-and-replace: it is someone else's agent, in their home directory.
@@ -21,7 +20,7 @@
  *   A file the user has since edited is theirs now; we report it and leave it.
  *
  * Commands:
- *   principal-pi-agents install [--with-generic-aliases] [--force]
+ *   principal-pi-agents install [--force]
  *   principal-pi-agents check
  *   principal-pi-agents uninstall
  *
@@ -44,13 +43,9 @@ export function agentsDir(env = process.env, home = homedir()) {
   return join(env.PI_CODING_AGENT_DIR || join(home, ".pi", "agent"), "agents");
 }
 
-/** Source agents, split by whether they are namespaced. Both are generated from contracts/. */
+/** Source agents. All are generated from contracts/, and all are namespaced. */
 export function sources(root = ROOT) {
-  const all = readdirSync(join(root, "agents")).filter((f) => f.endsWith(".md")).sort();
-  return {
-    namespaced: all.filter((f) => f.startsWith("principal-")),
-    generic: all.filter((f) => !f.startsWith("principal-")),
-  };
+  return readdirSync(join(root, "agents")).filter((f) => f.endsWith(".md") && f.startsWith("principal-")).sort();
 }
 
 const readManifest = (dir) => {
@@ -137,9 +132,10 @@ function check({ dir, wanted }) {
     console.error(`✗ ${dir} does not exist — run \`principal-pi-agents install\``);
     return 1;
   }
-  // Check everything we own, not just what this invocation would install. Otherwise a
-  // `check` without --with-generic-aliases reports green while previously-installed generic
-  // aliases sit stale — the drift check missing exactly the files it is responsible for.
+  // Check everything we own, not just what this invocation would install. Otherwise check
+  // reports green while a stale file from an older install — e.g. a generic alias this
+  // package no longer ships — sits stale, the drift check missing exactly the file it is
+  // responsible for.
   const owned = Object.keys(readManifest(dir).files);
   const all = [...new Set([...wanted, ...owned])].filter((f) => existsSync(join(ROOT, "agents", f)));
   const { actions } = plan(dir, all);
@@ -189,12 +185,11 @@ export function run(argv, env = process.env) {
   const cmd = argv[0];
   const flags = new Set(argv.slice(1));
   const dir = agentsDir(env);
-  const src = sources();
-  const wanted = flags.has("--with-generic-aliases") ? [...src.namespaced, ...src.generic] : src.namespaced;
+  const wanted = sources();
   const force = flags.has("--force");
 
   for (const f of flags) {
-    if (!["--with-generic-aliases", "--force"].includes(f)) {
+    if (!["--force"].includes(f)) {
       console.error(`unknown flag: ${f}`);
       return 2;
     }
@@ -208,7 +203,7 @@ export function run(argv, env = process.env) {
     case "uninstall":
       return uninstall({ dir });
     default:
-      console.error("usage: principal-pi-agents <install|check|uninstall> [--with-generic-aliases] [--force]");
+      console.error("usage: principal-pi-agents <install|check|uninstall> [--force]");
       console.error(`\nagents directory: ${dir}`);
       console.error("  (override with PI_CODING_AGENT_DIR)");
       return cmd ? 2 : 2;
