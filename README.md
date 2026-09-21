@@ -44,9 +44,9 @@ around.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1053 |
 | `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1145 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1425) or inline | 1204 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1195) or inline | 1111 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1202) or inline | 1174 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1457) or inline | 1236 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1239) or inline | 1111 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1393) or inline | 1293 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1455) or inline | 1321 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1976 |
 
@@ -71,6 +71,13 @@ note and wait for an explicit go
 before building — presenting the artifact and starting to build in the same turn is the
 failure the rule exists to catch. The artifact scales with the change (three lines for a
 config tweak, full slices for a feature); the stop does not.
+
+Delegated phases hand artifacts to each other as files, not pasted text. A `principal-build`
+writes its full report to `.principal/reports/<step>-build.md` and returns five status lines;
+review is handed one diff package for the whole change plus those reports, treats a verbatim
+test-result line as evidence, and runs a test only for a named doubt. A repair round resumes
+the build agent where the tool allows and gets a scoped re-review of the fix diff against the
+open finding IDs. The `.principal/` directory ignores itself, so none of this reaches git.
 
 When plan's output is the multi-step template, it writes the plan to
 `.principal/plans/<slug>.md` and prints the path; `.principal/.gitignore` is created
