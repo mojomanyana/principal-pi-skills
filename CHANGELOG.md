@@ -13,7 +13,10 @@ fixture-hygiene unit test that guarded them. They were kept in 4.0.0 as raw mate
 external measurement repo, which will start from scratch instead; they remain on the `v4.0.0`
 tag. Also removed `docs/` entirely — the historical demo transcripts, the 4.0 design spec, and
 its task plan — and folded the spec's rationale and closed decisions into a new "Why 4.0"
-section of the README. No skill, agent, prompt, or bootstrap text changed.
+section of the README. Architect's design-note template loses two labels' leftover profile
+vocabulary (`Critical validation/observability` → `Validation/observability`, `Critical
+rollback/abort` → `Rollback/abort`, "critical consequential work" → "a high-stakes one-way
+door"); no other skill, agent, prompt, or bootstrap text changed.
 
 ## [4.0.0] — 2026-09-21
 

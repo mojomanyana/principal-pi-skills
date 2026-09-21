@@ -108,7 +108,7 @@ to every output.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.0.0` — installs the seven
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.0.1` — installs the seven
    skills, the `/principal-feature` and `/principal-bugfix` commands, and the bootstrap
    extension, which loads automatically with the package. Install a tag, not a branch.
 2. Subagents (optional): `npx -p principal-pi-skills principal-pi-agents install` copies

@@ -33,7 +33,7 @@ option wins.
    design.
 5. **Name one-way doors before recommending through them.** [ONE-WAY] = schema migrations,
    public APIs, data deletion, vendor lock-in. Each gets a rollback note, and the decision
-   gets a Decision record (below). For critical consequential work, also state how the
+   gets a Decision record (below). For a high-stakes one-way door, also state how the
    design is validated and observed, the rollback that reverses it, and the abort signal
    that stops it before the door closes. A Decision record is ONLY for one-way or
    precedent-setting choices — a reversible feature (a flag, a rename, a small internal
@@ -93,8 +93,8 @@ Options:
   2. <option> — …
 Recommendation: <choice> because <driver>. Flip to <alternative> when <threshold>.
 One-way doors: <each + rollback note> | none
-Critical validation/observability: <signals + checks> | not critical
-Critical rollback/abort: <how to reverse + when to stop> | not critical
+Validation/observability: <signals + checks> | not needed
+Rollback/abort: <how to reverse + when to stop> | not needed
 Diagram: <mermaid, only if structure changes>
 Decision record (only for ONE-WAY or precedent-setting choices):
   Context: <the forcing trigger — what makes this necessary now; a preference is not a trigger>

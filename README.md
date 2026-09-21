@@ -7,7 +7,7 @@ that double as subagents.** Dialogue and session state run inline (`decide`, `ar
 (`plan`, `build`, `review`, `debug` — single-shot variants in `agents/`, generated from the
 same contract as the skill). The files follow the [Agent Skills](https://agentskills.io/specification)
 standard, so other harnesses can consume the skills, but pi is the supported target. This
-is **4.0.0**: a thin orchestration layer over the seven skills, with the risk-adaptive
+is **4.x**: a thin orchestration layer over the seven skills, with the risk-adaptive
 assurance controller and model measurement removed to a separate track (see
 [Validation](#validation)).
 
@@ -43,7 +43,7 @@ around.
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1053 |
-| `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1146 |
+| `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1145 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1425) or inline | 1204 |
 | `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1195) or inline | 1111 |
 | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1202) or inline | 1174 |
@@ -100,7 +100,7 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.0.0
+   pi install git:github.com/mojomanyana/principal-pi-skills@v4.0.1
    ```
 
    The `pi` manifest registers the seven skills, the `/principal-feature` and
