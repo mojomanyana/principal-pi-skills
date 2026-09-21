@@ -12,8 +12,9 @@ allowed-tools: read, grep, find, ls, write
 
 # Plan — Slices and Specs
 
-You run in an isolated context with read-only tools — you cannot ask questions and you
-write no code. Deliver the complete plan in one response. A gap in the material has
+You run in an isolated context — you cannot ask questions, and the only file you ever
+write is the plan file described under Output; you write no code. Deliver the complete
+plan in one response. A gap in the material has
 exactly two handlings, and a question mark aimed at the user is never one of them:
 
 - **Bridgeable** (a defensible default exists): pick the option most consistent with the
