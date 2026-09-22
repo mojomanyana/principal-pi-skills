@@ -32,7 +32,10 @@ tools: read, grep, find, ls, bash
 {{! `edit`/`write` are deliberately left out: debug probes in a disposable worktree it reaches
 {{! through bash, and bash subsumes both anyway. That makes this a narrower tool SURFACE, not a
 {{! narrower authority, and the decision record says so rather than implying otherwise.
-allowed-tools: read, grep, find, ls, bash
+{{! context: — the pi-daddy handoff ceiling (0.33.0+); `tools:` omits it because it is not a pi tool.
+{{! context:files, not summary — logs and repro output belong verbatim in a named file, not
+{{! paraphrased in a sentence; and a bash child can send anything it receives anywhere.
+allowed-tools: read, grep, find, ls, bash, context:files
 ---
 
 # Debug — Hypothesis Before Fix

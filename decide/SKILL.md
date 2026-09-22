@@ -7,7 +7,9 @@ description: >
   whether to migrate, scope and sequencing, process. The output is a decision brief. Not for
   designing how a system is structured (architect), planning implementation (plan), or
   writing code (build).
-allowed-tools: read, grep, find, ls
+# context:summary (pi-daddy 0.33.0+; also permits pruned, files): delegated, decide cannot ask,
+# and the options already weighed and rejected live only in the parent's dialogue.
+allowed-tools: read, grep, find, ls, context:summary
 ---
 
 # Decide — Options and Stress-Tests

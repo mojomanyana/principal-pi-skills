@@ -120,3 +120,9 @@ to every output.
    the four agent definitions into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses
    to overwrite anything it did not install. Without it, everything in the routing table
    above still runs; the How column just collapses to "inline".
+3. Context handoff (pi-daddy 0.33.0+): each skill's `allowed-tools` sets how much of this
+   session a delegated child may receive. `architect`, `decide` and `plan` allow
+   `context:summary`. `build`, `debug` and `review` allow `context:files`: review stays low
+   on purpose so it judges cold. `git-ops` allows none, on purpose. Each reason is in the
+   skill's frontmatter and the README install section, along with the egress note. Don't
+   ask a child for more than its ceiling, and don't raise a ceiling to make a refusal go away.

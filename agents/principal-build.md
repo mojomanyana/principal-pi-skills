@@ -6,7 +6,7 @@ description: >
   implementation report. Not for diagnosing an unknown failure (debug) or deciding what to
   build (plan).
 tools: read, grep, find, ls, edit, write, bash
-allowed-tools: read, grep, find, ls, edit, write, bash
+allowed-tools: read, grep, find, ls, edit, write, bash, context:files
 ---
 
 # Build — Test-First Implementation

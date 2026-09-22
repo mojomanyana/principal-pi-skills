@@ -6,7 +6,9 @@ description: >
   architecture", "plan the migration", "write an ADR". The output is a design note with
   measurable drivers. Not for a yes/no or which-vendor decision without a structure to
   design (decide), or code-level planning of one change (plan).
-allowed-tools: read, grep, find, ls
+# context:summary (pi-daddy 0.33.0+; also permits pruned, files): delegated, architect cannot ask,
+# and its drivers are the constraints the user stated in the parent's dialogue.
+allowed-tools: read, grep, find, ls, context:summary
 ---
 
 # Architect — Design from Measurable Drivers

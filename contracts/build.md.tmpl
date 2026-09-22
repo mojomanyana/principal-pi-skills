@@ -18,7 +18,10 @@ description: >
   build (plan).
 tools: read, grep, find, ls, edit, write, bash
 {{/agent}}
-allowed-tools: read, grep, find, ls, edit, write, bash
+{{! context: — the pi-daddy handoff ceiling (0.33.0+); `tools:` omits it because it is not a pi tool.
+{{! context:files, not summary — build implements a stated step from a plan FILE; session turns buy
+{{! nothing the step does not say, and a bash child can send anything it receives anywhere.
+allowed-tools: read, grep, find, ls, edit, write, bash, context:files
 ---
 
 # Build — Test-First Implementation
