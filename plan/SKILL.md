@@ -5,7 +5,7 @@ description: >
   "break this down", "how should I implement this", "where do I start", "what's the order
   of work", "scope this refactor", "plan the fix". Produces the plan and per-step specs;
   writes no code. Not for system-level design (architect) or diagnosing failures (debug).
-allowed-tools: read, grep, find, ls, write
+allowed-tools: read, grep, find, ls, write, context:summary
 ---
 
 # Plan — Slices and Specs

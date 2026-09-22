@@ -6,6 +6,22 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.3.0] — 2026-09-22
+
+**Context-handoff ceilings for pi-daddy 0.33.0+.** pi-daddy made the context a delegated
+child receives a capability the child's own `allowed-tools` must declare. None of the seven
+skills declared one, so every delegation that asked for context was refused. Now:
+`architect`, `decide` and `plan` declare `context:summary`; `build`, `debug` and `review`
+declare `context:files`; `git-ops` declares none, deliberately. Review sits below the
+"reasons about done work" level on purpose: a cold reviewer must not get the author's
+reasoning. No skill body promised session context. Every input a contract names is task
+text or a file the child reads. The README install section records each reason and the
+egress consequence: with `pruned` allowed and an advisor on, operator turns go to a third
+party. Verified against pi-daddy 0.38.0. Also: the install docs now name `v4.3.0` (they still said
+`v4.1.0`), the README no longer calls `plan` read-only (it writes its plan file), and the
+template comments point to the capability-ceilings decision on the `v3.2.0` tag, where it
+still lives.
+
 ## [4.2.0] — 2026-09-21
 
 **Cheaper loops, borrowed from superpowers' subagent-driven development.** A delegated

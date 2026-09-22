@@ -42,13 +42,13 @@ around.
 
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
-| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1053 |
-| `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1145 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1457) or inline | 1236 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1239) or inline | 1111 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1393) or inline | 1293 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1455) or inline | 1321 |
-| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1976 |
+| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1080 |
+| `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1172 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1458) or inline | 1237 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1240) or inline | 1112 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1394) or inline | 1294 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1456) or inline | 1322 |
+| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1996 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is the
@@ -108,7 +108,7 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.1.0
+   pi install git:github.com/mojomanyana/principal-pi-skills@v4.3.0
    ```
 
    The `pi` manifest registers the seven skills, the four `/principal-*` commands, and the
@@ -133,7 +133,7 @@ CHANGELOG.md                          release history
    agent. It refuses to overwrite anything it did not install, and `uninstall` removes only
    its own unmodified files.
 
-   Tool restriction is structural, in the agents' frontmatter: `plan` is read-only; `build`,
+   Tool restriction is structural, in the agents' frontmatter: `plan` is read-only except for its own plan file; `build`,
    `review`, and `debug` add `bash` to run tests (and, for `build`, to write and edit).
 
    One trap worth knowing if you run subagents on a non-default provider: a delegated agent
@@ -147,6 +147,30 @@ CHANGELOG.md                          release history
    the How column in [The set](#the-set) simply collapses to "inline". The routing table
    still reaches the session because the bootstrap extension injects it — installing the
    package is enough for that part; only delegation itself needs step 2.
+
+4. **Under pi-daddy (0.33.0+), each skill declares how much of the caller's session it may
+   receive.** A child gets only the `context:` mode its own `allowed-tools` names (or a
+   weaker one: `none < files < pruned < summary < fork`). Asking for more is refused, not
+   downgraded. The ceilings are decisions, and each one is explained in its frontmatter:
+
+   | skill | ceiling | why |
+   |---|---|---|
+   | `architect`, `decide` | `context:summary` | delegated, they cannot ask; the drivers and the rejected options live in the parent's dialogue |
+   | `plan` | `context:summary` | a plan must honour what the user ruled out, which a task line flattens; no `bash` |
+   | `review` | `context:files` | **deliberately low.** Review is cold by design, and the author's reasoning is what it must not be anchored on; the diff package and build report are files |
+   | `build`, `debug` | `context:files` | they act on a stated target (a plan file or a symptom); logs travel verbatim as files; with `bash`, anything a child receives can leave the machine |
+   | `git-ops` | none | acts on the working tree, not the conversation; consent to a destructive op must come from the user, not from forwarded turns |
+
+   Nothing declares `context:fork`. Write the prefix in lowercase: `Context:summary` turns
+   into `tool:context:summary`, which grants no context mode.
+
+   **Egress: know what `summary` enables.** `context:summary` also permits `pruned`. That
+   mode carries the operator's own session turns (the last 20 by default, up to 32 KiB),
+   not just the task. With a pi-daddy advisor enabled (`PI_DADDY_ADVISOR` plus
+   `PI_DADDY_ADVISOR_KEY`), a `pruned` handoff sends those turns to that third party so it
+   can choose which ones to keep. For `architect`, `decide` and `plan`, that is what you
+   switch on by delegating with `pruned` while an advisor is on. Raising any other skill's
+   ceiling extends that exposure to it.
 
 ## Validation
 

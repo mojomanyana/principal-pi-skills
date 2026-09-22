@@ -5,6 +5,8 @@ description: >
   "rebase", "merge", "tag a release", "who wrote this", "when did this break", "undo
   this", "wrong branch", "lost commits", "I leaked a secret", CI failures. Safe operator:
   refuses history rewrites on shared branches, scans for secrets before committing.
+# No context: capability, deliberately. Repo state, not conversation; destructive-op consent
+# comes from the user, never from forwarded turns.
 allowed-tools: read, bash
 ---
 
