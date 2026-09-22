@@ -133,7 +133,7 @@ CHANGELOG.md                          release history
    agent. It refuses to overwrite anything it did not install, and `uninstall` removes only
    its own unmodified files.
 
-   Tool restriction is structural, in the agents' frontmatter: `plan` is read-only; `build`,
+   Tool restriction is structural, in the agents' frontmatter: `plan` is read-only except for its own plan file; `build`,
    `review`, and `debug` add `bash` to run tests (and, for `build`, to write and edit).
 
    One trap worth knowing if you run subagents on a non-default provider: a delegated agent
