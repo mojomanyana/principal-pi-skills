@@ -27,7 +27,9 @@
         "generate:check": "node scripts/generate-contracts.mjs --check",
         "lint:skills": "node scripts/lint-skills.mjs",
         "test:install": "node --test tests/install/*.test.mjs",
-        "check:pack": "node scripts/check-pack.mjs"
+        "check:pack": "node scripts/check-pack.mjs",
+        "check:routing-collisions": "node scripts/check-description-collisions.mjs",
+        "check:routing-triggers": "node scripts/check-skill-triggers.mjs"
     },
     "pi": {
         "skills": [

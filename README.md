@@ -174,11 +174,18 @@ CHANGELOG.md                          release history
 
 ## Validation
 
-4.0 ships with no model score. The skill-harness specifications and the v2.4 DeepSeek/GLM
-board were removed in this release; model measurement restarts in a separate repository,
-from scratch. `npm test` remains the
-free gate: generated-contract drift, word budgets, frontmatter lint, installer and tarball
-behavior, and `Next:` transition parity.
+`npm test` remains the free gate: generated-contract drift, word budgets, frontmatter lint,
+installer and tarball behavior, and `Next:` transition parity.
+
+Two opt-in routing checks use only the seven authored frontmatter descriptions. Run
+`npm run check:routing-collisions` for all 42 directed description pairs and
+`npm run check:routing-triggers` for the three-run synthetic trigger suite. Both require
+`FIREWORKS_API_KEY`; `ROUTING_MODEL` and `ROUTING_API_URL` override the defaults. The suite
+starts with 12 positives and 8 near-miss negatives per skill, then adds authored collision-boundary
+and no-skill probes, and reports per-skill precision and recall at a 0.5 vote threshold. The
+original 140-case record is retained as `evals/baseline/triggers.pre-expansion.json`; it is
+not evidence for the expanded corpus. Regenerate `evals/baseline/triggers.json` after any
+corpus change.
 
 ## Why 4.0
 
