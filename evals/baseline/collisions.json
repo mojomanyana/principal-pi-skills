@@ -1,0 +1,217 @@
+{
+  "model": "accounts/fireworks/models/glm-5p2",
+  "pairCount": 42,
+  "collisionCount": 3,
+  "results": [
+    {
+      "id": "decide->architect",
+      "collision": true,
+      "reason": "A user asking 'which approach should I take, SQL or NoSQL?' fits decide's positive scope ('which approach' on any engineering decision) and architect's explicit positive scope ('SQL vs NoSQL for this workload'). Architect's exclusion only bars yes/no or which-vendor decisions without structure to design, which doesn't apply here, and decide's exclusion ('not for designing how a system is structured') is ambiguous for a technology choice vs. structure design."
+    },
+    {
+      "id": "decide->plan",
+      "collision": false,
+      "reason": "Decide produces a decision brief for choosing; plan produces an executable plan with per-step specs. 'Scope and sequencing' in decide is about the decision of what to include, while plan's 'scope this refactor' is about breaking work into steps. Distinct outputs and intents."
+    },
+    {
+      "id": "decide->build",
+      "collision": false,
+      "reason": "Decide is for choosing/decision-making; build is for writing code. No overlap in positive scope."
+    },
+    {
+      "id": "decide->review",
+      "collision": false,
+      "reason": "Decide is for choosing among options; review is for reviewing code before it lands. No overlap."
+    },
+    {
+      "id": "decide->debug",
+      "collision": false,
+      "reason": "Decide is for choosing among options; debug is for diagnosing failures. No overlap."
+    },
+    {
+      "id": "decide->git-ops",
+      "collision": false,
+      "reason": "Decide is for decision-making; git-ops is for git/GitHub operations. No overlap."
+    },
+    {
+      "id": "architect->decide",
+      "collision": false,
+      "reason": "Architect's positive scope includes 'monolith vs services' and 'SQL vs NoSQL,' but decide explicitly excludes 'designing how a system is structured (architect),' which covers these system-structure questions. The exclusion resolves the overlap."
+    },
+    {
+      "id": "architect->plan",
+      "collision": false,
+      "reason": "Architect is system-level design; plan is code-level executable planning. Plan explicitly excludes 'system-level design (architect),' and architect excludes 'code-level planning of one change (plan).' Distinct levels."
+    },
+    {
+      "id": "architect->build",
+      "collision": false,
+      "reason": "Architect is system structure design; build is writing code. No overlap."
+    },
+    {
+      "id": "architect->review",
+      "collision": false,
+      "reason": "Architect includes 'review our architecture' (system-level); review is for reviewing code before it lands. Different review targets."
+    },
+    {
+      "id": "architect->debug",
+      "collision": false,
+      "reason": "Architect is system design; debug is diagnosing failures. No overlap."
+    },
+    {
+      "id": "architect->git-ops",
+      "collision": false,
+      "reason": "Architect is system design; git-ops is git operations. No overlap."
+    },
+    {
+      "id": "plan->decide",
+      "collision": false,
+      "reason": "Plan produces an executable plan with per-step specs; decide produces a decision brief. 'Where do I start' (plan) is execution-oriented, while 'I'm stuck' (decide) is decision-oriented. Distinct outputs."
+    },
+    {
+      "id": "plan->architect",
+      "collision": false,
+      "reason": "Plan is code-level executable planning and explicitly excludes 'system-level design (architect).' No overlap."
+    },
+    {
+      "id": "plan->build",
+      "collision": false,
+      "reason": "Plan produces plans and per-step specs with no code; build writes code. No overlap."
+    },
+    {
+      "id": "plan->review",
+      "collision": false,
+      "reason": "Plan is for creating executable plans; review is for reviewing code. No overlap."
+    },
+    {
+      "id": "plan->debug",
+      "collision": false,
+      "reason": "Plan is for creating executable plans; debug is for diagnosing failures. Plan explicitly excludes 'diagnosing failures (debug).' No overlap."
+    },
+    {
+      "id": "plan->git-ops",
+      "collision": false,
+      "reason": "Plan is for executable planning; git-ops is for git operations. No overlap."
+    },
+    {
+      "id": "build->decide",
+      "collision": false,
+      "reason": "Build is for writing code; decide is for choosing among options. No overlap."
+    },
+    {
+      "id": "build->architect",
+      "collision": false,
+      "reason": "Build is for writing code; architect is for system structure design. No overlap."
+    },
+    {
+      "id": "build->plan",
+      "collision": false,
+      "reason": "Build writes code; plan produces plans and specs with no code. No overlap."
+    },
+    {
+      "id": "build->review",
+      "collision": false,
+      "reason": "Build writes code; review reviews code before it lands. No overlap."
+    },
+    {
+      "id": "build->debug",
+      "collision": false,
+      "reason": "Build fixes bugs with known causes; debug diagnoses unknown failures. Debug explicitly excludes 'fixing a bug whose cause is already known (build).' The trigger phrases differ ('fix this' vs 'why is this failing')."
+    },
+    {
+      "id": "build->git-ops",
+      "collision": false,
+      "reason": "Build writes code; git-ops handles git operations. No overlap."
+    },
+    {
+      "id": "review->decide",
+      "collision": false,
+      "reason": "Review is for reviewing code; decide is for choosing among options. No overlap."
+    },
+    {
+      "id": "review->architect",
+      "collision": false,
+      "reason": "Review covers code-level review ('check this diff,' 'is this over-engineered'); architect covers system-level structure design ('review our architecture'). Different review targets."
+    },
+    {
+      "id": "review->plan",
+      "collision": false,
+      "reason": "Review is for reviewing code; plan is for creating executable plans. No overlap."
+    },
+    {
+      "id": "review->build",
+      "collision": false,
+      "reason": "Review assesses code before it lands; build writes code. No overlap."
+    },
+    {
+      "id": "review->debug",
+      "collision": false,
+      "reason": "Review finds bugs during code review before landing; debug diagnoses active failures (failing tests, crashes, stack traces). Different contexts and triggers."
+    },
+    {
+      "id": "review->git-ops",
+      "collision": false,
+      "reason": "Review assesses code readiness ('is this ready to merge'); git-ops performs git operations ('merge'). Assessment vs. operation. No overlap."
+    },
+    {
+      "id": "debug->decide",
+      "collision": false,
+      "reason": "Debug diagnoses failures; decide chooses among options. No overlap."
+    },
+    {
+      "id": "debug->architect",
+      "collision": false,
+      "reason": "Debug diagnoses failures; architect designs system structure. No overlap."
+    },
+    {
+      "id": "debug->plan",
+      "collision": false,
+      "reason": "Debug diagnoses failures; plan creates executable plans. No overlap."
+    },
+    {
+      "id": "debug->build",
+      "collision": false,
+      "reason": "Debug diagnoses unknown failures; build fixes bugs with known causes. Build explicitly excludes 'diagnosing an unknown failure (debug).' Distinct triggers."
+    },
+    {
+      "id": "debug->review",
+      "collision": false,
+      "reason": "Debug diagnoses active failures; review reviews code before it lands. No overlap."
+    },
+    {
+      "id": "debug->git-ops",
+      "collision": true,
+      "reason": "Debug's positive scope includes 'CI or lint error' and 'why is this failing,' while git-ops' positive scope includes 'CI failures.' A user asking 'why is CI failing?' is clearly inside debug's positive scope and also reasonably triggers git-ops. Neither description's exclusions prevent this overlap."
+    },
+    {
+      "id": "git-ops->decide",
+      "collision": false,
+      "reason": "Git-ops handles git operations; decide is for choosing among options. No overlap."
+    },
+    {
+      "id": "git-ops->architect",
+      "collision": false,
+      "reason": "Git-ops handles git operations; architect designs system structure. No overlap."
+    },
+    {
+      "id": "git-ops->plan",
+      "collision": false,
+      "reason": "Git-ops handles git operations; plan creates executable plans. No overlap."
+    },
+    {
+      "id": "git-ops->build",
+      "collision": false,
+      "reason": "Git-ops handles git operations; build writes code. No overlap."
+    },
+    {
+      "id": "git-ops->review",
+      "collision": false,
+      "reason": "Git-ops performs git operations ('merge,' 'open a PR'); review assesses code readiness ('is this ready to merge'). Operation vs. assessment. No overlap."
+    },
+    {
+      "id": "git-ops->debug",
+      "collision": true,
+      "reason": "Git-ops' positive scope includes 'CI failures,' and debug's positive scope includes 'CI or lint error.' A user reporting a CI failure is clearly inside git-ops' positive scope and also reasonably triggers debug. Neither description's exclusions prevent this overlap."
+    }
+  ]
+}

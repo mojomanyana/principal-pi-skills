@@ -1,0 +1,24 @@
+name: routing-evals
+
+on:
+  workflow_dispatch:
+
+jobs:
+  descriptions-and-triggers:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5.1.0
+      - uses: actions/setup-node@a0853c24544627f65ddf259abe73b1d18a591444 # v5.0.0
+        with:
+          node-version: "20"
+          cache: npm
+      - run: npm ci
+      - name: Pairwise description collisions
+        env:
+          FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
+        run: npm run check:routing-collisions -- --output /tmp/collisions.json
+      - name: Synthetic trigger precision and recall
+        if: always()
+        env:
+          FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
+        run: npm run check:routing-triggers -- --output /tmp/triggers.json
