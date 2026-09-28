@@ -90,8 +90,9 @@ export function validateTriggerCorpus(
   for (const skill of skillNames) {
     const own = cases.filter((item) => item.skill === skill);
     const positives = own.filter((item) => item.positive).length;
-    if (own.length !== 20 || positives !== 12) {
-      throw new Error(`${skill}: expected 20 triggers with a 12/8 positive/negative split, got ${positives}/${own.length - positives}`);
+    const expectedPositives = skill === "git-ops" ? 14 : 12;
+    if (own.length !== expectedPositives + 8 || positives !== expectedPositives) {
+      throw new Error(`${skill}: expected ${expectedPositives}/8 positive/negative triggers, got ${positives}/${own.length - positives}`);
     }
   }
   for (const item of adversarial) {

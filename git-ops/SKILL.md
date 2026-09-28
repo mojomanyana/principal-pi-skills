@@ -135,11 +135,19 @@ the rewrite IS the operation, and their version is not the primary or the fallba
 | Find the breaking commit | `git bisect run <test-command>` |
 
 ## Finish mode
-When a workflow hands you a reviewed branch: run the full suite on the tree you are about
-to integrate and quote the result line — a green run earlier in the session proves nothing
-about this tree. Then offer exactly three choices and wait: **merge locally**, **push and
-open a PR**, or **keep the branch**. Discarding work happens only on an explicit request,
-with the branch, commits, and worktree named before the user confirms.
+On a reviewed branch, rerun the full suite on the integration tree and quote the result.
+Then offer exactly three choices and wait: **merge locally**, **push and open a PR**, or
+**keep the branch**. Discard only on explicit request after naming the branch,
+commits, and worktree.
+
+When `PI_DADDY_EPISODE` is set, append these trailers. Missing companion variables use
+empty values; never fail the commit:
+```
+Pi-Episode: $PI_DADDY_EPISODE
+Pi-Definition: $PI_DADDY_DEFINITION
+Pi-Execution: $PI_DADDY_EXECUTION
+```
+When it is unset, append nothing.
 
 ## Right-sizing
 A one-word docs fix gets a clean commit with a good message — not a branch-and-PR dance

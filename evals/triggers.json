@@ -137,6 +137,8 @@
   {"id":"git-ops-p10","skill":"git-ops","positive":true,"query":"I committed on the wrong branch; help me recover."},
   {"id":"git-ops-p11","skill":"git-ops","positive":true,"query":"I lost two commits after a reset."},
   {"id":"git-ops-p12","skill":"git-ops","positive":true,"query":"I leaked an API key in git history."},
+  {"id":"git-ops-p13","skill":"git-ops","positive":true,"query":"Commit these changes; PI_DADDY_EPISODE is set, so append the Pi-Episode, Pi-Definition, and Pi-Execution trailers."},
+  {"id":"git-ops-p14","skill":"git-ops","positive":true,"query":"Commit these changes without PI_DADDY_EPISODE and append no Pi trailers."},
   {"id":"git-ops-n01","skill":"git-ops","positive":false,"query":"Review this code before I commit it."},
   {"id":"git-ops-n02","skill":"git-ops","positive":false,"query":"Why is this unit test failing locally?"},
   {"id":"git-ops-n03","skill":"git-ops","positive":false,"query":"Implement the approved fix."},
