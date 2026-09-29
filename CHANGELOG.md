@@ -6,10 +6,24 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
-## Unreleased
+## [4.5.0] — 2026-09-29
 
-**Updated routing evidence.** The trigger baseline now records the full expanded three-run
-corpus; the obsolete pre-expansion record was removed.
+**Routing by output, with stable evidence (#51, #52, #53, #54).** PR #51 moved the routing
+model to `glm-5p3-flash` because `glm-5p2` is no longer deployed, and separated `debug` from
+`git-ops` by what each produces. PR #52 made the collision check report STABLE (collided in
+every run) and ANY (collided in any run) over three runs, and fail only on STABLE. PR #53
+expanded the decide/architect/plan boundary corpus. PR #54 separated those three descriptions
+by output — a choice with rationale, a system structure, or an ordered sequence of work — and
+narrowed `decide`. The adversarial corpus grew from 34 to 54 records, and every label now
+follows the rule that a skill is chosen by what it produces.
+
+**Stronger delivery evidence and attribution.** `git-ops` stamps `Pi-Episode`,
+`Pi-Definition`, and `Pi-Execution` trailers on commits when pi-daddy exports them. `build`
+and `review` require the repository's full test command as evidence, rather than treating
+focused checks as sufficient.
+
+**Changed defaults.** None for users. Routing evaluations require `FIREWORKS_API_KEY` and now
+default to `glm-5p3-flash`.
 
 ## [4.4.0] — 2026-09-23
 
