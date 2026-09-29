@@ -2,28 +2,28 @@
   "model": "accounts/fireworks/models/glm-5p3-flash",
   "runs": 3,
   "threshold": 0.5,
-  "corpus": "142 original binary probes + 34 adversarial queries across all seven skills",
+  "corpus": "142 original binary probes + 54 adversarial queries across all seven skills",
   "metrics": {
     "decide": {
-      "truePositive": 18,
-      "falsePositive": 1,
+      "truePositive": 25,
+      "falsePositive": 2,
       "falseNegative": 1,
-      "precision": 0.9473684210526315,
-      "recall": 0.9473684210526315
+      "precision": 0.9259259259259259,
+      "recall": 0.9615384615384616
     },
     "architect": {
-      "truePositive": 14,
+      "truePositive": 17,
       "falsePositive": 0,
-      "falseNegative": 1,
+      "falseNegative": 4,
       "precision": 1,
-      "recall": 0.9333333333333333
+      "recall": 0.8095238095238095
     },
     "plan": {
-      "truePositive": 12,
+      "truePositive": 19,
       "falsePositive": 0,
-      "falseNegative": 0,
+      "falseNegative": 2,
       "precision": 1,
-      "recall": 1
+      "recall": 0.9047619047619048
     },
     "build": {
       "truePositive": 12,
@@ -60,6 +60,15 @@
         "actualMisrouting": true,
         "failingQueries": [
           {
+            "id": "da-02",
+            "query": "For globally distributed inventory, should the system use Postgres or DynamoDB, and how should the data model work?",
+            "intended": "architect",
+            "selected": [
+              "decide",
+              "architect"
+            ]
+          },
+          {
             "id": "da-05",
             "query": "Help choose the storage topology for a multi-region ledger: relational primary, distributed SQL, or DynamoDB.",
             "intended": "architect",
@@ -74,6 +83,14 @@
         "failingQueries": []
       },
       "git-ops->debug": {
+        "actualMisrouting": false,
+        "failingQueries": []
+      },
+      "decide->plan": {
+        "actualMisrouting": false,
+        "failingQueries": []
+      },
+      "architect->plan": {
         "actualMisrouting": false,
         "failingQueries": []
       }
@@ -122,8 +139,8 @@
       "skill": "decide",
       "positive": true,
       "query": "What could go wrong if we outsource the mobile app?",
-      "triggerVotes": 3,
-      "selected": true
+      "triggerVotes": 0,
+      "selected": false
     },
     {
       "id": "decide-p06",
@@ -266,8 +283,8 @@
       "skill": "architect",
       "positive": true,
       "query": "Postgres or DynamoDB for this globally distributed workload?",
-      "triggerVotes": 3,
-      "selected": true
+      "triggerVotes": 0,
+      "selected": false
     },
     {
       "id": "architect-p04",
@@ -290,15 +307,15 @@
       "skill": "architect",
       "positive": true,
       "query": "Plan the zero-downtime migration from queues to an event log.",
-      "triggerVotes": 3,
-      "selected": true
+      "triggerVotes": 0,
+      "selected": false
     },
     {
       "id": "architect-p07",
       "skill": "architect",
       "positive": true,
       "query": "Should this workload use a monolith or services, and how should boundaries work?",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -1290,8 +1307,8 @@
       "skill": "decide",
       "positive": false,
       "query": "For globally distributed inventory, should the system use Postgres or DynamoDB, and how should the data model work?",
-      "triggerVotes": 0,
-      "selected": false
+      "triggerVotes": 2,
+      "selected": true
     },
     {
       "id": "da-02:architect",
@@ -1299,7 +1316,7 @@
       "skill": "architect",
       "positive": true,
       "query": "For globally distributed inventory, should the system use Postgres or DynamoDB, and how should the data model work?",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -1479,7 +1496,7 @@
       "skill": "decide",
       "positive": false,
       "query": "Help choose the storage topology for a multi-region ledger: relational primary, distributed SQL, or DynamoDB.",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -1488,7 +1505,7 @@
       "skill": "architect",
       "positive": true,
       "query": "Help choose the storage topology for a multi-region ledger: relational primary, distributed SQL, or DynamoDB.",
-      "triggerVotes": 1,
+      "triggerVotes": 0,
       "selected": false
     },
     {
@@ -1668,8 +1685,8 @@
       "skill": "decide",
       "positive": true,
       "query": "We're leaning toward an event-driven billing platform; should we commit to that direction, and what would the structure imply?",
-      "triggerVotes": 1,
-      "selected": false
+      "triggerVotes": 3,
+      "selected": true
     },
     {
       "id": "da-08:architect",
@@ -1677,8 +1694,8 @@
       "skill": "architect",
       "positive": true,
       "query": "We're leaning toward an event-driven billing platform; should we commit to that direction, and what would the structure imply?",
-      "triggerVotes": 3,
-      "selected": true
+      "triggerVotes": 0,
+      "selected": false
     },
     {
       "id": "da-08:plan",
@@ -1965,7 +1982,7 @@
       "skill": "debug",
       "positive": false,
       "query": "Which commit introduced the test that is breaking CI?",
-      "triggerVotes": 1,
+      "triggerVotes": 0,
       "selected": false
     },
     {
@@ -1983,7 +2000,7 @@
       "skill": "decide",
       "positive": false,
       "query": "The pipeline went red after I rebased this branch. Help me work out what happened.",
-      "triggerVotes": 0,
+      "triggerVotes": 1,
       "selected": false
     },
     {
@@ -2658,7 +2675,7 @@
       "skill": "debug",
       "positive": false,
       "query": "CI began failing after a reset and a commit seems to be missing; work out whether history loss caused the failure and recover safely if so.",
-      "triggerVotes": 0,
+      "triggerVotes": 1,
       "selected": false
     },
     {
@@ -2667,7 +2684,7 @@
       "skill": "git-ops",
       "positive": true,
       "query": "CI began failing after a reset and a commit seems to be missing; work out whether history loss caused the failure and recover safely if so.",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -2730,6 +2747,1266 @@
       "skill": "git-ops",
       "positive": false,
       "query": "CI failed immediately after I cherry-picked the patch. Find out whether the patch or the git operation caused it.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-01:decide",
+      "queryId": "dp-01",
+      "skill": "decide",
+      "positive": true,
+      "query": "Should we adopt the new auth provider this quarter?",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "dp-01:architect",
+      "queryId": "dp-01",
+      "skill": "architect",
+      "positive": false,
+      "query": "Should we adopt the new auth provider this quarter?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-01:plan",
+      "queryId": "dp-01",
+      "skill": "plan",
+      "positive": false,
+      "query": "Should we adopt the new auth provider this quarter?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-01:build",
+      "queryId": "dp-01",
+      "skill": "build",
+      "positive": false,
+      "query": "Should we adopt the new auth provider this quarter?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-01:review",
+      "queryId": "dp-01",
+      "skill": "review",
+      "positive": false,
+      "query": "Should we adopt the new auth provider this quarter?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-01:debug",
+      "queryId": "dp-01",
+      "skill": "debug",
+      "positive": false,
+      "query": "Should we adopt the new auth provider this quarter?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-01:git-ops",
+      "queryId": "dp-01",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Should we adopt the new auth provider this quarter?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-02:decide",
+      "queryId": "dp-02",
+      "skill": "decide",
+      "positive": false,
+      "query": "Lay out the steps to adopt the new auth provider.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-02:architect",
+      "queryId": "dp-02",
+      "skill": "architect",
+      "positive": false,
+      "query": "Lay out the steps to adopt the new auth provider.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-02:plan",
+      "queryId": "dp-02",
+      "skill": "plan",
+      "positive": true,
+      "query": "Lay out the steps to adopt the new auth provider.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "dp-02:build",
+      "queryId": "dp-02",
+      "skill": "build",
+      "positive": false,
+      "query": "Lay out the steps to adopt the new auth provider.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-02:review",
+      "queryId": "dp-02",
+      "skill": "review",
+      "positive": false,
+      "query": "Lay out the steps to adopt the new auth provider.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-02:debug",
+      "queryId": "dp-02",
+      "skill": "debug",
+      "positive": false,
+      "query": "Lay out the steps to adopt the new auth provider.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-02:git-ops",
+      "queryId": "dp-02",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Lay out the steps to adopt the new auth provider.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-03:decide",
+      "queryId": "dp-03",
+      "skill": "decide",
+      "positive": false,
+      "query": "We've agreed to adopt it; what's the order of work?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-03:architect",
+      "queryId": "dp-03",
+      "skill": "architect",
+      "positive": false,
+      "query": "We've agreed to adopt it; what's the order of work?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-03:plan",
+      "queryId": "dp-03",
+      "skill": "plan",
+      "positive": true,
+      "query": "We've agreed to adopt it; what's the order of work?",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "dp-03:build",
+      "queryId": "dp-03",
+      "skill": "build",
+      "positive": false,
+      "query": "We've agreed to adopt it; what's the order of work?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-03:review",
+      "queryId": "dp-03",
+      "skill": "review",
+      "positive": false,
+      "query": "We've agreed to adopt it; what's the order of work?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-03:debug",
+      "queryId": "dp-03",
+      "skill": "debug",
+      "positive": false,
+      "query": "We've agreed to adopt it; what's the order of work?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-03:git-ops",
+      "queryId": "dp-03",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "We've agreed to adopt it; what's the order of work?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-04:decide",
+      "queryId": "dp-04",
+      "skill": "decide",
+      "positive": true,
+      "query": "Is adopting the new auth provider worth it at all?",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "dp-04:architect",
+      "queryId": "dp-04",
+      "skill": "architect",
+      "positive": false,
+      "query": "Is adopting the new auth provider worth it at all?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-04:plan",
+      "queryId": "dp-04",
+      "skill": "plan",
+      "positive": false,
+      "query": "Is adopting the new auth provider worth it at all?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-04:build",
+      "queryId": "dp-04",
+      "skill": "build",
+      "positive": false,
+      "query": "Is adopting the new auth provider worth it at all?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-04:review",
+      "queryId": "dp-04",
+      "skill": "review",
+      "positive": false,
+      "query": "Is adopting the new auth provider worth it at all?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-04:debug",
+      "queryId": "dp-04",
+      "skill": "debug",
+      "positive": false,
+      "query": "Is adopting the new auth provider worth it at all?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-04:git-ops",
+      "queryId": "dp-04",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Is adopting the new auth provider worth it at all?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-05:decide",
+      "queryId": "dp-05",
+      "skill": "decide",
+      "positive": true,
+      "query": "Go or no-go on the auth change, with a rough sequence if go.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "dp-05:architect",
+      "queryId": "dp-05",
+      "skill": "architect",
+      "positive": false,
+      "query": "Go or no-go on the auth change, with a rough sequence if go.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-05:plan",
+      "queryId": "dp-05",
+      "skill": "plan",
+      "positive": true,
+      "query": "Go or no-go on the auth change, with a rough sequence if go.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-05:build",
+      "queryId": "dp-05",
+      "skill": "build",
+      "positive": false,
+      "query": "Go or no-go on the auth change, with a rough sequence if go.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-05:review",
+      "queryId": "dp-05",
+      "skill": "review",
+      "positive": false,
+      "query": "Go or no-go on the auth change, with a rough sequence if go.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-05:debug",
+      "queryId": "dp-05",
+      "skill": "debug",
+      "positive": false,
+      "query": "Go or no-go on the auth change, with a rough sequence if go.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-05:git-ops",
+      "queryId": "dp-05",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Go or no-go on the auth change, with a rough sequence if go.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-06:decide",
+      "queryId": "dp-06",
+      "skill": "decide",
+      "positive": true,
+      "query": "Pick between the two rollout strategies we drafted.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "dp-06:architect",
+      "queryId": "dp-06",
+      "skill": "architect",
+      "positive": false,
+      "query": "Pick between the two rollout strategies we drafted.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-06:plan",
+      "queryId": "dp-06",
+      "skill": "plan",
+      "positive": false,
+      "query": "Pick between the two rollout strategies we drafted.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-06:build",
+      "queryId": "dp-06",
+      "skill": "build",
+      "positive": false,
+      "query": "Pick between the two rollout strategies we drafted.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-06:review",
+      "queryId": "dp-06",
+      "skill": "review",
+      "positive": false,
+      "query": "Pick between the two rollout strategies we drafted.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-06:debug",
+      "queryId": "dp-06",
+      "skill": "debug",
+      "positive": false,
+      "query": "Pick between the two rollout strategies we drafted.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-06:git-ops",
+      "queryId": "dp-06",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Pick between the two rollout strategies we drafted.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-07:decide",
+      "queryId": "dp-07",
+      "skill": "decide",
+      "positive": false,
+      "query": "Write the rollout plan for the strategy we picked.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-07:architect",
+      "queryId": "dp-07",
+      "skill": "architect",
+      "positive": false,
+      "query": "Write the rollout plan for the strategy we picked.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-07:plan",
+      "queryId": "dp-07",
+      "skill": "plan",
+      "positive": true,
+      "query": "Write the rollout plan for the strategy we picked.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "dp-07:build",
+      "queryId": "dp-07",
+      "skill": "build",
+      "positive": false,
+      "query": "Write the rollout plan for the strategy we picked.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-07:review",
+      "queryId": "dp-07",
+      "skill": "review",
+      "positive": false,
+      "query": "Write the rollout plan for the strategy we picked.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-07:debug",
+      "queryId": "dp-07",
+      "skill": "debug",
+      "positive": false,
+      "query": "Write the rollout plan for the strategy we picked.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-07:git-ops",
+      "queryId": "dp-07",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Write the rollout plan for the strategy we picked.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-08:decide",
+      "queryId": "dp-08",
+      "skill": "decide",
+      "positive": true,
+      "query": "Which of these three migration paths should we take, and why?",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "dp-08:architect",
+      "queryId": "dp-08",
+      "skill": "architect",
+      "positive": false,
+      "query": "Which of these three migration paths should we take, and why?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-08:plan",
+      "queryId": "dp-08",
+      "skill": "plan",
+      "positive": false,
+      "query": "Which of these three migration paths should we take, and why?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-08:build",
+      "queryId": "dp-08",
+      "skill": "build",
+      "positive": false,
+      "query": "Which of these three migration paths should we take, and why?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-08:review",
+      "queryId": "dp-08",
+      "skill": "review",
+      "positive": false,
+      "query": "Which of these three migration paths should we take, and why?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-08:debug",
+      "queryId": "dp-08",
+      "skill": "debug",
+      "positive": false,
+      "query": "Which of these three migration paths should we take, and why?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "dp-08:git-ops",
+      "queryId": "dp-08",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Which of these three migration paths should we take, and why?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-01:decide",
+      "queryId": "ap-01",
+      "skill": "decide",
+      "positive": false,
+      "query": "Design the service boundaries for the new billing platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-01:architect",
+      "queryId": "ap-01",
+      "skill": "architect",
+      "positive": true,
+      "query": "Design the service boundaries for the new billing platform.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "ap-01:plan",
+      "queryId": "ap-01",
+      "skill": "plan",
+      "positive": false,
+      "query": "Design the service boundaries for the new billing platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-01:build",
+      "queryId": "ap-01",
+      "skill": "build",
+      "positive": false,
+      "query": "Design the service boundaries for the new billing platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-01:review",
+      "queryId": "ap-01",
+      "skill": "review",
+      "positive": false,
+      "query": "Design the service boundaries for the new billing platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-01:debug",
+      "queryId": "ap-01",
+      "skill": "debug",
+      "positive": false,
+      "query": "Design the service boundaries for the new billing platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-01:git-ops",
+      "queryId": "ap-01",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Design the service boundaries for the new billing platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-02:decide",
+      "queryId": "ap-02",
+      "skill": "decide",
+      "positive": false,
+      "query": "Break the billing platform work into ordered milestones.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-02:architect",
+      "queryId": "ap-02",
+      "skill": "architect",
+      "positive": false,
+      "query": "Break the billing platform work into ordered milestones.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-02:plan",
+      "queryId": "ap-02",
+      "skill": "plan",
+      "positive": true,
+      "query": "Break the billing platform work into ordered milestones.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "ap-02:build",
+      "queryId": "ap-02",
+      "skill": "build",
+      "positive": false,
+      "query": "Break the billing platform work into ordered milestones.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-02:review",
+      "queryId": "ap-02",
+      "skill": "review",
+      "positive": false,
+      "query": "Break the billing platform work into ordered milestones.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-02:debug",
+      "queryId": "ap-02",
+      "skill": "debug",
+      "positive": false,
+      "query": "Break the billing platform work into ordered milestones.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-02:git-ops",
+      "queryId": "ap-02",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Break the billing platform work into ordered milestones.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-03:decide",
+      "queryId": "ap-03",
+      "skill": "decide",
+      "positive": false,
+      "query": "Sketch how the billing components talk to each other.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-03:architect",
+      "queryId": "ap-03",
+      "skill": "architect",
+      "positive": true,
+      "query": "Sketch how the billing components talk to each other.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "ap-03:plan",
+      "queryId": "ap-03",
+      "skill": "plan",
+      "positive": false,
+      "query": "Sketch how the billing components talk to each other.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-03:build",
+      "queryId": "ap-03",
+      "skill": "build",
+      "positive": false,
+      "query": "Sketch how the billing components talk to each other.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-03:review",
+      "queryId": "ap-03",
+      "skill": "review",
+      "positive": false,
+      "query": "Sketch how the billing components talk to each other.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-03:debug",
+      "queryId": "ap-03",
+      "skill": "debug",
+      "positive": false,
+      "query": "Sketch how the billing components talk to each other.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-03:git-ops",
+      "queryId": "ap-03",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Sketch how the billing components talk to each other.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-04:decide",
+      "queryId": "ap-04",
+      "skill": "decide",
+      "positive": false,
+      "query": "What do we build first for billing, and what depends on what?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-04:architect",
+      "queryId": "ap-04",
+      "skill": "architect",
+      "positive": false,
+      "query": "What do we build first for billing, and what depends on what?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-04:plan",
+      "queryId": "ap-04",
+      "skill": "plan",
+      "positive": true,
+      "query": "What do we build first for billing, and what depends on what?",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "ap-04:build",
+      "queryId": "ap-04",
+      "skill": "build",
+      "positive": false,
+      "query": "What do we build first for billing, and what depends on what?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-04:review",
+      "queryId": "ap-04",
+      "skill": "review",
+      "positive": false,
+      "query": "What do we build first for billing, and what depends on what?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-04:debug",
+      "queryId": "ap-04",
+      "skill": "debug",
+      "positive": false,
+      "query": "What do we build first for billing, and what depends on what?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-04:git-ops",
+      "queryId": "ap-04",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "What do we build first for billing, and what depends on what?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-05:decide",
+      "queryId": "ap-05",
+      "skill": "decide",
+      "positive": false,
+      "query": "Propose a data model for invoices and payments.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-05:architect",
+      "queryId": "ap-05",
+      "skill": "architect",
+      "positive": true,
+      "query": "Propose a data model for invoices and payments.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "ap-05:plan",
+      "queryId": "ap-05",
+      "skill": "plan",
+      "positive": false,
+      "query": "Propose a data model for invoices and payments.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-05:build",
+      "queryId": "ap-05",
+      "skill": "build",
+      "positive": false,
+      "query": "Propose a data model for invoices and payments.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-05:review",
+      "queryId": "ap-05",
+      "skill": "review",
+      "positive": false,
+      "query": "Propose a data model for invoices and payments.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-05:debug",
+      "queryId": "ap-05",
+      "skill": "debug",
+      "positive": false,
+      "query": "Propose a data model for invoices and payments.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-05:git-ops",
+      "queryId": "ap-05",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Propose a data model for invoices and payments.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-06:decide",
+      "queryId": "ap-06",
+      "skill": "decide",
+      "positive": false,
+      "query": "Sequence the billing rollout so nothing ships before its dependency.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-06:architect",
+      "queryId": "ap-06",
+      "skill": "architect",
+      "positive": false,
+      "query": "Sequence the billing rollout so nothing ships before its dependency.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-06:plan",
+      "queryId": "ap-06",
+      "skill": "plan",
+      "positive": true,
+      "query": "Sequence the billing rollout so nothing ships before its dependency.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "ap-06:build",
+      "queryId": "ap-06",
+      "skill": "build",
+      "positive": false,
+      "query": "Sequence the billing rollout so nothing ships before its dependency.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-06:review",
+      "queryId": "ap-06",
+      "skill": "review",
+      "positive": false,
+      "query": "Sequence the billing rollout so nothing ships before its dependency.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-06:debug",
+      "queryId": "ap-06",
+      "skill": "debug",
+      "positive": false,
+      "query": "Sequence the billing rollout so nothing ships before its dependency.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-06:git-ops",
+      "queryId": "ap-06",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Sequence the billing rollout so nothing ships before its dependency.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-07:decide",
+      "queryId": "ap-07",
+      "skill": "decide",
+      "positive": false,
+      "query": "Structure the billing platform and tell me the order to build it.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-07:architect",
+      "queryId": "ap-07",
+      "skill": "architect",
+      "positive": true,
+      "query": "Structure the billing platform and tell me the order to build it.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "ap-07:plan",
+      "queryId": "ap-07",
+      "skill": "plan",
+      "positive": true,
+      "query": "Structure the billing platform and tell me the order to build it.",
+      "triggerVotes": 1,
+      "selected": false
+    },
+    {
+      "id": "ap-07:build",
+      "queryId": "ap-07",
+      "skill": "build",
+      "positive": false,
+      "query": "Structure the billing platform and tell me the order to build it.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-07:review",
+      "queryId": "ap-07",
+      "skill": "review",
+      "positive": false,
+      "query": "Structure the billing platform and tell me the order to build it.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-07:debug",
+      "queryId": "ap-07",
+      "skill": "debug",
+      "positive": false,
+      "query": "Structure the billing platform and tell me the order to build it.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-07:git-ops",
+      "queryId": "ap-07",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Structure the billing platform and tell me the order to build it.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-08:decide",
+      "queryId": "ap-08",
+      "skill": "decide",
+      "positive": false,
+      "query": "We have the architecture; turn it into a build plan.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-08:architect",
+      "queryId": "ap-08",
+      "skill": "architect",
+      "positive": false,
+      "query": "We have the architecture; turn it into a build plan.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-08:plan",
+      "queryId": "ap-08",
+      "skill": "plan",
+      "positive": true,
+      "query": "We have the architecture; turn it into a build plan.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "ap-08:build",
+      "queryId": "ap-08",
+      "skill": "build",
+      "positive": false,
+      "query": "We have the architecture; turn it into a build plan.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-08:review",
+      "queryId": "ap-08",
+      "skill": "review",
+      "positive": false,
+      "query": "We have the architecture; turn it into a build plan.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-08:debug",
+      "queryId": "ap-08",
+      "skill": "debug",
+      "positive": false,
+      "query": "We have the architecture; turn it into a build plan.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "ap-08:git-ops",
+      "queryId": "ap-08",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "We have the architecture; turn it into a build plan.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-09:decide",
+      "queryId": "da-09",
+      "skill": "decide",
+      "positive": true,
+      "query": "Recommend one of: single database, database-per-service, or shared schema.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "da-09:architect",
+      "queryId": "da-09",
+      "skill": "architect",
+      "positive": false,
+      "query": "Recommend one of: single database, database-per-service, or shared schema.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-09:plan",
+      "queryId": "da-09",
+      "skill": "plan",
+      "positive": false,
+      "query": "Recommend one of: single database, database-per-service, or shared schema.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-09:build",
+      "queryId": "da-09",
+      "skill": "build",
+      "positive": false,
+      "query": "Recommend one of: single database, database-per-service, or shared schema.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-09:review",
+      "queryId": "da-09",
+      "skill": "review",
+      "positive": false,
+      "query": "Recommend one of: single database, database-per-service, or shared schema.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-09:debug",
+      "queryId": "da-09",
+      "skill": "debug",
+      "positive": false,
+      "query": "Recommend one of: single database, database-per-service, or shared schema.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-09:git-ops",
+      "queryId": "da-09",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Recommend one of: single database, database-per-service, or shared schema.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-10:decide",
+      "queryId": "da-10",
+      "skill": "decide",
+      "positive": false,
+      "query": "Design how services own their data if we go database-per-service.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-10:architect",
+      "queryId": "da-10",
+      "skill": "architect",
+      "positive": true,
+      "query": "Design how services own their data if we go database-per-service.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "da-10:plan",
+      "queryId": "da-10",
+      "skill": "plan",
+      "positive": false,
+      "query": "Design how services own their data if we go database-per-service.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-10:build",
+      "queryId": "da-10",
+      "skill": "build",
+      "positive": false,
+      "query": "Design how services own their data if we go database-per-service.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-10:review",
+      "queryId": "da-10",
+      "skill": "review",
+      "positive": false,
+      "query": "Design how services own their data if we go database-per-service.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-10:debug",
+      "queryId": "da-10",
+      "skill": "debug",
+      "positive": false,
+      "query": "Design how services own their data if we go database-per-service.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-10:git-ops",
+      "queryId": "da-10",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Design how services own their data if we go database-per-service.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-11:decide",
+      "queryId": "da-11",
+      "skill": "decide",
+      "positive": true,
+      "query": "Choose the messaging backbone for the platform.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "da-11:architect",
+      "queryId": "da-11",
+      "skill": "architect",
+      "positive": false,
+      "query": "Choose the messaging backbone for the platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-11:plan",
+      "queryId": "da-11",
+      "skill": "plan",
+      "positive": false,
+      "query": "Choose the messaging backbone for the platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-11:build",
+      "queryId": "da-11",
+      "skill": "build",
+      "positive": false,
+      "query": "Choose the messaging backbone for the platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-11:review",
+      "queryId": "da-11",
+      "skill": "review",
+      "positive": false,
+      "query": "Choose the messaging backbone for the platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-11:debug",
+      "queryId": "da-11",
+      "skill": "debug",
+      "positive": false,
+      "query": "Choose the messaging backbone for the platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-11:git-ops",
+      "queryId": "da-11",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Choose the messaging backbone for the platform.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-12:decide",
+      "queryId": "da-12",
+      "skill": "decide",
+      "positive": false,
+      "query": "Lay out the messaging topology once we've chosen the backbone.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-12:architect",
+      "queryId": "da-12",
+      "skill": "architect",
+      "positive": true,
+      "query": "Lay out the messaging topology once we've chosen the backbone.",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "da-12:plan",
+      "queryId": "da-12",
+      "skill": "plan",
+      "positive": false,
+      "query": "Lay out the messaging topology once we've chosen the backbone.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-12:build",
+      "queryId": "da-12",
+      "skill": "build",
+      "positive": false,
+      "query": "Lay out the messaging topology once we've chosen the backbone.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-12:review",
+      "queryId": "da-12",
+      "skill": "review",
+      "positive": false,
+      "query": "Lay out the messaging topology once we've chosen the backbone.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-12:debug",
+      "queryId": "da-12",
+      "skill": "debug",
+      "positive": false,
+      "query": "Lay out the messaging topology once we've chosen the backbone.",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "da-12:git-ops",
+      "queryId": "da-12",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "Lay out the messaging topology once we've chosen the backbone.",
       "triggerVotes": 0,
       "selected": false
     },
