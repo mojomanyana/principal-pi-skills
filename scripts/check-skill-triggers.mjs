@@ -70,7 +70,7 @@ export function validateTriggerCorpus(
   cases,
   adversarial,
   skillNames = SKILLS,
-  expectedCollisions = ["decide->architect", "debug->git-ops", "git-ops->debug"],
+  expectedCollisions = ["decide->architect", "decide->plan", "architect->plan", "debug->git-ops", "git-ops->debug"],
 ) {
   const ids = new Set();
   for (const item of cases) {
