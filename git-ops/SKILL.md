@@ -1,10 +1,10 @@
 ---
 name: git-ops
 description: >
-  Use when the user wants Git/GitHub work or a repository-state answer — commits, branches,
-  pull requests, rebases, merges, tags, history, conflicts, missing commits, command or
-  checkout errors, and leaked secrets. The output is a safe repository result. Not for
-  diagnosing why code, tests, lint, runtime, or CI failed, even after a Git operation (debug).
+  Use for Git/GitHub actions — commit, branch, open a PR, rebase, merge,
+  tag, resolve a conflict, recover a lost commit, repair a broken checkout, or remove a
+  leaked secret. The output is a safe repository result. Not for diagnosing why code,
+  tests, lint, runtime, or CI failed, even after a Git operation (debug).
 # No context: capability, deliberately. Repo state, not conversation; destructive-op consent
 # comes from the user, never from forwarded turns.
 allowed-tools: read, bash

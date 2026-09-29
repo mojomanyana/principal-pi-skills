@@ -70,6 +70,6 @@ test("a compaction summary that quotes the marker does not suppress re-injection
 test("BOOTSTRAP.md stays under 300 words and carries the routing table", () => {
   const t = readFileSync(join(ROOT, "bootstrap/BOOTSTRAP.md"), "utf8");
   assert.ok(t.trim().split(/\s+/).length <= 300, "bootstrap over 300 words");
-  for (const s of ["decide", "architect", "plan", "build", "review", "debug", "git-ops"]) assert.match(t, new RegExp(`\`${s}\``));
+  for (const s of ["decide", "architect", "plan", "build", "review", "debug", "investigate", "git-ops"]) assert.match(t, new RegExp(`\`${s}\``));
   assert.match(t, /Next:/);
 });

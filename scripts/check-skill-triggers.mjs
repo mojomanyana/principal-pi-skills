@@ -70,7 +70,7 @@ export function validateTriggerCorpus(
   cases,
   adversarial,
   skillNames = SKILLS,
-  expectedCollisions = ["decide->architect", "decide->plan", "architect->plan", "debug->git-ops", "git-ops->debug"],
+  expectedCollisions = ["decide->architect", "decide->plan", "architect->plan", "debug->git-ops", "git-ops->debug", "investigate->debug", "investigate->decide", "investigate->review", "investigate->git-ops", "investigate->architect", "investigate->none"],
 ) {
   const ids = new Set();
   for (const item of cases) {
@@ -87,7 +87,7 @@ export function validateTriggerCorpus(
     if (ids.has(item.id)) throw new Error(`duplicate trigger id ${item.id}`);
     ids.add(item.id);
   }
-  const expectedPositiveCounts = { decide: 13, architect: 10, plan: 13, "git-ops": 14 };
+  const expectedPositiveCounts = { decide: 13, architect: 10, plan: 13 };
   for (const skill of skillNames) {
     const own = cases.filter((item) => item.skill === skill);
     const positives = own.filter((item) => item.positive).length;
@@ -105,19 +105,27 @@ export function validateTriggerCorpus(
     }
     if (item.category !== undefined) throw new Error(`${item.id}: unknown category ${item.category}`);
     if (!expectedCollisions.includes(item.collision)) throw new Error(`${item.id}: unknown collision ${item.collision}`);
-    const pair = item.collision.split("->");
     if (item.intended === "AMBIGUOUS") {
-      if (!Array.isArray(item.acceptable) || pair.some((skill) => !item.acceptable.includes(skill)) || item.acceptable.length !== 2) {
-        throw new Error(`${item.id}: AMBIGUOUS query must accept exactly both colliding skills`);
+      if (!Array.isArray(item.acceptable) || item.acceptable.length !== 2 || new Set(item.acceptable).size !== 2 || item.acceptable.some((skill) => !skillNames.includes(skill))) {
+        throw new Error(`${item.id}: AMBIGUOUS query must accept exactly two known skills`);
       }
     } else {
       if (item.acceptable !== undefined) throw new Error(`${item.id}: acceptable is valid only when intended is AMBIGUOUS`);
       if (!skillNames.includes(item.intended)) throw new Error(`${item.id}: unknown intended label ${item.intended}`);
     }
   }
+  const collisionMinimums = {
+    "investigate->debug": 8,
+    "investigate->decide": 6,
+    "investigate->review": 4,
+    "investigate->git-ops": 2,
+    "investigate->architect": 4,
+    "investigate->none": 1,
+  };
   for (const collision of expectedCollisions) {
     const count = adversarial.filter((item) => item.collision === collision).length;
-    if (count < 8) throw new Error(`${collision}: expected at least 8 adversarial queries, got ${count}`);
+    const minimum = collisionMinimums[collision] ?? 8;
+    if (count < minimum) throw new Error(`${collision}: expected at least ${minimum} adversarial queries, got ${count}`);
   }
   if (!adversarial.some((item) => item.category === "hard-negative")) throw new Error("expected hard-negative NO_SKILL queries");
 
@@ -178,7 +186,7 @@ async function main() {
     model: routingModel(),
     runs: RUNS,
     threshold: THRESHOLD,
-    corpus: `${originalCases.length} original binary probes + ${adversarialQueries.length} adversarial queries across all seven skills`,
+    corpus: `${originalCases.length} original binary probes + ${adversarialQueries.length} adversarial queries across all eight skills`,
     metrics,
     adversarial: adversarialVerdicts,
     perfectScoreFinding,

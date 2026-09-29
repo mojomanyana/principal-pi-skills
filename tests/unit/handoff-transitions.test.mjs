@@ -30,7 +30,7 @@ const TRANSITIONS = {
 };
 
 /** Phases that deliberately carry no `Next:` at all. */
-const TERMINAL = ["decide", "architect", "git-ops"];
+const TERMINAL = ["decide", "architect", "investigate", "git-ops"];
 
 const SOURCES = {
   plan: "contracts/plan.md.tmpl",
