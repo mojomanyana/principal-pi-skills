@@ -41,11 +41,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // model needed. Prose that earns its place should not be squeezed by a number that was
 // guessed before the content existed.
 //
-// `git-ops` is a standing exception at 2000 for its safety playbook.
+// `git-ops` is a standing exception at 2150 for its safety and release playbooks.
 //
 // These are still ceilings, not targets — the check exists so growth is a decision someone
 // makes, not something that happens.
-const BUDGETS = { skill: 1400, agent: 1500, "git-ops": 2000 };
+const BUDGETS = { skill: 1400, agent: 1500, "git-ops": 2150 };
 
 const words = (p) => {
   const t = readFileSync(join(ROOT, p), "utf8").trim();

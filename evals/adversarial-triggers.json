@@ -416,6 +416,24 @@
   "intended": "git-ops"
  },
  {
+  "id": "gi-01",
+  "collision": "git-ops->investigate",
+  "query": "Cut release 4.6.0",
+  "intended": "git-ops"
+ },
+ {
+  "id": "gi-02",
+  "collision": "git-ops->investigate",
+  "query": "What went into release 4.5.0?",
+  "intended": "investigate"
+ },
+ {
+  "id": "gb-01",
+  "collision": "git-ops->build",
+  "query": "Bump the version and write the changelog for this release",
+  "intended": "git-ops"
+ },
+ {
   "id": "ia-01",
   "collision": "investigate->architect",
   "query": "Describe our current service layout as it actually is in the code.",
