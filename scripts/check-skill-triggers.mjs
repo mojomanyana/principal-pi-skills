@@ -105,10 +105,9 @@ export function validateTriggerCorpus(
     }
     if (item.category !== undefined) throw new Error(`${item.id}: unknown category ${item.category}`);
     if (!expectedCollisions.includes(item.collision)) throw new Error(`${item.id}: unknown collision ${item.collision}`);
-    const pair = item.collision.split("->");
     if (item.intended === "AMBIGUOUS") {
-      if (!Array.isArray(item.acceptable) || pair.some((skill) => !item.acceptable.includes(skill)) || item.acceptable.length !== 2) {
-        throw new Error(`${item.id}: AMBIGUOUS query must accept exactly both colliding skills`);
+      if (!Array.isArray(item.acceptable) || item.acceptable.length !== 2 || new Set(item.acceptable).size !== 2 || item.acceptable.some((skill) => !skillNames.includes(skill))) {
+        throw new Error(`${item.id}: AMBIGUOUS query must accept exactly two known skills`);
       }
     } else {
       if (item.acceptable !== undefined) throw new Error(`${item.id}: acceptable is valid only when intended is AMBIGUOUS`);

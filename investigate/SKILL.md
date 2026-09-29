@@ -3,7 +3,7 @@ name: investigate
 description: >
   Use when the user wants to know what is — how code, data, runtime, or history currently
   behaves or is laid out: "how does", "where is", "which", "map", "inventory", "what changed
-  between". The output is a factual report with file and line citations. Nothing is changed,
+  between", "which commit", "when did". The output is a factual report with file and line citations. Nothing is changed,
   fixed, or chosen. Not for the cause of a failure (debug), a choice (decide), a verdict on a
   diff (review), acting on the repository (git-ops), or a target design (architect).
 allowed-tools: read, grep, find, ls, context:files

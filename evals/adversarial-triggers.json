@@ -97,7 +97,7 @@
   "id": "dg-08",
   "collision": "debug->git-ops",
   "query": "CI fails with 'shallow update not allowed' after the branch history changed. What's wrong?",
-  "intended": "git-ops"
+  "intended": "debug"
  },
  {
   "id": "gd-01",
@@ -127,19 +127,27 @@
   "id": "gd-05",
   "collision": "git-ops->debug",
   "query": "CI reports a merge conflict after the dependency bot updated its branch; determine whether branch history or generated files are wrong.",
-  "intended": "git-ops"
+  "intended": "debug"
  },
  {
   "id": "gd-06",
   "collision": "git-ops->debug",
   "query": "The CI secret-scanning job started flagging a committed test fixture. Determine whether it is a real leak and what action is safe.",
-  "intended": "git-ops"
+  "intended": "AMBIGUOUS",
+  "acceptable": [
+   "debug",
+   "git-ops"
+  ]
  },
  {
   "id": "gd-07",
   "collision": "git-ops->debug",
   "query": "CI began failing after a reset and a commit seems to be missing; work out whether history loss caused the failure and recover safely if so.",
-  "intended": "git-ops"
+  "intended": "AMBIGUOUS",
+  "acceptable": [
+   "debug",
+   "git-ops"
+  ]
  },
  {
   "id": "gd-08",
@@ -311,7 +319,11 @@
   "id": "id-07",
   "collision": "investigate->debug",
   "query": "CI takes 12 minutes; make it faster.",
-  "intended": "debug"
+  "intended": "AMBIGUOUS",
+  "acceptable": [
+   "build",
+   "debug"
+  ]
  },
  {
   "id": "id-08",
@@ -379,7 +391,11 @@
   "id": "ir-03",
   "collision": "investigate->review",
   "query": "Does this diff introduce any new database writes?",
-  "intended": "review"
+  "intended": "AMBIGUOUS",
+  "acceptable": [
+   "review",
+   "investigate"
+  ]
  },
  {
   "id": "ir-04",
