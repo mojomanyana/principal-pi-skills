@@ -1,10 +1,10 @@
 ---
 name: debug
 description: >
-  Use when diagnosing a failure — a failing or flaky test, a stack trace, a crash, a CI or
-  lint error — "why is this failing", "find the bug", "debug this", "it crashes when",
-  "works on my machine". Not for writing new features or fixing a bug whose cause is
-  already known (build).
+  Use when the user wants the cause of a code, test, lint, runtime, or CI failure — including
+  one that began after a Git operation. The output is a diagnosis. Not for a Git command
+  failure, acting on Git/GitHub, or answering a repository-state question (git-ops), or
+  implementing a known fix (build).
 allowed-tools: read, grep, find, ls, bash, context:files
 ---
 
