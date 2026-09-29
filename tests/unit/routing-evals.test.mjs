@@ -5,7 +5,7 @@ import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
-import { auditDescriptionPairs } from "../../scripts/check-description-collisions.mjs";
+import { aggregateCollisionRuns, auditDescriptionPairs, parseRunCount } from "../../scripts/check-description-collisions.mjs";
 import { loadSkillDescriptions, orderedPairs } from "../../scripts/skill-descriptions.mjs";
 import {
   buildTriggerPayload,
@@ -203,6 +203,28 @@ test("model requests use 90-second low reasoning and retry only one timeout", as
     if (originalKey === undefined) delete process.env.FIREWORKS_API_KEY;
     else process.env.FIREWORKS_API_KEY = originalKey;
   }
+});
+
+test("collision run counts reject invalid or unbounded values before model calls", () => {
+  assert.equal(parseRunCount("1"), 1);
+  assert.equal(parseRunCount("3"), 3);
+  for (const value of ["0", "-1", "1.5", "nope", "9".repeat(400)]) {
+    assert.throws(() => parseRunCount(value), /positive safe integer/);
+  }
+});
+
+test("collision aggregation separates stable, any, and per-run counts", () => {
+  const result = (id, collision) => ({ id, collision, reason: collision ? "overlap" : "distinct" });
+  const aggregation = aggregateCollisionRuns([
+    [result("a->b", true), result("b->a", true), result("a->c", false)],
+    [result("a->b", true), result("b->a", false), result("a->c", false)],
+    [result("a->b", true), result("b->a", true), result("a->c", false)],
+  ]);
+  assert.deepEqual(aggregation, {
+    stable: ["a->b"],
+    any: ["a->b", "b->a"],
+    counts: [2, 1, 2],
+  });
 });
 
 test("collision auditing sends 42 one-pair requests with at most four in flight", async () => {
