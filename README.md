@@ -45,10 +45,10 @@ around.
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1080 |
 | `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1172 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1458) or inline | 1237 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1240) or inline | 1112 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1394) or inline | 1294 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1277) or inline | 1149 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1415) or inline | 1315 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1456) or inline | 1322 |
-| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1996 |
+| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 1998 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is the
@@ -181,8 +181,9 @@ Two opt-in routing checks use only the seven authored frontmatter descriptions. 
 `npm run check:routing-collisions` for all 42 directed description pairs and
 `npm run check:routing-triggers` for the three-run synthetic trigger suite. Both require
 `FIREWORKS_API_KEY`; `ROUTING_MODEL` and `ROUTING_API_URL` override the defaults. The suite
-starts with 12 positives and 8 near-miss negatives per skill, then adds authored collision-boundary
-and no-skill probes, and reports per-skill precision and recall at a 0.5 vote threshold. The
+starts with 12 positives and 8 near-miss negatives per skill (14 positives for git-ops), then
+adds authored collision-boundary and no-skill probes, and reports per-skill precision and recall
+at a 0.5 vote threshold. The
 original 140-case record is retained as `evals/baseline/triggers.pre-expansion.json`; it is
 not evidence for the expanded corpus. Regenerate `evals/baseline/triggers.json` after any
 corpus change.

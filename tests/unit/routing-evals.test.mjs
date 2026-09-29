@@ -49,15 +49,11 @@ test("generates all directed description pairs", () => {
   ]);
 });
 
-test("the authored trigger suite has 20 cases per skill at a 60/40 split", () => {
+test("the authored trigger suite has its declared per-skill split", () => {
   const root = join(dirname(fileURLToPath(import.meta.url)), "../..");
   const cases = JSON.parse(readFileSync(join(root, "evals/triggers.json"), "utf8"));
-  for (const skill of ["decide", "architect", "plan", "build", "review", "debug", "git-ops"]) {
-    const own = cases.filter((item) => item.skill === skill);
-    assert.equal(own.length, 20, skill);
-    assert.equal(own.filter((item) => item.positive).length, 12, skill);
-    assert.equal(own.filter((item) => !item.positive).length, 8, skill);
-  }
+  const adversarial = JSON.parse(readFileSync(join(root, "evals/adversarial-triggers.json"), "utf8"));
+  assert.doesNotThrow(() => validateTriggerCorpus(cases, adversarial));
 });
 
 test("expands intended, ambiguous, and no-skill queries into binary routing probes", () => {

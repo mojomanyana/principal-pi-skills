@@ -49,8 +49,10 @@ plan is a statement about dependencies, not a licence for concurrent edits.
    as if it were valid-but-empty is suppression with extra steps.
 6. **Self-review the diff before declaring done**: leftover print statements, dead code,
    swallowed errors, hardcoded secrets, tests that assert nothing.
-7. **Report honestly.** Run the full suite and report actual results verbatim. Name
-   anything hacky, guessed, or skipped. If the user insisted on skipping tests, deliver
+7. **Report honestly.** Run the full suite and report actual results verbatim. Use the
+   repository's declared full test command verbatim — `package.json` `test`, the Makefile
+   target, or whatever its CI runs — and report the exact passing and total counts from
+   its output; a narrower command is not evidence. Name anything hacky, guessed, or skipped. If the user insisted on skipping tests, deliver
    the code marked `UNTESTED (per request)` with the risk named — never a silent skip.
 
 ## Repair mode

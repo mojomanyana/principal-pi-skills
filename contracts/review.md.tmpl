@@ -105,8 +105,9 @@ ships is a failed review.
    change: read it once and do not re-derive it. The build report's `Full evidence:` line,
    when it names the exact command and a verbatim result, is test evidence — do not re-run
    the suite to confirm it; run one targeted test only when reading the code raises a
-   specific doubt, and say which doubt. Destructive probes (revert the fix, break an input)
-   and any run against a dirty tree belong in a disposable copy, never the caller checkout:
+   specific doubt, and say which doubt. If CI ran for the same commit, compare the build's
+   reported total with CI's test count; a mismatch is a finding. Destructive probes (revert
+   the fix, break an input) and any run against a dirty tree belong in a disposable copy, never the caller checkout:
    `npx -p principal-pi-skills principal-pi-workspace create` prints a throwaway worktree
    holding the exact working state. Work there, then `remove` it. If creation fails, only
    read or run a read-only check and return UNVERIFIED; never mutate the caller checkout.
