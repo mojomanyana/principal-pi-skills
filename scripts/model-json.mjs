@@ -24,19 +24,28 @@ export async function modelJson(messages) {
   const key = process.env.FIREWORKS_API_KEY;
   if (!key) throw new Error("FIREWORKS_API_KEY is required");
 
-  const response = await fetch(ENDPOINT, {
-    method: "POST",
-    headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
-    body: JSON.stringify({
-      model: MODEL,
-      messages,
-      temperature: 0.2,
-      response_format: { type: "json_object" },
-    }),
-  });
-  const body = await response.text();
-  if (!response.ok) throw new Error(`model request failed (${response.status}): ${body}`);
-  const content = JSON.parse(body).choices?.[0]?.message?.content;
-  if (typeof content !== "string") throw new Error("model response had no message content");
-  return JSON.parse(content.replace(/^```(?:json)?\s*|\s*```$/g, ""));
+  for (let attempt = 0; attempt < 2; attempt++) {
+    try {
+      const response = await fetch(ENDPOINT, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${key}`, "Content-Type": "application/json" },
+        body: JSON.stringify({
+          model: MODEL,
+          messages,
+          temperature: 0.2,
+          reasoning_effort: "low",
+          response_format: { type: "json_object" },
+        }),
+        signal: AbortSignal.timeout(90_000),
+      });
+      const body = await response.text();
+      if (!response.ok) throw new Error(`model request failed (${response.status}): ${body}`);
+      const content = JSON.parse(body).choices?.[0]?.message?.content;
+      if (typeof content !== "string") throw new Error("model response had no message content");
+      return JSON.parse(content.replace(/^```(?:json)?\s*|\s*```$/g, ""));
+    } catch (error) {
+      const timedOut = error?.name === "TimeoutError" || error?.cause?.code === "UND_ERR_HEADERS_TIMEOUT";
+      if (!timedOut || attempt === 1) throw error;
+    }
+  }
 }
