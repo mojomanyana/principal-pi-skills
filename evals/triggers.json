@@ -153,8 +153,6 @@
   {"id":"git-ops-p05","skill":"git-ops","positive":true,"query":"Rebase my branch onto main."},
   {"id":"git-ops-p06","skill":"git-ops","positive":true,"query":"Merge the approved pull request."},
   {"id":"git-ops-p07","skill":"git-ops","positive":true,"query":"Tag this release as v5.0.0."},
-  {"id":"git-ops-p08","skill":"git-ops","positive":true,"query":"Who wrote this line and when?"},
-  {"id":"git-ops-p09","skill":"git-ops","positive":true,"query":"When did this regression first enter the branch?"},
   {"id":"git-ops-p10","skill":"git-ops","positive":true,"query":"I committed on the wrong branch; help me recover."},
   {"id":"git-ops-p11","skill":"git-ops","positive":true,"query":"I lost two commits after a reset."},
   {"id":"git-ops-p12","skill":"git-ops","positive":true,"query":"I leaked an API key in git history."},

@@ -73,7 +73,7 @@
   "id": "dg-04",
   "collision": "debug->git-ops",
   "query": "Which commit introduced the test that is breaking CI?",
-  "intended": "git-ops"
+  "intended": "investigate"
  },
  {
   "id": "dg-05",
@@ -109,7 +109,7 @@
   "id": "gd-02",
   "collision": "git-ops->debug",
   "query": "Use git history to find when this CI failure first appeared.",
-  "intended": "git-ops"
+  "intended": "investigate"
  },
  {
   "id": "gd-03",
