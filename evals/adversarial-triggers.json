@@ -272,6 +272,164 @@
   "intended": "architect"
  },
  {
+  "id": "id-01",
+  "collision": "investigate->debug",
+  "query": "How does the auth middleware decide which routes need a token?",
+  "intended": "investigate"
+ },
+ {
+  "id": "id-02",
+  "collision": "investigate->debug",
+  "query": "Requests to /admin get 403 for valid admins. Why?",
+  "intended": "debug"
+ },
+ {
+  "id": "id-03",
+  "collision": "investigate->debug",
+  "query": "Where is the retry policy configured, and what are the current values?",
+  "intended": "investigate"
+ },
+ {
+  "id": "id-04",
+  "collision": "investigate->debug",
+  "query": "The retry policy never fires on timeouts. Find the cause.",
+  "intended": "debug"
+ },
+ {
+  "id": "id-05",
+  "collision": "investigate->debug",
+  "query": "Map every place we call the payments API and what each call sends.",
+  "intended": "investigate"
+ },
+ {
+  "id": "id-06",
+  "collision": "investigate->debug",
+  "query": "CI takes 12 minutes; which steps take the time?",
+  "intended": "investigate"
+ },
+ {
+  "id": "id-07",
+  "collision": "investigate->debug",
+  "query": "CI takes 12 minutes; make it faster.",
+  "intended": "debug"
+ },
+ {
+  "id": "id-08",
+  "collision": "investigate->debug",
+  "query": "Tests pass locally and fail in CI; what's different between the environments?",
+  "intended": "AMBIGUOUS",
+  "acceptable": [
+   "investigate",
+   "debug"
+  ]
+ },
+ {
+  "id": "ic-01",
+  "collision": "investigate->decide",
+  "query": "Which of our services still use the legacy logger?",
+  "intended": "investigate"
+ },
+ {
+  "id": "ic-02",
+  "collision": "investigate->decide",
+  "query": "Should we drop the legacy logger this quarter?",
+  "intended": "decide"
+ },
+ {
+  "id": "ic-03",
+  "collision": "investigate->decide",
+  "query": "How many endpoints have no rate limit, and which are public?",
+  "intended": "investigate"
+ },
+ {
+  "id": "ic-04",
+  "collision": "investigate->decide",
+  "query": "Given the unprotected endpoints, which should we rate-limit first?",
+  "intended": "decide"
+ },
+ {
+  "id": "ic-05",
+  "collision": "investigate->decide",
+  "query": "Inventory the third-party dependencies with known CVEs.",
+  "intended": "investigate"
+ },
+ {
+  "id": "ic-06",
+  "collision": "investigate->decide",
+  "query": "Inventory the dependencies with CVEs and tell me which to upgrade now.",
+  "intended": "AMBIGUOUS",
+  "acceptable": [
+   "investigate",
+   "decide"
+  ]
+ },
+ {
+  "id": "ir-01",
+  "collision": "investigate->review",
+  "query": "Review this PR for correctness and security.",
+  "intended": "review"
+ },
+ {
+  "id": "ir-02",
+  "collision": "investigate->review",
+  "query": "Explain what this module does before I review it.",
+  "intended": "investigate"
+ },
+ {
+  "id": "ir-03",
+  "collision": "investigate->review",
+  "query": "Does this diff introduce any new database writes?",
+  "intended": "review"
+ },
+ {
+  "id": "ir-04",
+  "collision": "investigate->review",
+  "query": "Which modules currently write to the orders table?",
+  "intended": "investigate"
+ },
+ {
+  "id": "ir-05",
+  "collision": "investigate->git-ops",
+  "query": "Summarize what changed between v4.4.0 and v4.5.0.",
+  "intended": "investigate"
+ },
+ {
+  "id": "ir-06",
+  "collision": "investigate->git-ops",
+  "query": "Tag v4.5.0 and push it.",
+  "intended": "git-ops"
+ },
+ {
+  "id": "ia-01",
+  "collision": "investigate->architect",
+  "query": "Describe our current service layout as it actually is in the code.",
+  "intended": "investigate"
+ },
+ {
+  "id": "ia-02",
+  "collision": "investigate->architect",
+  "query": "Review our architecture and propose a better layout.",
+  "intended": "architect"
+ },
+ {
+  "id": "ia-03",
+  "collision": "investigate->architect",
+  "query": "Which services talk to each other, from the code, not the docs?",
+  "intended": "investigate"
+ },
+ {
+  "id": "ia-04",
+  "collision": "investigate->architect",
+  "query": "Design the target service layout for multi-region.",
+  "intended": "architect"
+ },
+ {
+  "id": "in-01",
+  "collision": "investigate->none",
+  "query": "What does our API return for an empty list, 200 or 204?",
+  "intended": "investigate"
+ },
+ {
   "id": "none-01",
   "category": "hard-negative",
   "query": "Explain what eventual consistency means in two sentences.",
