@@ -5,583 +5,581 @@
   "stable": [],
   "any": [
     "decide->build",
+    "architect->decide",
     "architect->review",
-    "build->debug",
-    "review->plan",
-    "review->build",
-    "debug->investigate",
-    "git-ops->investigate"
+    "review->architect",
+    "review->build"
   ],
   "runs": [
     {
       "run": 1,
-      "collisionCount": 4,
+      "collisionCount": 2,
       "results": [
         {
           "id": "decide->architect",
           "collision": false,
-          "reason": "The descriptions carve clean boundaries: decide handles choice-with-rationale (\"should I\", build-vs-buy) and explicitly excludes defining components/boundaries; architect handles structure and explicitly excludes choosing whether or which option. A request like \"should we build or buy\" lands squarely in decide's positive scope and is excluded by architect, so no normal request in decide's scope would reasonably trigger architect."
+          "reason": "Scopes are cleanly separated by output type: decide yields one choice with rationale, architect yields a structure of components/boundaries/data. Each explicitly excludes the other, and shared phrasing like 'should I' maps to choice-making, not structure design."
         },
         {
           "id": "decide->plan",
           "collision": false,
-          "reason": "The outputs are distinct: decide yields one choice with rationale, plan yields an ordered implementation sequence. A request inside decide's scope (\"should I\", \"is this a good idea\") asks for a choice, not a work sequence, and each description explicitly excludes the other. Shared phrasing like \"scope this refactor\" vs \"build-vs-buy\" doesn't create a case where a clearly in-scope decide request would reasonably trigger plan."
+          "reason": "Distinct outputs: decide yields one choice with rationale; plan yields an ordered implementation sequence. A request inside decide's scope (\"should I build or buy?\") asks for a choice, not a step sequence, and each route explicitly excludes the other's output. Shared planning vocabulary alone doesn't create overlap."
         },
         {
           "id": "decide->build",
-          "collision": true,
-          "reason": "Decide's scope includes 'build-vs-buy' phrasing, and build's trigger list includes the literal phrase 'build it'. A user asking 'should we build this ourselves?' is squarely in decide's scope but contains vocabulary ('build') that could reasonably route to build, and neither description's exclusions (build excludes 'deciding what to build') unambiguously filters it."
+          "collision": false,
+          "reason": "Source handles choice-with-rationale requests (\"should I\", options, build-vs-buy); target handles concrete implementation requests. A normal request inside decide's scope (\"should we build or buy?\") asks for a decision, not code, and would not reasonably trigger build despite the shared word \"build\" — build's \"build it\" implies executing an already-chosen implementation."
         },
         {
           "id": "decide->review",
           "collision": false,
-          "reason": "Decide handles unsettled choices with rationale (build-vs-buy, options); review handles evaluating existing code/diffs before merge. A decision request doesn't reference code to review, and review's triggers (\"review this\", \"check this diff\") don't overlap decision phrasing. \"Is this a good idea\" (decide) vs \"is this over-engineered\" (review) target different objects: a plan vs concrete code."
+          "reason": "Decide handles choice-with-rationale questions (build-vs-buy, options); review handles evaluating code/diffs before landing. A normal decision request doesn't involve a code diff, and shared phrasing like 'is this a good idea' resolves by object (choice vs code)."
         },
         {
           "id": "decide->debug",
           "collision": false,
-          "reason": "A decision request (choice with rationale) and a failure diagnosis request are distinct intents; a normal 'should I' question would not reasonably trigger the debug router, and vice versa. No shared vocabulary overlap in scope."
+          "reason": "A decision request ('should I', options with rationale) asks for a choice, not a diagnosis of a failure; debug's scope requires an actual code/test/CI failure. Shared phrasing like 'is this a good idea' doesn't imply a failure exists, so no normal request inside decide's scope reasonably triggers debug."
         },
         {
           "id": "decide->investigate",
           "collision": false,
-          "reason": "Investigate explicitly excludes choices (decide) and its output is a factual report, not a decision with rationale; a 'should I' request falls squarely in decide's scope and is excluded by investigate's description."
+          "reason": "Investigate explicitly excludes choices (decide), and its output is a factual report, not a selection with rationale. A 'should I' request lands in decide, not investigate; overlap is only surface vocabulary, not a routing collision."
         },
         {
           "id": "decide->git-ops",
           "collision": false,
-          "reason": "Decision requests (choice + rationale) and Git repository operations share no overlapping user intent; a 'should I' question would not reasonably trigger git-ops."
+          "reason": "Decide handles choice-with-rationale requests; git-ops handles concrete Git operations. A decision request ('should I rebase or merge?') yields a rationale, not a repository action, and git-ops excludes diagnosis/advice. No shared positive scope."
         },
         {
           "id": "architect->decide",
           "collision": false,
-          "reason": "Scopes are cleanly partitioned by output type: architect produces structure (components, boundaries, ADRs), decide produces a single choice with rationale. The mutual exclusions explicitly hand off 'should I / which option' requests to decide and 'define components/boundaries' requests to architect, so a normal request clearly inside architect's positive scope (e.g., 'design a system' or 'write an ADR') would not reasonably trigger decide. Shared vocabulary like 'design' or 'architecture' alone doesn't create overlap."
+          "reason": "Each description explicitly excludes the other's output: architect excludes choosing among options, and decide excludes defining components/boundaries. A request like 'how should I structure this system' lands in architect, while 'should we build or buy' lands in decide; the exclusions cleanly separate them despite shared design vocabulary."
         },
         {
           "id": "architect->plan",
           "collision": false,
-          "reason": "Outputs differ: architect produces a structure (components, boundaries, ADRs); plan produces an ordered implementation sequence. A request for structure is not reasonably a request for work ordering, and each description explicitly excludes the other."
+          "reason": "Architect outputs structure (components, boundaries, ADRs); plan outputs ordered implementation steps. Each explicitly excludes the other's output type, and a request for structure vs. sequencing is clearly distinguishable despite both involving decomposition."
         },
         {
           "id": "architect->build",
           "collision": false,
-          "reason": "Scopes are distinct: architect produces structure (components, ADRs) from design drivers, while build produces code for known implementations. A request inside architect's scope (e.g. 'design a system', 'write an ADR') would not reasonably trigger build, and build's exclusions (debug, plan) don't pull in architecture work. Shared words like 'build'/'design' alone don't create overlap."
+          "reason": "Architect requests produce structure/ADRs, not code; build's triggers (implement, fix, write function) don't match. 'Build it' is ambiguous but a normal architect request like 'design a system' wouldn't reasonably trigger build."
         },
         {
           "id": "architect->review",
           "collision": true,
-          "reason": "Source's positive scope explicitly includes 'review our architecture', and target's trigger 'review this' / 'is this over-engineered' is broad enough that a user asking for an architecture review could reasonably route to the code-review description; neither description excludes the other's domain."
+          "reason": "Source explicitly claims 'review our architecture', but target's broad trigger 'review this' / 'check this diff' could reasonably capture an architecture review request despite target's code-before-landing framing; the exclusions don't disambiguate the shared 'review' phrasing."
         },
         {
           "id": "architect->debug",
           "collision": false,
-          "reason": "Architect handles system structure design from measurable drivers; debug handles diagnosing failures. A request for structure/design output doesn't reasonably trigger failure diagnosis, and vice versa."
+          "reason": "Architect handles structural design questions (components, boundaries, ADRs); debug handles diagnosing failures. A request inside architect's scope (e.g., 'design a system') would not reasonably trigger a failure-diagnosis route, and shared vocabulary like 'review' doesn't create overlap."
         },
         {
           "id": "architect->investigate",
           "collision": false,
-          "reason": "Investigate outputs a factual report on current state, while architect produces a proposed structure from drivers. Investigate explicitly excludes target designs (architect), and phrases like 'how should I structure' or 'write an ADR' ask for a design, not a description of what is. Shared vocabulary about architecture doesn't make a normal architect request reasonably trigger investigate."
+          "reason": "Architect produces a target structure from drivers; investigate reports current facts. Investigate explicitly excludes target designs (architect), and architect's outputs (designs, ADRs) don't match investigate's factual 'what is' scope. Overlap like 'review our architecture' is excluded from architect and routed to review, not investigate."
         },
         {
           "id": "architect->git-ops",
           "collision": false,
-          "reason": "Architecture requests (structure, ADRs) share no vocabulary with Git/GitHub operations (commit, PR, rebase); a normal architecture request could not reasonably trigger the Git routing."
+          "reason": "Architecture requests ask for system structure, ADRs, or design review; git-ops handles concrete repository operations. A user asking to design or review a system structure would not reasonably trigger commit/branch/PR/rebase actions, and the vocabularies share no overlapping phrasing."
         },
         {
           "id": "plan->decide",
           "collision": false,
-          "reason": "Scopes are cleanly separated: plan outputs an ordered implementation sequence; decide outputs a single choice with rationale. Each explicitly excludes the other, and shared phrasing like 'scope this refactor' vs 'should I' maps to only one intent — a request for ordering work wouldn't reasonably trigger decide, and a build-vs-buy question wouldn't trigger plan."
+          "reason": "Scopes are cleanly separated: plan outputs an ordered implementation sequence while decide outputs a single choice with rationale. Each explicitly excludes the other, and shared phrasing like 'scope this refactor' vs 'should I' maps to distinct intents — a user asking for order of work would not reasonably trigger decide, nor vice versa."
         },
         {
           "id": "plan->architect",
           "collision": false,
-          "reason": "Plan produces an ordered implementation sequence; architect produces a system structure. A request inside plan's scope (e.g., 'what's the order of work') asks for sequencing, not component/boundary design, and architect explicitly excludes ordering work. Shared topic (refactoring/systems) is not enough for a collision."
+          "reason": "The pairs produce distinct outputs (ordered implementation sequence vs. system structure) and each explicitly excludes the other's trigger phrases. Shared vocabulary like 'refactor' or 'design' doesn't make a plan request reasonably trigger architect, since 'break this down'/'what's the order' clearly maps to sequencing, not component definition."
         },
         {
           "id": "plan->build",
           "collision": false,
-          "reason": "A request inside plan's scope asks for an ordered breakdown/sequence of work, not code. Build's trigger phrases (\"fix this\", \"implement the spec\") describe doing the work, and build explicitly excludes deciding what to do (plan). The descriptions' exclusions cleanly separate sequencing from implementation, so a normal plan-scope request would not reasonably trigger build."
+          "reason": "A user asking for an ordered breakdown or sequencing of work wants a plan as the deliverable, not code. Even phrases like 'plan the fix' request the sequence, and build's exclusion ('deciding what to build (plan)') plus plan's explicit exclusion of writing code keep the scopes disjoint. Shared words like 'fix' or 'refactor' alone don't create a collision."
         },
         {
           "id": "plan->review",
           "collision": false,
-          "reason": "Plan handles sequencing future work ('break this down', 'where do I start'); review handles evaluating existing code/diffs before merge. A planning request doesn't reasonably trigger a code review despite both touching implementation topics."
+          "reason": "Planning requests (sequencing work, 'where do I start') produce an ordered implementation plan, not a code review; review targets existing diffs/code before landing. A normal planning request would not reasonably trigger review."
         },
         {
           "id": "plan->debug",
           "collision": false,
-          "reason": "A planning request ('break this down', 'plan the fix') asks for an ordered sequence of work, while debug requires the user to want a cause diagnosis. Plan explicitly excludes diagnosing failures, and a failure-related planning request still seeks a sequence, not a diagnosis, so a normal request inside plan's scope would not reasonably trigger debug."
+          "reason": "A planning request (\"plan the fix\", \"break this down\") asks for an ordered sequence of work, not a diagnosis of a failure's cause. Debug's scope requires the user to want the cause of a failure; sequencing known or scoped work doesn't reasonably trigger that, and debug's exclusions don't overlap plan's positive scope."
         },
         {
           "id": "plan->investigate",
           "collision": false,
-          "reason": "A user asking for an ordered sequence of work ('break this down', 'what's the order') wants an executable plan, not a factual report on current behavior. Investigate's scope is descriptive-only output with citations and explicitly excludes choosing or acting; a planning request's deliverable (per-step specs) doesn't fit that. Shared phrasing like 'where do I start' vs 'where is' is vocabulary overlap, not a genuine routing collision."
+          "reason": "A user asking for an ordered sequence of work ('break this down', 'what's the order of work') wants an executable plan, not a factual report on current behavior. Investigate's scope covers 'how does'/'where is' questions producing cited reports with nothing changed or chosen; a planning request's deliverable (per-step specs) falls outside that. Overlap in phrasing like 'where do I start' vs 'where is' is shared vocabulary, not a genuine routing collision."
         },
         {
           "id": "plan->git-ops",
           "collision": false,
-          "reason": "Planning requests ask for ordered implementation steps; git-ops triggers on concrete repository operations. A 'plan the fix' request stays in plan's scope and doesn't reasonably trigger git-ops."
+          "reason": "Plan's scope is sequencing implementation work (breakdown, ordering, scoping); Git-ops handles concrete repository operations. A planning request like 'plan the fix' or 'scope this refactor' would not reasonably trigger Git-ops, and Git-ops requests (commit, rebase, PR) don't fall inside plan's positive scope. Overlap only if a plan's steps happened to involve git, which is shared vocabulary, not a routing collision."
         },
         {
           "id": "build->decide",
           "collision": false,
-          "reason": "A normal build request (\"implement this\", \"fix this\") asks for code, not a choice with rationale. The source explicitly excludes deciding what to build, and the target requires an unsettled decision question — shared words like \"build\" in \"build-vs-buy\" don't make implementation requests trigger decide."
+          "reason": "A normal build request (\"implement this\", \"fix this\") asks for code, not a choice with rationale; build's exclusion explicitly routes 'deciding what to build' to plan, and decide's scope requires an unsettled decision question. Shared words like 'build' in 'build-vs-buy' don't make an implementation request trigger decide."
         },
         {
           "id": "build->architect",
           "collision": false,
-          "reason": "Build requests are concrete implementation tasks with a known spec ('write the function', 'fix this'), while architect requires structural design questions ('how should I structure', 'design a system'). A normal build request implies the design already exists; shared words like 'build' in build's examples don't pull structural-design requests into it."
+          "reason": "Build's scope is concrete implementation (write/fix/refactor code with known intent), while Architect produces system structure from drivers. A normal build request like 'implement the spec' or 'fix this bug' targets code changes, not structural design; overlap is only shared vocabulary ('build it'), which implies implementation, not architecture."
         },
         {
           "id": "build->plan",
           "collision": false,
-          "reason": "Build handles direct implementation requests; plan handles requests for ordered breakdown/sequencing. A normal request inside build's scope (\"write the function\", \"fix this\") asks for code, not a step sequence, and plan explicitly excludes writing code. Shared vocabulary like \"fix\"/\"refactor\" appears in both, but the intent differs clearly, and both descriptions' exclusions point to the other route."
+          "reason": "Build handles direct implementation requests; plan handles requests for ordered breakdowns. A normal build request (\"write the function\", \"implement the spec\") asks for code, not a sequence of steps, and plan explicitly excludes writing code. Only when a user explicitly asks to break work down would plan trigger, which is not inside build's positive scope."
         },
         {
           "id": "build->review",
           "collision": false,
-          "reason": "Build requests ask to write/fix/refactor code; review requests ask to evaluate existing code before landing. A normal 'implement this' or 'fix this bug' request does not reasonably trigger a review description, and the build description explicitly excludes only debug/plan, not review. Shared code vocabulary alone is not a collision."
+          "reason": "A normal build request (\"implement this\", \"fix this bug\") asks for code production, not evaluation. Review's scope triggers on evaluation-oriented asks (\"review this\", \"is this ready to merge\") or a follow-up step, not on implementation requests themselves. Shared context (both involve code) is not a collision."
         },
         {
           "id": "build->debug",
           "collision": false,
-          "reason": "The pair's exclusions cleanly divide the space: build handles fixes with a known cause, debug handles diagnosing unknown failures. A normal request inside build's scope (e.g., 'implement the spec', 'fix this' with known cause) would not reasonably trigger debug, and debug explicitly excludes implementing a known fix."
+          "reason": "The descriptions explicitly partition on cause knowledge: build handles fixes with a known cause, debug handles diagnosing unknown failures, and each excludes the other. A normal request lands clearly in one scope, so shared vocabulary like \"fix\" does not create a collision."
         },
         {
           "id": "build->investigate",
           "collision": false,
-          "reason": "Build requests ask for code changes (implement/fix/refactor); investigate is strictly read-only factual reporting. A normal build request would not reasonably trigger investigate, and investigate's exclusions don't overlap build's positive scope."
+          "reason": "Build handles code-writing/fixing with known causes; investigate is read-only factual reporting. A normal build request (\"implement the spec\", \"make the test pass\") asks for changes, not a report, so it would not reasonably trigger investigate."
         },
         {
           "id": "build->git-ops",
           "collision": false,
-          "reason": "Build requests are about writing/fixing code, not performing Git operations; git-ops requires an explicit Git action (commit, PR, rebase, etc.), which a normal build request does not include. Shared mention of 'tests' or 'fix' does not make a code-writing request reasonably trigger git-ops."
+          "reason": "Build's scope is writing/implementing code; git-ops covers repository operations (commit, PR, merge, etc.). A normal build request like 'implement the spec' or 'make the test pass' targets code creation, not a Git action, and git-ops explicitly excludes debugging rather than building. Shared words like 'fix'/'build' don't make a code-writing request reasonably trigger a repo-operation route."
         },
         {
           "id": "review->decide",
           "collision": false,
-          "reason": "Review requests target code quality feedback on existing diffs, while decide requires an unsettled choice with a rationale. Shared phrasing like \"is this a good idea\" only collides when no diff/code is in scope; a normal review request (\"is this over-engineered\" about a diff) clearly resolves to review, and decide's exclusions don't pull in code review."
+          "reason": "Review requests target existing code quality (bugs, simplicity, merge-readiness), while decide requires an unsettled choice among options with a rationale. A normal review request like 'simplify this' or 'check this diff' asks for code assessment, not a selection among alternatives, so it would not reasonably trigger decide despite overlapping judgment vocabulary like 'is this over-engineered'."
         },
         {
           "id": "review->architect",
           "collision": false,
-          "reason": "Source covers code-level review (bugs, simplicity of a diff/implementation); target covers system structure design and explicitly claims architecture reviews and ADRs. A normal source request like 'review this diff' concerns code correctness/simplicity, not component boundaries, so target's scope wouldn't reasonably trigger despite shared 'review' vocabulary."
+          "reason": "Source's scope is code-level review of a concrete diff before landing (bugs, edge cases, simplicity of code); target's scope is producing system structure from drivers (components, boundaries, ADRs). Shared word 'review' alone doesn't create overlap: a user asking to check a diff or ask if code is over-engineered stays in source, while 'how should I structure' / 'design a system' requests are clearly architectural and not inside source's positive scope. Neither description's exclusions leave a request that reasonably routes to both."
         },
         {
           "id": "review->plan",
           "collision": false,
-          "reason": "Review requests (assess a diff/implementation for correctness and simplicity) and planning requests (ordered implementation steps) are distinct intents; shared code context doesn't make a review request reasonably trigger the planner."
+          "reason": "Review handles correctness/simplicity feedback on existing code; plan produces an ordered implementation sequence. A normal review request ('is this ready to merge', 'simplify this') asks for assessment, not a step-by-step work plan, so no in-scope request reasonably triggers plan."
         },
         {
           "id": "review->build",
           "collision": true,
-          "reason": "A request like \"simplify this\" sits squarely in review's positive scope, but simplification is also a form of refactoring, which build explicitly covers — so a normal user request inside review's scope could reasonably trigger build."
+          "reason": "Review explicitly claims 'simplify this', which is a refactoring request that build's scope ('refactor') could also reasonably capture; neither description excludes the other's territory, so a simplification request inside review's positive scope could route to build."
         },
         {
           "id": "review->debug",
           "collision": false,
-          "reason": "A normal review request (\"review this\", \"is this ready to merge\") asks for correctness/simplicity assessment, not a diagnosis of a failure's cause. Debug requires the user to want the cause of a code/test/CI failure; shared vocabulary about bugs or errors doesn't make a review request reasonably route to diagnosis."
+          "reason": "Review handles proactive pre-merge evaluation ('is this ready to merge', 'check this diff'), while debug requires an actual failure whose cause the user wants diagnosed. A normal review request doesn't imply a failure exists, so the intents are distinct despite both touching correctness topics."
         },
         {
           "id": "review->investigate",
           "collision": false,
-          "reason": "Investigate explicitly excludes 'a verdict on a diff (review)'. Review requests are verdict-oriented (merge-readiness, bugs, simplicity judgments), while investigate produces factual reports without judgment. Shared surface phrasing like 'check this diff' resolves to review's verdict scope, and investigate's exclusion clause routes it away."
+          "reason": "Review requests a verdict on a diff (bugs, simplicity, merge-readiness), while investigate only produces factual reports of current behavior and explicitly excludes verdicts on diffs. A normal review request ('is this ready to merge') would not reasonably trigger investigate, and investigate's own description excludes review's scope."
         },
         {
           "id": "review->git-ops",
           "collision": false,
-          "reason": "Source routes code-review requests (correctness, simplicity feedback); target routes repository mutation actions (commit, PR, merge, etc.). A normal review request like 'is this ready to merge' asks for an assessment, not a Git action, and target explicitly excludes diagnosing/evaluating code. Shared words like 'merge' or 'diff' don't make a review request reasonably trigger the action router."
+          "reason": "Review requests ask for code quality/correctness feedback, not repository mutations. Even 'check this diff' seeks review commentary, not a commit/PR/merge action. Target's scope is performing Git operations, and it explicitly excludes diagnosis/analysis. Shared vocabulary ('diff', 'merge') alone doesn't route review requests to git-ops."
         },
         {
           "id": "debug->decide",
           "collision": false,
-          "reason": "A request for the cause of a failure seeks a diagnosis, not a choice with rationale; the two scopes don't overlap on shared vocabulary."
+          "reason": "A request inside debug's scope asks for a diagnosis of a failure, not a choice among options. Even edge cases like 'why did my build fail and what should I do' center on cause-finding; decide requires an unsettled decision ('should I', 'which option') as the primary ask, which a failure diagnosis does not reasonably trigger."
         },
         {
           "id": "debug->architect",
           "collision": false,
-          "reason": "Debug diagnoses a concrete failure; architect designs or reviews system structure. A failure-diagnosis request does not reasonably trigger an architecture-design description, and vice versa."
+          "reason": "A user asking for the cause of a code/test/CI failure wants a diagnosis, not a system structure, ADR, or design guidance. The scopes (failure diagnosis vs. structural design) share no overlapping request surface, so a normal debug request would not reasonably trigger the architect route."
         },
         {
           "id": "debug->plan",
           "collision": false,
-          "reason": "A request inside debug's scope (diagnosing a failure) yields a diagnosis, which plan explicitly excludes ('diagnosing failures (debug)'). Plan's scope is producing an ordered implementation sequence; shared phrases like 'plan the fix' only apply when the user wants sequencing, not a cause. No normal debug request reasonably triggers plan."
+          "reason": "A request inside debug's scope asks for a diagnosis of a failure; plan explicitly excludes diagnosing failures and its outputs are an ordered implementation sequence. Even 'plan the fix' presupposes a known cause, which debug excludes (implementing a known fix → build). No normal debug request reasonably triggers plan."
         },
         {
           "id": "debug->build",
           "collision": false,
-          "reason": "Debug's scope is diagnosing unknown failures, and it explicitly excludes implementing a known fix; build's scope is writing code with a known cause and excludes diagnosing unknown failures. A normal request falls clearly on one side — no shared trigger zone."
+          "reason": "A normal request inside debug's scope is diagnosing an unknown failure, whose output is a diagnosis — not writing code. Requests with a known cause/fix belong to build by both descriptions' explicit exclusions, so no in-scope debug request reasonably triggers build."
         },
         {
           "id": "debug->review",
           "collision": false,
-          "reason": "Debug diagnoses the cause of an existing failure and outputs a diagnosis; review evaluates code before landing. A user asking 'why did this fail' is not requesting a pre-merge review of a diff, and review's scope (correctness/simplicity of code) doesn't cover failure diagnosis. Shared terms like 'bugs' don't create overlap."
+          "reason": "A user asking for the cause of a failure wants a diagnosis, not a pre-merge review; review's scope (checking a diff before landing) doesn't reasonably capture 'why did this fail'. Shared terms like 'bugs' don't make the requests interchangeable."
         },
         {
           "id": "debug->investigate",
-          "collision": true,
-          "reason": "A request like 'tests started failing after commit X — what changed in that commit?' sits squarely in debug's scope (cause of a failure, one that began after a Git operation) while also matching investigate's 'what changed between' / 'which commit' phrasing; investigate's exclusion of failure causes may not prevent the overlap for such mixed requests."
+          "collision": false,
+          "reason": "Debug requests ask for the cause of a failure (diagnosis), while investigate covers factual reports of current behavior/layout. A user asking why something fails is clearly inside debug's scope and investigate explicitly excludes failure causes; the outputs (diagnosis vs. factual report) also differ, so a normal debug request would not reasonably trigger investigate."
         },
         {
           "id": "debug->git-ops",
           "collision": false,
-          "reason": "debug handles diagnosing failures (even post-Git-operation), while git-ops explicitly excludes diagnosis and covers only performing Git actions. A normal debug request like 'why do tests fail after my merge?' stays in debug's scope and would not reasonably trigger git-ops, whose exclusions carve out exactly that case."
+          "reason": "debug explicitly excludes Git command failures and repository-state questions, routing them to git-ops; a normal diagnosis request (why code/tests/CI failed) does not reasonably trigger git-ops, whose scope is performing Git actions, not diagnosing failures."
         },
         {
           "id": "investigate->decide",
           "collision": false,
-          "reason": "Investigate covers factual 'what is' questions with no choice being made; decide requires an unsettled decision with a rationale. A user asking how code behaves is not seeking a choice, and the descriptions explicitly exclude each other's scope."
+          "reason": "Investigate covers factual 'what is' questions with no choice requested; decide requires an unsettled decision ('should I', options). A normal investigate request (e.g., 'how does X work', 'where is Y') does not reasonably trigger decide, and the exclusions explicitly separate them."
         },
         {
           "id": "investigate->architect",
           "collision": false,
-          "reason": "Investigate serves factual 'what is' questions (how does, where is, what changed) with citations; architect serves prescriptive design requests ('how should I structure', 'design a system'). A normal request inside investigate's scope asks about current behavior, not a target structure, so it would not reasonably trigger architect."
+          "reason": "Investigate requests ask what currently is (factual reports with citations); architect requests ask how a system should be structured from drivers. A normal 'how does/where is' request would not reasonably trigger the architect description, and the source explicitly excludes target-design questions."
         },
         {
           "id": "investigate->plan",
           "collision": false,
-          "reason": "Investigate covers factual 'what is' questions producing a report; plan covers requests for an ordered work sequence. A normal investigate request ('how does X behave', 'where is Y') asks for facts, not an implementation sequence, and plan's exclusions (debug, decide) don't pull it in. Shared phrasing like 'where do I start' is plan's explicit scope, not ambiguous with a factual report."
+          "reason": "Investigate covers factual 'what is' questions answered with a cited report; plan covers requests for an ordered implementation sequence. A normal investigate request (e.g., 'how does X behave', 'where is Y') asks for a factual report, not a work plan, so it would not reasonably trigger plan."
         },
         {
           "id": "investigate->build",
           "collision": false,
-          "reason": "Investigate's scope is strictly read-only factual reporting ('how does', 'where is', 'what changed') with explicit exclusion of changing or fixing anything. A normal request inside that scope (e.g., 'how does X behave?') would not reasonably trigger build, whose scope requires writing or modifying code ('fix this', 'implement'). The scopes are disjoint on the change/no-change axis, and shared vocabulary like 'fix' appears only in build's positive scope with a known cause, which investigate explicitly excludes."
+          "reason": "Investigate's scope is read-only factual reporting (\"how does\", \"where is\", \"what changed\") with explicit exclusion of changing anything; build requires writing/fixing code. A normal request inside investigate's positive scope (a factual question answered with citations, nothing changed) would not reasonably trigger build. Shared vocabulary like \"fix a bug with a known cause\" in build's description doesn't overlap investigate's read-only intent."
         },
         {
           "id": "investigate->review",
           "collision": false,
-          "reason": "Investigate covers factual reports on current state/history with citations and explicitly excludes verdicts on diffs; review targets pre-merge judgment of a diff. A request like 'what changed between commits' seeks facts, not a merge verdict, so the exclusions keep them apart despite shared diff/history vocabulary."
+          "reason": "Investigate covers factual questions about current state/history with no verdict, while review targets judging a diff before landing. A request inside investigate's scope (e.g., 'how does X work', 'what changed between commits') asks for a factual report, not a merge-readiness verdict, and review's scope requires a diff under judgment. Overlap like 'what changed' is historical reporting, not diff review."
         },
         {
           "id": "investigate->debug",
           "collision": false,
-          "reason": "The source explicitly excludes 'the cause of a failure (debug)', and the target excludes repository-state questions. A factual 'how does/where is' request routes cleanly to investigate, while failure-cause requests route to debug; the descriptions' exclusions disambiguate the shared surface vocabulary."
+          "reason": "The source description explicitly excludes 'the cause of a failure (debug)', and the target excludes repository-state questions. A request like 'how does X behave' stays in investigate; 'why does X fail' routes to debug. The boundary is explicitly drawn in both descriptions, so no normal request inside investigate's scope reasonably triggers debug."
         },
         {
           "id": "investigate->git-ops",
           "collision": false,
-          "reason": "Investigate requests are read-only factual questions ('how does', 'which commit', 'when did') with no repository action requested. Git-ops requires an action (commit, rebase, recover, etc.); a pure informational query would not trigger it, and investigate explicitly excludes acting on the repository."
+          "reason": "Investigate requests are read-only factual reports (how does, where is, what changed); they produce no repository action. A request like 'what changed between commits' is answered with a report, not by performing commits, rebases, or other Git operations, so no normal investigate request reasonably triggers git-ops."
         },
         {
           "id": "git-ops->decide",
           "collision": false,
-          "reason": "Git operations (commit, PR, merge, etc.) produce repository actions, not choices with rationale; a normal git request wouldn't reasonably trigger the decision router, and the decision scope (should-I/vendor choices) doesn't overlap git vocabulary."
+          "reason": "Git operations (commit, PR, merge, etc.) and decision requests ('should I', options with rationale) have disjoint scopes; a normal request inside git-ops's positive scope would not reasonably trigger decide."
         },
         {
           "id": "git-ops->architect",
           "collision": false,
-          "reason": "Git operation requests (commit, PR, rebase, etc.) fall entirely outside the architect's scope of system structure/design/ADRs; no shared vocabulary or overlap in positive scopes."
+          "reason": "Git operations (commit, PR, rebase, etc.) produce repository changes, not system structure; a normal Git request would not reasonably trigger the architect routing, and the architect scope (structure design, ADRs) doesn't overlap Git's positive scope."
         },
         {
           "id": "git-ops->plan",
           "collision": false,
-          "reason": "Git operations (commit, PR, rebase, etc.) and implementation planning requests are disjoint scopes; a normal Git request would not reasonably trigger the planning route."
+          "reason": "Git operations (commit, PR, rebase, recovery) and ordered implementation planning are distinct scopes. A normal Git request like 'recover a lost commit' or 'open a PR' would not reasonably trigger the planner, and 'plan the fix' requests are explicitly excluded from git-ops even when they follow a Git operation. Shared phrasing like 'fix' alone doesn't create overlap."
         },
         {
           "id": "git-ops->build",
           "collision": false,
-          "reason": "Git operations (commits, PRs, rebases, conflict resolution, repo repair) are distinct from writing/implementing code. A normal request in git-ops scope (e.g., 'open a PR', 'resolve this merge conflict') would not reasonably trigger the build router, and build-scope requests ('implement this function') don't map to repository operations. The overlap is only incidental vocabulary like 'fix', not a genuine routing ambiguity."
+          "reason": "Git operations (commit, PR, rebase, tag, release) are repository actions, not code-writing requests. 'Build it' in the target means implementing/fixing code, and the source explicitly excludes diagnosing failures. A normal Git request like 'open a PR' or 'rebase' would not reasonably trigger the build router despite shared casual words like 'fix' or 'build'."
         },
         {
           "id": "git-ops->review",
           "collision": false,
-          "reason": "A normal request inside git-ops's scope (commit, branch, rebase, merge, recover a commit) is a repository operation, not a request for code assessment. The review skill triggers on evaluative asks like 'review this' or 'is this ready to merge'; merely opening a PR or merging does not reasonably invoke it, and shared vocabulary like 'merge' alone is not a collision."
+          "reason": "Source covers performing Git operations (commit, PR, merge, etc.) with a safe repository result; target covers evaluating code quality/readiness. A normal request inside source's scope (e.g., 'open a PR', 'merge this branch') is an action request, not a review request, and would not reasonably trigger the review description despite shared words like 'merge'."
         },
         {
           "id": "git-ops->debug",
           "collision": false,
-          "reason": "The boundary is explicitly coordinated: git-ops excludes diagnosing failures even after a Git operation, and debug excludes Git command failures and acting on Git/GitHub. A request like 'why did my rebase fail' routes to git-ops (Git command failure), while 'why do my tests fail after the merge' routes to debug (diagnosis). Each in-scope request maps to exactly one description, so no normal request triggers both."
+          "reason": "Both descriptions explicitly fence each other: git-ops excludes diagnosing failures even after a Git operation, and debug excludes Git command failures and repository-state questions. A normal request inside git-ops's positive scope (e.g., 'recover a lost commit', 'resolve a conflict') is a Git action, not a failure diagnosis, so it would not reasonably trigger debug."
         },
         {
           "id": "git-ops->investigate",
           "collision": false,
-          "reason": "Git-ops covers mutating repository actions (commit, PR, rebase, recover), while investigate covers read-only factual reporting. A normal git-ops request (e.g., 'open a PR') would not reasonably trigger investigate, and 'which commit did X' questions belong to investigate, not git-ops. The exclusions explicitly separate them."
+          "reason": "Git-ops requests are actions (commit, rebase, recover, release) producing a repository change; investigate only produces factual reports and explicitly excludes acting on the repository. History questions like 'which commit' belong to investigate's own scope, not inside git-ops' positive scope, so no normal git-ops request would reasonably trigger investigate."
         }
       ]
     },
     {
       "run": 2,
-      "collisionCount": 4,
+      "collisionCount": 3,
       "results": [
         {
           "id": "decide->architect",
           "collision": false,
-          "reason": "A decision request (\"should I\", build-vs-buy) asks for one choice with rationale, which the architect description explicitly excludes; architecture requests ask for component structure, which decide excludes. The outputs differ (a choice vs. a structure), so a normal in-scope request for one would not reasonably trigger the other."
+          "reason": "Scopes are cleanly separated: decide produces a single choice with rationale (build-vs-buy, vendor), architect produces system structure (components, boundaries, data). Each explicitly excludes the other, and a normal request inside one scope would not reasonably trigger the other — e.g. 'should we use vendor X' stays in decide, 'how should I structure the system' stays in architect. Shared vocabulary like 'should I' appears in both but maps to different outputs, which is not by itself a collision."
         },
         {
           "id": "decide->plan",
           "collision": false,
-          "reason": "A decision request ('should I', 'build vs buy') seeks one choice with rationale, while plan targets an ordered implementation sequence. Each router explicitly excludes the other's output type, and the trigger vocabularies (choice questions vs sequencing questions) don't overlap in a way that would misroute a normal request."
+          "reason": "Distinct outputs: decide yields one choice with rationale; plan yields an ordered implementation sequence. A request for 'should I do X' doesn't reasonably trigger plan, and 'what order' doesn't trigger decide; each explicitly excludes the other."
         },
         {
           "id": "decide->build",
-          "collision": false,
-          "reason": "Source routes decision requests ('should I', build-vs-buy) to a choice-with-rationale output; target routes implementation requests ('build it' meaning write code). A user asking 'should I build or buy?' wants a rationale, not code, so target wouldn't trigger it. The shared word 'build' is not enough — the request shapes differ."
+          "collision": true,
+          "reason": "Target's trigger phrase \"build it\" overlaps with source's \"build-vs-buy\" decision scope. A user asking \"should we build this or buy it?\" or casually saying \"should we build it?\" is clearly inside the decision skill's positive scope, but the shared \"build\" vocabulary makes it plausible the build skill fires too, and neither description's exclusions (target excludes only debugging and planning) block it."
         },
         {
           "id": "decide->review",
           "collision": false,
-          "reason": "Decide handles choice-with-rationale questions (build-vs-buy, options); review handles evaluating code/diffs before merge. A normal decision request doesn't reasonably trigger code review despite both being evaluative."
+          "reason": "Decide handles choice-with-rationale questions (build-vs-buy, vendor, options); review handles evaluating existing code/diffs before landing. A user asking 'should I' gets one choice plus rationale, not a code review; 'is this over-engineered' targets a concrete diff, not an unsettled decision. Overlap is only superficial wording like 'is this a good idea', which in review context refers to code readiness."
         },
         {
           "id": "decide->debug",
           "collision": false,
-          "reason": "A decision request ('should I', options, build-vs-buy) seeks a choice with rationale, while debug targets diagnosing a concrete failure. A normal decision request would not reasonably trigger a failure-diagnosis route; scopes are disjoint despite both being advisory."
+          "reason": "A decision request seeks a choice with rationale; a failure diagnosis request seeks a cause. A user asking 'should I do X' is not reasonably asking why something failed, so no normal request inside decide's scope plausibly triggers debug."
         },
         {
           "id": "decide->investigate",
           "collision": false,
-          "reason": "Investigate explicitly excludes choices ('a choice (decide)') and outputs a factual report, while decide outputs one choice with rationale; a 'should I' request clearly lands in decide's scope and is excluded by investigate's own description."
+          "reason": "Investigate explicitly excludes choices (decide), and its output (factual report with citations) differs from decide's output (one choice with rationale). A 'should I' request clearly routes to decide, not investigate."
         },
         {
           "id": "decide->git-ops",
           "collision": false,
-          "reason": "Decision requests (build-vs-buy, options, rationale) produce a choice with reasoning, not repository actions; git-ops targets concrete Git operations. No shared trigger surface."
+          "reason": "Decision requests (choice + rationale) produce advice, not repository actions; git-ops targets concrete Git operations. A 'should I' question wouldn't trigger git-ops, and git commands aren't decision requests."
         },
         {
           "id": "architect->decide",
-          "collision": false,
-          "reason": "Scopes are cleanly partitioned by output type: architect produces structure (components, boundaries, ADRs), decide produces a single choice with rationale. Each description explicitly excludes the other's output, and a normal request clearly inside architect's scope (e.g., 'design a system', 'write an ADR') asks for structure, not an unsettled choice. Shared vocabulary like 'how should I' appears in both, but the descriptions resolve this by output, so no in-scope request reasonably triggers both."
+          "collision": true,
+          "reason": "A request like 'review our architecture — should we move to microservices?' sits inside decide's positive scope (a choice with rationale) yet names architecture, so it could reasonably trigger architect despite both descriptions' exclusions."
         },
         {
           "id": "architect->plan",
           "collision": false,
-          "reason": "The outputs are distinct: architect produces a structure (components, boundaries, data, ADRs), while plan produces an ordered implementation sequence. A request inside architect's scope (e.g., 'design a system' or 'write an ADR') asks for structure, not sequencing, and plan explicitly excludes defining components and boundaries. Shared topic area (system design) does not make plan a plausible trigger for architect-scoped requests."
+          "reason": "Architect's output is a system structure (components, boundaries, data, ADRs), while plan's output is an ordered implementation sequence. A request for structure is not reasonably an ordering-of-work request, and each description explicitly excludes the other's output type."
         },
         {
           "id": "architect->build",
           "collision": false,
-          "reason": "Scopes are disjoint: architect produces structure/ADRs from design requests, build produces code for implementation requests. A request clearly inside architect's scope (e.g., 'design a system', 'write an ADR') would not reasonably trigger build, and build's exclusions (debug, plan) don't pull in architecture work. Shared words like 'build it' vs 'design a system' are not enough."
+          "reason": "A normal architect request (structure, ADR, component boundaries) yields a design artifact, not code. Even 'build it' in the target's vocabulary refers to implementing code, which is outside the source's positive scope; the source explicitly excludes ordering implementation work, and nothing in an architecture request reasonably triggers code-writing."
         },
         {
           "id": "architect->review",
-          "collision": true,
-          "reason": "A user asking to 'review our architecture' is squarely in the architect scope, but the phrasing 'review this' in the code-review description could reasonably capture the same request, since both cover reviewing a design artifact and the target's exclusions don't distinguish architecture from code."
+          "collision": false,
+          "reason": "Both use 'review', but scopes differ: source produces system structure/ADRs from architectural drivers, while target reviews code diffs before merge. A user asking to review architecture wants structural feedback, not merge-readiness of a diff; the shared word 'review' alone is not a collision."
         },
         {
           "id": "architect->debug",
           "collision": false,
-          "reason": "Architect handles system structure design from measurable drivers; debug handles diagnosing code/test/CI failures. A request for structure or an ADR is not a failure diagnosis, and a failure diagnosis is not a structure request — scopes are disjoint."
+          "reason": "Architect outputs structure (components, boundaries, ADRs); debug outputs a diagnosis of a code/test/CI failure. An architecture request doesn't inherently involve a failure, so no normal architect request reasonably triggers debug."
         },
         {
           "id": "architect->investigate",
           "collision": false,
-          "reason": "Investigate explicitly excludes target design (architect), and architect requests (\"how should I structure\", \"design a system\") ask for a proposed structure, not a factual report of what is. The descriptions draw a clean line between prescriptive output and descriptive output, so a normal architect request would not reasonably trigger investigate."
+          "reason": "Architect produces a target structure from design drivers; investigate reports current state with citations. 'Review our architecture' seeks design assessment, not a factual inventory, and investigate explicitly excludes target design (architect)."
         },
         {
           "id": "architect->git-ops",
           "collision": false,
-          "reason": "Architecture requests (structure, ADRs) produce design artifacts, not Git actions; git-ops targets concrete repository operations like commits or PRs, which an architecture request does not reasonably trigger."
+          "reason": "Architecture requests (structure, ADRs) produce design artifacts, not repository actions; git-ops targets concrete Git operations. No shared trigger surface."
         },
         {
           "id": "plan->decide",
           "collision": false,
-          "reason": "The descriptions partition cleanly by output type: plan produces an ordered implementation sequence, decide produces a single choice with rationale. Shared phrasing like 'scope this refactor' is anchored to sequencing in plan's scope, and each description explicitly excludes the other's output. A normal request clearly inside one scope (e.g., 'break this down' vs 'should I') would not reasonably trigger the other."
+          "reason": "Plan handles ordering implementation work; decide handles choosing among options with rationale. A user asking for a sequence of steps is not reasonably seeking a single choice with justification, and each description explicitly excludes the other's scope."
         },
         {
           "id": "plan->architect",
           "collision": false,
-          "reason": "Plan handles ordering/sequencing implementation work; architect handles defining structure (components, boundaries, data). A request like 'break this down' or 'what's the order of work' targets sequencing, not structure design, and each description explicitly excludes the other's output. Shared topic (refactoring/systems) doesn't create overlap in the trigger intent."
+          "reason": "The pairs produce distinct outputs (ordered implementation sequence vs. system structure) and each explicitly excludes the other's trigger phrases. Shared vocabulary like 'scope' or 'design' alone doesn't make a plan request reasonably trigger architect, since 'scope this refactor' asks for ordering, not component/boundary definition."
         },
         {
           "id": "plan->build",
           "collision": false,
-          "reason": "Plan's scope is producing an ordered sequence of work, and it explicitly excludes writing code; a normal request inside plan's scope (e.g. 'break this down', 'what's the order of work') asks for a plan, not an implementation, so it would not reasonably trigger build. Shared words like 'fix' appear in both, but 'plan the fix' requests sequencing while 'fix this' requests the code change itself — distinct intents, not a collision."
+          "reason": "Plan's scope is producing an ordered sequence of work with per-step specs, and it explicitly excludes writing code; build's scope is implementing code and it excludes deciding what to build. A normal request inside plan's positive scope (e.g. \"break this down\", \"what's the order of work\") asks for a plan, not code, so it would not reasonably trigger build. Shared words like \"fix\" appear in both, but the intents (sequencing vs. implementing) are distinct and each description excludes the other."
         },
         {
           "id": "plan->review",
           "collision": false,
-          "reason": "Planning requests ask for an ordered sequence of work, not an evaluation of existing code. Review triggers on reviewing diffs or readiness to merge — a user asking 'break this down' or 'scope this refactor' is not reasonably triggering a code review, and the source explicitly excludes implementation/code-writing contexts."
+          "reason": "Planning requests (sequencing work, scoping) produce an ordered implementation plan, not a code review; review triggers require an existing diff or implementation to assess. A user asking 'where do I start' or 'scope this refactor' has no code to review, and 'review this diff' has no plan to produce — the scopes are disjoint despite both being pre/during-implementation activities."
         },
         {
           "id": "plan->debug",
           "collision": false,
-          "reason": "A planning request (\"plan the fix\", \"break this down\") asks for an ordered sequence, not a cause diagnosis. Debug triggers only when the user wants the cause of a failure; shared context of a failure/fix does not make a sequencing request reasonably route to diagnosis, and each description explicitly excludes the other's output."
+          "reason": "A request inside plan's scope (e.g., \"plan the fix\", \"break this down\") asks for an ordered sequence of work, not a cause diagnosis. Debug's positive scope requires the user to want the cause of a failure, and both descriptions explicitly exclude each other (plan excludes diagnosing failures; debug excludes implementing a known fix). Shared context of a failure does not make a sequencing request reasonably trigger diagnosis."
         },
         {
           "id": "plan->investigate",
           "collision": false,
-          "reason": "A user asking for an ordered sequence of implementation work wants an executable plan, not a factual report; the outputs differ fundamentally (per-step specs vs. cited findings), and investigate's scope explicitly excludes choosing or acting. Shared phrasing like \"where do I start\" maps to sequencing, not to a how-does/where-is factual question."
+          "reason": "A user asking for an ordered sequence of implementation work wants an executable plan, not a factual report; investigate's scope (describing what is, with citations, changing nothing) does not reasonably cover planning requests, and plan explicitly excludes only decide/architect/debug/build."
         },
         {
           "id": "plan->git-ops",
           "collision": false,
-          "reason": "A planning request ('break this down', 'order of work') asks for an implementation sequence, not a Git repository action; the target's scope (commit, PR, rebase, etc.) shares no trigger vocabulary with the source, so no in-scope source request would reasonably route to git-ops."
+          "reason": "Planning requests (sequencing work, scoping) do not reasonably trigger Git/GitHub action routing; the target's scope is concrete repository operations, and its exclusion (debug) doesn't pull in plan requests. Shared phrasing like 'plan the fix' maps to source's positive scope, not target's."
         },
         {
           "id": "build->decide",
           "collision": false,
-          "reason": "Build's scope is implementing known work; requests like 'should I build X' are explicitly excluded from build and squarely in decide. No normal build request would reasonably trigger decide."
+          "reason": "A normal build request (\"implement this\", \"fix this\") asks for code, not a choice with rationale. The source explicitly excludes deciding what to build, and decide's scope (\"should I\", options, build-vs-buy) doesn't overlap with concrete implementation requests. Shared words like \"build\" in build-vs-buy are not enough."
         },
         {
           "id": "build->architect",
           "collision": false,
-          "reason": "Build requests are concrete implementation tasks (write/fix/refactor code); architect requests ask for system structure or ADRs. A normal build request like 'implement this function' would not reasonably trigger an architecture-description route, and vice versa."
+          "reason": "Build handles implementation of known specs/fixes; architect handles designing system structure from drivers. A normal build request (\"implement the spec\", \"fix this bug\") has the design already decided and would not reasonably trigger architecture output; the boundary is explicit (deciding what to build routes to plan, not architect)."
         },
         {
           "id": "build->plan",
           "collision": false,
-          "reason": "Build covers direct implementation requests; plan covers requests for sequencing/breakdown. A normal build request (\"write the function\", \"implement the spec\") asks for code, not an ordered work sequence, and plan explicitly excludes writing code. Shared words like \"fix\"/\"refactor\" appear in both, but the intent differs (do it vs. order the steps), so no clear in-scope request routes to both."
+          "reason": "A build request (\"implement the spec\", \"fix this\") asks for code, not an ordered sequence of work. Plan's exclusions explicitly exclude writing code, and build's exclusions exclude deciding what to build. Shared vocabulary like \"fix\" appears in both (\"fix a bug\" vs \"plan the fix\"), but the deliverables differ: code vs. a step sequence. A normal request inside build's scope would not reasonably trigger plan."
         },
         {
           "id": "build->review",
           "collision": false,
-          "reason": "Build requests ask to write/fix/implement code; review requests ask to evaluate existing code before landing. A normal 'implement this' or 'make the test pass' request would not reasonably trigger the review description, and the shared code vocabulary alone doesn't create overlap."
+          "reason": "Build requests ask to write/implement code; review requests ask to evaluate existing code. A normal 'implement this' or 'fix this' request falls squarely in build's scope and would not reasonably trigger review, even though both concern code changes."
         },
         {
           "id": "build->debug",
-          "collision": true,
-          "reason": "Build claims requests like \"make the test pass\" and \"fix this\", but a failing test or broken code often has an unknown cause, which is squarely debug's scope (diagnosing a code/test failure). A normal user request inside build's positive scope (\"make the test pass\") could reasonably trigger debug, and neither description's exclusions cleanly separate it: build excludes only \"diagnosing an unknown failure\", which the user hasn't explicitly asked for."
+          "collision": false,
+          "reason": "The descriptions partition cleanly: build handles fixes with a known cause, debug handles diagnosing unknown failures, and each explicitly excludes the other. A normal request routes by whether the cause is already known, so a request inside build's positive scope (\"implement the spec\", \"make the test pass\") would not reasonably trigger debug."
         },
         {
           "id": "build->investigate",
           "collision": false,
-          "reason": "Build handles code-writing actions (implement/fix/refactor); investigate is strictly read-only factual reporting. A normal build request like 'fix this' or 'implement the spec' asks for changes, which investigate explicitly excludes ('Nothing is changed, fixed, or chosen'). Shared terms like 'bug' or 'code' don't make an action request reasonably trigger a report-only route."
+          "reason": "Build requests are action-oriented (implement/fix/refactor) while investigate is strictly read-only factual reporting; a normal build request like 'fix this' or 'implement the spec' would not reasonably trigger a report-only route, and the exclusions align (unknown-cause failures go to debug, not investigate)."
         },
         {
           "id": "build->git-ops",
           "collision": false,
-          "reason": "A normal build request (implement/fix/refactor code) targets code changes, not Git operations like commit, PR, or rebase. Shared context (both touch a repo) is not enough; git-ops' positive scope requires an explicit Git/GitHub action."
+          "reason": "Build's scope is writing/implementing code; git-ops covers repository operations (commit, PR, merge). A normal build request like 'implement the spec' or 'fix this bug' targets code changes, not Git actions, and git-ops excludes debugging. Shared mention of 'build it' phrasing doesn't make code-writing requests reasonably route to Git operations."
         },
         {
           "id": "review->decide",
           "collision": false,
-          "reason": "Review requests ask for evaluation of existing code (bugs, simplicity, over-engineering), which is a judgment on an artifact, not a choice among options with a rationale. Decide's scope — unsettled build-vs-buy/vendor/delivery decisions producing one choice — doesn't naturally capture 'review this diff' or 'is this over-engineered', and shared phrasing like 'is this a good idea' in decide targets decision-making, not code critique."
+          "reason": "Review requests target code quality (bugs, dead code, over-engineering) with feedback output, while decide targets unsettled choices requiring a single recommendation. Overlapping phrasings like 'is this over-engineered' are explicitly scoped to code review, not build-vs-buy or option selection, so a normal review request would not reasonably trigger decide."
         },
         {
           "id": "review->architect",
           "collision": false,
-          "reason": "Source covers code-level review of concrete diffs/implementations before landing; target covers system-structure design and ADRs. A request like 'review this diff' or 'is this over-engineered' stays in code review, while 'design a system' or 'write an ADR' is clearly architectural. The overlap is only the shared word 'review', which is shared vocabulary, not a genuine routing collision."
+          "reason": "Source covers code-level review (bugs, tests, simplicity) while target requires system-structure requests (\"design a system\", \"write an ADR\"). A normal code review request inside source's scope would not reasonably trigger the architect description; the overlap in the word \"review\" is shared vocabulary, not scope overlap."
         },
         {
           "id": "review->plan",
           "collision": false,
-          "reason": "Review requests (correctness/simplicity checks on existing code) produce feedback, not an ordered implementation sequence. Plan's triggers (\"break this down\", \"where do I start\") are distinct intents; a normal review request would not reasonably route to plan despite both touching refactoring/implementation topics."
+          "reason": "Review requests (assess a diff, find bugs, simplify) ask for evaluation of existing code, while plan targets producing an ordered implementation sequence. A normal review request like 'is this ready to merge' or 'simplify this' would not reasonably trigger the planning skill, and plan's exclusions (not writing code, not diagnosing) don't overlap with review's core scope."
         },
         {
           "id": "review->build",
           "collision": true,
-          "reason": "Review explicitly claims 'simplify this', which is a refactor request — and build's scope includes refactoring. A normal user asking to simplify code could reasonably route to build despite build's description not excluding it, so the exclusions don't disambiguate this overlap."
+          "reason": "Build's scope includes 'refactor', which overlaps with review's 'simplify this' — a user asking to simplify/clean up code sits inside review's positive scope but could reasonably trigger build's refactor trigger, and neither description excludes the other."
         },
         {
           "id": "review->debug",
           "collision": false,
-          "reason": "Review requests ask for evaluation of code before landing (correctness, simplicity), while debug requires the user to want the cause of an actual failure. A normal review request like 'review this diff' or 'is this ready to merge' does not seek a failure diagnosis, so debug would not reasonably trigger."
+          "reason": "Review requests target pre-merge assessment of code quality/correctness, while debug requires the user to want a diagnosis of an actual failure. A normal review request ('is this ready to merge') does not reasonably trigger the debug route, and shared vocabulary like 'bugs' or 'edge cases' alone doesn't create overlap."
         },
         {
           "id": "review->investigate",
           "collision": false,
-          "reason": "Investigate explicitly excludes verdicts on diffs (review), and review requests seek judgment/simplification, not factual reports; the descriptions' exclusions separate them."
+          "reason": "Investigate explicitly excludes 'a verdict on a diff (review)', and review's scope (correctness/simplicity judgments on a diff) requires evaluation, not a factual report. Shared vocabulary like 'check' doesn't create overlap since investigate's exclusions carve out review requests."
         },
         {
           "id": "review->git-ops",
           "collision": false,
-          "reason": "Review requests ask for code-quality judgment (bugs, simplicity), while git-ops performs repository mutations (commit, PR, merge). A normal review request like 'is this ready to merge' seeks an assessment, not a Git action; shared vocabulary like 'merge' or 'diff' alone doesn't route it to git-ops."
+          "reason": "Review requests ask for code-quality assessment (bugs, simplicity), not execution of Git operations. A request like 'review this diff' or 'is this ready to merge' seeks an evaluation, while git-ops requires an action verb (commit, merge, rebase, open PR). The shared word 'merge' is evaluative in review's scope ('ready to merge') versus operational in git-ops ('merge this branch'), so no in-scope review request reasonably triggers git-ops."
         },
         {
           "id": "debug->decide",
           "collision": false,
-          "reason": "A request inside debug's scope asks for a diagnosis of a failure, not a choice with a rationale. Diagnosing a cause does not reasonably trigger the decide routing, which targets 'should I / which option' decision requests."
+          "reason": "A user asking for the cause of a failure wants a diagnosis, not a choice with rationale; the two scopes (diagnose vs. decide) don't overlap on shared vocabulary alone."
         },
         {
           "id": "debug->architect",
           "collision": false,
-          "reason": "Debug diagnoses a failure; architect designs system structure. A failure-cause request doesn't reasonably trigger architecture design, and vice versa."
+          "reason": "Debug diagnoses a failure; architect designs/reviews system structure. A failure-cause request stays in debug, and structure/design requests don't trigger diagnosis. No shared trigger overlap."
         },
         {
           "id": "debug->plan",
           "collision": false,
-          "reason": "A normal debug request asks for the cause of a failure and outputs a diagnosis; plan requires an ordered implementation sequence. Plan explicitly excludes diagnosing failures, so a cause-seeking request stays in debug."
+          "reason": "A request inside debug's scope asks for a diagnosis of a failure; plan explicitly excludes diagnosing failures and its output is an ordered implementation sequence. Even 'plan the fix' presupposes a known cause, which debug excludes (implementing a known fix → build). No in-scope request reasonably triggers both."
         },
         {
           "id": "debug->build",
           "collision": false,
-          "reason": "The pair is cleanly partitioned by cause knowledge: debug handles diagnosing unknown failures, build handles implementing fixes with a known cause. Each description explicitly excludes the other's scope, so a normal request routes unambiguously to one."
+          "reason": "The pairs partition cleanly on whether the failure cause is known: debug handles diagnosing unknown failures, build handles implementing fixes with known causes, and each explicitly excludes the other. A normal request falls on one side of this line, so no request clearly inside debug's scope would reasonably trigger build."
         },
         {
           "id": "debug->review",
           "collision": false,
-          "reason": "A request for the cause of a failure is a diagnosis ask, not a pre-merge review ask; review's triggers (review this, ready to merge, simplify) don't overlap with diagnosing a failure, and debug's exclusions don't create ambiguity toward review."
+          "reason": "A request inside debug's scope (diagnosing the cause of a failure) asks for a diagnosis, not a pre-merge review; review's scope (evaluating a diff for correctness/simplicity) doesn't reasonably cover 'why did this fail'. Shared vocabulary like 'bugs' or 'tests' is not enough for a normal request to plausibly route to both."
         },
         {
           "id": "debug->investigate",
           "collision": false,
-          "reason": "Investigate explicitly excludes failure-cause questions (debug's core scope), and debug's scope is diagnosis of failures, not factual state reports. A request clearly inside debug (diagnose why a test fails) is excluded by investigate's description, and investigate's 'how does/where is' questions don't imply a failure cause, so no clear in-scope request triggers both."
+          "reason": "Debug diagnoses the cause of a failure; investigate reports current or historical state without diagnosing. A failure-cause request falls squarely in debug's positive scope and investigate explicitly excludes causes of failure, so no normal request reasonably triggers both."
         },
         {
           "id": "debug->git-ops",
           "collision": false,
-          "reason": "The descriptions carve out each other's territory explicitly: debug excludes Git command failures and acting on Git/GitHub, while git-ops excludes diagnosing why code/tests/CI failed even after a Git operation. A normal request like 'why did my tests fail after the rebase' routes to debug, and 'fix my broken checkout' routes to git-ops; the exclusions prevent overlap despite shared Git vocabulary."
+          "reason": "The pairs carve a clean boundary: debug owns diagnosis of failures (explicitly excluding Git command failures and acting on Git), while git-ops owns Git actions and repository repair (explicitly excluding failure diagnosis). A request like 'why did my rebase break the tests' routes to debug, and 'fix my broken checkout' routes to git-ops; neither description's positive scope captures the other's, so no normal request reasonably triggers both."
         },
         {
           "id": "investigate->decide",
           "collision": false,
-          "reason": "Investigate requests are factual 'what is' questions answered with a report; decide requires an unsettled choice with a rationale. A normal investigate request ('how does X work', 'where is Y') does not reasonably trigger a decision output, and the exclusions explicitly separate them."
+          "reason": "Investigate covers factual 'what is' questions with no choice requested; decide requires an unsettled decision ('should I', options). A normal investigate request does not ask for a choice, so it would not reasonably trigger decide."
         },
         {
           "id": "investigate->architect",
           "collision": false,
-          "reason": "Investigate answers factual 'what is' questions about current structure with citations; architect produces a target design from drivers. A user asking 'how is this laid out' is clearly inside investigate's scope and excluded from architect's ('target design (architect)'), while 'how should I structure' requests are not factual reports. The descriptions mutually exclude each other's core intents."
+          "reason": "Investigate covers factual 'what is' questions with no design output; architect requires a target structure from drivers. A user asking 'how does X work' or 'where is Y' would not reasonably trigger architect, and the source explicitly excludes target designs."
         },
         {
           "id": "investigate->plan",
           "collision": false,
-          "reason": "Investigate covers factual questions about current state ("
+          "reason": "Investigate covers factual 'what is' questions with no changes; plan covers ordering implementation work. A normal request inside investigate's scope (e.g., 'how does X work', 'where is Y') does not reasonably demand an executable step sequence, and plan's scope ('break this down', 'what's the order') is not triggered by factual reports. Shared vocabulary like 'where' appears in both but with different intents ('where is' vs 'where do I start'), so no clear collision."
         },
         {
           "id": "investigate->build",
           "collision": false,
-          "reason": "Investigate's scope is read-only factual reporting (\"how does\", \"where is\", nothing changed), while build requires writing or modifying code. A normal investigate request explicitly excludes changes, so it would not reasonably trigger build; overlap is only shared vocabulary about code, not intent."
+          "reason": "Investigate's scope is read-only factual reporting (\"how does\", \"where is\", \"what changed\") with explicit exclusion of changing anything; build requires writing/fixing code. A normal request inside investigate's positive scope (e.g., \"how does this function work?\") would not reasonably trigger build, and vice versa. Shared vocabulary like \"fix a bug with a known cause\" in build doesn't overlap investigate's report-only intent."
         },
         {
           "id": "investigate->review",
           "collision": false,
-          "reason": "Investigate serves factual 'what is' questions about current state/history with no judgment on a diff; review is triggered by explicit review requests ('review this', 'ready to merge') or after implementation. A user asking 'how does X work' or 'what changed between commits' wants a factual report, not a verdict, so normal investigate requests don't reasonably trigger review."
+          "reason": "Investigate produces factual 'what is' reports with citations and explicitly excludes verdicts on diffs; review targets pre-merge judgment of a diff. A user asking what code currently does or what changed historically is not reasonably routed to review, and review requests ('is this ready to merge') seek a verdict, not a factual report."
         },
         {
           "id": "investigate->debug",
           "collision": false,
-          "reason": "Investigate explicitly excludes failure-cause questions ('Not for the cause of a failure (debug)'), and debug excludes repository-state questions, so a normal request routes unambiguously to one."
+          "reason": "Investigate explicitly excludes cause-of-failure questions (debug), and debug excludes repository-state questions. A request like 'how does X behave' stays in investigate; 'why does X fail' goes to debug. The exclusions cleanly partition the shared vocabulary."
         },
         {
           "id": "investigate->git-ops",
           "collision": false,
-          "reason": "Investigate is read-only factual reporting; git-ops requires an action on the repository. A request like 'which commit introduced X' stays in investigate; git-ops exclusions don't pull it in."
+          "reason": "Investigate requests are read-only factual questions ('how does', 'where is', 'what changed') producing a report with no repository mutation. Git-ops requires an action (commit, branch, PR, rebase, etc.). A user asking what is would not reasonably trigger a Git action, and the exclusions explicitly separate them."
         },
         {
           "id": "git-ops->decide",
           "collision": false,
-          "reason": "Git operations (commit, PR, merge, etc.) produce repository actions, not choices with rationale; a normal git request has no decision-making scope that would trigger the decide router."
+          "reason": "Git operations (commit, PR, merge, etc.) and decision requests (\"should I\", options with rationale) have disjoint scopes; a normal request inside git-ops's positive scope would not reasonably trigger decide."
         },
         {
           "id": "git-ops->architect",
           "collision": false,
-          "reason": "Git operation requests (commit, PR, rebase, etc.) fall entirely outside the architect's scope of system structure design; no shared trigger surface."
+          "reason": "Git operations (commit, PR, rebase, etc.) produce repository changes, not system structure or ADRs; a normal Git request has no reasonable path to the architect's scope."
         },
         {
           "id": "git-ops->plan",
           "collision": false,
-          "reason": "Git operations (commit, PR, rebase, etc.) and implementation planning requests share no vocabulary or intent; a normal Git request would not reasonably trigger the planning route."
+          "reason": "Git operations produce repository actions; plan produces ordered work sequences. A normal git request (commit, rebase, PR) has no planning deliverable, and 'plan the fix' targets breakdown of implementation work, not executing git actions. Shared words like 'fix' or 'release' don't create overlap."
         },
         {
           "id": "git-ops->build",
           "collision": false,
-          "reason": "Git operations (commit, PR, rebase) and code writing (implement, fix, refactor) are disjoint scopes; a normal request in either scope doesn't reasonably trigger the other despite shared repo context."
+          "reason": "Git operations (commit, branch, PR, merge, rebase) and code-writing requests (implement, fix a bug, write a function) occupy disjoint scopes. A normal request inside git-ops's positive scope — e.g. 'open a PR' or 'recover a lost commit' — would not reasonably trigger build, and build's examples ('fix this bug', 'make the test pass') refer to code changes, not repository operations. The exclusion of failure diagnosis in both further separates them."
         },
         {
           "id": "git-ops->review",
           "collision": false,
-          "reason": "Git operations (commit, branch, PR, merge, rebase) are repository mutations, not review requests. Overlap like 'merge' vs 'is this ready to merge' is shared vocabulary only; a normal git-ops request asks for an action to be performed, not an assessment of code quality or readiness."
+          "reason": "Git ops handles repository mutations (commit, PR, merge, tag); review handles evaluative requests like 'review this diff' or 'is this ready to merge'. A normal git action request (e.g., 'open a PR') would not reasonably trigger the review description, and review requests are explicitly evaluative rather than repository operations. Shared terms like 'merge' alone don't create overlap."
         },
         {
           "id": "git-ops->debug",
           "collision": false,
-          "reason": "The descriptions explicitly partition the boundary: git-ops excludes diagnosing why code/tests/CI failed even after a Git operation, while debug excludes Git command failures and acting on Git/GitHub. A request to perform a Git action routes to git-ops; a request to diagnose a failure routes to debug. The exclusions are complementary, so no in-scope request reasonably triggers both."
+          "reason": "The boundary is explicitly coordinated: git-ops excludes diagnosing why code/tests/CI failed (even after a Git operation), and debug excludes Git command failures and acting on Git/GitHub. A normal git-ops request (commit, merge, recover a commit) yields a repository result, not a diagnosis, so it would not reasonably trigger debug."
         },
         {
           "id": "git-ops->investigate",
-          "collision": true,
-          "reason": "A normal git-ops request like 'recover a lost commit' or 'resolve a conflict' often begins with the user asking 'which commit introduced this?' or 'when did this change land?' — questions squarely inside investigate's positive scope ('which commit', 'when did', history layout). Even though investigate excludes acting on the repo and git-ops excludes diagnosing failures, the factual history-report portion of such requests could reasonably route to investigate."
+          "collision": false,
+          "reason": "Git-ops requests are actions (commit, rebase, recover, release) producing a repository change, while investigate is explicitly read-only and excludes acting on the repository. History questions like 'which commit' belong to investigate's own scope, not git-ops, so no in-scope git-ops request would reasonably trigger investigate."
         }
       ]
     },
@@ -592,97 +590,97 @@
         {
           "id": "decide->architect",
           "collision": false,
-          "reason": "Both descriptions explicitly exclude each other's scope: decide is for picking one option with rationale, architect is for defining structure. A request like 'should I use vendor X' yields a choice, not a component structure; 'design a system' yields structure, not a single choice. The exclusions cleanly separate the shared 'should I' phrasing overlap."
+          "reason": "A normal decide request (\"should I\", \"which option\") yields one choice with rationale, not a system structure. Both descriptions explicitly exclude each other's scope, and shared vocabulary like \"build-vs-buy\" vs \"components\" doesn't make a choice request reasonably trigger the architect route."
         },
         {
           "id": "decide->plan",
           "collision": false,
-          "reason": "A request inside decide's scope (\"should I\", \"what are my options\") asks for a single choice with rationale, not an ordered implementation sequence. Plan's exclusion of \"choosing the direction (decide)\" plus the distinct output types keep these separable; shared words like \"scope\" appear only in plan's triggers and don't map to decision requests."
+          "reason": "Decide requests seek one choice with rationale; plan requests seek an ordered work sequence. Each description explicitly excludes the other's output, and shared words like 'scope' don't make a decision request reasonably trigger the planner."
         },
         {
           "id": "decide->build",
           "collision": false,
-          "reason": "A decision request is phrased as a question seeking a rationale (\"should I\", \"build vs buy\"), which the target's triggers (\"build it\", \"implement\") don't match — they require an imperative coding request. Both descriptions explicitly exclude deciding what to build, so a normal decision request stays in source."
+          "reason": "Shared word 'build' only. Source handles choice-with-rationale requests ('should I', build-vs-buy) and explicitly excludes implementation; target handles writing code and explicitly excludes deciding what to build. A request inside one scope falls outside the other."
         },
         {
           "id": "decide->review",
           "collision": false,
-          "reason": "Decide handles choice-with-rationale questions (build-vs-buy, options); review handles evaluating code/diffs before landing. A normal decision request doesn't involve a diff or implementation to review, and review requests presuppose existing code. Overlap only in the word 'is this a good idea', which in review context refers to code quality, not unsettled decisions."
+          "reason": "Decide handles choice-with-rationale questions (build-vs-buy, vendor, options); review handles evaluating code/diffs before merge. A normal decision request doesn't reference code to review, and review requests presuppose an implementation artifact. Overlap only in abstract phrasing like 'is this a good idea', which resolves to different objects (a choice vs. code)."
         },
         {
           "id": "decide->debug",
           "collision": false,
-          "reason": "A decision request ('should I', options, build-vs-buy) asks for a choice with rationale, while debug targets diagnosing a concrete code/test/CI failure. A normal decision request does not present a failure to diagnose, and debug's scope requires an actual failure. No shared trigger surface."
+          "reason": "Decision requests (choice + rationale) and failure diagnosis requests are distinct intents; a normal decision question would not reasonably trigger the debug router."
         },
         {
           "id": "decide->investigate",
           "collision": false,
-          "reason": "Investigate explicitly excludes choices (decide) and produces a factual report, while decide produces one choice with rationale. A 'should I' request is clearly inside decide's scope and outside investigate's, and both descriptions name each other as exclusions."
+          "reason": "A decision request ('should I', 'build vs buy') asks for a choice with rationale, which investigate explicitly excludes ('Nothing is... chosen', 'Not for... a choice (decide)'). Investigate's positive scope is factual reporting of current state; such requests would not reasonably trigger it."
         },
         {
           "id": "decide->git-ops",
           "collision": false,
-          "reason": "A decision request (choice + rationale) has no overlap with Git repository operations; shared phrasing like 'should I rebase' would still be a Git action, not a build-vs-buy/vendor/delivery decision, so no in-scope source request reasonably triggers the target."
+          "reason": "Decide handles choice-with-rationale questions (build-vs-buy, options); git-ops handles concrete repository operations. A user asking 'should I rebase or merge?' wants a rationale/choice (decide), while git-ops requires executing an action; the scopes are disjoint and neither description's exclusions pull the other's requests in."
         },
         {
           "id": "architect->decide",
           "collision": false,
-          "reason": "The pairs draw a clean boundary: architect outputs structure (components, boundaries, ADRs) while decide outputs a single choice with rationale. Each explicitly excludes the other's output type. A request like 'design a system' or 'write an ADR' stays in architect; 'should I use X' stays in decide. Shared vocabulary (e.g., evaluating options during design) is not enough — a normal request clearly inside architect's scope would not reasonably trigger decide."
+          "reason": "Scopes are cleanly separated and cross-referenced: architect produces structure (components, boundaries, ADRs) while decide produces a single choice with rationale. A normal request inside architect's positive scope (e.g., 'design a system', 'write an ADR') would not reasonably trigger decide, and each description explicitly excludes the other's output type. Overlap only occurs if the user asks a 'should I' question, which is decide's scope, not architect's."
         },
         {
           "id": "architect->plan",
           "collision": false,
-          "reason": "Outputs differ fundamentally: architect produces a structural design (components, boundaries, ADRs), while plan produces an ordered implementation sequence. A request for structure is not reasonably a request for sequencing, and each description explicitly excludes the other's output."
+          "reason": "Scopes are cleanly separated by output type: architect produces structure (components, boundaries, ADRs), plan produces an ordered implementation sequence. Both descriptions explicitly exclude each other, and a request for structure vs. work ordering is unambiguous — shared design vocabulary alone doesn't create overlap."
         },
         {
           "id": "architect->build",
           "collision": false,
-          "reason": "Architect's scope is producing structural design (components, ADRs) while build's scope is writing code. A request inside architect's positive scope (e.g., 'design a system', 'write an ADR') asks for structure, not implementation, and build's exclusions ('deciding what to build') explicitly route design away. Shared words like 'build it' don't overlap with 'design a system'."
+          "reason": "A request inside architect's scope (design structure, review architecture, write an ADR) asks for a structure/decision artifact, not code. 'Build it' in build's scope refers to implementing a known spec; shared word 'build' alone doesn't create a collision."
         },
         {
           "id": "architect->review",
           "collision": false,
-          "reason": "Source's 'review our architecture' targets system structure (components, boundaries, ADRs), while target covers pre-merge code review of diffs and implementations. A request for architecture review would not reasonably trigger code review, and code-review requests don't involve system structure design."
+          "reason": "Source's 'review our architecture' targets system structure (components, boundaries, ADRs), while target covers code-level review of diffs before merge. A request for architectural review asks about structure, not code correctness/simplicity, so it would not reasonably trigger the code-review route despite the shared word 'review'."
         },
         {
           "id": "architect->debug",
           "collision": false,
-          "reason": "Architect handles system structure design from measurable drivers; debug handles diagnosing failures. A normal architecture request (structure, ADR, design) does not reasonably trigger failure diagnosis, and shared vocabulary like 'review' doesn't overlap scopes."
+          "reason": "Architect requests ask for system structure/design output; debug requests ask for diagnosing a concrete failure. A normal architecture request (design, review, ADR) does not imply a code/test/CI failure diagnosis, so no clear routing collision."
         },
         {
           "id": "architect->investigate",
           "collision": false,
-          "reason": "Architect produces a proposed structure from drivers; investigate reports current state with citations. A design request ('design a system', 'write an ADR') is not a factual 'what is' query, and investigate explicitly excludes target designs (architect). Overlap in vocabulary like 'review our architecture' resolves to the design output, not a factual report."
+          "reason": "Architect produces a target structure from drivers; investigate reports current state with citations. A design request ('how should I structure') is not a factual 'how does it work' query, and investigate explicitly excludes target designs (architect)."
         },
         {
           "id": "architect->git-ops",
           "collision": false,
-          "reason": "Architecture requests (structure, ADRs) produce design artifacts, not repository actions; git-ops targets concrete Git operations like commits, PRs, and rebases. No normal architecture request would reasonably trigger git-ops."
+          "reason": "Architecture requests ask for structural design output (components, ADRs), while git-ops handles concrete repository actions. A user asking to design or review a system structure would not reasonably trigger git operations, and vice versa; no shared scope despite both touching codebases."
         },
         {
           "id": "plan->decide",
           "collision": false,
-          "reason": "The pairs are cleanly partitioned by output type: plan produces an ordered sequence of work, decide produces a single choice with rationale. Each explicitly excludes the other's trigger (plan excludes 'choosing the direction (decide)'; decide excludes 'ordering implementation work (plan)'). A request like 'what's the order of work' lands only in plan; 'should I do X' only in decide. Shared phrasing like 'scope this refactor' vs 'is this a good idea' does not overlap."
+          "reason": "Plan routes requests for an ordered sequence of implementation steps; decide routes requests for choosing among options with a rationale. A user asking 'what's the order of work' already has a direction and wants sequencing, not a choice — the exclusions explicitly separate these, and shared phrasing like 'scope this refactor' vs 'should I' doesn't overlap the core intents."
         },
         {
           "id": "plan->architect",
           "collision": false,
-          "reason": "Plan's scope is ordering implementation work into an executable sequence; architect's scope is defining system structure (components, boundaries, data). A request like 'break this down' or 'what's the order of work' targets sequencing, not structure design, and each description explicitly excludes the other's output. Shared refactor vocabulary ('scope this refactor' vs 'design a system') does not make a structural-design request trigger the sequencing route or vice versa."
+          "reason": "Plan produces an ordered implementation sequence; architect produces a system structure. A request inside plan's scope (e.g., 'what's the order of work') asks for sequencing, not component/boundary design, and each description explicitly excludes the other's output. Shared topic (refactoring/system work) is not enough for a collision."
         },
         {
           "id": "plan->build",
           "collision": false,
-          "reason": "A plan-scope request (\"break this down\", \"what's the order of work\") asks for an ordered sequence with per-step specs, not code. Build's trigger phrases (\"write the function\", \"implement the spec\") describe execution of a known task, and build explicitly excludes deciding what to build (plan). The descriptions partition cleanly: planning precedes building, and neither's positive scope captures the other's requests."
+          "reason": "A plan-scope request (\"break this down\", \"what's the order of work\") asks for an ordered sequence with per-step specs, not code. Build's trigger phrases (\"fix this\", \"write the function\") are execution requests, and build explicitly excludes deciding what to build (plan). No normal plan request would reasonably trigger build."
         },
         {
           "id": "plan->review",
           "collision": false,
-          "reason": "Planning requests (sequencing work, scoping) produce an ordered implementation plan; review requests evaluate existing code/diffs. A user asking 'where do I start' or 'scope this refactor' has no diff or code artifact to review, so it stays in plan's scope. Shared mention of implementation work is vocabulary overlap, not a routing collision."
+          "reason": "Planning requests (sequencing work, scoping) produce an ordered implementation plan, not a code review; review requests (check a diff, ready to merge) presuppose existing code. No shared trigger surface beyond generic software vocabulary."
         },
         {
           "id": "plan->debug",
           "collision": false,
-          "reason": "A plan request presupposes a known cause and asks for an ordered work sequence; debug requests a diagnosis of an unexplained failure. 'Plan the fix' implies diagnosis is complete, so a normal plan-scope request would not reasonably trigger debug."
+          "reason": "A planning request like 'break this down' or 'plan the fix' asks for an ordered sequence of work, not a diagnosis of a failure's cause. Debug's scope requires the user to want the cause of a code/test/runtime/CI failure; planning requests don't ask for a diagnosis, and debug explicitly excludes implementing a known fix. No overlap in user intent despite both touching failures."
         },
         {
           "id": "plan->investigate",
@@ -692,182 +690,182 @@
         {
           "id": "plan->git-ops",
           "collision": false,
-          "reason": "Planning requests (sequencing work, scoping refactors) produce an ordered implementation plan, not a Git repository action. Git-ops targets concrete repo operations (commit, PR, rebase); a planning request inside plan's scope would not reasonably trigger git-ops, and vice versa."
+          "reason": "A planning request (sequencing work, scoping a refactor) asks for an ordered plan, not a repository mutation. Git-ops triggers on concrete Git actions (commit, branch, PR, rebase); shared words like 'fix' or 'refactor' don't make a plan request reasonably trigger git execution."
         },
         {
           "id": "build->decide",
           "collision": false,
-          "reason": "Build's scope is implementing known work (write/fix/refactor); decide's scope is making an unsettled choice. A normal build request like 'implement this spec' has no unsettled choice to make, and build explicitly excludes deciding what to build. Shared words like 'build' in 'build-vs-buy' don't create overlap."
+          "reason": "Build's scope is implementing known work; requests like 'build it' or 'fix this' carry no open choice. Decide targets unsettled decisions ('should I', 'is this a good idea'), which build explicitly excludes ('deciding what to build'). A normal build request would not reasonably trigger decide."
         },
         {
           "id": "build->architect",
           "collision": false,
-          "reason": "Build's scope is implementing/fixing code with a known target; architect's scope is producing system structure from drivers. A normal build request (\"implement this spec\", \"fix this bug\") yields code, not a structure design, and architect's exclusions don't pull those in. Overlap like \"build it\" is shared vocabulary, not a genuine routing collision."
+          "reason": "Build requests involve implementing a known spec or fix; architect requests ask for system structure from drivers. A normal build request (\"implement the spec\", \"fix this\") already has its design settled and would not reasonably trigger architecture output, despite shared words like \"build\"."
         },
         {
           "id": "build->plan",
           "collision": false,
-          "reason": "Build handles direct implementation requests (\"fix this\", \"build it\"), while plan handles requests for an ordered breakdown (\"break this down\", \"where do I start\"). A normal user request inside build's scope — implement/fix with known cause — asks for code, not a sequence of steps, and plan explicitly excludes writing code. Shared words like \"fix\" appear in both, but the intent differs: \"plan the fix\" requests sequencing, not implementation, so no build request reasonably triggers plan."
+          "reason": "Build covers direct implementation requests; plan covers sequencing/breakdown requests. Each explicitly excludes the other's core intent, and shared words like 'fix'/'refactor' appear only in scoped phrases ('plan the fix', 'scope this refactor') that signal planning, not coding."
         },
         {
           "id": "build->review",
           "collision": false,
-          "reason": "A normal build request (\"implement the spec\", \"fix this bug\") asks for code to be written, not evaluated. The target's 'after any non-trivial implementation' clause describes when a user might follow up with a review, but the user's request itself is still an implementation ask, so it stays in build's scope. Shared context (both involve code) is not a collision."
+          "reason": "A normal build request (\"implement the spec\", \"fix this bug\", \"make the test pass\") asks for code to be written, not evaluated. The target's scope is triggered by review-oriented phrasing (\"review this\", \"is this ready to merge\") or an explicit post-implementation review step, which a plain implementation request does not imply. Shared vocabulary around code/tests doesn't make a write request reasonably route to review."
         },
         {
           "id": "build->debug",
           "collision": false,
-          "reason": "The descriptions carve a clean boundary: build handles fixes with a known cause and explicitly excludes diagnosing unknown failures, while debug is scoped to diagnosing causes and excludes implementing known fixes. A normal request inside build's positive scope (e.g., 'implement this spec', 'fix this known bug') would not reasonably trigger debug."
+          "reason": "The pair is cleanly separated by the known-cause vs unknown-cause distinction: build explicitly excludes diagnosing an unknown failure, and debug explicitly excludes implementing a known fix. A normal request lands unambiguously in one scope, so shared vocabulary like 'fix' does not create a collision."
         },
         {
           "id": "build->investigate",
           "collision": false,
-          "reason": "Build requests ask for code changes (implement/fix/refactor), while investigate only produces read-only factual reports and explicitly excludes acting. A normal build request like 'fix this bug' or 'implement the spec' would not reasonably trigger a factual report route; the exclusions align cleanly (unknown-cause failures go to debug, not investigate)."
+          "reason": "Build requests ask for code changes (implement/fix/refactor), while investigate is strictly read-only factual reporting. A normal build request like 'fix this' or 'implement the spec' would not reasonably trigger a report-only route; the boundary is explicit in both descriptions (build excludes diagnosing unknown failures, investigate excludes changing anything)."
         },
         {
           "id": "build->git-ops",
           "collision": false,
-          "reason": "Build's scope is writing/implementing code; Git-ops covers repository operations (commit, PR, rebase). A normal build request like 'implement the spec' or 'make the test pass' targets code authorship, not a Git action, and Git-ops' exclusions don't pull in code-writing requests. Shared words like 'build' in casual usage don't create overlap."
+          "reason": "Build's scope is writing/implementing code; Git-ops covers repository operations (commit, PR, merge, etc.). A normal build request like 'implement the spec' or 'make the test pass' would not reasonably trigger Git-ops, and shared words like 'build it' refer to coding, not repo actions."
         },
         {
           "id": "review->decide",
           "collision": false,
-          "reason": "Review handles assessment of existing code (bugs, simplicity, merge-readiness); decide handles unsettled choices with a single recommended option (build-vs-buy, vendor). A user asking 'is this ready to merge' or 'is this over-engineered' wants a code judgment, not a choice among options, so decide's scope doesn't capture normal review requests despite similar 'is this a good idea' phrasing."
+          "reason": "Review requests target feedback on existing code (bugs, simplicity, merge-readiness), while decide targets unsettled choices with a rationale ('should I', build-vs-buy). A normal review request like 'check this diff' would not reasonably trigger the decide route; the overlap in phrasing like 'is this a good idea' vs 'is this over-engineered' is shared vocabulary, not scope overlap."
         },
         {
           "id": "review->architect",
-          "collision": false,
-          "reason": "Source scope is pre-merge code review (diffs, bugs, tests, simplification); target scope is producing system structure from drivers. A normal code-review request like \"review this diff\" would not reasonably trigger the architect route, and \"review our architecture\" is not code landing for review. Shared word \"review\" alone is not a collision."
+          "collision": true,
+          "reason": "A request like \"review our architecture\" (explicitly in architect's examples) could also reasonably trigger the reviewer, whose scope includes \"review this\" and post-implementation checks; neither description excludes the other's domain, so a normal user asking for an architecture review could route to either."
         },
         {
           "id": "review->plan",
-          "collision": true,
-          "reason": "Review's simplicity scope ('simplify this', 'is this over-engineered') overlaps with plan's 'scope this refactor': a user asking to simplify over-engineered code could reasonably trigger plan, which would respond with an ordered refactor sequence rather than a review."
+          "collision": false,
+          "reason": "Review requests target an existing diff's correctness/simplicity; plan requests ask for an ordered sequence of future work. A normal review request ('is this ready to merge', 'simplify this') does not reasonably demand a step-by-step implementation plan, and plan's exclusions (not writing code, not diagnosing) keep it distinct from reviewing code."
         },
         {
           "id": "review->build",
           "collision": false,
-          "reason": "Review covers evaluating existing code (correctness, simplicity) while build covers producing code. A request like 'review this' or 'simplify this' is clearly review, and 'fix this'/'implement the spec' is clearly build; neither description's scope pulls the other's normal requests in."
+          "reason": "Review requests (\"review this\", \"check this diff\", \"simplify this\") ask for evaluation of existing code, not writing it. Build's scope (implement, fix, refactor) targets code production, and its exclusion of non-implementation tasks keeps evaluation requests out. Shared code vocabulary doesn't make a review request reasonably trigger build."
         },
         {
           "id": "review->debug",
           "collision": false,
-          "reason": "A normal review request (\"review this diff\", \"is this ready to merge\") asks for correctness/simplicity assessment of code that hasn't failed. Debug requires an actual failure (test/lint/runtime/CI failure) to diagnose. Shared vocabulary like 'bugs' or 'error handling' in the review description doesn't mean the user is reporting a failure, so a review request would not reasonably trigger the debug route."
+          "reason": "Review requests target pre-merge assessment of a diff (correctness, simplicity); debug requires the user to want a diagnosis of an actual failure. A normal review request inside the source scope does not reasonably trigger a failure diagnosis, and the target's exclusions don't create overlap."
         },
         {
           "id": "review->investigate",
           "collision": false,
-          "reason": "Investigate explicitly excludes verdicts on diffs (review), and review's scope (correctness/simplicity judgments on a diff) is evaluative, not factual reporting. A normal review request like 'is this ready to merge' would not reasonably trigger investigate."
+          "reason": "Investigate explicitly excludes verdicts on diffs (review), and review requests seek judgment/simplification, not factual reports. Shared surface vocabulary like 'check this diff' is disambiguated by the exclusion, so a normal review request would not reasonably route to investigate."
         },
         {
           "id": "review->git-ops",
           "collision": false,
-          "reason": "Review requests ask for analysis of code quality/correctness; git-ops performs repository actions (commit, PR, merge). A review request like 'check this diff' seeks feedback, not a repository mutation, and git-ops explicitly excludes diagnosing code issues. Shared vocabulary ('diff', 'merge') alone doesn't route review requests to git-ops."
+          "reason": "Review requests ask for analysis of code quality/correctness; git-ops performs repository mutations (commit, PR, merge, etc.). Shared words like 'diff' or 'merge' don't make a review request a git action, and git-ops explicitly excludes diagnostic/analysis work."
         },
         {
           "id": "debug->decide",
           "collision": false,
-          "reason": "A request inside debug's scope asks for a diagnosis of a failure, not a choice among options; deciding (should I, what are my options) is a different output type. No overlap in user intent."
+          "reason": "A request inside debug's scope (diagnosing a failure) asks for a cause, not a choice with rationale; decide's scope requires an unsettled decision question, so no normal debug request reasonably triggers decide."
         },
         {
           "id": "debug->architect",
           "collision": false,
-          "reason": "Debug diagnoses a failure; architect designs/reviews system structure. A failure-cause request stays in debug and would not reasonably trigger architecture design despite shared code vocabulary."
+          "reason": "Debug diagnoses a specific failure; architect designs system structure. A request for the cause of a failure doesn't reasonably trigger architecture design, and vice versa. No shared trigger vocabulary beyond generic code references."
         },
         {
           "id": "debug->plan",
           "collision": false,
-          "reason": "Debug's scope is producing a diagnosis of a failure; plan explicitly excludes diagnosing failures and its scope is sequencing implementation work. A normal request inside debug's positive scope (why did this fail?) yields a diagnosis, not an ordered work sequence, so it would not reasonably trigger plan."
+          "reason": "A request inside debug's scope asks for a diagnosis of a failure; plan explicitly excludes diagnosing failures and its output is an ordered implementation sequence, not a diagnosis. Shared phrasing like 'plan the fix' only applies when the user wants work sequencing, which is outside debug's positive scope."
         },
         {
           "id": "debug->build",
           "collision": false,
-          "reason": "The pairs are separated by intent: debug outputs a diagnosis of an unknown failure, while build implements a fix with a known cause. Debug explicitly excludes implementing a known fix, and build explicitly excludes diagnosing unknown failures, so a normal request routes cleanly to one or the other. The shared word 'fix' is not sufficient for a collision."
+          "reason": "A normal debug request is diagnosing an unknown failure, which build explicitly excludes ('fix a bug with a known cause'). The overlap only occurs after diagnosis completes, and debug's own exclusion of implementing known fixes keeps the scopes disjoint."
         },
         {
           "id": "debug->review",
           "collision": false,
-          "reason": "Debug serves failure-diagnosis requests ('why did this fail'), producing a diagnosis; review serves pre-merge evaluation requests ('review this diff', 'ready to merge'). A user asking for the cause of a failure is not reasonably asking for a pre-landing review, and shared surface (bugs, tests) is just vocabulary overlap, not intent overlap."
+          "reason": "A user asking for the cause of a failure wants a diagnosis, not a pre-merge review; review's triggers (\"review this\", \"ready to merge\", \"simplify\") describe a different intent. Shared topic (bugs in code) is not enough — the requests are distinguishable."
         },
         {
           "id": "debug->investigate",
           "collision": false,
-          "reason": "Debug diagnoses the cause of a failure; investigate reports current factual state. The descriptions explicitly exclude each other (investigate excludes 'cause of a failure (debug)'), and a request for a failure diagnosis would not reasonably trigger a factual-state report."
+          "reason": "Debug diagnoses the cause of a failure; investigate reports current factual state. A request for a failure cause is explicitly excluded from investigate, and a 'how does it behave' question is excluded from debug, so scopes are disjoint."
         },
         {
           "id": "debug->git-ops",
           "collision": false,
-          "reason": "The descriptions are mutually exclusive by output type: debug diagnoses failures (explicitly excluding Git command failures and acting on Git), while git-ops performs Git actions (explicitly excluding failure diagnosis even after a Git operation). A normal request inside debug's positive scope — diagnosing why code/tests/CI failed — cannot reasonably trigger git-ops, and vice versa."
+          "reason": "The scopes are cleanly partitioned by output type: debug produces a diagnosis of code/test/CI failures, while git-ops produces a repository action/result. Git-ops explicitly excludes diagnosing why code or CI failed even after a Git operation, and debug explicitly excludes Git command failures and acting on Git. A request like 'tests fail after my merge' stays in debug; 'fix my broken rebase' stays in git-ops. No normal request clearly inside debug's positive scope reasonably triggers git-ops."
         },
         {
           "id": "investigate->decide",
           "collision": false,
-          "reason": "Investigate covers factual 'what is' questions with citations and explicitly excludes choices; decide requires an unsettled decision with a rationale. A normal investigate request (how does X behave, where is Y) does not reasonably trigger decide, and vice versa."
+          "reason": "Investigate produces factual reports about current state with no choice made; decide requires selecting an option with rationale. A request inside investigate's scope (\"how does X work\", \"where is Y\") does not ask for a decision, and decide's scope explicitly requires an unsettled choice. No shared trigger."
         },
         {
           "id": "investigate->architect",
           "collision": false,
-          "reason": "Investigate answers factual 'what is' questions with citations and changes nothing; architect produces a target structure from drivers. A request clearly inside investigate's scope (e.g., 'where is X handled') would not reasonably trigger architect, and vice versa."
+          "reason": "Investigate covers factual questions about current behavior/layout with citations and explicitly excludes target designs; architect requires design drivers and produces a proposed structure. A normal 'how does/where is' request stays in investigate and would not reasonably trigger architect."
         },
         {
           "id": "investigate->plan",
           "collision": false,
-          "reason": "Investigate covers factual 'what is' questions answered with a cited report; plan requires an ordered implementation sequence. A normal investigate request ('how does X work', 'where is Y') has no work-sequencing component, so it would not reasonably trigger plan."
+          "reason": "Investigate covers factual status questions (how/where/which/what changed) producing a report with no changes or choices; plan covers requests for an ordered implementation sequence. A normal investigate request (\"how does X behave\", \"where is Y defined\") asks for facts, not a work sequence, and plan's scope requires the user to want ordered implementation steps. Shared phrasing like \"where\" appears in both but does not make a factual report request reasonably trigger the planning route."
         },
         {
           "id": "investigate->build",
           "collision": false,
-          "reason": "Investigate is strictly read-only factual reporting ('how does', 'where is') with explicit exclusion of any changes; build requires writing/modifying code. A request inside investigate's scope (a factual question answered with citations) cannot reasonably trigger build, and vice versa."
+          "reason": "Investigate's scope is explicitly read-only factual reporting ('how does', 'where is', nothing changed), while build requires writing/changing code ('fix this', 'implement'). A normal investigate request produces a report with citations, not code changes, so it would not reasonably trigger build despite shared code-related vocabulary."
         },
         {
           "id": "investigate->review",
           "collision": false,
-          "reason": "Investigate covers factual questions about current state/history (\"how does\", \"what changed between\") with no judgment on a diff, while review targets evaluating a pending diff for merge-readiness. A normal investigate request asks for facts, not a verdict; \"what changed between\" is historical reporting, not diff review."
+          "reason": "Investigate covers factual reports about current state/history with no judgment, while review covers verdicts on a diff before landing. A request inside investigate's scope (\"how does X work\", \"what changed between commits\") asks for facts, not a merge-readiness verdict, and investigate explicitly excludes review. Shared surface vocabulary (\"what changed\" vs \"check this diff\") doesn't make a factual history question reasonably trigger review."
         },
         {
           "id": "investigate->debug",
           "collision": false,
-          "reason": "The source explicitly excludes 'the cause of a failure (debug)', so a diagnosis request routes to debug, not investigate. Conversely, debug excludes repository-state questions, which belong to investigate. The scopes are cleanly partitioned by intent (factual report vs. diagnosis) with explicit mutual exclusions."
+          "reason": "The pairs draw a clean boundary: investigate explicitly excludes 'the cause of a failure (debug)', and debug excludes repository-state questions. A 'how does / where is / what changed' request maps to investigate, while a failure-cause request maps to debug; neither description's positive scope captures the other's core intent."
         },
         {
           "id": "investigate->git-ops",
           "collision": false,
-          "reason": "Investigate handles read-only factual questions ('how does', 'where is', 'what changed') with explicit exclusion of acting on the repository (git-ops). A normal request in its scope produces a report, not a commit/branch/PR action, so no in-scope request reasonably triggers git-ops."
+          "reason": "Investigate covers read-only factual reporting (how/where/which/what changed) with explicit exclusion of git-ops actions; a normal investigate request produces a report, not a commit/branch/PR, so it would not reasonably trigger git-ops."
         },
         {
           "id": "git-ops->decide",
           "collision": false,
-          "reason": "A normal git-ops request (commit, branch, PR, rebase, etc.) asks for a repository action, not a choice with rationale. Even questions like 'should I rebase or merge?' are resolved by performing the git operation within git-ops's scope; the target's decision scope (build-vs-buy, vendor, delivery) doesn't overlap."
+          "reason": "Git operations produce repository actions, not choices with rationale; a normal git request (commit, PR, rebase) has no decision-making scope overlap with 'should I / what are my options' requests."
         },
         {
           "id": "git-ops->architect",
           "collision": false,
-          "reason": "Git operations (commit, PR, rebase, secret removal) produce repository results, not system structure, ADRs, or architecture reviews; no normal Git request plausibly triggers the architect's scope."
+          "reason": "Git operations (commit, PR, rebase, etc.) are concrete repository actions, while the architect agent handles system structure design. A normal Git request like 'open a PR' or 'recover a lost commit' would not reasonably trigger an architecture-design description; scopes are disjoint."
         },
         {
           "id": "git-ops->plan",
           "collision": false,
-          "reason": "Git operations (commit, PR, rebase, etc.) and implementation planning requests share no vocabulary or intent; a normal Git request would not reasonably trigger the planning route."
+          "reason": "Git operations (commit, PR, rebase, etc.) and implementation planning (breakdown, ordering of work) have disjoint scopes. A normal Git request like 'open a PR' or 'rebase' would not reasonably trigger the planning route, and 'plan the fix' requests are excluded from the Git route as debugging/diagnosis, not Git actions. Shared words like 'fix' or 'release' appear only in different senses."
         },
         {
           "id": "git-ops->build",
           "collision": false,
-          "reason": "Git operation requests (commit, rebase, PR, conflict resolution) are repository actions, not code-writing tasks; a user asking to commit or merge would not reasonably trigger 'implement a feature / fix a bug / write the function'. Shared terms like 'fix' differ in object (repo state vs code), so no clear in-scope request routes to build."
+          "reason": "Git operations (commit, PR, merge, rebase, release) are repository actions, not code-writing requests. 'Build it' in the target means implementing/writing code, not building a release; a normal Git request would not reasonably trigger the build router, and the source explicitly excludes debugging failures."
         },
         {
           "id": "git-ops->review",
           "collision": false,
-          "reason": "Source scope is performing repository operations (commit, PR, merge, recovery), producing a git result. A normal request inside that scope — e.g. 'open a PR' or 'rebase my branch' — asks for an action, not an assessment. Review's triggers ('review this', 'is this ready to merge', 'check this diff') are evaluative requests outside the source's positive scope; shared terms like 'merge' are vocabulary overlap, not a collision."
+          "reason": "Git-ops requests are action-oriented (commit, merge, PR, rebase) while review requests are evaluative (\"review this\", \"is this ready to merge\"). A user asking git-ops to merge or open a PR wants the operation performed, not a code critique; shared vocabulary like \"merge\"/\"diff\" reflects different intents, and git-ops explicitly excludes diagnostic/review-style asks."
         },
         {
           "id": "git-ops->debug",
           "collision": false,
-          "reason": "The boundary is explicitly drawn both ways: git-ops excludes diagnosing why code/tests/CI failed even after a Git operation, and debug excludes Git command failures and acting on Git/GitHub. A request like 'why did my rebase fail' is a Git command failure diagnosis, which debug explicitly excludes, while 'diagnose why my tests fail after the merge' is excluded by git-ops. The descriptions' exclusions cleanly partition these cases, so no normal request inside git-ops's positive scope would reasonably trigger debug."
+          "reason": "git-ops requests are action-oriented (commit, rebase, recover commit, etc.) and produce a repository result, while debug requires a diagnosis of a failure cause. The target explicitly excludes Git command failures and repository-state questions, and the source excludes diagnosing failures even after a Git operation. Shared vocabulary (e.g., 'conflict', 'broken') does not make a normal git-ops request reasonably trigger debug."
         },
         {
           "id": "git-ops->investigate",
           "collision": false,
-          "reason": "Git-ops requests are action-oriented (commit, PR, rebase, recover), producing a repository change; investigate only reports facts without changing anything. Overlap on words like 'commit' or 'history' is shared vocabulary, not a routing collision — a user asking to perform a Git operation would not reasonably be answered by a read-only factual report, and investigate explicitly excludes acting on the repository."
+          "reason": "Git-ops requests are action-oriented (commit, rebase, recover, release) and expect a repository change, while investigate is strictly read-only factual reporting. A normal git-ops request would not reasonably trigger investigate; 'which commit' phrasing in investigate refers to history questions, not performing Git operations."
         }
       ]
     }
