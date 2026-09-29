@@ -115,7 +115,8 @@ to every output.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.5.0` — installs the eight
+1. Version 4.6.0 is unreleased. Once released,
+   `pi install git:github.com/mojomanyana/principal-pi-skills@v4.6.0` installs the eight
    skills, the four `/principal-*` commands, and the bootstrap
    extension, which loads automatically with the package. Install a tag, not a branch.
 2. Subagents (optional): `npx -p principal-pi-skills principal-pi-agents install` copies
