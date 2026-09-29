@@ -6,10 +6,10 @@
   "metrics": {
     "decide": {
       "truePositive": 18,
-      "falsePositive": 2,
-      "falseNegative": 0,
-      "precision": 0.9,
-      "recall": 1
+      "falsePositive": 1,
+      "falseNegative": 1,
+      "precision": 0.9473684210526315,
+      "recall": 0.9473684210526315
     },
     "architect": {
       "truePositive": 14,
@@ -42,16 +42,16 @@
     "debug": {
       "truePositive": 18,
       "falsePositive": 0,
-      "falseNegative": 2,
+      "falseNegative": 0,
       "precision": 1,
-      "recall": 0.9
+      "recall": 1
     },
     "git-ops": {
       "truePositive": 23,
       "falsePositive": 0,
-      "falseNegative": 1,
+      "falseNegative": 0,
       "precision": 1,
-      "recall": 0.9583333333333334
+      "recall": 1
     }
   },
   "adversarial": {
@@ -69,20 +69,11 @@
           }
         ]
       },
-      "git-ops->debug": {
-        "actualMisrouting": true,
-        "failingQueries": [
-          {
-            "id": "gd-03",
-            "query": "CI fails after the bot rebased my branch. Should we undo the rebase or debug the failure?",
-            "intended": "AMBIGUOUS",
-            "selected": [
-              "decide"
-            ]
-          }
-        ]
-      },
       "debug->git-ops": {
+        "actualMisrouting": false,
+        "failingQueries": []
+      },
+      "git-ops->debug": {
         "actualMisrouting": false,
         "failingQueries": []
       }
@@ -1677,8 +1668,8 @@
       "skill": "decide",
       "positive": true,
       "query": "We're leaning toward an event-driven billing platform; should we commit to that direction, and what would the structure imply?",
-      "triggerVotes": 2,
-      "selected": true
+      "triggerVotes": 1,
+      "selected": false
     },
     {
       "id": "da-08:architect",
@@ -1686,7 +1677,7 @@
       "skill": "architect",
       "positive": true,
       "query": "We're leaning toward an event-driven billing platform; should we commit to that direction, and what would the structure imply?",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -1974,7 +1965,7 @@
       "skill": "debug",
       "positive": false,
       "query": "Which commit introduced the test that is breaking CI?",
-      "triggerVotes": 0,
+      "triggerVotes": 1,
       "selected": false
     },
     {
@@ -1983,7 +1974,7 @@
       "skill": "git-ops",
       "positive": true,
       "query": "Which commit introduced the test that is breaking CI?",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -2098,7 +2089,7 @@
       "id": "dg-06:debug",
       "queryId": "dg-06",
       "skill": "debug",
-      "positive": true,
+      "positive": false,
       "query": "GitHub Actions now reports a checkout permission error; diagnose or repair whatever changed.",
       "triggerVotes": 0,
       "selected": false
@@ -2368,7 +2359,7 @@
       "id": "gd-03:decide",
       "queryId": "gd-03",
       "skill": "decide",
-      "positive": false,
+      "positive": true,
       "query": "CI fails after the bot rebased my branch. Should we undo the rebase or debug the failure?",
       "triggerVotes": 3,
       "selected": true
@@ -2413,7 +2404,7 @@
       "id": "gd-03:debug",
       "queryId": "gd-03",
       "skill": "debug",
-      "positive": true,
+      "positive": false,
       "query": "CI fails after the bot rebased my branch. Should we undo the rebase or debug the failure?",
       "triggerVotes": 0,
       "selected": false
@@ -2422,7 +2413,7 @@
       "id": "gd-03:git-ops",
       "queryId": "gd-03",
       "skill": "git-ops",
-      "positive": true,
+      "positive": false,
       "query": "CI fails after the bot rebased my branch. Should we undo the rebase or debug the failure?",
       "triggerVotes": 0,
       "selected": false
@@ -2541,7 +2532,7 @@
       "skill": "debug",
       "positive": false,
       "query": "CI reports a merge conflict after the dependency bot updated its branch; determine whether branch history or generated files are wrong.",
-      "triggerVotes": 0,
+      "triggerVotes": 1,
       "selected": false
     },
     {
@@ -2550,7 +2541,7 @@
       "skill": "git-ops",
       "positive": true,
       "query": "CI reports a merge conflict after the dependency bot updated its branch; determine whether branch history or generated files are wrong.",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {

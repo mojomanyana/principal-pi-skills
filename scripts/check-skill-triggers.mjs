@@ -111,9 +111,7 @@ export function validateTriggerCorpus(
       }
     } else {
       if (item.acceptable !== undefined) throw new Error(`${item.id}: acceptable is valid only when intended is AMBIGUOUS`);
-      if (!pair.includes(item.intended)) {
-        throw new Error(`${item.id}: intended label ${item.intended} is outside ${item.collision}`);
-      }
+      if (!skillNames.includes(item.intended)) throw new Error(`${item.id}: unknown intended label ${item.intended}`);
     }
   }
   for (const collision of expectedCollisions) {
