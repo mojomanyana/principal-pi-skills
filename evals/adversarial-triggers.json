@@ -9,7 +9,11 @@
   "id": "da-02",
   "collision": "decide->architect",
   "query": "For globally distributed inventory, should the system use Postgres or DynamoDB, and how should the data model work?",
-  "intended": "architect"
+  "intended": "AMBIGUOUS",
+  "acceptable": [
+   "decide",
+   "architect"
+  ]
  },
  {
   "id": "da-03",
@@ -27,7 +31,7 @@
   "id": "da-05",
   "collision": "decide->architect",
   "query": "Help choose the storage topology for a multi-region ledger: relational primary, distributed SQL, or DynamoDB.",
-  "intended": "architect"
+  "intended": "decide"
  },
  {
   "id": "da-06",
@@ -45,11 +49,7 @@
   "id": "da-08",
   "collision": "decide->architect",
   "query": "We're leaning toward an event-driven billing platform; should we commit to that direction, and what would the structure imply?",
-  "intended": "AMBIGUOUS",
-  "acceptable": [
-   "decide",
-   "architect"
-  ]
+  "intended": "decide"
  },
  {
   "id": "dg-01",
@@ -175,11 +175,7 @@
   "id": "dp-05",
   "collision": "decide->plan",
   "query": "Go or no-go on the auth change, with a rough sequence if go.",
-  "intended": "AMBIGUOUS",
-  "acceptable": [
-   "decide",
-   "plan"
-  ]
+  "intended": "decide"
  },
  {
   "id": "dp-06",

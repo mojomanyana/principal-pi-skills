@@ -1,10 +1,11 @@
 ---
 name: plan
 description: >
-  Use when turning a decision, feature, or multi-step task into an executable plan —
-  "break this down", "how should I implement this", "where do I start", "what's the order
-  of work", "scope this refactor", "plan the fix". Produces the plan and per-step specs;
-  writes no code. Not for system-level design (architect) or diagnosing failures (debug).
+  Use when the user needs an ordered sequence of implementation work — "break this down",
+  "where do I start", "what's the order of work", "scope this refactor", or "plan the fix".
+  The output is that executable sequence with per-step specs. Not for choosing the direction
+  (decide), defining components, boundaries, or data (architect), diagnosing failures
+  (debug), or writing code (build).
 allowed-tools: read, grep, find, ls, write, context:summary
 ---
 

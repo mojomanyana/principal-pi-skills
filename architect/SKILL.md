@@ -1,11 +1,10 @@
 ---
 name: architect
 description: >
-  Use for how a system should be structured — "how should I structure", "design a system
-  that", "SQL vs NoSQL for this workload", "monolith vs services", "review our
-  architecture", "plan the migration", "write an ADR". The output is a design note with
-  measurable drivers. Not for a yes/no or which-vendor decision without a structure to
-  design (decide), or code-level planning of one change (plan).
+  Use when the user needs a system structure — components, boundaries, data, and their
+  relationships — from measurable drivers: "how should I structure", "design a system",
+  "review our architecture", or "write an ADR". The output is that structure. Not for
+  choosing whether or which option to take (decide), or ordering implementation work (plan).
 # context:summary (pi-daddy 0.33.0+; also permits pruned, files): delegated, architect cannot ask,
 # and its drivers are the constraints the user stated in the parent's dialogue.
 allowed-tools: read, grep, find, ls, context:summary
