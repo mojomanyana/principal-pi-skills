@@ -6,6 +6,24 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.6.0] — 2026-09-29
+
+**Added — read-only investigation with cited facts (#56).** `investigate` reports how code,
+data, runtime, or history currently behaves without changing, fixing, choosing, or giving a
+merge verdict. PR #56 registered the eighth skill and its read-only agent at every install,
+routing, packaging, and verification point; added a 25-record boundary corpus; narrowed
+`git-ops` to repository actions; and recorded eight-skill routing baselines.
+
+**Added — repository-native release mode (#57).** `git-ops` now reads the prior release and
+replicates its branch, PR, commit, and annotated-tag shape; bumps every version occurrence;
+writes the changelog in repository style; runs the full suite; and stops before publishing
+with the repository's next publish command. PR #57 added the release boundary records and
+refreshed both routing baselines.
+
+**Changed defaults.** The installed set now includes `investigate`; previously factual
+questions about the current repository had no skill. `git-ops` now handles “cut a release”
+as a release mode; previously it had no explicit release workflow.
+
 ## [4.5.0] — 2026-09-29
 
 **Routing by output, with stable evidence (#51, #52, #53, #54).** PR #51 moved the routing

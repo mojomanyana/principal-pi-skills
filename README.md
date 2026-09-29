@@ -112,9 +112,8 @@ CHANGELOG.md                          release history
    pi install git:github.com/mojomanyana/principal-pi-skills@v4.6.0
    ```
 
-   Version 4.6.0 is unreleased. Its `pi` manifest registers the eight skills, the four
-   `/principal-*` commands, and the
-   bootstrap extension — it loads automatically with
+   The v4.6.0 `pi` manifest registers the eight skills, the four `/principal-*` commands,
+   and the bootstrap extension — it loads automatically with
    the package; there is no separate extension-install step. Unpinned `main` moves under
    you, so install a tag if you want a fixed, nameable behavior.
 
