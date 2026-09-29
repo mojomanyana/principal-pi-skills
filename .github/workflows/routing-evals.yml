@@ -16,7 +16,7 @@ jobs:
       - name: Pairwise description collisions
         env:
           FIREWORKS_API_KEY: ${{ secrets.FIREWORKS_API_KEY }}
-        run: npm run check:routing-collisions -- --output /tmp/collisions.json
+        run: npm run check:routing-collisions -- --runs 3 --output /tmp/collisions.json
       - name: Synthetic trigger precision and recall
         if: always()
         env:
