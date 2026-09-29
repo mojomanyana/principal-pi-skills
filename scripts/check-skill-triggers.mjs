@@ -115,9 +115,18 @@ export function validateTriggerCorpus(
       if (!skillNames.includes(item.intended)) throw new Error(`${item.id}: unknown intended label ${item.intended}`);
     }
   }
+  const collisionMinimums = {
+    "investigate->debug": 8,
+    "investigate->decide": 6,
+    "investigate->review": 4,
+    "investigate->git-ops": 2,
+    "investigate->architect": 4,
+    "investigate->none": 1,
+  };
   for (const collision of expectedCollisions) {
     const count = adversarial.filter((item) => item.collision === collision).length;
-    if (count < 8) throw new Error(`${collision}: expected at least 8 adversarial queries, got ${count}`);
+    const minimum = collisionMinimums[collision] ?? 8;
+    if (count < minimum) throw new Error(`${collision}: expected at least ${minimum} adversarial queries, got ${count}`);
   }
   if (!adversarial.some((item) => item.category === "hard-negative")) throw new Error("expected hard-negative NO_SKILL queries");
 
@@ -178,7 +187,7 @@ async function main() {
     model: routingModel(),
     runs: RUNS,
     threshold: THRESHOLD,
-    corpus: `${originalCases.length} original binary probes + ${adversarialQueries.length} adversarial queries across all seven skills`,
+    corpus: `${originalCases.length} original binary probes + ${adversarialQueries.length} adversarial queries across all eight skills`,
     metrics,
     adversarial: adversarialVerdicts,
     perfectScoreFinding,

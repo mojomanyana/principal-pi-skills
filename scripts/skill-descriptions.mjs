@@ -1,7 +1,7 @@
 import { readFileSync } from "node:fs";
 import { join } from "node:path";
 
-export const SKILLS = ["decide", "architect", "plan", "build", "review", "debug", "git-ops"];
+export const SKILLS = ["decide", "architect", "plan", "build", "review", "debug", "investigate", "git-ops"];
 
 function parseFrontmatter(path, text) {
   const block = text.match(/^---\n([\s\S]*?)\n---(?:\n|$)/)?.[1];

@@ -83,7 +83,7 @@ for (const [mode, spec] of Object.entries(WORKFLOW_MODES)) {
   });
 }
 
-for (const contract of ["plan", "review", "debug"]) {
+for (const contract of ["plan", "review", "debug", "investigate"]) {
   for (const [mode, spec] of Object.entries(MODES)) {
     test(`${contract}: ${spec.path(contract)} matches the template (${mode})`, () => {
       const template = read(`contracts/${contract}.md.tmpl`);

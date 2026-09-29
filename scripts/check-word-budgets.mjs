@@ -90,7 +90,7 @@ for (const line of readme.split("\n")) {
 
 // A table that parses to nothing would pass silently, which is the same failure this
 // script exists to prevent — so prove it found the rows.
-const EXPECTED_SKILLS = 7;
+const EXPECTED_SKILLS = 8;
 const skillFiles = checked.filter((p) => p.endsWith("/SKILL.md")).length;
 if (skillFiles !== EXPECTED_SKILLS) {
   errors.push(

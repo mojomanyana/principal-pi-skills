@@ -8,7 +8,7 @@ import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-export const SKILLS = ["decide", "architect", "plan", "build", "review", "debug", "git-ops"];
+export const SKILLS = ["decide", "architect", "plan", "build", "review", "debug", "investigate", "git-ops"];
 
 export function lintSkill(path, text) {
   const findings = [];

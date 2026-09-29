@@ -22,7 +22,7 @@ The set:
 
 - Skills (inline only): `decide`, `architect`, `git-ops`.
 - Agents (delegate when the subagent tool is available): `principal-plan`,
-  `principal-build`, `principal-review`, `principal-debug` — defined in `agents/`. Each
+  `principal-build`, `principal-review`, `principal-debug`, `principal-investigate` — defined in `agents/`. Each
   contract also has a SKILL.md for interactive use when delegation is unavailable or the
   user wants to work through it conversationally.
 
@@ -36,6 +36,7 @@ The set:
 | Code to write ("implement", "fix this known bug", "make the test pass") | `build` | inline, or `principal-build` per approved plan step when the subagent tool exists — never fan parallel writers into one working tree |
 | A change to judge before landing ("review this", "ready to merge?") | `review` | **subagent, always when available** — a fresh context judging the diff cold beats self-review; inline review of code you just wrote is anchored on its own reasoning |
 | An unknown failure to diagnose ("why is this failing", "find the bug") | `debug` | **subagent** when reproduction is noisy (flaky loops, bisects); inline when the user is driving |
+| Facts about current code, data, runtime, or history ("how does", "where is", "map", "what changed between") | `investigate` | **subagent** for heavy reading; inline when dialogue is needed |
 | A git or GitHub operation ("commit", "push", "open a PR", "I leaked a secret") | `git-ops` | inline, never delegated — needs this session's working-tree state, and destructive ops require user consequence-acceptance no subagent can obtain |
 
 **When more than one applies**, route by altitude: the highest-altitude match for the
@@ -60,10 +61,11 @@ an interpretation. The complete set:
 | debug | `build` · `plan` · `done` · `blocked` |
 | build | `review` · `debug` · `blocked` |
 | review | `build` · `git-ops` |
-| decide · architect · git-ops | *(none — they terminate)* |
+| decide · architect · investigate · git-ops | *(none — they terminate)* |
 
 `decide` and `architect` end in a judgment the user acts on, not a handoff a workflow routes;
-`git-ops` runs inline and terminates the chain. A ceremonial `Next:` on those three invited
+`investigate` ends in a factual report and `git-ops` runs inline. A ceremonial `Next:` on
+those four invited
 a workflow to route somewhere nobody asked to go. Every value above is consumed by both
 workflow prompts, and a unit test fails if a contract declares a value no workflow handles
 or a workflow handles one no contract can emit.
@@ -94,14 +96,14 @@ user; don't answer it yourself and keep going.
 
 ## Maintenance rule — the contracts are generated
 
-`plan`, `build`, `review` and `debug` exist twice: `<name>/SKILL.md` (interactive contract)
+`plan`, `build`, `review`, `debug` and `investigate` exist twice: `<name>/SKILL.md` (interactive contract)
 and `agents/principal-<name>.md` (the single-shot contract subagents get) — different
 artifacts, not copies, but most of each pair is identical, and that shared majority is
 where they used to drift.
 
 Both are generated from `contracts/<name>.md.tmpl`. The two namespaced workflows are
-likewise generated from `contracts/workflows.md.tmpl` — four contracts plus the workflows
-template are the source of everything under `agents/`, `prompts/`, and the four dual-use
+likewise generated from `contracts/workflows.md.tmpl` — five contracts plus the workflows
+template are the source of everything under `agents/`, `prompts/`, and the five dual-use
 `SKILL.md` files. Change shared behavior ONCE, there, then `npm run generate`. Editing a
 generated file directly is reverted by the next run and fails `npm run generate:check` in
 CI.
@@ -113,16 +115,17 @@ to every output.
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.5.0` — installs the seven
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.5.0` — installs the eight
    skills, the four `/principal-*` commands, and the bootstrap
    extension, which loads automatically with the package. Install a tag, not a branch.
 2. Subagents (optional): `npx -p principal-pi-skills principal-pi-agents install` copies
-   the four agent definitions into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses
+   the five agent definitions into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses
    to overwrite anything it did not install. Without it, everything in the routing table
    above still runs; the How column just collapses to "inline".
 3. Context handoff (pi-daddy 0.33.0+): each skill's `allowed-tools` sets how much of this
    session a delegated child may receive. `architect`, `decide` and `plan` allow
-   `context:summary`. `build`, `debug` and `review` allow `context:files`: review stays low
-   on purpose so it judges cold. `git-ops` allows none, on purpose. Each reason is in the
+   `context:summary`. `build`, `debug`, `review` and `investigate` allow `context:files`: review
+   stays low so it judges cold; investigate receives named evidence, not reasoning.
+   `git-ops` allows none, on purpose. Each reason is in the
    skill's frontmatter and the README install section, along with the egress note. Don't
    ask a child for more than its ceiling, and don't raise a ceiling to make a refusal go away.

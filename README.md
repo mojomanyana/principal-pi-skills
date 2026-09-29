@@ -1,13 +1,14 @@
 # principal-pi-skills
 
-**Seven skills for principal-level software engineering with the
-[pi coding agent](https://github.com/badlogic/pi-mono) — three inline skills and four
+**Eight skills for principal-level software engineering with the
+[pi coding agent](https://github.com/badlogic/pi-mono) — three inline skills and five
 that double as subagents.** Dialogue and session state run inline (`decide`, `architect`,
 `git-ops`); heavy reading, cold judgment, and noisy loops delegate to isolated contexts
-(`plan`, `build`, `review`, `debug` — single-shot variants in `agents/`, generated from the
-same contract as the skill). The files follow the [Agent Skills](https://agentskills.io/specification)
-standard, so other harnesses can consume the skills, but pi is the supported target. This
-is **4.x**: a thin orchestration layer over the seven skills, with the risk-adaptive
+(`plan`, `build`, `review`, `debug`, `investigate` — single-shot variants in `agents/`,
+generated from the same contract as the skill). The files follow the
+[Agent Skills](https://agentskills.io/specification) standard, so other harnesses can
+consume the skills, but pi is the supported target. This is **4.x**: a thin orchestration
+layer over the eight skills, with the risk-adaptive
 assurance controller and model measurement removed to a separate track (see
 [Validation](#validation)).
 
@@ -19,7 +20,7 @@ around.
 
 ## Three constraints
 
-1. **Dual-use.** `plan`, `build`, `review`, and `debug` each serve as a loaded skill *and*
+1. **Dual-use.** `plan`, `build`, `review`, `debug`, and `investigate` each serve as a loaded skill *and*
    as a subagent system prompt. Both forms are rendered from one contract, so the shared
    behavior cannot drift between them, and the differences — single-shot mechanics, the
    BLOCKED form, no-dialogue rules — are marked rather than remembered. That constraint is
@@ -48,6 +49,7 @@ around.
 | `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1277) or inline | 1149 |
 | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1415) or inline | 1315 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1456) or inline | 1320 |
+| `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 395) or inline | 392 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2000 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
@@ -91,8 +93,8 @@ being asked.
 
 ```
 <skill>/SKILL.md                      the interactive contract — nothing else is required reading
-agents/principal-{plan,build,review,debug}.md  subagent definitions the workflows delegate to
-contracts/{plan,build,review,debug}.md.tmpl    source for dual-use contracts — edit here, run `npm run generate`
+agents/principal-{plan,build,review,debug,investigate}.md  subagent definitions available for delegation
+contracts/{plan,build,review,debug,investigate}.md.tmpl    source for dual-use contracts — edit here, run `npm run generate`
 contracts/workflows.md.tmpl           source for the two namespaced spines
 prompts/principal-{feature,bugfix}.md generated workflows
 bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary + model tiering, injected by the extension
@@ -111,7 +113,7 @@ CHANGELOG.md                          release history
    pi install git:github.com/mojomanyana/principal-pi-skills@v4.5.0
    ```
 
-   The `pi` manifest registers the seven skills, the four `/principal-*` commands, and the
+   The `pi` manifest registers the eight skills, the four `/principal-*` commands, and the
    bootstrap extension — it loads automatically with
    the package; there is no separate extension-install step. Unpinned `main` moves under
    you, so install a tag if you want a fixed, nameable behavior.
@@ -120,21 +122,22 @@ CHANGELOG.md                          release history
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
-2. **Subagents (optional).** Install the four agent definitions:
+2. **Subagents (optional).** Install the five agent definitions:
 
    ```
    npx -p principal-pi-skills principal-pi-agents install     # → ${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents
    npx -p principal-pi-skills principal-pi-agents check       # verify they are present and current
    ```
 
-   It installs `principal-plan`, `principal-build`, `principal-review`, and
-   `principal-debug` as **real files, not symlinks** — a symlink into a checkout breaks the
+   It installs `principal-plan`, `principal-build`, `principal-review`, `principal-debug`,
+   and `principal-investigate` as **real files, not symlinks** — a symlink into a checkout breaks the
    moment that directory moves, and breaks silently, since pi just reports an unknown
    agent. It refuses to overwrite anything it did not install, and `uninstall` removes only
    its own unmodified files.
 
-   Tool restriction is structural, in the agents' frontmatter: `plan` is read-only except for its own plan file; `build`,
-   `review`, and `debug` add `bash` to run tests (and, for `build`, to write and edit).
+   Tool restriction is structural, in the agents' frontmatter: `investigate` is read-only;
+   `plan` is read-only except for its own plan file; `build`, `review`, and `debug` add
+   `bash` to run tests (and, for `build`, to write and edit).
 
    One trap worth knowing if you run subagents on a non-default provider: a delegated agent
    runs on the pi config's `defaultProvider`/`defaultModel`, **not** the
@@ -159,6 +162,7 @@ CHANGELOG.md                          release history
    | `plan` | `context:summary` | a plan must honour what the user ruled out, which a task line flattens; no `bash` |
    | `review` | `context:files` | **deliberately low.** Review is cold by design, and the author's reasoning is what it must not be anchored on; the diff package and build report are files |
    | `build`, `debug` | `context:files` | they act on a stated target (a plan file or a symptom); logs travel verbatim as files; with `bash`, anything a child receives can leave the machine |
+   | `investigate` | `context:files` | receives only named evidence and has no shell or write tools; the caller's reasoning is not evidence |
    | `git-ops` | none | acts on the working tree, not the conversation; consent to a destructive op must come from the user, not from forwarded turns |
 
    Nothing declares `context:fork`. Write the prefix in lowercase: `Context:summary` turns
@@ -177,11 +181,11 @@ CHANGELOG.md                          release history
 `npm test` remains the free gate: generated-contract drift, word budgets, frontmatter lint,
 installer and tarball behavior, and `Next:` transition parity.
 
-Two opt-in routing checks use only the seven authored frontmatter descriptions. Run
-`npm run check:routing-collisions` for all 42 directed description pairs and
+Two opt-in routing checks use only the eight authored frontmatter descriptions. Run
+`npm run check:routing-collisions` for all 56 directed description pairs and
 `npm run check:routing-triggers` for the three-run synthetic trigger suite. Both require
 `FIREWORKS_API_KEY`; `ROUTING_MODEL` and `ROUTING_API_URL` override the defaults. The suite
-starts with 12 positives and 8 near-miss negatives per skill (14 positives for git-ops), then
+starts with 12 positives and 8 near-miss negatives per skill, then
 adds authored collision-boundary and no-skill probes, and reports per-skill precision and recall
 at a 0.5 vote threshold. `evals/baseline/triggers.json` records the expanded three-run corpus;
 the obsolete pre-expansion record was removed. Regenerate the baseline after any corpus or
