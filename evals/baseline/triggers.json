@@ -2,7 +2,7 @@
   "model": "accounts/fireworks/models/glm-5p3-flash",
   "runs": 3,
   "threshold": 0.5,
-  "corpus": "160 original binary probes + 79 adversarial queries across all eight skills",
+  "corpus": "160 original binary probes + 82 adversarial queries across all eight skills",
   "metrics": {
     "decide": {
       "truePositive": 31,
@@ -27,9 +27,9 @@
     },
     "build": {
       "truePositive": 13,
-      "falsePositive": 0,
+      "falsePositive": 1,
       "falseNegative": 0,
-      "precision": 1,
+      "precision": 0.9285714285714286,
       "recall": 1
     },
     "review": {
@@ -40,25 +40,25 @@
       "recall": 0.9285714285714286
     },
     "debug": {
-      "truePositive": 25,
+      "truePositive": 23,
       "falsePositive": 1,
-      "falseNegative": 1,
-      "precision": 0.9615384615384616,
-      "recall": 0.9615384615384616
+      "falseNegative": 3,
+      "precision": 0.9583333333333334,
+      "recall": 0.8846153846153846
     },
     "investigate": {
-      "truePositive": 28,
-      "falsePositive": 0,
-      "falseNegative": 2,
-      "precision": 1,
-      "recall": 0.9333333333333333
+      "truePositive": 30,
+      "falsePositive": 1,
+      "falseNegative": 1,
+      "precision": 0.967741935483871,
+      "recall": 0.967741935483871
     },
     "git-ops": {
-      "truePositive": 17,
-      "falsePositive": 0,
-      "falseNegative": 1,
-      "precision": 1,
-      "recall": 0.9444444444444444
+      "truePositive": 18,
+      "falsePositive": 1,
+      "falseNegative": 2,
+      "precision": 0.9473684210526315,
+      "recall": 0.9
     }
   },
   "adversarial": {
@@ -88,12 +88,42 @@
               "debug",
               "git-ops"
             ]
+          },
+          {
+            "id": "dg-08",
+            "query": "CI fails with 'shallow update not allowed' after the branch history changed. What's wrong?",
+            "intended": "debug",
+            "selected": [
+              "git-ops"
+            ]
           }
         ]
       },
       "git-ops->debug": {
-        "actualMisrouting": false,
-        "failingQueries": []
+        "actualMisrouting": true,
+        "failingQueries": [
+          {
+            "id": "gd-06",
+            "query": "The CI secret-scanning job started flagging a committed test fixture. Determine whether it is a real leak and what action is safe.",
+            "intended": "AMBIGUOUS",
+            "selected": [
+              "investigate"
+            ]
+          }
+        ]
+      },
+      "git-ops->build": {
+        "actualMisrouting": true,
+        "failingQueries": [
+          {
+            "id": "gb-01",
+            "query": "Bump the version and write the changelog for this release",
+            "intended": "git-ops",
+            "selected": [
+              "build"
+            ]
+          }
+        ]
       },
       "decide->plan": {
         "actualMisrouting": false,
@@ -116,6 +146,10 @@
         "failingQueries": []
       },
       "investigate->git-ops": {
+        "actualMisrouting": false,
+        "failingQueries": []
+      },
+      "git-ops->investigate": {
         "actualMisrouting": false,
         "failingQueries": []
       },
@@ -172,8 +206,8 @@
       "skill": "decide",
       "positive": true,
       "query": "What could go wrong if we outsource the mobile app?",
-      "triggerVotes": 1,
-      "selected": false
+      "triggerVotes": 2,
+      "selected": true
     },
     {
       "id": "decide-p06",
@@ -316,8 +350,8 @@
       "skill": "decide",
       "positive": true,
       "query": "Postgres or DynamoDB for this globally distributed workload?",
-      "triggerVotes": 2,
-      "selected": true
+      "triggerVotes": 1,
+      "selected": false
     },
     {
       "id": "architect-p04",
@@ -1502,7 +1536,7 @@
       "skill": "architect",
       "positive": true,
       "query": "For globally distributed inventory, should the system use Postgres or DynamoDB, and how should the data model work?",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -2258,7 +2292,7 @@
       "skill": "debug",
       "positive": false,
       "query": "Which commit introduced the test that is breaking CI?",
-      "triggerVotes": 1,
+      "triggerVotes": 0,
       "selected": false
     },
     {
@@ -2267,7 +2301,7 @@
       "skill": "investigate",
       "positive": true,
       "query": "Which commit introduced the test that is breaking CI?",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -2420,7 +2454,7 @@
       "skill": "git-ops",
       "positive": true,
       "query": "GitHub Actions now reports a checkout permission error; diagnose or repair whatever changed.",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -2546,8 +2580,8 @@
       "skill": "debug",
       "positive": true,
       "query": "CI fails with 'shallow update not allowed' after the branch history changed. What's wrong?",
-      "triggerVotes": 3,
-      "selected": true
+      "triggerVotes": 0,
+      "selected": false
     },
     {
       "id": "dg-08:investigate",
@@ -2564,8 +2598,8 @@
       "skill": "git-ops",
       "positive": false,
       "query": "CI fails with 'shallow update not allowed' after the branch history changed. What's wrong?",
-      "triggerVotes": 0,
-      "selected": false
+      "triggerVotes": 3,
+      "selected": true
     },
     {
       "id": "gd-01:decide",
@@ -2906,7 +2940,7 @@
       "skill": "debug",
       "positive": true,
       "query": "CI reports a merge conflict after the dependency bot updated its branch; determine whether branch history or generated files are wrong.",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -2915,7 +2949,7 @@
       "skill": "investigate",
       "positive": false,
       "query": "CI reports a merge conflict after the dependency bot updated its branch; determine whether branch history or generated files are wrong.",
-      "triggerVotes": 0,
+      "triggerVotes": 1,
       "selected": false
     },
     {
@@ -2924,7 +2958,7 @@
       "skill": "git-ops",
       "positive": false,
       "query": "CI reports a merge conflict after the dependency bot updated its branch; determine whether branch history or generated files are wrong.",
-      "triggerVotes": 0,
+      "triggerVotes": 1,
       "selected": false
     },
     {
@@ -2978,8 +3012,8 @@
       "skill": "debug",
       "positive": true,
       "query": "The CI secret-scanning job started flagging a committed test fixture. Determine whether it is a real leak and what action is safe.",
-      "triggerVotes": 2,
-      "selected": true
+      "triggerVotes": 1,
+      "selected": false
     },
     {
       "id": "gd-06:investigate",
@@ -2987,8 +3021,8 @@
       "skill": "investigate",
       "positive": false,
       "query": "The CI secret-scanning job started flagging a committed test fixture. Determine whether it is a real leak and what action is safe.",
-      "triggerVotes": 1,
-      "selected": false
+      "triggerVotes": 2,
+      "selected": true
     },
     {
       "id": "gd-06:git-ops",
@@ -3068,7 +3102,7 @@
       "skill": "git-ops",
       "positive": true,
       "query": "CI began failing after a reset and a commit seems to be missing; work out whether history loss caused the failure and recover safely if so.",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -3239,7 +3273,7 @@
       "skill": "plan",
       "positive": true,
       "query": "Lay out the steps to adopt the new auth provider.",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -3311,7 +3345,7 @@
       "skill": "plan",
       "positive": true,
       "query": "We've agreed to adopt it; what's the order of work?",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -3599,7 +3633,7 @@
       "skill": "plan",
       "positive": true,
       "query": "Write the rollout plan for the strategy we picked.",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -3815,7 +3849,7 @@
       "skill": "plan",
       "positive": true,
       "query": "Break the billing platform work into ordered milestones.",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -3959,7 +3993,7 @@
       "skill": "plan",
       "positive": true,
       "query": "What do we build first for billing, and what depends on what?",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -4103,7 +4137,7 @@
       "skill": "plan",
       "positive": true,
       "query": "Sequence the billing rollout so nothing ships before its dependency.",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -4175,7 +4209,7 @@
       "skill": "plan",
       "positive": true,
       "query": "Structure the billing platform and tell me the order to build it.",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -5048,7 +5082,7 @@
       "skill": "build",
       "positive": true,
       "query": "CI takes 12 minutes; make it faster.",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -5579,8 +5613,8 @@
       "skill": "investigate",
       "positive": true,
       "query": "Inventory the dependencies with CVEs and tell me which to upgrade now.",
-      "triggerVotes": 1,
-      "selected": false
+      "triggerVotes": 2,
+      "selected": true
     },
     {
       "id": "ic-06:git-ops",
@@ -6022,6 +6056,222 @@
       "query": "Tag v4.5.0 and push it.",
       "triggerVotes": 3,
       "selected": true
+    },
+    {
+      "id": "gi-01:decide",
+      "queryId": "gi-01",
+      "skill": "decide",
+      "positive": false,
+      "query": "Cut release 4.6.0",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-01:architect",
+      "queryId": "gi-01",
+      "skill": "architect",
+      "positive": false,
+      "query": "Cut release 4.6.0",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-01:plan",
+      "queryId": "gi-01",
+      "skill": "plan",
+      "positive": false,
+      "query": "Cut release 4.6.0",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-01:build",
+      "queryId": "gi-01",
+      "skill": "build",
+      "positive": false,
+      "query": "Cut release 4.6.0",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-01:review",
+      "queryId": "gi-01",
+      "skill": "review",
+      "positive": false,
+      "query": "Cut release 4.6.0",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-01:debug",
+      "queryId": "gi-01",
+      "skill": "debug",
+      "positive": false,
+      "query": "Cut release 4.6.0",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-01:investigate",
+      "queryId": "gi-01",
+      "skill": "investigate",
+      "positive": false,
+      "query": "Cut release 4.6.0",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-01:git-ops",
+      "queryId": "gi-01",
+      "skill": "git-ops",
+      "positive": true,
+      "query": "Cut release 4.6.0",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "gi-02:decide",
+      "queryId": "gi-02",
+      "skill": "decide",
+      "positive": false,
+      "query": "What went into release 4.5.0?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-02:architect",
+      "queryId": "gi-02",
+      "skill": "architect",
+      "positive": false,
+      "query": "What went into release 4.5.0?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-02:plan",
+      "queryId": "gi-02",
+      "skill": "plan",
+      "positive": false,
+      "query": "What went into release 4.5.0?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-02:build",
+      "queryId": "gi-02",
+      "skill": "build",
+      "positive": false,
+      "query": "What went into release 4.5.0?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-02:review",
+      "queryId": "gi-02",
+      "skill": "review",
+      "positive": false,
+      "query": "What went into release 4.5.0?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-02:debug",
+      "queryId": "gi-02",
+      "skill": "debug",
+      "positive": false,
+      "query": "What went into release 4.5.0?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gi-02:investigate",
+      "queryId": "gi-02",
+      "skill": "investigate",
+      "positive": true,
+      "query": "What went into release 4.5.0?",
+      "triggerVotes": 3,
+      "selected": true
+    },
+    {
+      "id": "gi-02:git-ops",
+      "queryId": "gi-02",
+      "skill": "git-ops",
+      "positive": false,
+      "query": "What went into release 4.5.0?",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gb-01:decide",
+      "queryId": "gb-01",
+      "skill": "decide",
+      "positive": false,
+      "query": "Bump the version and write the changelog for this release",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gb-01:architect",
+      "queryId": "gb-01",
+      "skill": "architect",
+      "positive": false,
+      "query": "Bump the version and write the changelog for this release",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gb-01:plan",
+      "queryId": "gb-01",
+      "skill": "plan",
+      "positive": false,
+      "query": "Bump the version and write the changelog for this release",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gb-01:build",
+      "queryId": "gb-01",
+      "skill": "build",
+      "positive": false,
+      "query": "Bump the version and write the changelog for this release",
+      "triggerVotes": 2,
+      "selected": true
+    },
+    {
+      "id": "gb-01:review",
+      "queryId": "gb-01",
+      "skill": "review",
+      "positive": false,
+      "query": "Bump the version and write the changelog for this release",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gb-01:debug",
+      "queryId": "gb-01",
+      "skill": "debug",
+      "positive": false,
+      "query": "Bump the version and write the changelog for this release",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gb-01:investigate",
+      "queryId": "gb-01",
+      "skill": "investigate",
+      "positive": false,
+      "query": "Bump the version and write the changelog for this release",
+      "triggerVotes": 0,
+      "selected": false
+    },
+    {
+      "id": "gb-01:git-ops",
+      "queryId": "gb-01",
+      "skill": "git-ops",
+      "positive": true,
+      "query": "Bump the version and write the changelog for this release",
+      "triggerVotes": 1,
+      "selected": false
     },
     {
       "id": "ia-01:decide",

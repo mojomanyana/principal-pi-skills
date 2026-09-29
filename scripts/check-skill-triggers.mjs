@@ -70,7 +70,7 @@ export function validateTriggerCorpus(
   cases,
   adversarial,
   skillNames = SKILLS,
-  expectedCollisions = ["decide->architect", "decide->plan", "architect->plan", "debug->git-ops", "git-ops->debug", "investigate->debug", "investigate->decide", "investigate->review", "investigate->git-ops", "investigate->architect", "investigate->none"],
+  expectedCollisions = ["decide->architect", "decide->plan", "architect->plan", "debug->git-ops", "git-ops->debug", "git-ops->investigate", "git-ops->build", "investigate->debug", "investigate->decide", "investigate->review", "investigate->git-ops", "investigate->architect", "investigate->none"],
 ) {
   const ids = new Set();
   for (const item of cases) {
@@ -115,6 +115,8 @@ export function validateTriggerCorpus(
     }
   }
   const collisionMinimums = {
+    "git-ops->investigate": 2,
+    "git-ops->build": 1,
     "investigate->debug": 8,
     "investigate->decide": 6,
     "investigate->review": 4,

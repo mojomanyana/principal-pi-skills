@@ -2,8 +2,8 @@
 name: git-ops
 description: >
   Use for Git/GitHub actions — commit, branch, open a PR, rebase, merge,
-  tag, resolve a conflict, recover a lost commit, repair a broken checkout, or remove a
-  leaked secret. The output is a safe repository result. Not for diagnosing why code,
+  tag, resolve a conflict, recover a lost commit, repair a broken checkout, cut a release,
+  or remove a leaked secret. The output is a safe repository result. Not for diagnosing why code,
   tests, lint, runtime, or CI failed, even after a Git operation (debug).
 # No context: capability, deliberately. Repo state, not conversation; destructive-op consent
 # comes from the user, never from forwarded turns.
@@ -133,6 +133,18 @@ the rewrite IS the operation, and their version is not the primary or the fallba
 | Undo the last local commit | `git reset --soft HEAD~1` |
 | Undo a pushed commit (shared) | `git revert <sha>` |
 | Find the breaking commit | `git bisect run <test-command>` |
+
+## Release mode
+Read the previous release before changing anything: find the last release commit or release
+PR and its tag, then replicate that exact branch/PR/commit/tag shape. Bump every version
+occurrence, including `package.json`, locks, workspace packages, test assertions, and README
+badges. Write the CHANGELOG entry in its existing style; name every PR since the last tag,
+and state each changed default as “X now does Y; previously Z”. Run the repository's full
+test command. Commit. For a PR-shaped release, push the branch, open the PR, and after merge
+identify its integration commit; otherwise commit to main. Create the annotated `vX.Y.Z` tag
+on that final release commit, then push the commit and tag. **STOP before
+publishing.** Report the exact publish command the repository's own release flow would run
+next. If a package has a release guard, never bypass it with a raw `npm publish`.
 
 ## Finish mode
 On a reviewed branch, rerun the full suite on the integration tree and quote the result.
