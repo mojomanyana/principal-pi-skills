@@ -42,7 +42,7 @@ around.
 
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
-| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1061 |
+| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1056 |
 | `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1161 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1458) or inline | 1241 |
 | `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1277) or inline | 1149 |

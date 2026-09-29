@@ -2,10 +2,9 @@
 name: decide
 description: >
   Use when the user needs a choice with a rationale — "should I", "what are my options",
-  "which approach", "is this a good idea", or an unsettled build-vs-buy, vendor, migration,
-  scope, delivery, or team-process decision. The output is one choice and why. Not for
-  defining components, boundaries, or data (architect), or ordering implementation work
-  (plan).
+  "is this a good idea", or an unsettled build-vs-buy, vendor, or delivery decision. The
+  output is one choice and why. Not for defining components, boundaries, or data
+  (architect), or ordering implementation work (plan).
 # context:summary (pi-daddy 0.33.0+; also permits pruned, files): delegated, decide cannot ask,
 # and the options already weighed and rejected live only in the parent's dialogue.
 allowed-tools: read, grep, find, ls, context:summary

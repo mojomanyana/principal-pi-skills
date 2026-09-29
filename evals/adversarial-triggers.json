@@ -175,11 +175,7 @@
   "id": "dp-05",
   "collision": "decide->plan",
   "query": "Go or no-go on the auth change, with a rough sequence if go.",
-  "intended": "AMBIGUOUS",
-  "acceptable": [
-   "decide",
-   "plan"
-  ]
+  "intended": "decide"
  },
  {
   "id": "dp-06",
@@ -239,11 +235,7 @@
   "id": "ap-07",
   "collision": "architect->plan",
   "query": "Structure the billing platform and tell me the order to build it.",
-  "intended": "AMBIGUOUS",
-  "acceptable": [
-   "architect",
-   "plan"
-  ]
+  "intended": "architect"
  },
  {
   "id": "ap-08",

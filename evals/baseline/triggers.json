@@ -5,11 +5,11 @@
   "corpus": "142 original binary probes + 54 adversarial queries across all seven skills",
   "metrics": {
     "decide": {
-      "truePositive": 25,
+      "truePositive": 26,
       "falsePositive": 2,
-      "falseNegative": 1,
-      "precision": 0.9259259259259259,
-      "recall": 0.9615384615384616
+      "falseNegative": 0,
+      "precision": 0.9285714285714286,
+      "recall": 1
     },
     "architect": {
       "truePositive": 17,
@@ -20,10 +20,10 @@
     },
     "plan": {
       "truePositive": 19,
-      "falsePositive": 0,
-      "falseNegative": 2,
-      "precision": 1,
-      "recall": 0.9047619047619048
+      "falsePositive": 1,
+      "falseNegative": 0,
+      "precision": 0.95,
+      "recall": 1
     },
     "build": {
       "truePositive": 12,
@@ -78,6 +78,20 @@
           }
         ]
       },
+      "architect->plan": {
+        "actualMisrouting": true,
+        "failingQueries": [
+          {
+            "id": "ap-07",
+            "query": "Structure the billing platform and tell me the order to build it.",
+            "intended": "architect",
+            "selected": [
+              "architect",
+              "plan"
+            ]
+          }
+        ]
+      },
       "debug->git-ops": {
         "actualMisrouting": false,
         "failingQueries": []
@@ -87,10 +101,6 @@
         "failingQueries": []
       },
       "decide->plan": {
-        "actualMisrouting": false,
-        "failingQueries": []
-      },
-      "architect->plan": {
         "actualMisrouting": false,
         "failingQueries": []
       }
@@ -139,8 +149,8 @@
       "skill": "decide",
       "positive": true,
       "query": "What could go wrong if we outsource the mobile app?",
-      "triggerVotes": 0,
-      "selected": false
+      "triggerVotes": 3,
+      "selected": true
     },
     {
       "id": "decide-p06",
@@ -283,7 +293,7 @@
       "skill": "architect",
       "positive": true,
       "query": "Postgres or DynamoDB for this globally distributed workload?",
-      "triggerVotes": 0,
+      "triggerVotes": 1,
       "selected": false
     },
     {
@@ -315,7 +325,7 @@
       "skill": "architect",
       "positive": true,
       "query": "Should this workload use a monolith or services, and how should boundaries work?",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -1316,7 +1326,7 @@
       "skill": "architect",
       "positive": true,
       "query": "For globally distributed inventory, should the system use Postgres or DynamoDB, and how should the data model work?",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -1991,7 +2001,7 @@
       "skill": "git-ops",
       "positive": true,
       "query": "Which commit introduced the test that is breaking CI?",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -2000,7 +2010,7 @@
       "skill": "decide",
       "positive": false,
       "query": "The pipeline went red after I rebased this branch. Help me work out what happened.",
-      "triggerVotes": 1,
+      "triggerVotes": 0,
       "selected": false
     },
     {
@@ -2549,7 +2559,7 @@
       "skill": "debug",
       "positive": false,
       "query": "CI reports a merge conflict after the dependency bot updated its branch; determine whether branch history or generated files are wrong.",
-      "triggerVotes": 1,
+      "triggerVotes": 0,
       "selected": false
     },
     {
@@ -2558,7 +2568,7 @@
       "skill": "git-ops",
       "positive": true,
       "query": "CI reports a merge conflict after the dependency bot updated its branch; determine whether branch history or generated files are wrong.",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -2675,7 +2685,7 @@
       "skill": "debug",
       "positive": false,
       "query": "CI began failing after a reset and a commit seems to be missing; work out whether history loss caused the failure and recover safely if so.",
-      "triggerVotes": 1,
+      "triggerVotes": 0,
       "selected": false
     },
     {
@@ -2684,7 +2694,7 @@
       "skill": "git-ops",
       "positive": true,
       "query": "CI began failing after a reset and a commit seems to be missing; work out whether history loss caused the failure and recover safely if so.",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -3024,7 +3034,7 @@
       "id": "dp-05:plan",
       "queryId": "dp-05",
       "skill": "plan",
-      "positive": true,
+      "positive": false,
       "query": "Go or no-go on the auth change, with a rough sequence if go.",
       "triggerVotes": 0,
       "selected": false
@@ -3638,7 +3648,7 @@
       "skill": "decide",
       "positive": false,
       "query": "Structure the billing platform and tell me the order to build it.",
-      "triggerVotes": 0,
+      "triggerVotes": 1,
       "selected": false
     },
     {
@@ -3654,10 +3664,10 @@
       "id": "ap-07:plan",
       "queryId": "ap-07",
       "skill": "plan",
-      "positive": true,
+      "positive": false,
       "query": "Structure the billing platform and tell me the order to build it.",
-      "triggerVotes": 1,
-      "selected": false
+      "triggerVotes": 2,
+      "selected": true
     },
     {
       "id": "ap-07:build",
