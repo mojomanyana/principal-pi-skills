@@ -1,5 +1,5 @@
 const ENDPOINT = process.env.ROUTING_API_URL ?? "https://api.fireworks.ai/inference/v1/chat/completions";
-const MODEL = process.env.ROUTING_MODEL ?? "accounts/fireworks/models/glm-5p2";
+const MODEL = process.env.ROUTING_MODEL ?? "accounts/fireworks/models/glm-5p3-flash";
 
 export function routingModel() {
   return MODEL;
