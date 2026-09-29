@@ -5,6 +5,7 @@ import { dirname, join } from "node:path";
 import { tmpdir } from "node:os";
 import { fileURLToPath } from "node:url";
 
+import { auditDescriptionPairs } from "../../scripts/check-description-collisions.mjs";
 import { loadSkillDescriptions, orderedPairs } from "../../scripts/skill-descriptions.mjs";
 import {
   buildTriggerPayload,
@@ -13,7 +14,7 @@ import {
   scoreTriggerRuns,
   validateTriggerCorpus,
 } from "../../scripts/check-skill-triggers.mjs";
-import { indexBooleanResults } from "../../scripts/model-json.mjs";
+import { indexBooleanResults, modelJson } from "../../scripts/model-json.mjs";
 
 test("loads folded and plain descriptions from only the named SKILL.md files", () => {
   const root = mkdtempSync(join(tmpdir(), "skill-descriptions-"));
@@ -152,6 +153,82 @@ test("model result indexing rejects duplicate, unknown, and missing ids", () => 
   assert.throws(() => indexBooleanResults(["a"], [{ id: "a", trigger: true }, { id: "a", trigger: false }], "trigger"), /duplicate/i);
   assert.throws(() => indexBooleanResults(["a"], [{ id: "b", trigger: true }], "trigger"), /unknown/i);
   assert.throws(() => indexBooleanResults(["a", "b"], [{ id: "a", trigger: true }], "trigger"), /missing/i);
+});
+
+test("model requests use 90-second low reasoning and retry only one timeout", async () => {
+  const originalFetch = globalThis.fetch;
+  const originalTimeout = AbortSignal.timeout;
+  const originalKey = process.env.FIREWORKS_API_KEY;
+  const calls = [];
+  const timeouts = [];
+  process.env.FIREWORKS_API_KEY = "test-key";
+  AbortSignal.timeout = (milliseconds) => {
+    timeouts.push(milliseconds);
+    return originalTimeout(1_000);
+  };
+  globalThis.fetch = async (_url, options) => {
+    calls.push(options);
+    if (calls.length === 1) throw new DOMException("timed out", "TimeoutError");
+    return { ok: true, text: async () => '{"choices":[{"message":{"content":"{\\"results\\":[]}"}}]}' };
+  };
+  try {
+    assert.deepEqual(await modelJson([{ role: "user", content: "test" }]), { results: [] });
+    assert.equal(calls.length, 2);
+    assert.deepEqual(timeouts, [90_000, 90_000]);
+    for (const options of calls) {
+      assert.ok(options.signal instanceof AbortSignal);
+      const body = JSON.parse(options.body);
+      assert.equal(body.reasoning_effort, "low");
+      assert.equal("max_tokens" in body, false);
+    }
+
+    calls.length = 0;
+    globalThis.fetch = async () => {
+      calls.push(null);
+      throw new DOMException("timed out", "TimeoutError");
+    };
+    await assert.rejects(modelJson([]), { name: "TimeoutError" });
+    assert.equal(calls.length, 2);
+
+    calls.length = 0;
+    globalThis.fetch = async () => {
+      calls.push(null);
+      throw new TypeError("not a timeout");
+    };
+    await assert.rejects(modelJson([]), /not a timeout/);
+    assert.equal(calls.length, 1);
+  } finally {
+    globalThis.fetch = originalFetch;
+    AbortSignal.timeout = originalTimeout;
+    if (originalKey === undefined) delete process.env.FIREWORKS_API_KEY;
+    else process.env.FIREWORKS_API_KEY = originalKey;
+  }
+});
+
+test("collision auditing sends 42 one-pair requests with at most four in flight", async () => {
+  const pairs = Array.from({ length: 42 }, (_, index) => ({
+    id: `source-${index}->target-${index}`,
+    source: `source ${index}`,
+    target: `target ${index}`,
+  }));
+  let active = 0;
+  let maximumActive = 0;
+  const payloads = [];
+  const request = async (messages) => {
+    active++;
+    maximumActive = Math.max(maximumActive, active);
+    const payload = JSON.parse(messages[1].content);
+    payloads.push(payload);
+    await new Promise((resolve) => setImmediate(resolve));
+    active--;
+    return { results: [{ id: payload.pairs[0].id, collision: false, reason: "distinct" }] };
+  };
+
+  const results = await auditDescriptionPairs(pairs, request);
+  assert.equal(results.length, 42);
+  assert.equal(payloads.length, 42);
+  assert.ok(payloads.every((payload) => payload.pairs.length === 1));
+  assert.equal(maximumActive, 4);
 });
 
 test("scores three runs at a 0.5 selection threshold with per-skill precision and recall", () => {

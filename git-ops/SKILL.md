@@ -1,10 +1,10 @@
 ---
 name: git-ops
 description: >
-  Use for any git or GitHub operation — "commit", "push", "open a PR", "new branch",
-  "rebase", "merge", "tag a release", "who wrote this", "when did this break", "undo
-  this", "wrong branch", "lost commits", "I leaked a secret", CI failures. Safe operator:
-  refuses history rewrites on shared branches, scans for secrets before committing.
+  Use when the user wants Git/GitHub work or a repository-state answer — commits, branches,
+  pull requests, rebases, merges, tags, history, conflicts, missing commits, command or
+  checkout errors, and leaked secrets. The output is a safe repository result. Not for
+  diagnosing why code, tests, lint, runtime, or CI failed, even after a Git operation (debug).
 # No context: capability, deliberately. Repo state, not conversation; destructive-op consent
 # comes from the user, never from forwarded turns.
 allowed-tools: read, bash
