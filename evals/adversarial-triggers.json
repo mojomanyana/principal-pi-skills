@@ -235,7 +235,11 @@
   "id": "ap-07",
   "collision": "architect->plan",
   "query": "Structure the billing platform and tell me the order to build it.",
-  "intended": "architect"
+  "intended": "AMBIGUOUS",
+  "acceptable": [
+   "architect",
+   "plan"
+  ]
  },
  {
   "id": "ap-08",

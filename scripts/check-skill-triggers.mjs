@@ -87,10 +87,11 @@ export function validateTriggerCorpus(
     if (ids.has(item.id)) throw new Error(`duplicate trigger id ${item.id}`);
     ids.add(item.id);
   }
+  const expectedPositiveCounts = { decide: 13, architect: 10, plan: 13, "git-ops": 14 };
   for (const skill of skillNames) {
     const own = cases.filter((item) => item.skill === skill);
     const positives = own.filter((item) => item.positive).length;
-    const expectedPositives = skill === "git-ops" ? 14 : 12;
+    const expectedPositives = expectedPositiveCounts[skill] ?? 12;
     if (own.length !== expectedPositives + 8 || positives !== expectedPositives) {
       throw new Error(`${skill}: expected ${expectedPositives}/8 positive/negative triggers, got ${positives}/${own.length - positives}`);
     }

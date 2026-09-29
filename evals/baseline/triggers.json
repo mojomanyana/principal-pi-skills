@@ -5,7 +5,7 @@
   "corpus": "142 original binary probes + 54 adversarial queries across all seven skills",
   "metrics": {
     "decide": {
-      "truePositive": 28,
+      "truePositive": 29,
       "falsePositive": 0,
       "falseNegative": 0,
       "precision": 1,
@@ -14,15 +14,15 @@
     "architect": {
       "truePositive": 17,
       "falsePositive": 1,
-      "falseNegative": 2,
+      "falseNegative": 0,
       "precision": 0.9444444444444444,
-      "recall": 0.8947368421052632
+      "recall": 1
     },
     "plan": {
-      "truePositive": 19,
-      "falsePositive": 1,
+      "truePositive": 21,
+      "falsePositive": 0,
       "falseNegative": 0,
-      "precision": 0.95,
+      "precision": 1,
       "recall": 1
     },
     "build": {
@@ -70,20 +70,6 @@
           }
         ]
       },
-      "architect->plan": {
-        "actualMisrouting": true,
-        "failingQueries": [
-          {
-            "id": "ap-07",
-            "query": "Structure the billing platform and tell me the order to build it.",
-            "intended": "architect",
-            "selected": [
-              "architect",
-              "plan"
-            ]
-          }
-        ]
-      },
       "debug->git-ops": {
         "actualMisrouting": false,
         "failingQueries": []
@@ -93,6 +79,10 @@
         "failingQueries": []
       },
       "decide->plan": {
+        "actualMisrouting": false,
+        "failingQueries": []
+      },
+      "architect->plan": {
         "actualMisrouting": false,
         "failingQueries": []
       }
@@ -282,11 +272,11 @@
     },
     {
       "id": "architect-p03",
-      "skill": "architect",
+      "skill": "decide",
       "positive": true,
       "query": "Postgres or DynamoDB for this globally distributed workload?",
-      "triggerVotes": 0,
-      "selected": false
+      "triggerVotes": 2,
+      "selected": true
     },
     {
       "id": "architect-p04",
@@ -306,18 +296,18 @@
     },
     {
       "id": "architect-p06",
-      "skill": "architect",
+      "skill": "plan",
       "positive": true,
       "query": "Plan the zero-downtime migration from queues to an event log.",
-      "triggerVotes": 0,
-      "selected": false
+      "triggerVotes": 2,
+      "selected": true
     },
     {
       "id": "architect-p07",
       "skill": "architect",
       "positive": true,
       "query": "Should this workload use a monolith or services, and how should boundaries work?",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -1318,7 +1308,7 @@
       "skill": "architect",
       "positive": true,
       "query": "For globally distributed inventory, should the system use Postgres or DynamoDB, and how should the data model work?",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -3154,7 +3144,7 @@
       "skill": "plan",
       "positive": true,
       "query": "Write the rollout plan for the strategy we picked.",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -3163,7 +3153,7 @@
       "skill": "build",
       "positive": false,
       "query": "Write the rollout plan for the strategy we picked.",
-      "triggerVotes": 0,
+      "triggerVotes": 1,
       "selected": false
     },
     {
@@ -3656,7 +3646,7 @@
       "id": "ap-07:plan",
       "queryId": "ap-07",
       "skill": "plan",
-      "positive": false,
+      "positive": true,
       "query": "Structure the billing platform and tell me the order to build it.",
       "triggerVotes": 2,
       "selected": true

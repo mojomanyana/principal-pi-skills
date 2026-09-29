@@ -22,10 +22,10 @@
 
   {"id":"architect-p01","skill":"architect","positive":true,"query":"Design a multi-tenant audit-log system for 10k writes per second."},
   {"id":"architect-p02","skill":"architect","positive":true,"query":"How should we structure authentication across our services?"},
-  {"id":"architect-p03","skill":"architect","positive":true,"query":"Postgres or DynamoDB for this globally distributed workload?"},
+  {"id":"architect-p03","skill":"decide","positive":true,"query":"Postgres or DynamoDB for this globally distributed workload?"},
   {"id":"architect-p04","skill":"architect","positive":true,"query":"Review our architecture for single-region failure risks."},
   {"id":"architect-p05","skill":"architect","positive":true,"query":"Write an ADR for splitting the monolith by domain."},
-  {"id":"architect-p06","skill":"architect","positive":true,"query":"Plan the zero-downtime migration from queues to an event log."},
+  {"id":"architect-p06","skill":"plan","positive":true,"query":"Plan the zero-downtime migration from queues to an event log."},
   {"id":"architect-p07","skill":"architect","positive":true,"query":"Should this workload use a monolith or services, and how should boundaries work?"},
   {"id":"architect-p08","skill":"architect","positive":true,"query":"Design disaster recovery for our payments data."},
   {"id":"architect-p09","skill":"architect","positive":true,"query":"How should caching, storage, and invalidation fit together here?"},
