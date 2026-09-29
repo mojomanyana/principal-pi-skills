@@ -183,10 +183,9 @@ Two opt-in routing checks use only the seven authored frontmatter descriptions. 
 `FIREWORKS_API_KEY`; `ROUTING_MODEL` and `ROUTING_API_URL` override the defaults. The suite
 starts with 12 positives and 8 near-miss negatives per skill (14 positives for git-ops), then
 adds authored collision-boundary and no-skill probes, and reports per-skill precision and recall
-at a 0.5 vote threshold. The
-original 140-case record is retained as `evals/baseline/triggers.pre-expansion.json`; it is
-not evidence for the expanded corpus. Regenerate `evals/baseline/triggers.json` after any
-corpus change.
+at a 0.5 vote threshold. `evals/baseline/triggers.json` records the expanded three-run corpus;
+the obsolete pre-expansion record was removed. Regenerate the baseline after any corpus or
+routing-description change.
 
 ## Why 4.0
 

@@ -6,6 +6,11 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## Unreleased
+
+**Updated routing evidence.** The trigger baseline now records the full expanded three-run
+corpus; the obsolete pre-expansion record was removed.
+
 ## [4.4.0] — 2026-09-23
 
 **Added — local routing evaluation for the seven skill descriptions.** A shared loader reads
@@ -13,9 +18,9 @@ only authored `SKILL.md` frontmatter descriptions. Opt-in checks cover all 42 di
 pairwise collisions and a three-run trigger corpus with per-skill precision and recall,
 collision-boundary cases, explicit `AMBIGUOUS` labels, and `NO_SKILL` hard negatives. Model
 payloads use opaque case IDs and omit expected labels. CI can run both checks manually with
-a Fireworks key. The committed collision baseline records three overlaps; the original
-trigger run is retained as pre-expansion evidence, not claimed as a score for the expanded
-corpus because Fireworks was unavailable for that rerun.
+a Fireworks key. At the 4.4.0 release, the committed collision baseline recorded three
+overlaps and the original trigger run was retained as pre-expansion evidence, not claimed
+as a score for the expanded corpus because Fireworks was unavailable for that rerun.
 
 ## [4.3.0] — 2026-09-22
 
