@@ -5,18 +5,18 @@
   "corpus": "142 original binary probes + 54 adversarial queries across all seven skills",
   "metrics": {
     "decide": {
-      "truePositive": 26,
-      "falsePositive": 2,
+      "truePositive": 28,
+      "falsePositive": 0,
       "falseNegative": 0,
-      "precision": 0.9285714285714286,
+      "precision": 1,
       "recall": 1
     },
     "architect": {
       "truePositive": 17,
-      "falsePositive": 0,
-      "falseNegative": 4,
-      "precision": 1,
-      "recall": 0.8095238095238095
+      "falsePositive": 1,
+      "falseNegative": 2,
+      "precision": 0.9444444444444444,
+      "recall": 0.8947368421052632
     },
     "plan": {
       "truePositive": 19,
@@ -60,20 +60,12 @@
         "actualMisrouting": true,
         "failingQueries": [
           {
-            "id": "da-02",
-            "query": "For globally distributed inventory, should the system use Postgres or DynamoDB, and how should the data model work?",
-            "intended": "architect",
+            "id": "da-08",
+            "query": "We're leaning toward an event-driven billing platform; should we commit to that direction, and what would the structure imply?",
+            "intended": "decide",
             "selected": [
               "decide",
               "architect"
-            ]
-          },
-          {
-            "id": "da-05",
-            "query": "Help choose the storage topology for a multi-region ledger: relational primary, distributed SQL, or DynamoDB.",
-            "intended": "architect",
-            "selected": [
-              "decide"
             ]
           }
         ]
@@ -149,7 +141,7 @@
       "skill": "decide",
       "positive": true,
       "query": "What could go wrong if we outsource the mobile app?",
-      "triggerVotes": 3,
+      "triggerVotes": 2,
       "selected": true
     },
     {
@@ -293,7 +285,7 @@
       "skill": "architect",
       "positive": true,
       "query": "Postgres or DynamoDB for this globally distributed workload?",
-      "triggerVotes": 1,
+      "triggerVotes": 0,
       "selected": false
     },
     {
@@ -1315,9 +1307,9 @@
       "id": "da-02:decide",
       "queryId": "da-02",
       "skill": "decide",
-      "positive": false,
+      "positive": true,
       "query": "For globally distributed inventory, should the system use Postgres or DynamoDB, and how should the data model work?",
-      "triggerVotes": 2,
+      "triggerVotes": 3,
       "selected": true
     },
     {
@@ -1504,7 +1496,7 @@
       "id": "da-05:decide",
       "queryId": "da-05",
       "skill": "decide",
-      "positive": false,
+      "positive": true,
       "query": "Help choose the storage topology for a multi-region ledger: relational primary, distributed SQL, or DynamoDB.",
       "triggerVotes": 3,
       "selected": true
@@ -1513,7 +1505,7 @@
       "id": "da-05:architect",
       "queryId": "da-05",
       "skill": "architect",
-      "positive": true,
+      "positive": false,
       "query": "Help choose the storage topology for a multi-region ledger: relational primary, distributed SQL, or DynamoDB.",
       "triggerVotes": 0,
       "selected": false
@@ -1702,10 +1694,10 @@
       "id": "da-08:architect",
       "queryId": "da-08",
       "skill": "architect",
-      "positive": true,
+      "positive": false,
       "query": "We're leaning toward an event-driven billing platform; should we commit to that direction, and what would the structure imply?",
-      "triggerVotes": 0,
-      "selected": false
+      "triggerVotes": 2,
+      "selected": true
     },
     {
       "id": "da-08:plan",
@@ -3648,7 +3640,7 @@
       "skill": "decide",
       "positive": false,
       "query": "Structure the billing platform and tell me the order to build it.",
-      "triggerVotes": 1,
+      "triggerVotes": 0,
       "selected": false
     },
     {
