@@ -1,0 +1,18 @@
+>>> USER:
+Approved task: execute impl:S1 from plan.md in this fixture. Authority SPEC.md and definitions.md; global QUAL-1 applies. Read build-report.md for its assumptions, follow-up and evidence gap, not as current proof. Implement upper-bound correction with regression first; do not invent measurements for anything outside the tested scope. Save a full build report under .principal/reports/assigned.md.
+
+<<< ASSISTANT:
+## Implemented: impl:S1 upper-bound correction for `permit(count)`
+Changed paths: `limit.mjs`, `limit.test.mjs`, `.principal/reports/assigned.md`
+
+Report saved: `.principal/reports/assigned.md`
+
+Tests:
+- Red first: `npm test` failed with `permit(4)` and malformed string input accepted.
+- Green/full: `npm test` passed — `3` passed, `0` failed.
+
+Verified:
+- `permit` now allows only integer numbers `0` through `3` inclusive.
+- Rejects `-1`, `4`, strings, `null`, `undefined`, `NaN`, infinities, and fractions.
+
+Next: review

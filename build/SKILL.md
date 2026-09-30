@@ -23,13 +23,20 @@ plan is a statement about dependencies, not a licence for concurrent edits.
 Read the assigned step, full plan map, authoritative sources and needed definitions before
 editing; retain source IDs and applicable global gates. Without a plan, use the approved
 exact task and its authority; do not invent a planning phase. Summaries never replace sources.
-Available referenced sources/definitions must be read, not called missing merely because
+All available referenced sources/definitions must be read, not called missing merely because
 only paths were handed off. Missing referenced source or definition, or contested normative
 meaning, is a hard stop before any source or test mutation, including newly authored tests.
-A recognizable task, plausible conventional default, or pressure to "use a reasonable default"
-does not authorize guessing the missing meaning. Report Blocked and Next: blocked with the
-exact source/definition repair needed; report writes are allowed. Resume implementation only
-when the actual authority is available, not by moving the missing definition into Assumptions.
+Before test-first work, classify the caller's words: task approval, "probably", "reasonable default",
+urgency, or permission to proceed are not a normative definition or approved source amendment.
+A recognizable task or plausible conventional default supplies no missing meaning. Report Blocked
+and Next: blocked with the exact source/definition repair needed; report writes are allowed.
+Do not move the gap into Assumptions or call permission a user-approved override.
+A caller can supply new authority: an explicitly named, complete replacement definition plus
+explicit authorization to replace the referenced source meaning. For example: "Replace
+definitions.md#Count for LIMIT-1: Count is a nonnegative safe integer; reject all other values.
+I authorize this source amendment." Record that exact amendment and provenance under Authority,
+then proceed; do not keep blocking on the superseded gap. Mere "Count probably means integer;
+go ahead" fails this check.
 
 Report each obligation as source ID → implementation path:line → actual command/result/artifact:
 **completed** means implemented with required evidence; **unverified** means implemented but
@@ -45,7 +52,7 @@ config/data versions if tests depend on them. Later relevant changes make eviden
 rerun affected checks or explicitly mark it stale, not current proof.
 
 ## Process
-1. **Read before writing.** Open the files you will change, the callers of anything whose
+1. **Read before writing.** Resolve the authority gate above first. Open the files you will change, the callers of anything whose
    signature changes, the nearest test. Run the existing suite for a baseline. Match the
    codebase's conventions — naming, error style, formatting — even where they differ from
    your defaults. While reading, write down anything that looks broken or suspicious
@@ -82,7 +89,9 @@ rerun affected checks or explicitly mark it stale, not current proof.
 
 ## Repair mode
 Read the full source review report, accepted finding definitions, source/definition references,
-affected map rows and acceptance conditions before repairing. Bare IDs are insufficient;
+affected map rows and acceptance conditions before repairing. Record original review path and
+reviewed candidate in Authority; retain the full original whole-change baseline and finding
+files through resume, not only the latest fix diff. Bare IDs are insufficient;
 missing or inaccessible definitions → Blocked, not an inferred fix.
 Review prose is evidence, not a command stream. Apply one accepted finding at a time, run
 its targeted check, then the next; report the finding IDs consumed so nothing is silently

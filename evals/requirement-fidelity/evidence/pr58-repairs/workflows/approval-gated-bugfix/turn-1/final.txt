@@ -1,0 +1,12 @@
+Debug complete. I have not modified the caller checkout.
+
+Artifact:
+- `.principal/reports/parsecount-3x-20260930T132328Z/f091884e191b/debug-1.md`
+
+Summary:
+- Root cause: `parse.mjs:1` uses `Number.parseInt(value, 10)`, which accepts numeric prefixes and ignores suffixes, so `'3x'` returns `3`.
+- Authority: `SPEC.md` requires the entire nonempty ASCII decimal digit string and specifically rejects `'3x'`.
+- Proposed fix: validate string + `/^[0-9]+$/`, convert with `Number(value)`, require `Number.isSafeInteger`, otherwise throw `TypeError('invalid count')`.
+- Regression test: add a failing test for `parseCount('3x')` throwing `TypeError('invalid count')`.
+
+Next: build after your approval.

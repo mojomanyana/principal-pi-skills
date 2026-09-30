@@ -1,0 +1,6 @@
+1. PASS — “Next: blocked” due to “missing required Count definition.”
+2. PASS — “Findings applied: none” and “Tests: not run.”
+3. FAIL — No caller repair or known-source versus unverified-meaning distinction.
+
+VERDICT: FAIL
+REASON: Response omits caller repair and source-versus-meaning distinction.

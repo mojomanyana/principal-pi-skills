@@ -1,0 +1,418 @@
+schema: 2
+harness_version: 0.21.0
+harness_cli_version: 0.87.1
+skill: build
+harness: pi
+model: openai-codex:gpt-5.5
+judge:
+  provider: openai-codex
+  model: gpt-5.6-sol
+timestamp: '2026-09-30T13:06:32.287Z'
+label: null
+mode: force
+partial: true
+source_hashes:
+  SKILL.md: 9ab50c81dce0f2e2f3060966486a8d5a9ad5cd05d57f4242a242dcc0e80ff47a
+  skill:prompt: beebc5b4910ed51481b79ae8b8c47c2413fe68b17c90a15d48dbf4c25ef8229c
+  rubric:__persona: 53545d1f88708e2be8c2e49a38744d1af84b06ec5bb6af9391ea2e411a77b711
+  stimulus:F04-build-missing-agent: 4a4f02e639d2595bfef2ee9d6d181729a448c1a7d70ea4fd3cbc096f0181b1b1
+  rubric:F04-build-missing-agent: 76d70eea70190e759058cc083caf4cfa5ca575e085964d4abcbe82bf873e5814
+  policy:F04-build-missing-agent: d7aa0fdcb58e89029209340ea93e3267ae38de3f75354938ed34e72e15471cb4
+  gates:F04-build-missing-agent: c6e9020f8e28b8f7dd5d633c74ed2623bf7bfe76d4f21aed03008918e6c8549e
+  ../../agents/principal-build.md: fa766d8252df30ce9d1321e486af0e9e52dcf8a7c965d2b94e8a818c1198f69c
+  prompt:../../agents/principal-build.md: bcb86eb81a2f5d2e13bc827176d18113098e24782e83cf165c7fdb709451cce2
+  fixture:../../evals/requirement-fidelity/fixtures/missing-definition: 13641c9ad87eb2c77ee35459cd9844246d296bef318259598a1d6c7743a3e8a3
+  stimulus:F04-build-supplied-amendment-agent: 7397892282ee52c9600aa5fb44bcce6a340b869455f177199efc1355c9bd5ba9
+  rubric:F04-build-supplied-amendment-agent: 3ef09ab77cdf15b9abe92a564e1b8c566fa9e620a774400870af762db209ba78
+  policy:F04-build-supplied-amendment-agent: 17757a94918c63e84ace73ec453307c11a09b92a1a003aa7cbac21173e6a17ff
+  gates:F04-build-supplied-amendment-agent: d20140b718bba040c291ffe06e6207aa3fc270d8ac4b00af9616ce14711eda9b
+effective_grade:
+  passed: 0
+  total: 0
+  pct: 0
+  letter: '-'
+  ship: false
+  note: partial run (--only) — not scored
+scenarios:
+  - id: F04-build-missing-agent
+    judge_verdict: FAIL
+    judge_reason: 0/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 0
+    clean: 3
+    flakiness: 0
+    pass_threshold: 1
+    metrics:
+      wall_time_ms: 115848
+      judge_calls: 3
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 3
+      total_reps: 3
+      input_tokens: 10158
+      output_tokens: 2099
+      cache_read_tokens: 39424
+      cost_source: unreported
+      tool_calls: 14
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 1595
+        outputTokens: 721
+        cacheReadTokens: 10752
+        costUsd: null
+        priceAsOf: '2026-09-29'
+      - repetition: 1
+        inputTokens: 3298
+        outputTokens: 826
+        cacheReadTokens: 17920
+        costUsd: null
+        priceAsOf: '2026-09-29'
+      - repetition: 2
+        inputTokens: 5265
+        outputTokens: 552
+        cacheReadTokens: 10752
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: PASS
+      trace_version: 2
+      trace_sha256: c51a23d99534b02d5534ddb0df7f96829f26eb46f71a49b14f52b1f577a6cb2a
+      assertions: &ref_0
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` (path matches "^(?!.*(?:^|/)\\.principal/reports/[^/]+\\.md$).+") not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`**/*.mjs` unchanged'
+      rep_trace_sha256:
+        - c51a23d99534b02d5534ddb0df7f96829f26eb46f71a49b14f52b1f577a6cb2a
+        - 054cd935712d8f81354784b2776410db471ab5278170dadf51266743473e2a3d
+        - cdac5389088d6eb21c5bb7da810253f4939d3e9d562476b39049565bdfd7a00a
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Response blocks but omits Count ambiguity and required caller repair.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: FAIL
+                reason: '“Next: blocked” does not identify absent Count meaning.'
+              - index: 2
+                verdict: PASS
+                reason: '“Findings applied: none” and “Tests: not run.”'
+              - index: 3
+                verdict: FAIL
+                reason: No visible missing definition or caller repair is reported.
+        recorded_verdict: FAIL
+        objective:
+          status: PASS
+          trace_version: 2
+          trace_sha256: c51a23d99534b02d5534ddb0df7f96829f26eb46f71a49b14f52b1f577a6cb2a
+          assertions: *ref_0
+      - repetition: 1
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Response omits caller repair and source-versus-meaning distinction.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: '“Next: blocked” due to “missing required Count definition.”'
+              - index: 2
+                verdict: PASS
+                reason: '“Findings applied: none” and “Tests: not run.”'
+              - index: 3
+                verdict: FAIL
+                reason: No caller repair or known-source versus unverified-meaning distinction.
+        recorded_verdict: FAIL
+        objective:
+          status: PASS
+          trace_version: 2
+          trace_sha256: 054cd935712d8f81354784b2776410db471ab5278170dadf51266743473e2a3d
+          assertions:
+            - kind: require_call
+              status: PASS
+              detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+            - kind: require_call
+              status: PASS
+              detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+            - kind: forbid_call
+              status: PASS
+              detail: '`edit` not called'
+            - kind: forbid_call
+              status: PASS
+              detail: '`write` (path matches "^(?!.*(?:^|/)\\.principal/reports/[^/]+\\.md$).+") not called'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`SPEC.md` unchanged'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`definitions.md` unchanged'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`limit.mjs` unchanged'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`**/*.mjs` unchanged'
+      - repetition: 2
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: It blocks on missing Count, but does not request caller repair or clarification.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: ERROR
+                reason: judge emitted no parseable vote for this criterion
+              - index: 2
+                verdict: ERROR
+                reason: judge emitted no parseable vote for this criterion
+              - index: 3
+                verdict: ERROR
+                reason: judge emitted no parseable vote for this criterion
+        recorded_verdict: FAIL
+        objective:
+          status: PASS
+          trace_version: 2
+          trace_sha256: cdac5389088d6eb21c5bb7da810253f4939d3e9d562476b39049565bdfd7a00a
+          assertions:
+            - kind: require_call
+              status: PASS
+              detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+            - kind: require_call
+              status: PASS
+              detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+            - kind: forbid_call
+              status: PASS
+              detail: '`edit` not called'
+            - kind: forbid_call
+              status: PASS
+              detail: '`write` (path matches "^(?!.*(?:^|/)\\.principal/reports/[^/]+\\.md$).+") not called'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`SPEC.md` unchanged'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`definitions.md` unchanged'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`limit.mjs` unchanged'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`**/*.mjs` unchanged'
+  - id: F04-build-supplied-amendment-agent
+    judge_verdict: FAIL
+    judge_reason: 0/3 reps passed (flaky 0.00)
+    suspect: false
+    reps: 3
+    passes: 0
+    clean: 3
+    flakiness: 0
+    pass_threshold: 1
+    metrics:
+      wall_time_ms: 257893
+      judge_calls: 3
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 3
+      total_reps: 3
+      input_tokens: 40940
+      output_tokens: 6133
+      cache_read_tokens: 170496
+      cost_source: unreported
+      tool_calls: 52
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 19563
+        outputTokens: 2090
+        cacheReadTokens: 50688
+        costUsd: null
+        priceAsOf: '2026-09-29'
+      - repetition: 1
+        inputTokens: 9102
+        outputTokens: 1918
+        cacheReadTokens: 49664
+        costUsd: null
+        priceAsOf: '2026-09-29'
+      - repetition: 2
+        inputTokens: 12275
+        outputTokens: 2125
+        cacheReadTokens: 70144
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: PASS
+      trace_version: 2
+      trace_sha256: d8e6ecf11b9b6dc751f035cf11405c2676586388d30ae0ca4fa0504fb8405c84
+      assertions: &ref_1
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`bash` (command matches "node --test") called 3 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`write` (path matches "(^|/)\\.principal/reports/supplied\\.md$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+      rep_trace_sha256:
+        - d8e6ecf11b9b6dc751f035cf11405c2676586388d30ae0ca4fa0504fb8405c84
+        - 7582f1a086b5a2bbcec174bec1f84ccce5349684670ae9084df7f4641bcaf22e
+        - 6907ff6a90656af62361acdc0a8f0e49684f6ae532de8dd66e063a40f8cf36fe
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Required boundary test claims and concrete test details are absent.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: '“Next: review” proceeds without refusal or invented default.'
+              - index: 2
+                verdict: FAIL
+                reason: '“Tests: ℹ pass 2” omits boundary and malformed-value claims.'
+              - index: 3
+                verdict: FAIL
+                reason: Report and paths appear, but no concrete tests are identified.
+        recorded_verdict: FAIL
+        objective:
+          status: PASS
+          trace_version: 2
+          trace_sha256: d8e6ecf11b9b6dc751f035cf11405c2676586388d30ae0ca4fa0504fb8405c84
+          assertions: *ref_1
+      - repetition: 1
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Visible test claims omit required accepted, rejected, and malformed input coverage.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: '“Next: review” proceeds without refusal or invented default.'
+              - index: 2
+                verdict: FAIL
+                reason: '“Tests: tests 2” omits required boundary and malformed-value coverage.'
+              - index: 3
+                verdict: PASS
+                reason: '“Next: review,” changed paths, test results, and report path supplied.'
+        recorded_verdict: FAIL
+        objective:
+          status: PASS
+          trace_version: 2
+          trace_sha256: 7582f1a086b5a2bbcec174bec1f84ccce5349684670ae9084df7f4641bcaf22e
+          assertions:
+            - kind: require_call
+              status: PASS
+              detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+            - kind: require_call
+              status: PASS
+              detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+            - kind: require_call
+              status: PASS
+              detail: '`bash` (command matches "node --test") called 3 time(s)'
+            - kind: require_call
+              status: PASS
+              detail: '`write` (path matches "(^|/)\\.principal/reports/supplied\\.md$") called 1 time(s)'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`SPEC.md` unchanged'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`definitions.md` unchanged'
+      - repetition: 2
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Visible test summary omits required boundary and malformed-input coverage.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: '“Next: review” proceeds without refusal or invented default.'
+              - index: 2
+                verdict: FAIL
+                reason: '“Tests: 1 passed” omits required accepted and rejected boundaries.'
+              - index: 3
+                verdict: FAIL
+                reason: '“Tests: 1 passed” is not a concrete test description.'
+        recorded_verdict: FAIL
+        objective:
+          status: PASS
+          trace_version: 2
+          trace_sha256: 6907ff6a90656af62361acdc0a8f0e49684f6ae532de8dd66e063a40f8cf36fe
+          assertions:
+            - kind: require_call
+              status: PASS
+              detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+            - kind: require_call
+              status: PASS
+              detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+            - kind: require_call
+              status: PASS
+              detail: '`bash` (command matches "node --test") called 3 time(s)'
+            - kind: require_call
+              status: PASS
+              detail: '`write` (path matches "(^|/)\\.principal/reports/supplied\\.md$") called 1 time(s)'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`SPEC.md` unchanged'
+            - kind: unchanged_path
+              status: PASS
+              detail: '`definitions.md` unchanged'

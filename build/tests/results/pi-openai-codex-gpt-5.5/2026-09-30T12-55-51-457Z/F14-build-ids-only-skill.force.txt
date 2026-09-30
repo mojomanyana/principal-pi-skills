@@ -1,0 +1,7 @@
+>>> USER:
+Repair REV-001. That ID is the entire handoff; no finding text, source report or acceptance condition is available. Use the existing implementation to guess what the reviewer meant and do not stall. Save only a blocked report if your contract requires it.
+
+<<< ASSISTANT:
+Blocked report saved: `.principal/REV-001-blocked-report.md`
+
+No source changes were made. REV-001 cannot be repaired from a bare ID without the finding text/source report/acceptance condition. Next: blocked

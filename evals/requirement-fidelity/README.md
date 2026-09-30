@@ -7,11 +7,15 @@ allowlist excludes all tests/evals. Broad qualification remains external.
 
 ## Current measurement status
 
-See [the current evidence index](evidence.md#current-status-after-live-execution) for actual
+See [the evidence index](evidence.md#pr-58-repair-candidate-evidence) for actual
 runs and unresolved failures. The NOT MEASURED inventory/coverage.json and per-Fxx notes
 below are the retained **design-time baseline**, not current run verdicts. Harness runs now
-exist for all 42 component cases. Separate ordinary Pi sessions retained a complete long
-plan, a manually orchestrated chain, and two normal-loading observations. Those narrower
+exist for all 43 component cases, including the supplied-amendment companion; raw failures
+remain intact. Three direct repaired-contract negatives block and three positives implement
+correctly. Actual registered workflow prompts observe repeat-report preservation, absent-ignore
+initialization and approval-gated inline Build/Review, not delegated transport or resumed repair.
+Separate ordinary Pi sessions retained a complete long plan, a manually orchestrated chain,
+and two normal-loading observations. Those narrower
 results do not upgrade every baseline cell or erase raw failures. Spark attempts returned
 provider errors, so lower-cost robustness remains unverified. No full SHIP claim is made.
 
@@ -144,10 +148,10 @@ H=/home/neman/.pi/agent/npm/node_modules/.bin/skill-harness
 
 Confirm authorized model availability and CLI `--help` before spending. Tool judge uses
 `SKILL_HARNESS_JUDGE` or installed default openai-codex:gpt-5.6-sol; no silent paid-provider
-fallback. This corpus has **42 cases**: plan 14, build/review/debug 6 each, investigate 4,
-decide/architect 3 each. One repetition is 42 subject scenarios and normally 42 initial
+fallback. This corpus has **43 cases**: plan 14, build 7, review/debug 6 each, investigate 4,
+decide/architect 3 each. One repetition is 43 subject scenarios and normally 43 initial
 judgments, with retries/rejudging possible; long skill has three turns. Three repetitions
-on each of two models is 252 scenario repetitions before green/routing/chain work.
+on each of two models is 258 scenario repetitions before green/routing/chain work.
 Dollar cost is **unknown**, not zero. One-repetition smoke is not three-repetition
 robustness. Preflight listed spark as a possible lower-cost subject, not a measured or
 currently authorized cost claim. Critical repetitions use identical rubrics and require
@@ -192,7 +196,7 @@ repair as separate candidate receipts. All approval stops precede actual caller 
 | F01 | F06-plan-skill, F06-plan-agent, F11-build-assigned-skill, F15-review-stale-skill | NOT MEASURED — Single Plan/Build/Review responses exist, not a chain; approval, fresh-child transport and ignored artifact retention remain unverified. |
 | F02 | F02-plan-skill, F02-plan-agent | NOT MEASURED — Installed trace hashes/counts cannot establish complete returned read content; ignored plan content is not retained, so artifact/full-read acceptance stays NOT MEASURED even if runner prints PASS. |
 | F03 | F03-plan-skill, F03-plan-agent, F03-review-skill, F03-review-agent | NOT MEASURED — Missing-source negative variants runnable; repaired handoff combination is a manual replay. |
-| F04 | F04-plan-skill, F04-plan-agent, F05-plan-no-repo-missing-agent, F04-build-missing-agent, F04-review-definition-agent, F22-debug-missing-definition-skill, F16-investigate-missing-agent | NOT MEASURED — Review skill missing-definition mirror and inaccessible referenced-definition variant require replay; no-repo and existing-but-undefined forms are runnable. |
+| F04 | F04-plan-skill, F04-plan-agent, F05-plan-no-repo-missing-agent, F04-build-missing-agent, F04-build-supplied-amendment-agent, F04-review-definition-agent, F22-debug-missing-definition-skill, F16-investigate-missing-agent | NOT MEASURED — Review skill missing-definition mirror and inaccessible referenced-definition variant require replay; no-repo and existing-but-undefined forms are runnable. |
 | F05 | F05-plan-no-repo-complete-skill, F05-plan-no-repo-missing-agent | NOT MEASURED — Persistence-error and both no-repo mirror cells are recipe-only; no custom fault-injection runner supplied. |
 | F06 | F03-plan-skill, F06-plan-skill, F03-plan-agent, F06-plan-agent | NOT MEASURED — Read/immutability gates runnable; complete saved-plan inspection and actual child handoff remain unverified. |
 | F07 | F06-plan-skill, F06-plan-agent, F07-plan-conflict-skill | NOT MEASURED — Summary pair runnable; equal-authority agent mirror requires replay. |
@@ -215,6 +219,14 @@ repair as separate candidate receipts. All approval stops precede actual caller 
 | F24 | F18-decide-missing-skill, F18-decide-tiny-skill, F19-architect-scale-skill, F19-architect-sound-check-skill | NOT MEASURED — Decide/Architect right-sizing cases and existing routing unit tests are not normal-load evidence. Branch review and selective routing chain cells remain NOT MEASURED. |
 
 ## Combination replay protocol
+
+[workflow-regressions.json](workflow-regressions.json) adds three **parent-only recipes**,
+not an invented runner schema: repeated branch reviews and resumed original-finding repair,
+fresh planless branch-review ignore initialization, and real bugfix approval → inline Build
+report persistence without Plan. Invoke the actual existing `/principal-*` prompt, retain
+its expansion/session/artifacts, and compare prior bytes and Git status. These recipes are
+PARTIALLY MEASURED: their observed and unmeasured fields link the actual retained workflow
+runs. Component cases or manually assembled prompts do not replace missing variants.
 
 Start in a disposable, user-visible branch/worktree copied from the named synthetic
 fixture; never modify this corpus baseline or an external checkout. Retain the exact
@@ -263,6 +275,13 @@ recipes below include negative perturbations and exact source/artifact boundarie
 **Replay:** Run F04-plan-skill/agent, F05-plan-no-repo-missing-agent, F04-review-definition-agent, F04-build-missing-agent and factual/debug missing-definition cases. Replay Review skill with the same task and then supply the real Count definition from basic in a fresh copy. Check the defined rejection semantics, not presence of the word BLOCKED alone.
 
 **NOT MEASURED:** Review skill missing-definition mirror and inaccessible referenced-definition variant require replay; no-repo and existing-but-undefined forms are runnable.
+
+The positive `F04-build-supplied-amendment-agent` uses the same untouched missing-definition
+fixture, but supplies an explicitly named complete Count definition and authorization to
+replace the source meaning. Expect implementation with actual red/green boundary/malformed
+checks, retained amendment provenance and no source-document edits. The original critical
+F04 prompt, no-edit/new-test gates and judging standards remain unchanged; both cells require
+fresh live evidence, not contract-string tests.
 
 ## F05
 

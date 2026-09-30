@@ -1,8 +1,38 @@
 # Requirement-fidelity evidence index
 
-## Current status after live execution
+## PR #58 repair-candidate evidence
 
-**Implementation reviewed; behavioral qualification NOT READY.** Production review approved
+REV-001–006 repairs are on top of release HEAD
+`448ac7628980c7a69bb3ff27e3bfa882bf64c4f3`, not on the existing v4.7.0 tag.
+Detailed commands, raw sessions, full saved reports and limitations:
+[repair observations](evidence/pr58-repairs/README.md). All prior failures/hashes remain intact.
+Overall behavioral qualification remains **NOT READY**; bounded observations are not a
+harness pass or proof for every workflow/model.
+
+- Unchanged critical F04 task: three direct repaired-contract runs block before source/test
+  mutation and request definition repair in saved reports. Three supplied-definition
+  companions implement correctly; independent, counted 20-case boundary probes pass each.
+- Actual registered branch-review template runs twice: distinct reports, prior bytes
+  preserved, absent ignore initialized, clean status both times.
+- Actual registered bugfix template stops for approval; after the separate approval turn,
+  inline Build/Review preserve diagnosis reports and dirty only intended source/tests.
+  Sessions retain actual template expansion and skill reads, not manual phase replacements.
+- These workflow observations exercise the documented inline fallback. Fresh-session repair
+  from original findings after a changed candidate, delegation, existing-ignore conflict,
+  optional Investigate and standalone UNVERIFIED routing remain unmeasured variants.
+- Raw force results remain Build **4/7**, Review **5/6**; targeted three-repetition F04 pair
+  **0/6**, ungraded partial run. The negative objective no-edit/source-read gates all pass;
+  final-only semantic judges cannot see the saved reports. See retained judgments and
+  independent direct artifacts separately; scores were not changed or standards weakened.
+
+Fresh offline repair-candidate receipts and manifest are retained in
+`evidence/pr58-repairs/npm-test.txt` and `inputs.sha256`; they must be read with their actual
+candidate binding, not substituted for historical `final-*` files. Current CI is not claimed.
+The existing v4.7.0 tag at 448ac76 excludes the repairs and must not be moved silently.
+
+## Historical status after pre-release live execution
+
+**Pre-release implementation reviewed; behavioral qualification NOT READY.** Production review approved
 the contracts after REV-001 (inline report persistence) and REV-002 (compressed evidence
 fields) were repaired. That code verdict does not waive the failures below. All raw runs,
 including superseded FAIL/ERROR results, remain intact. Historical sections below describe
@@ -14,7 +44,7 @@ upgrade or external checkout change was made. Subject `openai-codex:gpt-5.5`, ha
 A separate cold Review agent inspected their actual events and captured artifacts. The
 following assessments summarize that audit, not overwritten harness grades.
 
-### Current harness runs (one repetition each, force mode)
+### Historical pre-release harness runs (one repetition each, force mode)
 
 Paths are `<skill>/tests/results/pi-openai-codex-gpt-5.5/<run>/results.yaml`, relative to
 the repository root. Receipts include spec/contract hashes and judgments.
@@ -96,15 +126,31 @@ and errorMessage even when process exit is zero. Capture the new candidate hashe
 reuse old results as current proof.
 
 
-### Final repository checks
+### Historical pre-release repository checks
 
-`npm test` passes **128/128 unit tests and 23/23 install tests**, plus generation, word
-budgets, packaging and skill lint. Receipts: [checkout suite](evidence/final-npm-test.txt)
-and [disposable snapshot suite](evidence/final-snapshot-npm-test.txt). The snapshot proves
-nonignored artifact aliases remain available outside the original working directory.
-[Final input manifest](evidence/final-inputs.sha256) binds production sources, tests,
-fixtures/specs and documentation (excluding raw evidence to avoid self-reference).
-These are offline checks, not an all-model pass. Git-Ops is unchanged; no release is claimed.
+The preserved `final-*` filenames are historical, not release-head receipts. They ran
+package **4.6.0**: **128/128 unit tests and 23/23 install tests**, plus generation, word
+budgets, packaging and skill lint. Receipts: [historical checkout suite](evidence/final-npm-test.txt)
+and [historical disposable snapshot suite](evidence/final-snapshot-npm-test.txt).
+The [historical input manifest](evidence/final-inputs.sha256) has 131 entries, all matching
+pre-release implementation commit `dd4b37f79299ab5b80ebaa8125a6f147d6af37b9`
+(parent/base `1a7c535d4771dbb70f0117454069e6208a486b9d`; PR base
+`0728b2daafa210c6884736ad48845d6549122a54`). This content match identifies the
+candidate, not an assertion that those commands ran after that commit was created.
+The snapshot demonstrated portable nonignored artifact aliases. No historical hashes or
+receipt output have been refreshed. Six release-edited files differ at 4.7.0 HEAD:
+AGENTS.md, CHANGELOG.md, README.md, package-lock.json, package.json and tests/install/clean-home.test.mjs.
+
+### Release-head checks reported by independent PR #58 review
+
+For exact release HEAD `448ac7628980c7a69bb3ff27e3bfa882bf64c4f3` (package 4.7.0),
+the independent review reports local `npm test`: **128/128 unit + 23/23 install**, zero
+skipped; same-head Node20 CI run **36714108958**: **128/128 unit + 22/23 install,
+1 skipped because Pi was absent** (zero failures). These are separate observations,
+not the older `final-*` receipts. Review provenance: `.principal/reports/pr-58-independent-review.md`,
+with temporary receipts `/tmp/pr58-exact-head-tests.log` and `/tmp/pr58-ci-review.log`;
+those paths are not portable evidence bundled here. New repair-candidate receipts are
+linked above rather than retroactively attributed to that HEAD. Offline success is not an all-model pass.
 
 ## Retained pre-repair live runs
 

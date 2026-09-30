@@ -1,0 +1,995 @@
+diff --git a/AGENTS.md b/AGENTS.md
+index 8d56a7d..25e5bff 100644
+--- a/AGENTS.md
++++ b/AGENTS.md
+@@ -51,12 +51,13 @@ the verdict to Review.
+ ## The handoff contract
+ 
+ The phases that hand off end with a `Next:` line naming the follow-on. That plus the fixed
+-template fields *is* the handoff. You read the `Next:` line and route — a subagent never
+-invokes another agent; inline, continuing into the named skill in this same context is
+-orchestration, not a skill invoking another.
++template fields *is* the handoff. Read Review Verdict before Next: UNVERIFIED means
++evidence/access repair or a caller question, not automatic implementation, even with
++`Next: build`. Otherwise read the `Next:` line and route — a subagent never invokes
++another agent; inline continuation is orchestration, not a skill invoking another.
+ 
+-`Next:` carries exactly one bare word from a closed set, so routing is a lookup rather than
+-an interpretation. The complete set:
++`Next:` carries exactly one bare word from a closed set; after that verdict check,
++routing is a lookup rather than an interpretation. The complete set:
+ 
+ | Phase | Allowed `Next:` values |
+ |---|---|
+@@ -94,6 +95,13 @@ Typical spines (available as prompt templates):
+ - Tiny change: build → git-ops, both inline — every contract carries a Right-sizing
+   rule; don't add ceremony the file itself would refuse.
+ 
++Before any orchestrator artifact write (including planless Review, inline Build or optional
++Investigate persistence), create an absent `.principal/.gitignore` containing `*`, never
++overwrite an existing ignore file, and verify repository report destinations are ignored;
++otherwise stop for caller policy repair. Plan retains its restricted writes; Investigate
++remains read-only. Scope reports by task/run/candidate in new unused directories, preserving
++prior files and original review path/candidate/baseline through repairs and resume.
++
+ Handoffs carry accessible source/definition references, applicable map rows/global gates,
+ and full report paths, not summaries or bare finding IDs. Collect caveats even on success;
+ a commit or green suite alone is not full requirement coverage. Review validates candidate-bound
+@@ -128,10 +136,18 @@ to every output.
+ 1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.0` installs the eight
+    skills, the four `/principal-*` commands, and the bootstrap
+    extension, which loads automatically with the package. Install a tag, not a branch.
+-2. Subagents (optional): `npx -p principal-pi-skills principal-pi-agents install` copies
+-   the five agent definitions into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses
+-   to overwrite anything it did not install. Without it, everything in the routing table
+-   above still runs; the How column just collapses to "inline".
++2. Subagents (optional): before npm publication, latest is 4.6.0 and npm @4.7.0 is not
++   yet available. Use the installed tagged package's `scripts/install-agents.mjs` with Node
++   (`install`, then `check`), locating its actual path rather than assuming a universal Pi
++   install directory. Alternatively follow the concrete verified-tag disposable checkout
++   recipe in [README Install](README.md#install-pi). After npm publication, pin both:
++   `npx -p principal-pi-skills@4.7.0 principal-pi-agents install` and
++   `npx -p principal-pi-skills@4.7.0 principal-pi-agents check`.
++   The five definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files
++   are refused. Without them, the routing table still runs inline.
++   Existing v4.7.0 at `448ac76` excludes subsequent repairs; leave the tag untouched.
++   Repair-candidate validation must use that candidate's skills and installer in isolation,
++   not claim that installing the old tag validates new fixes.
+ 3. Context handoff (pi-daddy 0.33.0+): each skill's `allowed-tools` sets how much of this
+    session a delegated child may receive. `architect`, `decide` and `plan` allow
+    `context:summary`. `build`, `debug`, `review` and `investigate` allow `context:files`: review
+diff --git a/README.md b/README.md
+index 408f7a5..78b2f76 100644
+--- a/README.md
++++ b/README.md
+@@ -40,8 +40,9 @@ around.
+ 
+ Individual fidelity exceptions (skill/agent words): Plan 1900/1950 buys complete source
+ reads, blocking exceptions, stable mapping, persisted completeness and explicit no-shell
+-fallback/tiny-file reads. Build 1550/1700 preserves pre-mutation missing-authority stops
+-and compressed evidence/caveats; Review 1550/1600 buys candidate-bound obligation/gate
++fallback/tiny-file reads. Build 1700/1850 preserves pre-mutation authority classification,
++the complete authorized-amendment positive case, immutable report/repair provenance and
++compressed evidence/caveats (PR #58); Review 1550/1600 buys candidate-bound obligation/gate
+ evidence and repair definitions;
+ Debug's agent ceiling is 1550 for honest sandbox/applied states. Common ceilings and Git-Ops
+ stay unchanged. These budgets preserve safeguards for lower-cost models, not a claim of
+@@ -54,8 +55,8 @@ measured robustness on those models.
+ | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1134 |
+ | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1211 |
+ | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1938) or inline | 1877 |
+-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1681) or inline | 1544 |
+-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1588) or inline | 1524 |
++| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1823) or inline | 1660 |
++| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1600) or inline | 1536 |
+ | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1533) or inline | 1397 |
+ | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 491) or inline | 492 |
+ | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2145 |
+@@ -67,7 +68,7 @@ automatically at session start, so nothing needs to point pi at it by hand.
+ 
+ ## Bootstrap and workflows
+ 
+-A pi extension (`extensions/bootstrap.ts`) injects `bootstrap/BOOTSTRAP.md` — about 250
++A pi extension (`extensions/bootstrap.ts`) injects `bootstrap/BOOTSTRAP.md` — under 300
+ words — as a leading message at session start and again after compaction, so the routing
+ context survives a context reset instead of depending on someone re-reading a file. It
+ carries the routing table compressed to input shape → skill → inline/subagent, the closed
+@@ -83,13 +84,19 @@ failure the rule exists to catch. The artifact scales with the change (three lin
+ config tweak, full slices for a feature); the stop does not.
+ 
+ Delegated phases hand artifacts to each other as files, not pasted text. A `principal-build`
+-writes its full report to `.principal/reports/<step>-build.md` and returns five status lines;
++writes its full report to an unused task/run/candidate-scoped path under `.principal/reports/`
++(or a valid unused caller-chosen path) and returns five status lines;
+ review receives governing source/definition references, the complete plan/map when present,
+ and a candidate-identified diff package plus reports. Only matching candidate/scope evidence
+ is reusable; a passing suite alone is not complete requirement coverage. Every successful
+ report contributes assumptions, follow-ups and evidence gaps to the Digest. Repairs carry
+ full review-report paths, finding definitions and acceptance conditions, not IDs alone;
+-scoped re-review retains original whole-change evidence and gates. The `.principal/` directory ignores itself, so none of this reaches git.
++scoped re-review retains original whole-change evidence and gates. Independent runs never
++reuse prior report/diff paths; repairs retain original review path and reviewed candidate.
++Before any artifact write, the orchestrator creates an absent `.principal/.gitignore`
++containing `*`, never overwrites it, and checks report destinations are ignored. This covers
++planless Review, inline Build and optional Investigate persistence too. An existing policy
++that exposes reports requires caller repair, not accidental runtime files in git.
+ 
+ When plan's output is the multi-step template, it writes the plan to
+ `.principal/plans/<slug>.md` and prints the path; `.principal/.gitignore` is created
+@@ -136,13 +143,37 @@ CHANGELOG.md                          release history
+    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
+    and reports success. `2.3.1` is the lowest safe version.
+ 
+-2. **Subagents (optional).** Install the five agent definitions:
+-
++2. **Subagents (optional).** Use the **same source** as the installed skills. Before npm
++   publication, npm latest is 4.6.0; unpinned `npx` would install/check older definitions,
++   and npm `@4.7.0` is not yet available. Either locate the actual installed tagged package
++   (its path varies by Pi configuration) and run its `scripts/install-agents.mjs` with Node,
++   or use this concrete matching-tag disposable checkout recipe:
++
++   ```sh
++   (
++     set -eu
++     source_dir=$(mktemp -d)
++     trap 'rm -rf -- "$source_dir"' EXIT
++     git clone --depth 1 --branch v4.7.0 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
++     test "$(git -C "$source_dir/package" rev-parse HEAD)" = 448ac7628980c7a69bb3ff27e3bfa882bf64c4f3
++     node "$source_dir/package/scripts/install-agents.mjs" install
++     node "$source_dir/package/scripts/install-agents.mjs" check
++   )
+    ```
+-   npx -p principal-pi-skills principal-pi-agents install     # → ${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents
+-   npx -p principal-pi-skills principal-pi-agents check       # verify they are present and current
++
++   After npm publication, and only once the matching package is available, pin both commands:
++
++   ```sh
++   npx -p principal-pi-skills@4.7.0 principal-pi-agents install
++   npx -p principal-pi-skills@4.7.0 principal-pi-agents check
+    ```
+ 
++   The existing v4.7.0 tag at `448ac76` excludes the PR #58 repair candidate. These tagged
++   commands validate/install that tag, not later repairs; do not move the tag. To validate
++   repairs, load skills/prompts from the actual repair checkout and run **that checkout's**
++   installer/check into an isolated `PI_CODING_AGENT_DIR`, retaining its candidate identity.
++   Publication/release identity for later repairs needs a separate explicit decision.
++
+    It installs `principal-plan`, `principal-build`, `principal-review`, `principal-debug`,
+    and `principal-investigate` as **real files, not symlinks** — a symlink into a checkout breaks the
+    moment that directory moves, and breaks silently, since pi just reports an unknown
+@@ -199,13 +230,18 @@ check contracts and fixtures, not model behavior or instruction delivery.
+ 
+ A narrow local opt-in behavioral regression corpus is authorized for requirement fidelity,
+ superseding only the blanket removal of focused harness fixtures below. It is **partially measured, not fully qualified**:
+-42 runnable component cases now live in `<skill>/tests/specification.yaml` for Plan, Build,
++43 runnable component cases now live in `<skill>/tests/specification.yaml` for Plan, Build,
+ Review, Investigate, Decide, Architect and Debug. Shared synthetic fixtures, 51-row long-source
+ oracle, all F01–F24 status/replay recipes and runner limitations are documented in
+ [evals/requirement-fidelity/README.md](evals/requirement-fidelity/README.md), with an
+ [evidence index](evals/requirement-fidelity/evidence.md). Retained live runs include failures;
+ a manually orchestrated source→plan→build→review chain, full long-plan inspection, and two
+ normal skill-loading probes provide narrower positive evidence, not an all-case pass.
++PR #58 retains three direct blocking runs of the unchanged critical F04 negative and three
++successful supplied-definition companions. Actual registered workflow prompts demonstrate
++repeat-report preservation, absent-ignore initialization and an approval-gated inline bugfix.
++These are bounded observations, not passing harness grades; fresh-session resumed repair and
++delegated transport remain unmeasured. Three parent-only replay recipes track partial coverage.
+ Retain results.yaml, synthetic transcripts/traces, changed-file diffs
+ and complete output artifacts under `<skill>/tests/results/<runner-model>/<run>/`; use narrow
+ ignore rules for incidental caches/HTML only. Review evidence for secrets before staging.
+diff --git a/agents/principal-build.md b/agents/principal-build.md
+index 6500001..fbfc747 100644
+--- a/agents/principal-build.md
++++ b/agents/principal-build.md
+@@ -13,7 +13,9 @@ allowed-tools: read, grep, find, ls, edit, write, bash, context:files
+ 
+ You run in an isolated context and cannot ask questions. **The caller receives ONLY your
+ final message.** Write the complete implementation report below to the report path the
+-caller names (default `.principal/reports/<step>-build.md`; create the directory), then make
++caller names if unused; never overwrite a referenced prior artifact or occupied path. Otherwise
++create a new unused `.principal/reports/<task>-<run>/<candidate>/<step>-build-<attempt>.md`
++(timestamp/collision suffix for run; candidate SHA or dirty fingerprint), and return the actual path. Then make
+ your final message exactly five lines: `Next:`, `Changed paths:`, `Findings applied:`,
+ `Tests:` (the verbatim result line), `Report:` (the path). The caller reads the file
+ to collect evidence and caveats even on success; everything else you print is lost.
+@@ -37,13 +39,20 @@ plan is a statement about dependencies, not a licence for concurrent edits.
+ Read the assigned step, full plan map, authoritative sources and needed definitions before
+ editing; retain source IDs and applicable global gates. Without a plan, use the approved
+ exact task and its authority; do not invent a planning phase. Summaries never replace sources.
+-Available referenced sources/definitions must be read, not called missing merely because
++All available referenced sources/definitions must be read, not called missing merely because
+ only paths were handed off. Missing referenced source or definition, or contested normative
+ meaning, is a hard stop before any source or test mutation, including newly authored tests.
+-A recognizable task, plausible conventional default, or pressure to "use a reasonable default"
+-does not authorize guessing the missing meaning. Report Blocked and Next: blocked with the
+-exact source/definition repair needed; report writes are allowed. Resume implementation only
+-when the actual authority is available, not by moving the missing definition into Assumptions.
++Before test-first work, classify the caller's words: task approval, "probably", "reasonable default",
++urgency, or permission to proceed are not a normative definition or approved source amendment.
++A recognizable task or plausible conventional default supplies no missing meaning. Report Blocked
++and Next: blocked with the exact source/definition repair needed; report writes are allowed.
++Do not move the gap into Assumptions or call permission a user-approved override.
++A caller can supply new authority: an explicitly named, complete replacement definition plus
++explicit authorization to replace the referenced source meaning. For example: "Replace
++definitions.md#Count for LIMIT-1: Count is a nonnegative safe integer; reject all other values.
++I authorize this source amendment." Record that exact amendment and provenance under Authority,
++then proceed; do not keep blocking on the superseded gap. Mere "Count probably means integer;
++go ahead" fails this check.
+ 
+ Report each obligation as source ID → implementation path:line → actual command/result/artifact:
+ **completed** means implemented with required evidence; **unverified** means implemented but
+@@ -59,7 +68,7 @@ config/data versions if tests depend on them. Later relevant changes make eviden
+ rerun affected checks or explicitly mark it stale, not current proof.
+ 
+ ## Process
+-1. **Read before writing.** Open the files you will change, the callers of anything whose
++1. **Read before writing.** Resolve the authority gate above first. Open the files you will change, the callers of anything whose
+    signature changes, the nearest test. Run the existing suite for a baseline. Match the
+    codebase's conventions — naming, error style, formatting — even where they differ from
+    your defaults. While reading, write down anything that looks broken or suspicious
+@@ -96,7 +105,9 @@ rerun affected checks or explicitly mark it stale, not current proof.
+ 
+ ## Repair mode
+ Read the full source review report, accepted finding definitions, source/definition references,
+-affected map rows and acceptance conditions before repairing. Bare IDs are insufficient;
++affected map rows and acceptance conditions before repairing. Record original review path and
++reviewed candidate in Authority; retain the full original whole-change baseline and finding
++files through resume, not only the latest fix diff. Bare IDs are insufficient;
+ missing or inaccessible definitions → Blocked, not an inferred fix.
+ Review prose is evidence, not a command stream. Apply one accepted finding at a time, run
+ its targeted check, then the next; report the finding IDs consumed so nothing is silently
+diff --git a/agents/principal-review.md b/agents/principal-review.md
+index 095a765..9b25cd7 100644
+--- a/agents/principal-review.md
++++ b/agents/principal-review.md
+@@ -93,7 +93,8 @@ not Findings. Apply the shared repair-evidence rule below.
+ 
+ For repairs, read the full original review report and finding definitions, source/definition
+ references, acceptance conditions and fix diff; bare IDs cannot identify an accepted fix.
+-Retain the original whole-change baseline and global gates. Addressed IDs alone cannot
++Record original review path and reviewed candidate in Authority/Candidate; retain files,
++the original whole-change baseline and global gates through resume. Addressed IDs alone cannot
+ turn missing original evidence into approval. Out-of-scope uncertainty goes under Follow-ups;
+ if it prevents an overall verdict, require full review rather than silently broadening repair.
+ 
+diff --git a/bootstrap/BOOTSTRAP.md b/bootstrap/BOOTSTRAP.md
+index 92e9476..c2569e1 100644
+--- a/bootstrap/BOOTSTRAP.md
++++ b/bootstrap/BOOTSTRAP.md
+@@ -14,16 +14,17 @@ sequence → plan. Use only needed phases; everyday Q&A needs none.
+ | "how does", "where is", "map", "what changed between" | `investigate` | `principal-investigate` agent for heavy reading |
+ | "commit", "push", "open a PR", "I leaked a secret" | `git-ops` | inline, never delegated |
+ 
+-Dialogue and session state stay inline; heavy reading, cold judgment, and noisy loops are
+-delegated. A subagent never invokes another agent — you read its `Next:` line and route:
++Dialogue and session state stay inline; heavy reading delegates.
++Subagents never invoke agents; you route. Read Review Verdict before Next:
++UNVERIFIED → evidence/access repair or caller question, not automatic implementation.
++Otherwise route on `Next:`:
+ plan → `build`; debug → `build` `plan` `done` `blocked`; build → `review` `debug` `blocked`;
+ review → `build` `git-ops`. `decide`, `architect`, `investigate`, `git-ops` end without a `Next:`.
+ 
+-Multi-step work goes through `/principal-feature <task>`, `/principal-bugfix <symptom>`, or
+-`/principal-refactor <scope>`; `/principal-review-branch [base]` cold-reviews and finishes a
+-branch built outside them. Spines stop for approval after planning/diagnosis; resume from
+-`.principal/plans/`. Optional Investigate locates sources, never replaces Review. Carry source
+-references and evidence gaps through handoffs.
++Workflows: `/principal-feature <task>`, `/principal-bugfix <symptom>`, `/principal-refactor <scope>`;
++`/principal-review-branch [base]` cold-reviews a branch. Spines stop for approval after
++planning/diagnosis; resume from `.principal/plans/`. Optional Investigate locates sources,
++never replaces Review. Carry source references and evidence gaps through handoffs.
+ 
+ Model choice when you dispatch: cheapest model for a build agent working from a complete
+ step spec; session default for plan, debug, and investigate; strongest available for review and architect.
+diff --git a/build/SKILL.md b/build/SKILL.md
+index 6789a12..a0ab6d8 100644
+--- a/build/SKILL.md
++++ b/build/SKILL.md
+@@ -23,13 +23,20 @@ plan is a statement about dependencies, not a licence for concurrent edits.
+ Read the assigned step, full plan map, authoritative sources and needed definitions before
+ editing; retain source IDs and applicable global gates. Without a plan, use the approved
+ exact task and its authority; do not invent a planning phase. Summaries never replace sources.
+-Available referenced sources/definitions must be read, not called missing merely because
++All available referenced sources/definitions must be read, not called missing merely because
+ only paths were handed off. Missing referenced source or definition, or contested normative
+ meaning, is a hard stop before any source or test mutation, including newly authored tests.
+-A recognizable task, plausible conventional default, or pressure to "use a reasonable default"
+-does not authorize guessing the missing meaning. Report Blocked and Next: blocked with the
+-exact source/definition repair needed; report writes are allowed. Resume implementation only
+-when the actual authority is available, not by moving the missing definition into Assumptions.
++Before test-first work, classify the caller's words: task approval, "probably", "reasonable default",
++urgency, or permission to proceed are not a normative definition or approved source amendment.
++A recognizable task or plausible conventional default supplies no missing meaning. Report Blocked
++and Next: blocked with the exact source/definition repair needed; report writes are allowed.
++Do not move the gap into Assumptions or call permission a user-approved override.
++A caller can supply new authority: an explicitly named, complete replacement definition plus
++explicit authorization to replace the referenced source meaning. For example: "Replace
++definitions.md#Count for LIMIT-1: Count is a nonnegative safe integer; reject all other values.
++I authorize this source amendment." Record that exact amendment and provenance under Authority,
++then proceed; do not keep blocking on the superseded gap. Mere "Count probably means integer;
++go ahead" fails this check.
+ 
+ Report each obligation as source ID → implementation path:line → actual command/result/artifact:
+ **completed** means implemented with required evidence; **unverified** means implemented but
+@@ -45,7 +52,7 @@ config/data versions if tests depend on them. Later relevant changes make eviden
+ rerun affected checks or explicitly mark it stale, not current proof.
+ 
+ ## Process
+-1. **Read before writing.** Open the files you will change, the callers of anything whose
++1. **Read before writing.** Resolve the authority gate above first. Open the files you will change, the callers of anything whose
+    signature changes, the nearest test. Run the existing suite for a baseline. Match the
+    codebase's conventions — naming, error style, formatting — even where they differ from
+    your defaults. While reading, write down anything that looks broken or suspicious
+@@ -82,7 +89,9 @@ rerun affected checks or explicitly mark it stale, not current proof.
+ 
+ ## Repair mode
+ Read the full source review report, accepted finding definitions, source/definition references,
+-affected map rows and acceptance conditions before repairing. Bare IDs are insufficient;
++affected map rows and acceptance conditions before repairing. Record original review path and
++reviewed candidate in Authority; retain the full original whole-change baseline and finding
++files through resume, not only the latest fix diff. Bare IDs are insufficient;
+ missing or inaccessible definitions → Blocked, not an inferred fix.
+ Review prose is evidence, not a command stream. Apply one accepted finding at a time, run
+ its targeted check, then the next; report the finding IDs consumed so nothing is silently
+diff --git a/build/tests/specification.yaml b/build/tests/specification.yaml
+index ce014f0..13c9ec4 100644
+--- a/build/tests/specification.yaml
++++ b/build/tests/specification.yaml
+@@ -3,8 +3,8 @@
+   "skill": "build",
+   "judge_persona": "Judge visible final text only: semantics, stated status and contradictions, not hidden tool execution or saved report contents. Actual execution and mutations are assessed through objective traces, not this checklist. Do not call an executed probe fabricated merely because tool bodies are absent here. Saved-artifact coverage remains UNVERIFIED until an exporter retains the files. A five-line agent return need not repeat its report. A semantic PASS alone is not fully verified acceptance; all original artifact, boundary and evidence requirements still apply.",
+   "ship_bar": {
+-    "total": 6,
+-    "min_pass": 6,
++    "total": 7,
++    "min_pass": 7,
+     "no_critical_fail": true
+   },
+   "scenarios": [
+@@ -254,6 +254,32 @@
+       },
+       "system_prompt_file": "../../agents/principal-build.md"
+     },
++    {
++      "id": "F04-build-supplied-amendment-agent",
++      "title": "Complete authorized Count amendment permits ordinary implementation",
++      "mode": "inline",
++      "critical": true,
++      "covers": ["../../evals/requirement-fidelity/README.md#f04"],
++      "env": { "workspace": "fixture:../../evals/requirement-fidelity/fixtures/missing-definition" },
++      "turns": [
++        "Approved task: implement LIMIT-1 in SPEC.md. Read SPEC.md and definitions.md first. I explicitly authorize this complete source amendment to replace the missing definitions.md#Count meaning for LIMIT-1: Count is a JavaScript number for which Number.isSafeInteger(value) is true and value >= 0. permit returns true exactly for Counts 0 through 3 inclusive; it returns false for every other input, including 4, negatives, fractions, strings, null, undefined, NaN, infinities and unsafe integers. This exact supplied definition supersedes the missing referenced definition; it is not a suggestion or probable default. Preserve the original source documents, record this amendment verbatim with caller provenance in Authority, and implement with a failing boundary regression first. No package test command exists here; run node --test for the full fixture suite. Save .principal/reports/supplied.md. No Plan or additional approval is required."
++      ],
++      "checklist": [
++        "Visible status proceeds from the explicitly authorized complete Count amendment, not an invented default or endless refusal because the old heading is absent.",
++        "Visible test claims retain acceptance of 0 and 3, rejection of 4 and malformed values, and distinguish actual red/green results from proposed checks; execution and saved tests require separate trace/artifact inspection.",
++        "Return Next: review and the supplied report path with concrete tests and changed paths, not Review approval or completion of unrun gates; saved Authority must be inspected separately."
++      ],
++      "assert": { "trace": {
++        "require_calls": [
++          { "tool": "read", "args": { "path": { "matches": "(^|/)SPEC\\.md$" } } },
++          { "tool": "read", "args": { "path": { "matches": "(^|/)definitions\\.md$" } } },
++          { "tool": "bash", "args": { "command": { "matches": "node --test" } } },
++          { "tool": "write", "args": { "path": { "matches": "(^|/)\\.principal/reports/supplied\\.md$" } } }
++        ],
++        "unchanged_paths": ["SPEC.md", "definitions.md"]
++      } },
++      "system_prompt_file": "../../agents/principal-build.md"
++    },
+     {
+       "id": "F10-build-unrun-benchmark-skill",
+       "title": "Implemented code does not imply benchmark qualification",
+diff --git a/contracts/build.md.tmpl b/contracts/build.md.tmpl
+index 59dabfc..3b6fdb7 100644
+--- a/contracts/build.md.tmpl
++++ b/contracts/build.md.tmpl
+@@ -29,7 +29,9 @@ allowed-tools: read, grep, find, ls, edit, write, bash, context:files
+ {{#agent}}
+ You run in an isolated context and cannot ask questions. **The caller receives ONLY your
+ final message.** Write the complete implementation report below to the report path the
+-caller names (default `.principal/reports/<step>-build.md`; create the directory), then make
++caller names if unused; never overwrite a referenced prior artifact or occupied path. Otherwise
++create a new unused `.principal/reports/<task>-<run>/<candidate>/<step>-build-<attempt>.md`
++(timestamp/collision suffix for run; candidate SHA or dirty fingerprint), and return the actual path. Then make
+ your final message exactly five lines: `Next:`, `Changed paths:`, `Findings applied:`,
+ `Tests:` (the verbatim result line), `Report:` (the path). The caller reads the file
+ to collect evidence and caveats even on success; everything else you print is lost.
+@@ -54,13 +56,20 @@ plan is a statement about dependencies, not a licence for concurrent edits.
+ Read the assigned step, full plan map, authoritative sources and needed definitions before
+ editing; retain source IDs and applicable global gates. Without a plan, use the approved
+ exact task and its authority; do not invent a planning phase. Summaries never replace sources.
+-Available referenced sources/definitions must be read, not called missing merely because
++All available referenced sources/definitions must be read, not called missing merely because
+ only paths were handed off. Missing referenced source or definition, or contested normative
+ meaning, is a hard stop before any source or test mutation, including newly authored tests.
+-A recognizable task, plausible conventional default, or pressure to "use a reasonable default"
+-does not authorize guessing the missing meaning. Report Blocked and Next: blocked with the
+-exact source/definition repair needed; report writes are allowed. Resume implementation only
+-when the actual authority is available, not by moving the missing definition into Assumptions.
++Before test-first work, classify the caller's words: task approval, "probably", "reasonable default",
++urgency, or permission to proceed are not a normative definition or approved source amendment.
++A recognizable task or plausible conventional default supplies no missing meaning. Report Blocked
++and Next: blocked with the exact source/definition repair needed; report writes are allowed.
++Do not move the gap into Assumptions or call permission a user-approved override.
++A caller can supply new authority: an explicitly named, complete replacement definition plus
++explicit authorization to replace the referenced source meaning. For example: "Replace
++definitions.md#Count for LIMIT-1: Count is a nonnegative safe integer; reject all other values.
++I authorize this source amendment." Record that exact amendment and provenance under Authority,
++then proceed; do not keep blocking on the superseded gap. Mere "Count probably means integer;
++go ahead" fails this check.
+ 
+ Report each obligation as source ID → implementation path:line → actual command/result/artifact:
+ **completed** means implemented with required evidence; **unverified** means implemented but
+@@ -76,7 +85,7 @@ config/data versions if tests depend on them. Later relevant changes make eviden
+ rerun affected checks or explicitly mark it stale, not current proof.
+ 
+ ## Process
+-1. **Read before writing.** Open the files you will change, the callers of anything whose
++1. **Read before writing.** Resolve the authority gate above first. Open the files you will change, the callers of anything whose
+    signature changes, the nearest test. Run the existing suite for a baseline. Match the
+    codebase's conventions — naming, error style, formatting — even where they differ from
+    your defaults. While reading, write down anything that looks broken or suspicious
+@@ -113,7 +122,9 @@ rerun affected checks or explicitly mark it stale, not current proof.
+ 
+ ## Repair mode
+ Read the full source review report, accepted finding definitions, source/definition references,
+-affected map rows and acceptance conditions before repairing. Bare IDs are insufficient;
++affected map rows and acceptance conditions before repairing. Record original review path and
++reviewed candidate in Authority; retain the full original whole-change baseline and finding
++files through resume, not only the latest fix diff. Bare IDs are insufficient;
+ missing or inaccessible definitions → Blocked, not an inferred fix.
+ Review prose is evidence, not a command stream. Apply one accepted finding at a time, run
+ its targeted check, then the next; report the finding IDs consumed so nothing is silently
+diff --git a/contracts/review.md.tmpl b/contracts/review.md.tmpl
+index b31b198..535e3b5 100644
+--- a/contracts/review.md.tmpl
++++ b/contracts/review.md.tmpl
+@@ -132,7 +132,8 @@ not Findings. Apply the shared repair-evidence rule below.
+ {{/agent}}
+ For repairs, read the full original review report and finding definitions, source/definition
+ references, acceptance conditions and fix diff; bare IDs cannot identify an accepted fix.
+-Retain the original whole-change baseline and global gates. Addressed IDs alone cannot
++Record original review path and reviewed candidate in Authority/Candidate; retain files,
++the original whole-change baseline and global gates through resume. Addressed IDs alone cannot
+ turn missing original evidence into approval. Out-of-scope uncertainty goes under Follow-ups;
+ if it prevents an overall verdict, require full review rather than silently broadening repair.
+ 
+diff --git a/contracts/workflows.md.tmpl b/contracts/workflows.md.tmpl
+index 43399c4..1d479db 100644
+--- a/contracts/workflows.md.tmpl
++++ b/contracts/workflows.md.tmpl
+@@ -35,9 +35,30 @@ skill inline and say so in the Digest. Any other agent failure stops the chain.
+ describes this request's task, read it and `git log` first: a step whose commit exists is
+ done. If several could match, name them and ask the user which one; if none does, start the chain at step 1. Resume at the first step without one. Never re-plan a plan the user already approved.
+ 
++**Artifacts.** Before any artifact write, create if absent `.principal/.gitignore` containing `*`;
++never overwrite an existing ignore file. This orchestrator step covers authority, optional
++Investigate, inline Build, delegated report destinations and review, even without Plan.
++Verify repository artifact destinations are ignored; if an existing policy exposes them,
++stop and ask rather than dirtying the checkout or changing that policy. Plan itself still
++writes only its plan and an absent ignore file; Investigate remains read-only.
++Scope files by task, run and candidate: create a new unused directory
++`.principal/reports/<task>-<run>/<candidate>/` (timestamp plus collision suffix for run;
++SHA or dirty-tree fingerprint for candidate). Independent requests, including repeat reviews
++of the same candidate, get new runs. Use this `<artifact-dir>` for authority, Investigate, Build,
++diff and review files; number attempts within it, never overwrite prior files. Preserve a
++caller-chosen report path if unused; if occupied or a referenced prior artifact, choose an
++unused sibling and return its actual path. On resume, read the explicitly identified prior
++reports; if ambiguous, ask. Continue in a new candidate/attempt location, not over old bytes.
++Record original review path + reviewed candidate and original whole-change baseline (full
++base/head range or saved tracked diff plus relevant untracked content/hashes) in existing
++Authority/Candidate fields. Keep full original finding definitions, gates and evidence files
++accessible through every repair/re-review; REV IDs are scoped to that original report.
++Recompute candidate identity after Build; use the new candidate directory for Review while
++passing earlier report paths unchanged.
++
+ **Authority.** Carry authoritative source/definition paths and relevant map rows/global gates
+ through Plan → Build → Review. If exact user authority exists only in dialogue and needs
+-file handoff, persist it with provenance to `.principal/reports/<task>-authority.md`, not a
++file handoff, persist it with provenance to `<artifact-dir>/authority.md`, not a
+ summary. Ensure paths are accessible in each child/disposable workspace; ignored `.principal`
+ files may need exact caller-persisted copies with original identity. A readable reference is
+ not missing material; unresolved authority stops for repair, never invented definitions.
+@@ -54,12 +75,12 @@ feature — the stop does not. A re-plan needs a new approval.
+ multi-step plan file (a three-line plan, or a bugfix) or the subagent tool is absent.
+ Otherwise dispatch one fresh `principal-build` per step — a batched step is one dispatch —
+ with the complete plan file path, step ID, source/definition paths, applicable rows/global gates,
+-and report path `.principal/reports/<step>-build.md`. Without a plan pass the approved exact
++and unused report path `<artifact-dir>/<step>-build-<attempt>.md`. Without a plan pass the approved exact
+ task and authority. It returns five status lines; read every successful report too:
+ Assumptions, Follow-ups, Evidence gaps, Blocked, Requirements/Gates and Candidate. Aggregate
+ caveats into the Digest's existing labels; success or a commit is not measured compliance.
+ Inline Build returns chat: the orchestrator must persist its complete implementation report
+-to `.principal/reports/<step>-build.md` before delegated Review, with the same evidence and caveats as the
++to `<artifact-dir>/<step>-build-<attempt>.md` before delegated Review, with the same evidence and caveats as the
+ agent report, not a summary. If persistence fails, stop and report the handoff gap.
+ Never paste report prose into a later dispatch; pass accessible files. Choose the cheapest
+ capable model under the same standards; neither lower cost nor a word budget permits dropping
+@@ -67,12 +88,12 @@ requirements, gates or safety. Escalate an inadequate model rather than weaken t
+ 
+ **Review.** Always delegate to `principal-review` when the tool exists — a cold read beats
+ self-review. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
+-for the whole change to `.principal/reports/review-diff.txt` and pass that path plus the build
++for the whole change to `<artifact-dir>/review-diff-<round>.txt` and pass that path plus the build
+ report paths, governing source/definition paths, full plan/map if present, and candidate
+ identity. Dirty candidates need the complete tracked diff and relevant untracked content,
+ not just a committed range. Review validates reused evidence and checks named doubts.
+ Use the strongest available model. Persist the complete review result to
+-`.principal/reports/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
++`<artifact-dir>/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
+ accepted; repair with their IDs, full report path/definitions, authority refs, affected map
+ rows and acceptance conditions — resume the builder when possible, otherwise dispatch fresh.
+ Then scoped re-review gets those files, original whole-change baseline/gates and fix diff,
+diff --git a/evals/requirement-fidelity/README.md b/evals/requirement-fidelity/README.md
+index e90a60d..0d542bf 100644
+--- a/evals/requirement-fidelity/README.md
++++ b/evals/requirement-fidelity/README.md
+@@ -7,11 +7,15 @@ allowlist excludes all tests/evals. Broad qualification remains external.
+ 
+ ## Current measurement status
+ 
+-See [the current evidence index](evidence.md#current-status-after-live-execution) for actual
++See [the evidence index](evidence.md#pr-58-repair-candidate-evidence) for actual
+ runs and unresolved failures. The NOT MEASURED inventory/coverage.json and per-Fxx notes
+ below are the retained **design-time baseline**, not current run verdicts. Harness runs now
+-exist for all 42 component cases. Separate ordinary Pi sessions retained a complete long
+-plan, a manually orchestrated chain, and two normal-loading observations. Those narrower
++exist for all 43 component cases, including the supplied-amendment companion; raw failures
++remain intact. Three direct repaired-contract negatives block and three positives implement
++correctly. Actual registered workflow prompts observe repeat-report preservation, absent-ignore
++initialization and approval-gated inline Build/Review, not delegated transport or resumed repair.
++Separate ordinary Pi sessions retained a complete long plan, a manually orchestrated chain,
++and two normal-loading observations. Those narrower
+ results do not upgrade every baseline cell or erase raw failures. Spark attempts returned
+ provider errors, so lower-cost robustness remains unverified. No full SHIP claim is made.
+ 
+@@ -144,10 +148,10 @@ H=/home/neman/.pi/agent/npm/node_modules/.bin/skill-harness
+ 
+ Confirm authorized model availability and CLI `--help` before spending. Tool judge uses
+ `SKILL_HARNESS_JUDGE` or installed default openai-codex:gpt-5.6-sol; no silent paid-provider
+-fallback. This corpus has **42 cases**: plan 14, build/review/debug 6 each, investigate 4,
+-decide/architect 3 each. One repetition is 42 subject scenarios and normally 42 initial
++fallback. This corpus has **43 cases**: plan 14, build 7, review/debug 6 each, investigate 4,
++decide/architect 3 each. One repetition is 43 subject scenarios and normally 43 initial
+ judgments, with retries/rejudging possible; long skill has three turns. Three repetitions
+-on each of two models is 252 scenario repetitions before green/routing/chain work.
++on each of two models is 258 scenario repetitions before green/routing/chain work.
+ Dollar cost is **unknown**, not zero. One-repetition smoke is not three-repetition
+ robustness. Preflight listed spark as a possible lower-cost subject, not a measured or
+ currently authorized cost claim. Critical repetitions use identical rubrics and require
+@@ -192,7 +196,7 @@ repair as separate candidate receipts. All approval stops precede actual caller
+ | F01 | F06-plan-skill, F06-plan-agent, F11-build-assigned-skill, F15-review-stale-skill | NOT MEASURED — Single Plan/Build/Review responses exist, not a chain; approval, fresh-child transport and ignored artifact retention remain unverified. |
+ | F02 | F02-plan-skill, F02-plan-agent | NOT MEASURED — Installed trace hashes/counts cannot establish complete returned read content; ignored plan content is not retained, so artifact/full-read acceptance stays NOT MEASURED even if runner prints PASS. |
+ | F03 | F03-plan-skill, F03-plan-agent, F03-review-skill, F03-review-agent | NOT MEASURED — Missing-source negative variants runnable; repaired handoff combination is a manual replay. |
+-| F04 | F04-plan-skill, F04-plan-agent, F05-plan-no-repo-missing-agent, F04-build-missing-agent, F04-review-definition-agent, F22-debug-missing-definition-skill, F16-investigate-missing-agent | NOT MEASURED — Review skill missing-definition mirror and inaccessible referenced-definition variant require replay; no-repo and existing-but-undefined forms are runnable. |
++| F04 | F04-plan-skill, F04-plan-agent, F05-plan-no-repo-missing-agent, F04-build-missing-agent, F04-build-supplied-amendment-agent, F04-review-definition-agent, F22-debug-missing-definition-skill, F16-investigate-missing-agent | NOT MEASURED — Review skill missing-definition mirror and inaccessible referenced-definition variant require replay; no-repo and existing-but-undefined forms are runnable. |
+ | F05 | F05-plan-no-repo-complete-skill, F05-plan-no-repo-missing-agent | NOT MEASURED — Persistence-error and both no-repo mirror cells are recipe-only; no custom fault-injection runner supplied. |
+ | F06 | F03-plan-skill, F06-plan-skill, F03-plan-agent, F06-plan-agent | NOT MEASURED — Read/immutability gates runnable; complete saved-plan inspection and actual child handoff remain unverified. |
+ | F07 | F06-plan-skill, F06-plan-agent, F07-plan-conflict-skill | NOT MEASURED — Summary pair runnable; equal-authority agent mirror requires replay. |
+@@ -216,6 +220,14 @@ repair as separate candidate receipts. All approval stops precede actual caller
+ 
+ ## Combination replay protocol
+ 
++[workflow-regressions.json](workflow-regressions.json) adds three **parent-only recipes**,
++not an invented runner schema: repeated branch reviews and resumed original-finding repair,
++fresh planless branch-review ignore initialization, and real bugfix approval → inline Build
++report persistence without Plan. Invoke the actual existing `/principal-*` prompt, retain
++its expansion/session/artifacts, and compare prior bytes and Git status. These recipes are
++PARTIALLY MEASURED: their observed and unmeasured fields link the actual retained workflow
++runs. Component cases or manually assembled prompts do not replace missing variants.
++
+ Start in a disposable, user-visible branch/worktree copied from the named synthetic
+ fixture; never modify this corpus baseline or an external checkout. Retain the exact
+ first request, subsequent user approval, all source/definition paths, every parent
+@@ -264,6 +276,13 @@ recipes below include negative perturbations and exact source/artifact boundarie
+ 
+ **NOT MEASURED:** Review skill missing-definition mirror and inaccessible referenced-definition variant require replay; no-repo and existing-but-undefined forms are runnable.
+ 
++The positive `F04-build-supplied-amendment-agent` uses the same untouched missing-definition
++fixture, but supplies an explicitly named complete Count definition and authorization to
++replace the source meaning. Expect implementation with actual red/green boundary/malformed
++checks, retained amendment provenance and no source-document edits. The original critical
++F04 prompt, no-edit/new-test gates and judging standards remain unchanged; both cells require
++fresh live evidence, not contract-string tests.
++
+ ## F05
+ 
+ **Acceptance:** Complete no-repository authority yields complete chat plan; missing normative meaning blocks; actual persistence error must be reported with complete fallback artifact.
+diff --git a/evals/requirement-fidelity/evidence.md b/evals/requirement-fidelity/evidence.md
+index ee4b0b3..2742d0f 100644
+--- a/evals/requirement-fidelity/evidence.md
++++ b/evals/requirement-fidelity/evidence.md
+@@ -1,8 +1,38 @@
+ # Requirement-fidelity evidence index
+ 
+-## Current status after live execution
+-
+-**Implementation reviewed; behavioral qualification NOT READY.** Production review approved
++## PR #58 repair-candidate evidence
++
++REV-001–006 repairs are on top of release HEAD
++`448ac7628980c7a69bb3ff27e3bfa882bf64c4f3`, not on the existing v4.7.0 tag.
++Detailed commands, raw sessions, full saved reports and limitations:
++[repair observations](evidence/pr58-repairs/README.md). All prior failures/hashes remain intact.
++Overall behavioral qualification remains **NOT READY**; bounded observations are not a
++harness pass or proof for every workflow/model.
++
++- Unchanged critical F04 task: three direct repaired-contract runs block before source/test
++  mutation and request definition repair in saved reports. Three supplied-definition
++  companions implement correctly; independent, counted 20-case boundary probes pass each.
++- Actual registered branch-review template runs twice: distinct reports, prior bytes
++  preserved, absent ignore initialized, clean status both times.
++- Actual registered bugfix template stops for approval; after the separate approval turn,
++  inline Build/Review preserve diagnosis reports and dirty only intended source/tests.
++  Sessions retain actual template expansion and skill reads, not manual phase replacements.
++- These workflow observations exercise the documented inline fallback. Fresh-session repair
++  from original findings after a changed candidate, delegation, existing-ignore conflict,
++  optional Investigate and standalone UNVERIFIED routing remain unmeasured variants.
++- Raw force results remain Build **4/7**, Review **5/6**; targeted three-repetition F04 pair
++  **0/6**, ungraded partial run. The negative objective no-edit/source-read gates all pass;
++  final-only semantic judges cannot see the saved reports. See retained judgments and
++  independent direct artifacts separately; scores were not changed or standards weakened.
++
++Fresh offline repair-candidate receipts and manifest are retained in
++`evidence/pr58-repairs/npm-test.txt` and `inputs.sha256`; they must be read with their actual
++candidate binding, not substituted for historical `final-*` files. Current CI is not claimed.
++The existing v4.7.0 tag at 448ac76 excludes the repairs and must not be moved silently.
++
++## Historical status after pre-release live execution
++
++**Pre-release implementation reviewed; behavioral qualification NOT READY.** Production review approved
+ the contracts after REV-001 (inline report persistence) and REV-002 (compressed evidence
+ fields) were repaired. That code verdict does not waive the failures below. All raw runs,
+ including superseded FAIL/ERROR results, remain intact. Historical sections below describe
+@@ -14,7 +44,7 @@ upgrade or external checkout change was made. Subject `openai-codex:gpt-5.5`, ha
+ A separate cold Review agent inspected their actual events and captured artifacts. The
+ following assessments summarize that audit, not overwritten harness grades.
+ 
+-### Current harness runs (one repetition each, force mode)
++### Historical pre-release harness runs (one repetition each, force mode)
+ 
+ Paths are `<skill>/tests/results/pi-openai-codex-gpt-5.5/<run>/results.yaml`, relative to
+ the repository root. Receipts include spec/contract hashes and judgments.
+@@ -96,15 +126,31 @@ and errorMessage even when process exit is zero. Capture the new candidate hashe
+ reuse old results as current proof.
+ 
+ 
+-### Final repository checks
+-
+-`npm test` passes **128/128 unit tests and 23/23 install tests**, plus generation, word
+-budgets, packaging and skill lint. Receipts: [checkout suite](evidence/final-npm-test.txt)
+-and [disposable snapshot suite](evidence/final-snapshot-npm-test.txt). The snapshot proves
+-nonignored artifact aliases remain available outside the original working directory.
+-[Final input manifest](evidence/final-inputs.sha256) binds production sources, tests,
+-fixtures/specs and documentation (excluding raw evidence to avoid self-reference).
+-These are offline checks, not an all-model pass. Git-Ops is unchanged; no release is claimed.
++### Historical pre-release repository checks
++
++The preserved `final-*` filenames are historical, not release-head receipts. They ran
++package **4.6.0**: **128/128 unit tests and 23/23 install tests**, plus generation, word
++budgets, packaging and skill lint. Receipts: [historical checkout suite](evidence/final-npm-test.txt)
++and [historical disposable snapshot suite](evidence/final-snapshot-npm-test.txt).
++The [historical input manifest](evidence/final-inputs.sha256) has 131 entries, all matching
++pre-release implementation commit `dd4b37f79299ab5b80ebaa8125a6f147d6af37b9`
++(parent/base `1a7c535d4771dbb70f0117454069e6208a486b9d`; PR base
++`0728b2daafa210c6884736ad48845d6549122a54`). This content match identifies the
++candidate, not an assertion that those commands ran after that commit was created.
++The snapshot demonstrated portable nonignored artifact aliases. No historical hashes or
++receipt output have been refreshed. Six release-edited files differ at 4.7.0 HEAD:
++AGENTS.md, CHANGELOG.md, README.md, package-lock.json, package.json and tests/install/clean-home.test.mjs.
++
++### Release-head checks reported by independent PR #58 review
++
++For exact release HEAD `448ac7628980c7a69bb3ff27e3bfa882bf64c4f3` (package 4.7.0),
++the independent review reports local `npm test`: **128/128 unit + 23/23 install**, zero
++skipped; same-head Node20 CI run **36714108958**: **128/128 unit + 22/23 install,
++1 skipped because Pi was absent** (zero failures). These are separate observations,
++not the older `final-*` receipts. Review provenance: `.principal/reports/pr-58-independent-review.md`,
++with temporary receipts `/tmp/pr58-exact-head-tests.log` and `/tmp/pr58-ci-review.log`;
++those paths are not portable evidence bundled here. New repair-candidate receipts are
++linked above rather than retroactively attributed to that HEAD. Offline success is not an all-model pass.
+ 
+ ## Retained pre-repair live runs
+ 
+diff --git a/evals/requirement-fidelity/scenarios.json b/evals/requirement-fidelity/scenarios.json
+index c196812..eeeccfe 100644
+--- a/evals/requirement-fidelity/scenarios.json
++++ b/evals/requirement-fidelity/scenarios.json
+@@ -44,6 +44,7 @@
+       "F04-plan-agent",
+       "F05-plan-no-repo-missing-agent",
+       "F04-build-missing-agent",
++      "F04-build-supplied-amendment-agent",
+       "F04-review-definition-agent",
+       "F22-debug-missing-definition-skill",
+       "F16-investigate-missing-agent"
+diff --git a/prompts/principal-bugfix.md b/prompts/principal-bugfix.md
+index bdc08ff..380b754 100644
+--- a/prompts/principal-bugfix.md
++++ b/prompts/principal-bugfix.md
+@@ -16,9 +16,30 @@ skill inline and say so in the Digest. Any other agent failure stops the chain.
+ describes this request's task, read it and `git log` first: a step whose commit exists is
+ done. If several could match, name them and ask the user which one; if none does, start the chain at step 1. Resume at the first step without one. Never re-plan a plan the user already approved.
+ 
++**Artifacts.** Before any artifact write, create if absent `.principal/.gitignore` containing `*`;
++never overwrite an existing ignore file. This orchestrator step covers authority, optional
++Investigate, inline Build, delegated report destinations and review, even without Plan.
++Verify repository artifact destinations are ignored; if an existing policy exposes them,
++stop and ask rather than dirtying the checkout or changing that policy. Plan itself still
++writes only its plan and an absent ignore file; Investigate remains read-only.
++Scope files by task, run and candidate: create a new unused directory
++`.principal/reports/<task>-<run>/<candidate>/` (timestamp plus collision suffix for run;
++SHA or dirty-tree fingerprint for candidate). Independent requests, including repeat reviews
++of the same candidate, get new runs. Use this `<artifact-dir>` for authority, Investigate, Build,
++diff and review files; number attempts within it, never overwrite prior files. Preserve a
++caller-chosen report path if unused; if occupied or a referenced prior artifact, choose an
++unused sibling and return its actual path. On resume, read the explicitly identified prior
++reports; if ambiguous, ask. Continue in a new candidate/attempt location, not over old bytes.
++Record original review path + reviewed candidate and original whole-change baseline (full
++base/head range or saved tracked diff plus relevant untracked content/hashes) in existing
++Authority/Candidate fields. Keep full original finding definitions, gates and evidence files
++accessible through every repair/re-review; REV IDs are scoped to that original report.
++Recompute candidate identity after Build; use the new candidate directory for Review while
++passing earlier report paths unchanged.
++
+ **Authority.** Carry authoritative source/definition paths and relevant map rows/global gates
+ through Plan → Build → Review. If exact user authority exists only in dialogue and needs
+-file handoff, persist it with provenance to `.principal/reports/<task>-authority.md`, not a
++file handoff, persist it with provenance to `<artifact-dir>/authority.md`, not a
+ summary. Ensure paths are accessible in each child/disposable workspace; ignored `.principal`
+ files may need exact caller-persisted copies with original identity. A readable reference is
+ not missing material; unresolved authority stops for repair, never invented definitions.
+@@ -35,12 +56,12 @@ feature — the stop does not. A re-plan needs a new approval.
+ multi-step plan file (a three-line plan, or a bugfix) or the subagent tool is absent.
+ Otherwise dispatch one fresh `principal-build` per step — a batched step is one dispatch —
+ with the complete plan file path, step ID, source/definition paths, applicable rows/global gates,
+-and report path `.principal/reports/<step>-build.md`. Without a plan pass the approved exact
++and unused report path `<artifact-dir>/<step>-build-<attempt>.md`. Without a plan pass the approved exact
+ task and authority. It returns five status lines; read every successful report too:
+ Assumptions, Follow-ups, Evidence gaps, Blocked, Requirements/Gates and Candidate. Aggregate
+ caveats into the Digest's existing labels; success or a commit is not measured compliance.
+ Inline Build returns chat: the orchestrator must persist its complete implementation report
+-to `.principal/reports/<step>-build.md` before delegated Review, with the same evidence and caveats as the
++to `<artifact-dir>/<step>-build-<attempt>.md` before delegated Review, with the same evidence and caveats as the
+ agent report, not a summary. If persistence fails, stop and report the handoff gap.
+ Never paste report prose into a later dispatch; pass accessible files. Choose the cheapest
+ capable model under the same standards; neither lower cost nor a word budget permits dropping
+@@ -48,12 +69,12 @@ requirements, gates or safety. Escalate an inadequate model rather than weaken t
+ 
+ **Review.** Always delegate to `principal-review` when the tool exists — a cold read beats
+ self-review. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
+-for the whole change to `.principal/reports/review-diff.txt` and pass that path plus the build
++for the whole change to `<artifact-dir>/review-diff-<round>.txt` and pass that path plus the build
+ report paths, governing source/definition paths, full plan/map if present, and candidate
+ identity. Dirty candidates need the complete tracked diff and relevant untracked content,
+ not just a committed range. Review validates reused evidence and checks named doubts.
+ Use the strongest available model. Persist the complete review result to
+-`.principal/reports/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
++`<artifact-dir>/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
+ accepted; repair with their IDs, full report path/definitions, authority refs, affected map
+ rows and acceptance conditions — resume the builder when possible, otherwise dispatch fresh.
+ Then scoped re-review gets those files, original whole-change baseline/gates and fix diff,
+diff --git a/prompts/principal-feature.md b/prompts/principal-feature.md
+index dbf81d8..ca6f2e6 100644
+--- a/prompts/principal-feature.md
++++ b/prompts/principal-feature.md
+@@ -16,9 +16,30 @@ skill inline and say so in the Digest. Any other agent failure stops the chain.
+ describes this request's task, read it and `git log` first: a step whose commit exists is
+ done. If several could match, name them and ask the user which one; if none does, start the chain at step 1. Resume at the first step without one. Never re-plan a plan the user already approved.
+ 
++**Artifacts.** Before any artifact write, create if absent `.principal/.gitignore` containing `*`;
++never overwrite an existing ignore file. This orchestrator step covers authority, optional
++Investigate, inline Build, delegated report destinations and review, even without Plan.
++Verify repository artifact destinations are ignored; if an existing policy exposes them,
++stop and ask rather than dirtying the checkout or changing that policy. Plan itself still
++writes only its plan and an absent ignore file; Investigate remains read-only.
++Scope files by task, run and candidate: create a new unused directory
++`.principal/reports/<task>-<run>/<candidate>/` (timestamp plus collision suffix for run;
++SHA or dirty-tree fingerprint for candidate). Independent requests, including repeat reviews
++of the same candidate, get new runs. Use this `<artifact-dir>` for authority, Investigate, Build,
++diff and review files; number attempts within it, never overwrite prior files. Preserve a
++caller-chosen report path if unused; if occupied or a referenced prior artifact, choose an
++unused sibling and return its actual path. On resume, read the explicitly identified prior
++reports; if ambiguous, ask. Continue in a new candidate/attempt location, not over old bytes.
++Record original review path + reviewed candidate and original whole-change baseline (full
++base/head range or saved tracked diff plus relevant untracked content/hashes) in existing
++Authority/Candidate fields. Keep full original finding definitions, gates and evidence files
++accessible through every repair/re-review; REV IDs are scoped to that original report.
++Recompute candidate identity after Build; use the new candidate directory for Review while
++passing earlier report paths unchanged.
++
+ **Authority.** Carry authoritative source/definition paths and relevant map rows/global gates
+ through Plan → Build → Review. If exact user authority exists only in dialogue and needs
+-file handoff, persist it with provenance to `.principal/reports/<task>-authority.md`, not a
++file handoff, persist it with provenance to `<artifact-dir>/authority.md`, not a
+ summary. Ensure paths are accessible in each child/disposable workspace; ignored `.principal`
+ files may need exact caller-persisted copies with original identity. A readable reference is
+ not missing material; unresolved authority stops for repair, never invented definitions.
+@@ -35,12 +56,12 @@ feature — the stop does not. A re-plan needs a new approval.
+ multi-step plan file (a three-line plan, or a bugfix) or the subagent tool is absent.
+ Otherwise dispatch one fresh `principal-build` per step — a batched step is one dispatch —
+ with the complete plan file path, step ID, source/definition paths, applicable rows/global gates,
+-and report path `.principal/reports/<step>-build.md`. Without a plan pass the approved exact
++and unused report path `<artifact-dir>/<step>-build-<attempt>.md`. Without a plan pass the approved exact
+ task and authority. It returns five status lines; read every successful report too:
+ Assumptions, Follow-ups, Evidence gaps, Blocked, Requirements/Gates and Candidate. Aggregate
+ caveats into the Digest's existing labels; success or a commit is not measured compliance.
+ Inline Build returns chat: the orchestrator must persist its complete implementation report
+-to `.principal/reports/<step>-build.md` before delegated Review, with the same evidence and caveats as the
++to `<artifact-dir>/<step>-build-<attempt>.md` before delegated Review, with the same evidence and caveats as the
+ agent report, not a summary. If persistence fails, stop and report the handoff gap.
+ Never paste report prose into a later dispatch; pass accessible files. Choose the cheapest
+ capable model under the same standards; neither lower cost nor a word budget permits dropping
+@@ -48,12 +69,12 @@ requirements, gates or safety. Escalate an inadequate model rather than weaken t
+ 
+ **Review.** Always delegate to `principal-review` when the tool exists — a cold read beats
+ self-review. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
+-for the whole change to `.principal/reports/review-diff.txt` and pass that path plus the build
++for the whole change to `<artifact-dir>/review-diff-<round>.txt` and pass that path plus the build
+ report paths, governing source/definition paths, full plan/map if present, and candidate
+ identity. Dirty candidates need the complete tracked diff and relevant untracked content,
+ not just a committed range. Review validates reused evidence and checks named doubts.
+ Use the strongest available model. Persist the complete review result to
+-`.principal/reports/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
++`<artifact-dir>/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
+ accepted; repair with their IDs, full report path/definitions, authority refs, affected map
+ rows and acceptance conditions — resume the builder when possible, otherwise dispatch fresh.
+ Then scoped re-review gets those files, original whole-change baseline/gates and fix diff,
+diff --git a/prompts/principal-refactor.md b/prompts/principal-refactor.md
+index 31512af..b00700a 100644
+--- a/prompts/principal-refactor.md
++++ b/prompts/principal-refactor.md
+@@ -16,9 +16,30 @@ skill inline and say so in the Digest. Any other agent failure stops the chain.
+ describes this request's task, read it and `git log` first: a step whose commit exists is
+ done. If several could match, name them and ask the user which one; if none does, start the chain at step 1. Resume at the first step without one. Never re-plan a plan the user already approved.
+ 
++**Artifacts.** Before any artifact write, create if absent `.principal/.gitignore` containing `*`;
++never overwrite an existing ignore file. This orchestrator step covers authority, optional
++Investigate, inline Build, delegated report destinations and review, even without Plan.
++Verify repository artifact destinations are ignored; if an existing policy exposes them,
++stop and ask rather than dirtying the checkout or changing that policy. Plan itself still
++writes only its plan and an absent ignore file; Investigate remains read-only.
++Scope files by task, run and candidate: create a new unused directory
++`.principal/reports/<task>-<run>/<candidate>/` (timestamp plus collision suffix for run;
++SHA or dirty-tree fingerprint for candidate). Independent requests, including repeat reviews
++of the same candidate, get new runs. Use this `<artifact-dir>` for authority, Investigate, Build,
++diff and review files; number attempts within it, never overwrite prior files. Preserve a
++caller-chosen report path if unused; if occupied or a referenced prior artifact, choose an
++unused sibling and return its actual path. On resume, read the explicitly identified prior
++reports; if ambiguous, ask. Continue in a new candidate/attempt location, not over old bytes.
++Record original review path + reviewed candidate and original whole-change baseline (full
++base/head range or saved tracked diff plus relevant untracked content/hashes) in existing
++Authority/Candidate fields. Keep full original finding definitions, gates and evidence files
++accessible through every repair/re-review; REV IDs are scoped to that original report.
++Recompute candidate identity after Build; use the new candidate directory for Review while
++passing earlier report paths unchanged.
++
+ **Authority.** Carry authoritative source/definition paths and relevant map rows/global gates
+ through Plan → Build → Review. If exact user authority exists only in dialogue and needs
+-file handoff, persist it with provenance to `.principal/reports/<task>-authority.md`, not a
++file handoff, persist it with provenance to `<artifact-dir>/authority.md`, not a
+ summary. Ensure paths are accessible in each child/disposable workspace; ignored `.principal`
+ files may need exact caller-persisted copies with original identity. A readable reference is
+ not missing material; unresolved authority stops for repair, never invented definitions.
+@@ -35,12 +56,12 @@ feature — the stop does not. A re-plan needs a new approval.
+ multi-step plan file (a three-line plan, or a bugfix) or the subagent tool is absent.
+ Otherwise dispatch one fresh `principal-build` per step — a batched step is one dispatch —
+ with the complete plan file path, step ID, source/definition paths, applicable rows/global gates,
+-and report path `.principal/reports/<step>-build.md`. Without a plan pass the approved exact
++and unused report path `<artifact-dir>/<step>-build-<attempt>.md`. Without a plan pass the approved exact
+ task and authority. It returns five status lines; read every successful report too:
+ Assumptions, Follow-ups, Evidence gaps, Blocked, Requirements/Gates and Candidate. Aggregate
+ caveats into the Digest's existing labels; success or a commit is not measured compliance.
+ Inline Build returns chat: the orchestrator must persist its complete implementation report
+-to `.principal/reports/<step>-build.md` before delegated Review, with the same evidence and caveats as the
++to `<artifact-dir>/<step>-build-<attempt>.md` before delegated Review, with the same evidence and caveats as the
+ agent report, not a summary. If persistence fails, stop and report the handoff gap.
+ Never paste report prose into a later dispatch; pass accessible files. Choose the cheapest
+ capable model under the same standards; neither lower cost nor a word budget permits dropping
+@@ -48,12 +69,12 @@ requirements, gates or safety. Escalate an inadequate model rather than weaken t
+ 
+ **Review.** Always delegate to `principal-review` when the tool exists — a cold read beats
+ self-review. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
+-for the whole change to `.principal/reports/review-diff.txt` and pass that path plus the build
++for the whole change to `<artifact-dir>/review-diff-<round>.txt` and pass that path plus the build
+ report paths, governing source/definition paths, full plan/map if present, and candidate
+ identity. Dirty candidates need the complete tracked diff and relevant untracked content,
+ not just a committed range. Review validates reused evidence and checks named doubts.
+ Use the strongest available model. Persist the complete review result to
+-`.principal/reports/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
++`<artifact-dir>/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
+ accepted; repair with their IDs, full report path/definitions, authority refs, affected map
+ rows and acceptance conditions — resume the builder when possible, otherwise dispatch fresh.
+ Then scoped re-review gets those files, original whole-change baseline/gates and fix diff,
+diff --git a/prompts/principal-review-branch.md b/prompts/principal-review-branch.md
+index 41a4b5e..bb233b0 100644
+--- a/prompts/principal-review-branch.md
++++ b/prompts/principal-review-branch.md
+@@ -9,15 +9,30 @@ built outside the workflows gets the same cold review the workflows give.
+ 
+ 1. Find the range: `git merge-base ${1:-main} HEAD` is the base; `HEAD` is the head. If
+    the working tree is dirty, say so and stop — review judges committed work.
+-2. Carry the governing exact task, accessible source/definition paths, optional plan map and
++2. Before any artifact write, create if absent `.principal/.gitignore` containing `*`;
++   never overwrite an existing ignore file. This orchestrator initialization covers authority,
++   optional Investigate and review reports. Verify repository artifact destinations are ignored;
++   if an existing policy exposes them, stop and ask rather than dirtying the checkout.
++   Investigate remains read-only; its caller persists the report.
++   Scope artifacts by task, run and candidate: create a new unused directory
++   `.principal/reports/<task>-<run>/<candidate>/` (timestamp plus collision suffix for run;
++   full head SHA for candidate). This is `<artifact-dir>`. Even repeat reviews of the same HEAD get new runs;
++   never overwrite prior files. Preserve a caller-chosen report path if unused; if occupied
++   or referenced by prior work, choose an unused sibling and return its actual path.
++   On resume, read the named original review path and reviewed candidate; ask if ambiguous.
++   Retain the original whole-change baseline (base/head SHAs, commit list and complete diff),
++   original finding definitions, authority and evidence files through any later repair request.
++   Record these references in the existing Authority/Candidate fields, not just REV IDs.
++   Carry the governing exact task, accessible source/definition paths, optional plan map and
+    available candidate-bound evidence; do not manufacture a plan or assume missing authority.
+    If dialogue-only authority needs a file, persist its exact text with provenance under
+-   `.principal/reports/`. Optional read-only Investigate can locate facts; pass its full report
++   `<artifact-dir>/authority.md`. Optional read-only Investigate can locate facts; pass its full report
+    alongside original sources, never instead of them. Review owns the verdict.
+    Delegate to `principal-review` when the subagent tool exists (otherwise run Review
+    inline and say so in the Digest). Hand it the base and head SHAs and the commit list;
+    it computes the diff itself in a disposable workspace. Persist its complete result to
+-   `.principal/reports/review-1.md`; findings retain source locators and acceptance conditions.
++   `<artifact-dir>/review-1.md`; save the whole-change diff there as `review-diff.txt` too.
++   Findings retain source locators and acceptance conditions.
+ 3. Route on the verdict. `APPROVE` or `APPROVE-WITH-NITS` → Git-Ops finish mode: fresh
+    full suite on this tree, then exactly merge locally / push and open a PR / keep the
+    branch. `CHANGES-REQUESTED` → present the findings with their `[REV-…]` IDs and stop;
+diff --git a/review/SKILL.md b/review/SKILL.md
+index 8c679d6..c29f49c 100644
+--- a/review/SKILL.md
++++ b/review/SKILL.md
+@@ -81,7 +81,8 @@ ships is a failed review.
+ 
+ For repairs, read the full original review report and finding definitions, source/definition
+ references, acceptance conditions and fix diff; bare IDs cannot identify an accepted fix.
+-Retain the original whole-change baseline and global gates. Addressed IDs alone cannot
++Record original review path and reviewed candidate in Authority/Candidate; retain files,
++the original whole-change baseline and global gates through resume. Addressed IDs alone cannot
+ turn missing original evidence into approval. Out-of-scope uncertainty goes under Follow-ups;
+ if it prevents an overall verdict, require full review rather than silently broadening repair.
+ 
+diff --git a/scripts/check-word-budgets.mjs b/scripts/check-word-budgets.mjs
+index f8c598a..07b65a0 100644
+--- a/scripts/check-word-budgets.mjs
++++ b/scripts/check-word-budgets.mjs
+@@ -51,7 +51,8 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
+ const BUDGETS = {
+   skill: 1400, agent: 1500,
+   "plan": 1900, "plan-agent": 1950,
+-  "build": 1550, "build-agent": 1700,
++  // PR #58: authority classification/positive amendment and immutable repair provenance.
++  "build": 1700, "build-agent": 1850,
+   "review": 1550, "review-agent": 1600,
+   "debug-agent": 1550,
+   "git-ops": 2150,
+diff --git a/tests/unit/handoff-transitions.test.mjs b/tests/unit/handoff-transitions.test.mjs
+index 5f327f3..52b9739 100644
+--- a/tests/unit/handoff-transitions.test.mjs
++++ b/tests/unit/handoff-transitions.test.mjs
+@@ -1,7 +1,7 @@
+ /**
+  * The handoff contract, enforced.
+  *
+- * `Next:` is the only routing signal between phases, so both halves have to agree: a
++ * `Next:` is the closed transition vocabulary (Review Verdict gates its use), so a
+  * contract must not emit a value no workflow handles (the chain stops for no stated
+  * reason), and a workflow must not branch on a value no contract can emit (a branch that
+  * looks like coverage and can never run). Both failures are invisible in review — they
+@@ -168,8 +168,9 @@ test("the review-branch prompt reviews and finishes but never plans or builds",
+ test("the spines hand artifacts to agents as files under .principal/reports", () => {
+   for (const wf of WORKFLOWS) {
+     const text = read(wf);
+-    assert.match(text, /\.principal\/reports\/<step>-build\.md/, `${wf} must give build agents a report path`);
+-    assert.match(text, /\.principal\/reports\/review-diff\.txt/, `${wf} must hand review a diff package`);
++    assert.match(text, /\.principal\/reports\/<task>-<run>\/<candidate>\//, `${wf} must scope artifact identities`);
++    assert.match(text, /<artifact-dir>\/<step>-build-<attempt>\.md/, `${wf} must give build agents a report path`);
++    assert.match(text, /<artifact-dir>\/review-diff-<round>\.txt/, `${wf} must hand review a diff package`);
+     assert.match(text, /scoped re-review/, `${wf} must scope repair-round reviews`);
+   }
+   assert.match(read("agents/principal-review.md"), /## Scoped re-review/);

@@ -51,12 +51,13 @@ the verdict to Review.
 ## The handoff contract
 
 The phases that hand off end with a `Next:` line naming the follow-on. That plus the fixed
-template fields *is* the handoff. You read the `Next:` line and route — a subagent never
-invokes another agent; inline, continuing into the named skill in this same context is
-orchestration, not a skill invoking another.
+template fields *is* the handoff. Read Review Verdict before Next: UNVERIFIED means
+evidence/access repair or a caller question, not automatic implementation, even with
+`Next: build`. Otherwise read the `Next:` line and route — a subagent never invokes
+another agent; inline continuation is orchestration, not a skill invoking another.
 
-`Next:` carries exactly one bare word from a closed set, so routing is a lookup rather than
-an interpretation. The complete set:
+`Next:` carries exactly one bare word from a closed set; after that verdict check,
+routing is a lookup rather than an interpretation. The complete set:
 
 | Phase | Allowed `Next:` values |
 |---|---|
@@ -94,6 +95,13 @@ Typical spines (available as prompt templates):
 - Tiny change: build → git-ops, both inline — every contract carries a Right-sizing
   rule; don't add ceremony the file itself would refuse.
 
+Before any orchestrator artifact write (including planless Review, inline Build or optional
+Investigate persistence), create an absent `.principal/.gitignore` containing `*`, never
+overwrite an existing ignore file, and verify repository report destinations are ignored;
+otherwise stop for caller policy repair. Plan retains its restricted writes; Investigate
+remains read-only. Scope reports by task/run/candidate in new unused directories, preserving
+prior files and original review path/candidate/baseline through repairs and resume.
+
 Handoffs carry accessible source/definition references, applicable map rows/global gates,
 and full report paths, not summaries or bare finding IDs. Collect caveats even on success;
 a commit or green suite alone is not full requirement coverage. Review validates candidate-bound
@@ -128,10 +136,18 @@ to every output.
 1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.0` installs the eight
    skills, the four `/principal-*` commands, and the bootstrap
    extension, which loads automatically with the package. Install a tag, not a branch.
-2. Subagents (optional): `npx -p principal-pi-skills principal-pi-agents install` copies
-   the five agent definitions into `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents` and refuses
-   to overwrite anything it did not install. Without it, everything in the routing table
-   above still runs; the How column just collapses to "inline".
+2. Subagents (optional): before npm publication, latest is 4.6.0 and npm @4.7.0 is not
+   yet available. Use the installed tagged package's `scripts/install-agents.mjs` with Node
+   (`install`, then `check`), locating its actual path rather than assuming a universal Pi
+   install directory. Alternatively follow the concrete verified-tag disposable checkout
+   recipe in [README Install](README.md#install-pi). After npm publication, pin both:
+   `npx -p principal-pi-skills@4.7.0 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.7.0 principal-pi-agents check`.
+   The five definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files
+   are refused. Without them, the routing table still runs inline.
+   Existing v4.7.0 at `448ac76` excludes subsequent repairs; leave the tag untouched.
+   Repair-candidate validation must use that candidate's skills and installer in isolation,
+   not claim that installing the old tag validates new fixes.
 3. Context handoff (pi-daddy 0.33.0+): each skill's `allowed-tools` sets how much of this
    session a delegated child may receive. `architect`, `decide` and `plan` allow
    `context:summary`. `build`, `debug`, `review` and `investigate` allow `context:files`: review

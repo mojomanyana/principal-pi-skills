@@ -1,0 +1,27 @@
+[
+  {
+    "original": ".principal/.gitignore",
+    "artifact": "saved-artifacts/ignore-rule.txt",
+    "sha256": "cdbcae15105d6b781e620813c79c7e868740d4e9cc53ce6f5fcbbc12387adf4b"
+  },
+  {
+    "original": ".principal/reports/review-branch-20260930T132122Z/e6d21f4905042428e4de4e3feac27a0cc93285c7/review-1.md",
+    "artifact": "saved-artifacts/reports/review-branch-20260930T132122Z/e6d21f4905042428e4de4e3feac27a0cc93285c7/review-1.md",
+    "sha256": "96b4b076c75e1b76cc5ed6a4b0e97d509c0965ee321f3eb8baea93f72f1c9ce3"
+  },
+  {
+    "original": ".principal/reports/review-branch-20260930T132122Z/e6d21f4905042428e4de4e3feac27a0cc93285c7/review-diff.txt",
+    "artifact": "saved-artifacts/reports/review-branch-20260930T132122Z/e6d21f4905042428e4de4e3feac27a0cc93285c7/review-diff.txt",
+    "sha256": "4614571cdc4693cd82f957abed62e3b6d540b40601bcaaad98f19534d98f8b69"
+  },
+  {
+    "original": ".principal/reports/review-branch-20260930T132228Z/e6d21f4905042428e4de4e3feac27a0cc93285c7/review-1.md",
+    "artifact": "saved-artifacts/reports/review-branch-20260930T132228Z/e6d21f4905042428e4de4e3feac27a0cc93285c7/review-1.md",
+    "sha256": "52cd988c1d5b2c7bfa9b59d9bffa81c8fa2f84c20e16e7e1543738841ad4f3cc"
+  },
+  {
+    "original": ".principal/reports/review-branch-20260930T132228Z/e6d21f4905042428e4de4e3feac27a0cc93285c7/review-diff.txt",
+    "artifact": "saved-artifacts/reports/review-branch-20260930T132228Z/e6d21f4905042428e4de4e3feac27a0cc93285c7/review-diff.txt",
+    "sha256": "4614571cdc4693cd82f957abed62e3b6d540b40601bcaaad98f19534d98f8b69"
+  }
+]

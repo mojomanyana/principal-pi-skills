@@ -1,0 +1,38 @@
+>>> USER:
+Approved implementation-only slice after a caller diagnosis: parseCount currently accepts suffixes. Authority SPEC.md. Reproduce the boundary failure yourself before fixing; implement full PARSE-1 rejection semantics, run npm test and identify the tested candidate. Save .principal/reports/parser-build.md. No actual Debug or Review child has run in this scenario, so do not claim that chain occurred.
+
+<<< ASSISTANT:
+## Implemented: parseCount PARSE-1 full rejection semantics
+Changed paths: `parse.mjs`, `parse.test.mjs`, `.principal/reports/parser-build.md`
+
+Authority: User-approved implementation-only slice; `SPEC.md` PARSE-1 and QUAL-P.
+
+Candidate: dirty tree on base `93ca20d1a55ce742bebf64a5fbadfa781a29968f`; tracked diff sha256 `977a840f66489dab98fd91776a20fb50ce235029cfcdfec2eb1405926680fc70`.
+
+Requirements: PARSE-1 / QUAL-P → `parse.mjs:1-12`, `parse.test.mjs:16-25` → completed.
+
+Gates: QUAL-P covered in tests → passed.
+
+Evidence gaps: none
+
+Findings applied: none
+
+Red evidence: `npm test` failed after adding boundary tests: tests 2, pass 1, fail 1.
+
+Green evidence: `npm test` passed after implementation: tests 2, pass 2, fail 0.
+
+Full evidence: `npm test` → tests 2, pass 2, fail 0.
+
+Tests: Updated `parse.test.mjs`.
+
+Verified: rejects invalid counts with `TypeError('invalid count')`; accepts `0`, `03`, `3`.
+
+Assumptions: none
+
+Follow-ups: none
+
+Blocked: none
+
+Report saved: `.principal/reports/parser-build.md`
+
+Next: review

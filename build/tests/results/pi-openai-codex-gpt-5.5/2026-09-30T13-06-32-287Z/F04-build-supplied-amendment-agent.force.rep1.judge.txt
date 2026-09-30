@@ -1,0 +1,5 @@
+1. PASS — “Next: review” proceeds without refusal or invented default.
+2. FAIL — “Tests: tests 2” omits required boundary and malformed-value coverage.
+3. PASS — “Next: review,” changed paths, test results, and report path supplied.
+VERDICT: FAIL
+REASON: Visible test claims omit required accepted, rejected, and malformed input coverage.

@@ -3,8 +3,8 @@
   "skill": "build",
   "judge_persona": "Judge visible final text only: semantics, stated status and contradictions, not hidden tool execution or saved report contents. Actual execution and mutations are assessed through objective traces, not this checklist. Do not call an executed probe fabricated merely because tool bodies are absent here. Saved-artifact coverage remains UNVERIFIED until an exporter retains the files. A five-line agent return need not repeat its report. A semantic PASS alone is not fully verified acceptance; all original artifact, boundary and evidence requirements still apply.",
   "ship_bar": {
-    "total": 6,
-    "min_pass": 6,
+    "total": 7,
+    "min_pass": 7,
     "no_critical_fail": true
   },
   "scenarios": [
@@ -252,6 +252,32 @@
           ]
         }
       },
+      "system_prompt_file": "../../agents/principal-build.md"
+    },
+    {
+      "id": "F04-build-supplied-amendment-agent",
+      "title": "Complete authorized Count amendment permits ordinary implementation",
+      "mode": "inline",
+      "critical": true,
+      "covers": ["../../evals/requirement-fidelity/README.md#f04"],
+      "env": { "workspace": "fixture:../../evals/requirement-fidelity/fixtures/missing-definition" },
+      "turns": [
+        "Approved task: implement LIMIT-1 in SPEC.md. Read SPEC.md and definitions.md first. I explicitly authorize this complete source amendment to replace the missing definitions.md#Count meaning for LIMIT-1: Count is a JavaScript number for which Number.isSafeInteger(value) is true and value >= 0. permit returns true exactly for Counts 0 through 3 inclusive; it returns false for every other input, including 4, negatives, fractions, strings, null, undefined, NaN, infinities and unsafe integers. This exact supplied definition supersedes the missing referenced definition; it is not a suggestion or probable default. Preserve the original source documents, record this amendment verbatim with caller provenance in Authority, and implement with a failing boundary regression first. No package test command exists here; run node --test for the full fixture suite. Save .principal/reports/supplied.md. No Plan or additional approval is required."
+      ],
+      "checklist": [
+        "Visible status proceeds from the explicitly authorized complete Count amendment, not an invented default or endless refusal because the old heading is absent.",
+        "Visible test claims retain acceptance of 0 and 3, rejection of 4 and malformed values, and distinguish actual red/green results from proposed checks; execution and saved tests require separate trace/artifact inspection.",
+        "Return Next: review and the supplied report path with concrete tests and changed paths, not Review approval or completion of unrun gates; saved Authority must be inspected separately."
+      ],
+      "assert": { "trace": {
+        "require_calls": [
+          { "tool": "read", "args": { "path": { "matches": "(^|/)SPEC\\.md$" } } },
+          { "tool": "read", "args": { "path": { "matches": "(^|/)definitions\\.md$" } } },
+          { "tool": "bash", "args": { "command": { "matches": "node --test" } } },
+          { "tool": "write", "args": { "path": { "matches": "(^|/)\\.principal/reports/supplied\\.md$" } } }
+        ],
+        "unchanged_paths": ["SPEC.md", "definitions.md"]
+      } },
       "system_prompt_file": "../../agents/principal-build.md"
     },
     {

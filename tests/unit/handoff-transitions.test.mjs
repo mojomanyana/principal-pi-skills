@@ -1,7 +1,7 @@
 /**
  * The handoff contract, enforced.
  *
- * `Next:` is the only routing signal between phases, so both halves have to agree: a
+ * `Next:` is the closed transition vocabulary (Review Verdict gates its use), so a
  * contract must not emit a value no workflow handles (the chain stops for no stated
  * reason), and a workflow must not branch on a value no contract can emit (a branch that
  * looks like coverage and can never run). Both failures are invisible in review — they
@@ -168,8 +168,9 @@ test("the review-branch prompt reviews and finishes but never plans or builds", 
 test("the spines hand artifacts to agents as files under .principal/reports", () => {
   for (const wf of WORKFLOWS) {
     const text = read(wf);
-    assert.match(text, /\.principal\/reports\/<step>-build\.md/, `${wf} must give build agents a report path`);
-    assert.match(text, /\.principal\/reports\/review-diff\.txt/, `${wf} must hand review a diff package`);
+    assert.match(text, /\.principal\/reports\/<task>-<run>\/<candidate>\//, `${wf} must scope artifact identities`);
+    assert.match(text, /<artifact-dir>\/<step>-build-<attempt>\.md/, `${wf} must give build agents a report path`);
+    assert.match(text, /<artifact-dir>\/review-diff-<round>\.txt/, `${wf} must hand review a diff package`);
     assert.match(text, /scoped re-review/, `${wf} must scope repair-round reviews`);
   }
   assert.match(read("agents/principal-review.md"), /## Scoped re-review/);

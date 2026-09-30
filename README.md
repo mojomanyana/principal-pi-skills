@@ -40,8 +40,9 @@ around.
 
 Individual fidelity exceptions (skill/agent words): Plan 1900/1950 buys complete source
 reads, blocking exceptions, stable mapping, persisted completeness and explicit no-shell
-fallback/tiny-file reads. Build 1550/1700 preserves pre-mutation missing-authority stops
-and compressed evidence/caveats; Review 1550/1600 buys candidate-bound obligation/gate
+fallback/tiny-file reads. Build 1700/1850 preserves pre-mutation authority classification,
+the complete authorized-amendment positive case, immutable report/repair provenance and
+compressed evidence/caveats (PR #58); Review 1550/1600 buys candidate-bound obligation/gate
 evidence and repair definitions;
 Debug's agent ceiling is 1550 for honest sandbox/applied states. Common ceilings and Git-Ops
 stay unchanged. These budgets preserve safeguards for lower-cost models, not a claim of
@@ -54,8 +55,8 @@ measured robustness on those models.
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1134 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1211 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1938) or inline | 1877 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1681) or inline | 1544 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1588) or inline | 1524 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1823) or inline | 1660 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1600) or inline | 1536 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1533) or inline | 1397 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 491) or inline | 492 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2145 |
@@ -67,7 +68,7 @@ automatically at session start, so nothing needs to point pi at it by hand.
 
 ## Bootstrap and workflows
 
-A pi extension (`extensions/bootstrap.ts`) injects `bootstrap/BOOTSTRAP.md` — about 250
+A pi extension (`extensions/bootstrap.ts`) injects `bootstrap/BOOTSTRAP.md` — under 300
 words — as a leading message at session start and again after compaction, so the routing
 context survives a context reset instead of depending on someone re-reading a file. It
 carries the routing table compressed to input shape → skill → inline/subagent, the closed
@@ -83,13 +84,19 @@ failure the rule exists to catch. The artifact scales with the change (three lin
 config tweak, full slices for a feature); the stop does not.
 
 Delegated phases hand artifacts to each other as files, not pasted text. A `principal-build`
-writes its full report to `.principal/reports/<step>-build.md` and returns five status lines;
+writes its full report to an unused task/run/candidate-scoped path under `.principal/reports/`
+(or a valid unused caller-chosen path) and returns five status lines;
 review receives governing source/definition references, the complete plan/map when present,
 and a candidate-identified diff package plus reports. Only matching candidate/scope evidence
 is reusable; a passing suite alone is not complete requirement coverage. Every successful
 report contributes assumptions, follow-ups and evidence gaps to the Digest. Repairs carry
 full review-report paths, finding definitions and acceptance conditions, not IDs alone;
-scoped re-review retains original whole-change evidence and gates. The `.principal/` directory ignores itself, so none of this reaches git.
+scoped re-review retains original whole-change evidence and gates. Independent runs never
+reuse prior report/diff paths; repairs retain original review path and reviewed candidate.
+Before any artifact write, the orchestrator creates an absent `.principal/.gitignore`
+containing `*`, never overwrites it, and checks report destinations are ignored. This covers
+planless Review, inline Build and optional Investigate persistence too. An existing policy
+that exposes reports requires caller repair, not accidental runtime files in git.
 
 When plan's output is the multi-step template, it writes the plan to
 `.principal/plans/<slug>.md` and prints the path; `.principal/.gitignore` is created
@@ -136,12 +143,36 @@ CHANGELOG.md                          release history
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
-2. **Subagents (optional).** Install the five agent definitions:
+2. **Subagents (optional).** Use the **same source** as the installed skills. Before npm
+   publication, npm latest is 4.6.0; unpinned `npx` would install/check older definitions,
+   and npm `@4.7.0` is not yet available. Either locate the actual installed tagged package
+   (its path varies by Pi configuration) and run its `scripts/install-agents.mjs` with Node,
+   or use this concrete matching-tag disposable checkout recipe:
 
+   ```sh
+   (
+     set -eu
+     source_dir=$(mktemp -d)
+     trap 'rm -rf -- "$source_dir"' EXIT
+     git clone --depth 1 --branch v4.7.0 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
+     test "$(git -C "$source_dir/package" rev-parse HEAD)" = 448ac7628980c7a69bb3ff27e3bfa882bf64c4f3
+     node "$source_dir/package/scripts/install-agents.mjs" install
+     node "$source_dir/package/scripts/install-agents.mjs" check
+   )
    ```
-   npx -p principal-pi-skills principal-pi-agents install     # → ${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents
-   npx -p principal-pi-skills principal-pi-agents check       # verify they are present and current
+
+   After npm publication, and only once the matching package is available, pin both commands:
+
+   ```sh
+   npx -p principal-pi-skills@4.7.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.7.0 principal-pi-agents check
    ```
+
+   The existing v4.7.0 tag at `448ac76` excludes the PR #58 repair candidate. These tagged
+   commands validate/install that tag, not later repairs; do not move the tag. To validate
+   repairs, load skills/prompts from the actual repair checkout and run **that checkout's**
+   installer/check into an isolated `PI_CODING_AGENT_DIR`, retaining its candidate identity.
+   Publication/release identity for later repairs needs a separate explicit decision.
 
    It installs `principal-plan`, `principal-build`, `principal-review`, `principal-debug`,
    and `principal-investigate` as **real files, not symlinks** — a symlink into a checkout breaks the
@@ -199,13 +230,18 @@ check contracts and fixtures, not model behavior or instruction delivery.
 
 A narrow local opt-in behavioral regression corpus is authorized for requirement fidelity,
 superseding only the blanket removal of focused harness fixtures below. It is **partially measured, not fully qualified**:
-42 runnable component cases now live in `<skill>/tests/specification.yaml` for Plan, Build,
+43 runnable component cases now live in `<skill>/tests/specification.yaml` for Plan, Build,
 Review, Investigate, Decide, Architect and Debug. Shared synthetic fixtures, 51-row long-source
 oracle, all F01–F24 status/replay recipes and runner limitations are documented in
 [evals/requirement-fidelity/README.md](evals/requirement-fidelity/README.md), with an
 [evidence index](evals/requirement-fidelity/evidence.md). Retained live runs include failures;
 a manually orchestrated source→plan→build→review chain, full long-plan inspection, and two
 normal skill-loading probes provide narrower positive evidence, not an all-case pass.
+PR #58 retains three direct blocking runs of the unchanged critical F04 negative and three
+successful supplied-definition companions. Actual registered workflow prompts demonstrate
+repeat-report preservation, absent-ignore initialization and an approval-gated inline bugfix.
+These are bounded observations, not passing harness grades; fresh-session resumed repair and
+delegated transport remain unmeasured. Three parent-only replay recipes track partial coverage.
 Retain results.yaml, synthetic transcripts/traces, changed-file diffs
 and complete output artifacts under `<skill>/tests/results/<runner-model>/<run>/`; use narrow
 ignore rules for incidental caches/HTML only. Review evidence for secrets before staging.

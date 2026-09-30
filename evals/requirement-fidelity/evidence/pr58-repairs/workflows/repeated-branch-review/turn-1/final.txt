@@ -1,0 +1,12 @@
+Findings:
+- [REV-001] [BLOCKER] `limit.mjs:1` — `permit(4)` returns `true`, violating `SPEC.md` LIMIT-1 range 0..3 inclusive. Fix: restore upper bound to `count <= 3`.
+- [REV-002] [SHOULD-FIX] `limit.test.mjs:3` — tests do not satisfy QUAL-1; they omit -1, 4, and malformed inputs. Add boundary/malformed regression coverage.
+
+Digest:
+Ref: `d58db9828bd8b26e1561e612cf4d0ad0ef7b0238..e6d21f4905042428e4de4e3feac27a0cc93285c7`
+Verdict: CHANGES-REQUESTED
+Findings: BLOCKER=1, SHOULD-FIX=1
+Assumptions: `SPEC.md` and `definitions.md` are governing authority; `SUMMARY.md` is non-authoritative
+Follow-ups: Full report at `.principal/reports/review-branch-20260930T132122Z/e6d21f4905042428e4de4e3feac27a0cc93285c7/review-1.md`
+Evidence gaps: none for blocker; qualification cannot pass until defect and missing tests are fixed
+Execution contexts: inline; no `principal-review` subagent tool available

@@ -93,7 +93,8 @@ not Findings. Apply the shared repair-evidence rule below.
 
 For repairs, read the full original review report and finding definitions, source/definition
 references, acceptance conditions and fix diff; bare IDs cannot identify an accepted fix.
-Retain the original whole-change baseline and global gates. Addressed IDs alone cannot
+Record original review path and reviewed candidate in Authority/Candidate; retain files,
+the original whole-change baseline and global gates through resume. Addressed IDs alone cannot
 turn missing original evidence into approval. Out-of-scope uncertainty goes under Follow-ups;
 if it prevents an overall verdict, require full review rather than silently broadening repair.
 

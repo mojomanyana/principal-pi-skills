@@ -44,6 +44,7 @@
       "F04-plan-agent",
       "F05-plan-no-repo-missing-agent",
       "F04-build-missing-agent",
+      "F04-build-supplied-amendment-agent",
       "F04-review-definition-agent",
       "F22-debug-missing-definition-skill",
       "F16-investigate-missing-agent"

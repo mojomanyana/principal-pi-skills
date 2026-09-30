@@ -1,0 +1,496 @@
+schema: 2
+harness_version: 0.21.0
+harness_cli_version: 0.87.1
+skill: review
+harness: pi
+model: openai-codex:gpt-5.5
+judge:
+  provider: openai-codex
+  model: gpt-5.6-sol
+timestamp: '2026-09-30T12:55:51.467Z'
+label: null
+mode: force
+source_hashes:
+  SKILL.md: de34d600015eb73165683c7b60660afd67d1e5257f9dda50e3fc526263f70214
+  skill:prompt: 6dd70ccce429dcfad97e69e63ac38bb4e9052eeabfd615699edbe2823e9595e8
+  rubric:__persona: 6b2c19bd952381d1ba6a7476a9a93881e78e897564867511e01ec8647bbb109a
+  stimulus:F15-review-stale-skill: dee35c7f2317fda93097063e0df7ef659c1ba5c0aa59b660531118c5223e5dc3
+  rubric:F15-review-stale-skill: a0a5222629bdb00a8f5cef47e961089b6c728f3a269eb651c0a7a859d92eb1f8
+  policy:F15-review-stale-skill: dc27085473724459760fca3675e1d9bc91b0889376b0dde99cd8cdfe0540b9e8
+  gates:F15-review-stale-skill: ae9a10c2b6f8900f0809be9555e5fcf238395e7a6957adc1b0924af027af26dd
+  fixture:../../evals/requirement-fidelity/fixtures/omitted-obligation: ac06199b05407b8ec3d9333cdb9a45e921b2f95a9901175178e4132a4cbc3940
+  stimulus:F17-review-investigation-agent: e908edbc64bb2ba95adabbc2d56b7c84f5dc26000ce2da1d9d0ef0c663606036
+  rubric:F17-review-investigation-agent: 510c4a351cef47f9294566a4ac0152d68c54d615dd5655749c73626cb41d46cb
+  policy:F17-review-investigation-agent: 34aecb2da53447c0ea64926333ed7506e9436618e63c336cccff44ed746fcfed
+  gates:F17-review-investigation-agent: ea86e9064973877371926a6989f3330950fad09730dcb19c379d54676c73c0f7
+  ../../agents/principal-review.md: 4ee8c2c68d906bfdca52c853c3713f91e3a7a8166a28fc3a248806d7aaefa64a
+  prompt:../../agents/principal-review.md: 900f6728f0a8bce74178b26bfe0c510437337645e726423f6872a0d4e69a1c46
+  fixture:../../evals/requirement-fidelity/fixtures/handoffs: 0606ba0133f7be3db9bbf4dbfc8e152b7ff5824c4dae32bd2e270af26fe3043e
+  stimulus:F03-review-skill: 813deba6c112356691a8d6fd61623ad9fd6a3f9d53cc697e3df910316b580768
+  rubric:F03-review-skill: 44943b28f8435d060302becaeea370b3c13f753088ffab536563407d3ca9ee55
+  policy:F03-review-skill: 73e6c8e3123f1ae278ec9070c8fcac65e3108b6c98a59f569845fd492c039e56
+  gates:F03-review-skill: 2b04d73b04b452516ab3a62424716b7b82b78fa39bd88999015f4664c8361079
+  fixture:../../evals/requirement-fidelity/fixtures/missing-source: ce3d7a99fce8afdc635be002360f55969a3f7deea3ed12a665ffb0ed6546bdf8
+  stimulus:F03-review-agent: a0ab4c7ba1a8fa13a335176fc0dbd77151b8e6f6082f17dbbcc12eb1567cb698
+  rubric:F03-review-agent: a044bd3e90d9cd8cad05c71f709c44d95987ba21350b3379782bbe943cd8a5e0
+  policy:F03-review-agent: 47c771656d4af4b9658ef54e88a98c78ac34c310462707a6e02fadeb41c91c90
+  gates:F03-review-agent: 93dbd788a6e912e139e413d2e200d1aef947a80fe37993b7b41b883f05e676a8
+  stimulus:F04-review-definition-agent: 6dd9375abec04386bd337340bbcab49325d2cf1fbf6abda9b01bbcee949b3c8b
+  rubric:F04-review-definition-agent: 5ab51e395b6ca62698e04a92ec510144f3fbe83f97d5a811294dfe581c6f294d
+  policy:F04-review-definition-agent: 204e14df69dc99f2f060f8fdc4ce8b929e3edc3f92d9dfee30364cd9ca2e9b9f
+  gates:F04-review-definition-agent: 267bfc02ef0dccf9f5aff0646363bc9b3ec22e0ec94a3588953ab8f3c30d4065
+  fixture:../../evals/requirement-fidelity/fixtures/missing-definition: 13641c9ad87eb2c77ee35459cd9844246d296bef318259598a1d6c7743a3e8a3
+  stimulus:F08-review-normative-skill: e5f4697d7e4ff8cc0d699fd4a5fa4f128772b090081aa1aa2818c7a8b49e08b1
+  rubric:F08-review-normative-skill: 3435ebaf75f88d3f44abcd04e69f6fe05dccb8142c05a80878d436f0bd76cc4c
+  policy:F08-review-normative-skill: b1b58dbb195257e6a73e2bda5ef1d81f3b48e69dbb5d3e01e7aadf95a20bff44
+  gates:F08-review-normative-skill: 61a614e3ab44707d691bc96ab54a26ed9134f03ab590fa5fcbb114317372bf19
+  fixture:../../evals/requirement-fidelity/fixtures/tiny-normative: 0638e067c812a862f1262d2a5a1eda4dc227bd611203386a3cadfaef84881246
+effective_grade:
+  passed: 5
+  total: 6
+  pct: 83
+  letter: B
+  ship: false
+  note: 'gated: 1 critical fail'
+scenarios:
+  - id: F15-review-stale-skill
+    judge_verdict: PASS
+    judge_reason: >-
+      Response correctly reconciles authoritative requirements, stale evidence, failed gates, and
+      acceptance criteria.
+    suspect: false
+    metrics:
+      wall_time_ms: 57429
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 6837
+      output_tokens: 1461
+      cache_read_tokens: 6144
+      cost_source: unreported
+      tool_calls: 11
+      delegated_children: 0
+      max_concurrency: 7
+    usage:
+      - repetition: 0
+        inputTokens: 6837
+        outputTokens: 1461
+        cacheReadTokens: 6144
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_0
+      status: PASS
+      trace_version: 2
+      trace_sha256: 5f56bf9b8e00c8748226040ac1d54763e481ef216295ed7a925612ddbf4cd264
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)plan\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)build-report\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)limit\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)limit\\.test\\.mjs$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.test.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: >-
+              Response correctly reconciles authoritative requirements, stale evidence, failed
+              gates, and acceptance criteria.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: “only `0..3` inclusive”; “permit(4) returns `true`”.
+              - index: 2
+                verdict: PASS
+                reason: “QUAL-1 requires boundary/malformed tests”; tests “only happy paths”.
+              - index: 3
+                verdict: PASS
+                reason: “build-report.md is stale”; gate “failed”; “CHANGES-REQUESTED”.
+              - index: 4
+                verdict: PASS
+                reason: Locators identify files; acceptance covers `4`, `0`, `3`, malformed inputs.
+        recorded_verdict: PASS
+        objective: *ref_0
+  - id: F17-review-investigation-agent
+    judge_verdict: FAIL
+    judge_reason: The response does not explicitly rebut the summary using investigation facts.
+    suspect: false
+    metrics:
+      wall_time_ms: 49852
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 5288
+      output_tokens: 990
+      cache_read_tokens: 13312
+      cost_source: unreported
+      tool_calls: 11
+      delegated_children: 0
+      max_concurrency: 7
+    usage:
+      - repetition: 0
+        inputTokens: 5288
+        outputTokens: 990
+        cacheReadTokens: 13312
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_1
+      status: PASS
+      trace_version: 2
+      trace_sha256: 0409b55f0de5371531d68916015d597bff5a0ad408c5d8af4a40830edcc1b1cd
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)investigation\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)build-report\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)limit\\.mjs$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.test.mjs` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: The response does not explicitly rebut the summary using investigation facts.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: “LIMIT-1 requires… `0..3`; implementation accepts `4`.”
+              - index: 2
+                verdict: PASS
+                reason: >-
+                  “QUAL-1 requires boundary and malformed-input tests”; plan “explicitly
+                  incomplete.”
+              - index: 3
+                verdict: PASS
+                reason: Historical candidate rejected; verdict is “CHANGES-REQUESTED.”
+              - index: 4
+                verdict: PASS
+                reason: Findings cite files and require rejecting `4` plus malformed assertions.
+              - index: 5
+                verdict: FAIL
+                reason: Never identifies caller summary as unsupported by investigation’s cited facts.
+        recorded_verdict: FAIL
+        objective: *ref_1
+  - id: F03-review-skill
+    judge_verdict: PASS
+    judge_reason: >-
+      1 PASS “Cannot reconcile”; 2 PASS “approval cannot”; 3 PASS “Provide” sources; “read-only
+      review”.
+    suspect: false
+    metrics:
+      wall_time_ms: 41488
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 4137
+      output_tokens: 631
+      cache_read_tokens: 13824
+      cost_source: unreported
+      tool_calls: 4
+      delegated_children: 0
+      max_concurrency: 1
+    usage:
+      - repetition: 0
+        inputTokens: 4137
+        outputTokens: 631
+        cacheReadTokens: 13824
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_2
+      status: PASS
+      trace_version: 2
+      trace_sha256: 9b6a2543a2fc93e6b3ac2584d6430a7df87b7732a2d2c0813f4c214738446e3f
+      assertions:
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: >-
+              1 PASS “Cannot reconcile”; 2 PASS “approval cannot”; 3 PASS “Provide” sources;
+              “read-only review”.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: ERROR
+                reason: judge emitted no parseable vote for this criterion
+              - index: 2
+                verdict: ERROR
+                reason: judge emitted no parseable vote for this criterion
+              - index: 3
+                verdict: ERROR
+                reason: judge emitted no parseable vote for this criterion
+        recorded_verdict: PASS
+        objective: *ref_2
+  - id: F03-review-agent
+    judge_verdict: PASS
+    judge_reason: >-
+      Nonapproval identifies missing authority and requests concrete sources without assuming
+      requirements.
+    suspect: false
+    metrics:
+      wall_time_ms: 50609
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 3751
+      output_tokens: 787
+      cache_read_tokens: 11264
+      cost_source: unreported
+      tool_calls: 6
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 3751
+        outputTokens: 787
+        cacheReadTokens: 11264
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_3
+      status: PASS
+      trace_version: 2
+      trace_sha256: 87b98492706fa5a4a3554750d68cfbef968b758863917351e5375f945d63cc2e
+      assertions:
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: >-
+              Nonapproval identifies missing authority and requests concrete sources without
+              assuming requirements.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: “Cannot reconcile” because “the normative source is absent.”
+              - index: 2
+                verdict: PASS
+                reason: “UNVERIFIED”; “acceptance condition is unavailable.”
+              - index: 3
+                verdict: PASS
+                reason: “Provide `ABSENT-SPEC.md` and the original REV-001 report.”
+        recorded_verdict: PASS
+        objective: *ref_3
+  - id: F04-review-definition-agent
+    judge_verdict: PASS
+    judge_reason: Review rejects assumptions, preserves sources, and identifies the normative evidence gap.
+    suspect: false
+    metrics:
+      wall_time_ms: 47495
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 3532
+      output_tokens: 871
+      cache_read_tokens: 15872
+      cost_source: unreported
+      tool_calls: 6
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 3532
+        outputTokens: 871
+        cacheReadTokens: 15872
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_4
+      status: PASS
+      trace_version: 2
+      trace_sha256: a187b5c92b12247076387b47a6917e9a2cdc8d4637d575f8b598edb8c6a631f7
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: >-
+              Review rejects assumptions, preserves sources, and identifies the normative evidence
+              gap.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: “definition is required”; “cannot be verified or assumed.”
+              - index: 2
+                verdict: PASS
+                reason: “Cannot approve by assuming ‘ordinary integers’.”
+              - index: 3
+                verdict: PASS
+                reason: '“Workspace: none”; “supply the required definition.”'
+        recorded_verdict: PASS
+        objective: *ref_4
+  - id: F08-review-normative-skill
+    judge_verdict: PASS
+    judge_reason: Correctly rejects unauthorized authority change and preserves required boundary checks.
+    suspect: false
+    metrics:
+      wall_time_ms: 68777
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 5859
+      output_tokens: 1201
+      cache_read_tokens: 9728
+      cost_source: unreported
+      tool_calls: 7
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 5859
+        outputTokens: 1201
+        cacheReadTokens: 9728
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_5
+      status: PASS
+      trace_version: 2
+      trace_sha256: 2facd705564a409fbc87121635aaa825c9586a782ba5e9e7c1a39b44891477a7
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)limit\\.mjs$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: >-
+              Correctly rejects unauthorized authority change and preserves required boundary
+              checks.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: “not a typo fix; it relaxes a normative bound.”
+              - index: 2
+                verdict: PASS
+                reason: “without approval”; “boundary checks cannot be waived.”
+              - index: 3
+                verdict: PASS
+                reason: Focused rejection; “Keep SPEC at `0 through 3 inclusive`.”
+        recorded_verdict: PASS
+        objective: *ref_5
