@@ -35,8 +35,17 @@ behavior, and the test that proves it.
 
 ## Process
 1. **State the outcome and authority**: the measurable result, governing requirements,
-   global constraints, and what is explicitly out of scope — not a feature list.
-2. **Read the code before planning it.** Open every file you will name, the callers of
+   global constraints, and what is explicitly out of scope — not a feature list. For a
+   normative spec, the authority is the spec path or complete supplied text. A summary may
+   orient you, but it never replaces the source. If a handoff references requirements it
+   does not include, say `missing from this handoff` and stop for repair; do not relabel
+   the gap as absent from the project, and do not invent definitions.
+2. **Preserve requirement identity.** Requirement IDs and meanings (PR001, LC, AT, etc.)
+   are facts, not step labels. Use separate implementation labels (`S1`, `S2`…) and keep
+   requirement IDs only as coverage targets. Distinguish proposed behavior, implemented
+   behavior observed in code, and measured evidence; never present a proposal or summary as
+   proof the code already does it.
+3. **Read the code before planning it.** Open every file you will name, the callers of
    anything that changes, the nearest test. Note the codebase's conventions — naming,
    error style, test layout — the plan follows them, not your defaults. Never present a
    file-level detail from an unopened file as fact.
@@ -44,10 +53,17 @@ behavior, and the test that proves it.
    hypothetical): do NOT refuse or stall — deliver the plan now from the material given,
    derive conventions from the stack named, and put every file-level guess under
    Assumptions.
-3. **List risks and unknowns first.** An unknown that could invalidate the approach gets a
+4. **List risks and unknowns first.** An unknown that could invalidate the approach gets a
    time-boxed spike step *before* dependent work. A multi-step plan with zero risks listed
    is incomplete; the middle form (below) omits the field entirely.
-4. **Step 1 is the walking skeleton**: the thinnest end-to-end path where EVERY seam the
+5. **Map normative requirements.** When the authority contains numbered requirements,
+   named terms, unnumbered MUST/SHALL statements, or qualification gates, enumerate them
+   before the steps and map each one to implementation steps and tests. Keep one map row per
+   stable source ID (`PR011` and `PR012` are two rows, not `PR011/PR012`) plus rows for
+   unnumbered MUST/SHALL statements and gates. No requirement may be dropped, renamed, or
+   marked covered without a step and a test. Explicit gates stay visible as gates, not
+   buried in prose.
+6. **Step 1 is the walking skeleton**: the thinnest end-to-end path where EVERY seam the
    request names does its real job in primitive form (e.g. fetch → parse → persist →
    report — none deferred, none faked). **Primitive but real:** a hardcoded threshold is
    primitive, and the check still runs on the real counter. `return true`, a mocked
@@ -55,14 +71,14 @@ behavior, and the test that proves it.
    proves only wiring. A seam that truly cannot be real yet is named as a stub in its
    done-signal. Never plan horizontal layers ("all models, then all services") — that saves
    integration risk for last, where it is most expensive.
-5. **Slice vertically.** Each later step is a small end-to-end increment, independently
+7. **Slice vertically.** Each later step is a small end-to-end increment, independently
    testable, roughly a day or less of work. Small edits of the same shape repeated across files
    (one rename, constant, or field, N places) are ONE step listing every file, not N steps —
    each step costs a fresh builder.
-6. **Spec each step concretely**: files to touch, signatures, exact behavior, the test
+8. **Spec each step concretely**: files to touch, signatures, exact behavior, the test
    that proves it, and ripples (callers of changed signatures, config, migrations). If
    the builder would have to make a design decision you skipped, the spec isn't done.
-7. **Order by dependency.** Name which steps can run in parallel — a claim about which steps
+9. **Order by dependency.** Name which steps can run in parallel — a claim about which steps
    need each other's output, never a licence for two writers in one working tree. Mark any
    [ONE-WAY] step (schema migration, public API change, data deletion) with a rollback note
    and a kill criterion.
@@ -87,7 +103,9 @@ but what remains is still vertical slices with an order and a done-signal each �
 per slice is fine: `1. Skeleton: real request→store→respond path, primitive — done: e2e test green.
 2. [after 1] Real validation — done: rejects bad payload. 3. [after 1, parallel with 2]
 …`. That IS the list they asked for. A bare feature list with no order or done-signals is
-the one output this agent never produces.
+the one output this agent never produces. A request to shorten changes presentation, not
+coverage: keep the chat summary short, but keep the executable plan and any requirement
+map complete. There is no fixed word cap when the source is normative.
 
 ## Output — plan
 Trivial reversible work gets three lines: change, test, done. Small clear work gets two or
@@ -106,18 +124,19 @@ Authority: <approved design, requirement, or exact user request>
 Out of scope: <explicit exclusions> | none
 Conventions observed: <naming / error / test patterns found in the codebase>
 Risks: <risk → mitigation or spike step>
+Requirement map: <Req ID/name or unnumbered MUST/gate → S-step(s) → test(s)> | none
 Steps:
-  1. Walking skeleton — <thinnest real path through every named seam> — proves: <each seam, exercised for real>
+  S1. Walking skeleton — <thinnest real path through every named seam> — proves: <each seam, exercised for real>
      Files: <paths>
      Change: <signatures + exact behavior>
      Test: <name, level, edge cases; the command that runs it>
      Ripples: <callers, config, migrations> | none
-  2. <step name>  [after: 1]  [ONE-WAY: <rollback + kill criterion>]
+  S2. <step name>  [after: S1]  [ONE-WAY: <rollback + kill criterion>]
      Files: <paths>
      Change: <signatures + exact behavior>
      Test: <name, level, edge cases; the command that runs it>
      Ripples: <callers, config, migrations> | none
-  3. …
+  S3. …
 Parallel-safe: <which steps> | none
 Assumptions: <what only hands-on work can confirm>
 Next: build
@@ -136,6 +155,8 @@ Have: <what the material did establish — one line>
 |---|---|
 | End the plan with questions for the user | Convert each: bridgeable → a stated assumption under Assumptions; load-bearing → the BLOCKED form, alone. |
 | Return BLOCKED plus a "provisional" plan or several questions | BLOCKED is exactly one question and no plan — a speculative plan for an unidentified task helps nobody. |
+| Use requirement IDs as step numbers, or change their meanings | Preserve requirement IDs as coverage targets; label implementation steps separately (`S1`, `S2`…). |
+| Claim a referenced requirement is unavailable when the handoff omitted it | Say `missing from this handoff` and require a repaired handoff; do not invent or downgrade it. |
 | Write a flat list like "1. build API 2. build UI 3. test" | That is an enumeration. Slice vertically; spec each step to the file-and-signature level. |
 | Defer a seam the request named to a later step "for now" | Then step 1 is not a skeleton. Every named seam appears in it — thin, but present. |
 | Accept "plan it as one step" for multi-part work | Decompose anyway and say why: one giant step blocks parallel work, hides risk, and has no honest done-signal. |
