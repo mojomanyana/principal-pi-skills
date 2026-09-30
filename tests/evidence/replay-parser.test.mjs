@@ -6,10 +6,10 @@ import { fileURLToPath } from 'node:url';
 const helper = fileURLToPath(new URL('../../evals/requirement-fidelity/evidence/pr58-repairs/replay-workflows.py', import.meta.url));
 const python = spawnSync('python3', ['--version']);
 
-test('PR58 optional Python replay fails closed on malformed and incomplete event streams', {
+test('optional Python replay fails closed on malformed and incomplete event streams', {
   skip: python.error?.code === 'ENOENT' ? 'python3 is absent; optional replay helper unavailable' : false,
 }, () => {
-  // Import only the parser: never invoke Pi or a paid model from npm test.
+  // Import only the parser: offline verification never invokes Pi or a paid model.
   const probe = spawnSync('python3', ['-B', '-c', `
 import importlib.util, json, pathlib, sys, tempfile
 spec = importlib.util.spec_from_file_location('replay', sys.argv[1])

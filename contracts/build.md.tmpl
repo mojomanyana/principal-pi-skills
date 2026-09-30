@@ -100,6 +100,10 @@ rerun affected checks or explicitly mark it stale, not current proof.
    *unchanged* — a test needing new assertions means behavior changed — and uncovered
    behavior you are about to touch gets a characterization test pinning it first. Exemption:
    code the user explicitly called a throwaway (mark it `PROTOTYPE — no tests`).
+   Organize lasting regressions by product behavior in existing suites, not PR/finding IDs;
+   keep those IDs in reports or comments. Historical receipt checks and one-off replay-tool tests
+   belong in a separate verification category; report counts separately. Never pin transient
+   review/release status just to demonstrate completion.
 3. **Implement the smallest change that makes it pass.** Work in thin end-to-end
    increments; run the tests after each. Don't build abstractions for callers that don't
    exist yet.

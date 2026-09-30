@@ -26,7 +26,7 @@ test("seven substantive installed-runner specs have unique cases and resolving f
       assert.equal(s.mode, "inline"); // seeded agent forwarding is broken in installed 0.21.0
       assert.ok(s.critical && s.checklist.length >= 3 && s.checklist.every(c => c.length > 30));
       assert.ok(s.turns.length && s.turns.every(t => t.length > 60));
-      assert.ok(s.covers.length && covers(s).every(id => /^F(0[1-9]|1[0-9]|2[0-4])$/.test(id)));
+      assert.ok(s.covers.length && covers(s).every(id => /^F\d{2,}$/.test(id)));
       for (const ref of s.covers) {
         const [path, slug] = ref.split("#");
         assert.ok(readFileSync(resolve(root, skill, "tests", path), "utf8").includes(`## ${slug.toUpperCase()}\n`));
@@ -93,11 +93,6 @@ test("F04 gates forbid source and newly authored test mutations but allow blocke
   const forbidden = new RegExp(writeRule.args.path.matches);
   for (const path of ["limit.mjs", "limit.test.mjs", "nested/new.test.mjs", "package.json"]) assert.ok(forbidden.test(path), path);
   for (const path of [".principal/reports/missing.md", "./.principal/reports/missing.md", "/tmp/fixture/.principal/reports/missing.md"]) assert.ok(!forbidden.test(path), path);
-  // Historical observed failure is calibration, never a repaired-model pass.
-  const trace = JSON.parse(text("build/tests/results/pi-openai-codex-gpt-5.5/2026-09-30T10-53-50-949Z/F04-build-missing-agent.force.trace.jsonl"));
-  assert.ok(trace.changed_paths.includes("limit.mjs"));
-  assert.ok(trace.changed_paths.includes("limit.test.mjs"));
-  assert.ok(trace.tool_calls.some(c => c.name === "write" && forbidden.test(c.args.path)));
 });
 
 test("F08 keeps actual boundary expectations and named implementation read", () => {
@@ -107,18 +102,40 @@ test("F08 keeps actual boundary expectations and named implementation read", () 
   assert.match(text(`${base}/fixtures/tiny-normative/SPEC.md`), /0 through 3 inclusive/);
 });
 
-test("F01–F24 inventory resolves every case and preserves unmeasured chain/retention gaps", () => {
+test("coverage inventory resolves every case with unique requirement identities", () => {
   const inventory = json(`${base}/scenarios.json`);
-  assert.deepEqual(inventory.map(s => s.id), Array.from({length:24}, (_,i) => `F${String(i+1).padStart(2,"0")}`));
+  assert.ok(inventory.length > 0);
+  assert.equal(new Set(inventory.map(s => s.id)).size, inventory.length);
   const cases = skills.flatMap(skill => json(`${skill}/tests/specification.yaml`).scenarios);
   for (const row of inventory) {
-    assert.equal(row.status, "NOT MEASURED");
+    assert.ok(typeof row.status === "string" && row.status.length > 0);
     assert.ok(row.acceptance.length > 60 && row.replay.length > 100);
     for (const id of row.cases) assert.ok(cases.some(s => s.id === id && covers(s).includes(row.id)), id);
     assert.match(text(`${base}/README.md`), new RegExp(`\\| ${row.id} \\|`));
   }
   for (const s of cases) for (const id of covers(s)) assert.ok(inventory.find(r => r.id === id).cases.includes(s.id));
-  assert.match(text(`${base}/README.md`), /ignored.*NOT MEASURED/i);
+});
+
+test("workflow replay recipes have accessible evidence and per-scenario acceptance", () => {
+  const cases = json(`${base}/workflow-regressions.json`);
+  assert.ok(cases.length > 0);
+  assert.equal(new Set(cases.map(c => c.id)).size, cases.length);
+  for (const c of cases) {
+    assert.ok(typeof c.status === "string" && c.status.length > 0);
+    for (const field of ["observed", "unmeasured", "turns", "acceptance", "retain"]) {
+      assert.ok(Array.isArray(c[field]), `${c.id}: ${field}`);
+      assert.ok(c[field].every(value => typeof value === "string" && value.length > 0));
+    }
+    assert.ok(c.turns.some(t => t.startsWith("/principal-")));
+    assert.ok(c.acceptance.length > 0 && c.retain.length > 0);
+    if (c.observed.length > 0) {
+      assert.ok(typeof c.evidence === "string" && c.evidence.length > 0, `${c.id}: observations need evidence`);
+    }
+    if (c.evidence !== undefined) {
+      assert.ok(typeof c.evidence === "string" && c.evidence.length > 0);
+      assert.ok(existsSync(resolve(root, base, c.evidence)), `${c.id}: ${c.evidence}`);
+    }
+  }
 });
 
 test("long source has 40 numbered + 8 unnumbered + 3 gates with exact independent oracle locators", () => {

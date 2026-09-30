@@ -1,6 +1,33 @@
 # Requirement-fidelity evidence index
 
+## Test organization and instruction-level prevention
+
+The cleanup on top of `6a03a35719b6334e5f7cb03670512cf53b04c934` separates current
+contract/product checks from archived observations. `npm test` passes **136 unit + 24
+install tests**; the explicit offline `npm run verify:evidence` passes **9 checks**.
+These categories are reported separately; neither is a new model-behavior qualification.
+Historical inputs/manifests and the earlier 141-test receipt remain bound to their captured
+candidate, not this reorganized tree. They were not restamped.
+
+Build/Review now instruct behavior-named regressions and separate historical verification,
+without pinning temporary review/release status. These are model instructions, not a new
+pi-daddy filesystem rule. Native command-boundary checks verify suite selection; semantic
+test quality still requires review. Installed resources must be refreshed to adopt changes.
+
+After those skill edits, one-repetition force checks retained these raw results:
+- Build: **2/7**, `build/tests/results/pi-openai-codex-gpt-5.5/2026-09-30T14-13-37-816Z/`.
+- Review: **5/6**, `review/tests/results/pi-openai-codex-gpt-5.5/2026-09-30T14-13-37-826Z/`.
+
+**Behavioral qualification remains NOT READY.** Read the saved judgments/traces, not just
+scores: missing-definition Build blocks, but final-only judging does not receive its full
+saved report. Other failures concern qualification/report detail. No rejudging or weakened
+criteria, and no claim that this smoke run proves naming-policy compliance or attributes a
+score change to the new wording. Earlier direct observations below describe their original
+resource hashes; they are not fresh measurements of the edited contracts.
+
 ## PR #58 repair-candidate evidence
+
+This section records the earlier repairs captured before the test-organization cleanup.
 
 REV-001–006 repairs are on top of release HEAD
 `448ac7628980c7a69bb3ff27e3bfa882bf64c4f3`, not on the existing v4.7.0 tag.

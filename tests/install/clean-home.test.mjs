@@ -102,7 +102,8 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   });
 
   const installed = join(proj, "node_modules", "principal-pi-skills");
-  assert.equal(JSON.parse(readFileSync(join(installed, "package.json"), "utf8")).version, "4.7.0", "clean install must use the unreleased source pack");
+  assert.equal(JSON.parse(readFileSync(join(installed, "package.json"), "utf8")).version,
+    JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version, "clean install must use the source pack");
   assert.ok(existsSync(join(installed, "git-ops", "SKILL.md")), "skills must survive the install");
   assert.ok(existsSync(join(installed, "prompts", "principal-feature.md")));
 
@@ -154,6 +155,21 @@ test("the installed bins actually run — not a silent exit 0", () => {
   const path = execFileSync(wsBin, ["create"], { cwd: proj, env, encoding: "utf8" }).trim();
   assert.ok(path.length > 0 && existsSync(path), `create must print a real worktree path, got ${JSON.stringify(path)}`);
   execFileSync(wsBin, ["remove", path], { cwd: proj, env, stdio: "pipe" });
+});
+
+test("tagged skill and agent install recipes use the package version and matching sources", () => {
+  const { version } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
+  for (const p of ["README.md", "AGENTS.md"]) {
+    const text = readFileSync(join(ROOT, p), "utf8");
+    const skillTags = [...text.matchAll(/pi install git:\S*principal-pi-skills@v([^\s`]+)/g)];
+    assert.ok(skillTags.length > 0, `${p}: missing tagged skill install`);
+    for (const [, tag] of skillTags) assert.equal(tag, version, p);
+    // If npm recipes are documented, both installation and checking must use the
+    // same pinned version. Do not freeze a prepublication fallback or its wording.
+    for (const [, pin] of text.matchAll(/npx -p principal-pi-skills(?:@([^\s`]+))? principal-pi-agents (?:install|check)\b/g)) {
+      assert.equal(pin, version, `${p}: agent command must match tagged skills`);
+    }
+  }
 });
 
 test("the bin invocations the docs print are resolvable", () => {

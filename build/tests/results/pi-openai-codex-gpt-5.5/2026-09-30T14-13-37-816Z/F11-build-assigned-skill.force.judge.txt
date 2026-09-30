@@ -1,0 +1,6 @@
+1. FAIL — “QUAL-1 … completed” overstates partial impl:S1 coverage.
+2. PASS — Red and green evidence are explicitly distinguished from “historical” follow-up.
+3. FAIL — “Gates: QUAL-1 … pass” equates limited tests with qualification.
+4. PASS — “Next: review” avoids claiming downstream review or integration success.
+VERDICT: FAIL
+REASON: The response overclaims full QUAL-1 completion from limited fixture tests.

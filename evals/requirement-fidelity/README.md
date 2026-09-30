@@ -96,10 +96,20 @@ their final-only measurement was inadequate.
 ```sh
 node --test tests/unit/fidelity-corpus.test.mjs
 npm test
+npm run verify:evidence
 /home/neman/.pi/agent/npm/node_modules/.bin/skill-harness lint all --skills "$PWD"
 node evals/requirement-fidelity/generate-long-spec.mjs
 # Re-generation must leave SPEC, definitions, annex and oracle byte-identical.
 ```
+
+`npm test` checks current product/contracts, corpus shape and fixture/oracle behavior,
+plus packaging/install consistency. `npm run verify:evidence` is a separate native Node
+test command for offline historical receipt integrity and replay-parser tooling under
+`tests/evidence/`; it makes no Pi/model calls and is not a default CI gate. Python is
+optional for the parser check; absence produces an explicit skip reason. Neither command
+is a new behavioral model measurement. Archived totals such as 141 unit tests remain
+historical. Archived manifests identify the candidate originally captured, not the current
+working tree after test reorganization; do not restamp them or rewrite reports/raw traces.
 
 Basic/handoffs intentionally accept 4 while their real `npm test` exercises only 0/3.
 The separate omitted-obligation handoff variant also accepts coercible strings, null

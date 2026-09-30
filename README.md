@@ -40,10 +40,11 @@ around.
 
 Individual fidelity exceptions (skill/agent words): Plan 1900/1950 buys complete source
 reads, blocking exceptions, stable mapping, persisted completeness and explicit no-shell
-fallback/tiny-file reads. Build 1700/1850 preserves pre-mutation authority classification,
+fallback/tiny-file reads. Build 1750/1900 preserves pre-mutation authority classification,
 the complete authorized-amendment positive case, immutable report/repair provenance and
-compressed evidence/caveats (PR #58); Review 1550/1600 buys candidate-bound obligation/gate
-evidence and repair definitions;
+compressed evidence/caveats; Review 1600/1650 buys candidate-bound obligation/gate evidence
+and repair definitions. Both distinguish lasting behavior-named regressions from historical
+receipt/replay verification, without freezing transient review/release status;
 Debug's agent ceiling is 1550 for honest sandbox/applied states. Common ceilings and Git-Ops
 stay unchanged. These budgets preserve safeguards for lower-cost models, not a claim of
 measured robustness on those models.
@@ -55,8 +56,8 @@ measured robustness on those models.
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1134 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1211 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1938) or inline | 1877 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1823) or inline | 1660 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1600) or inline | 1536 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1867) or inline | 1704 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1630) or inline | 1566 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1533) or inline | 1397 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 491) or inline | 492 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2145 |
@@ -121,7 +122,8 @@ prompts/principal-review-branch.md    handwritten planless/buildless review entr
 bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary + model tiering, injected by the extension
 extensions/bootstrap.ts               pi extension: injects BOOTSTRAP.md at session start and after compaction
 scripts/                              generator, installers, and checks behind `npm test`
-tests/{unit,install}/                 unit + clean-home install tests (node:test)
+tests/{unit,install}/                 current product/contract + clean-home install tests (node:test)
+tests/evidence/                      opt-in offline receipt integrity and replay-tool checks
 AGENTS.md                             routing + dispatch reference; the bootstrap injects its table automatically
 CHANGELOG.md                          release history
 ```
@@ -226,7 +228,23 @@ CHANGELOG.md                          release history
 `npm test` remains the free gate: generated-contract drift, word budgets, frontmatter lint,
 installer and tarball behavior, `Next:` transition parity, and deterministic source-fidelity
 contract assertions and offline behavioral-corpus integrity/negative-oracle tests. These
-check contracts and fixtures, not model behavior or instruction delivery.
+check current contracts and fixtures, not model behavior or instruction delivery.
+
+`npm run verify:evidence` separately runs `node --test tests/evidence/*.test.mjs`:
+offline historical receipt/hash integrity, retained failed observations, and fail-closed
+replay-parser checks. It never invokes Pi or a model; the parser check skips with a reason
+if optional Python is absent. It is not part of `npm test` or default CI. Passing it does
+not qualify current model behavior or restamp an archived candidate. Historical test
+totals (including 141 unit tests) describe their recorded runs, not today's suite size.
+Archived manifests retain their original candidate identity even when the working tree
+has changed; reports, raw traces and manifests are not rewritten by test cleanup.
+
+**Enforcement boundary:** Build/Review instructions ask the model to organize regressions
+by lasting behavior, not PR/finding IDs, and distinguish product coverage from historical
+verification. They are not filesystem restrictions or a semantic test-quality checker.
+The package commands and CI mechanically select suites; pi-daddy's delegated tool grants
+control available capabilities, not test names or correctness. Refresh installed skill/agent
+definitions when adopting a revision: editing this checkout does not update another installed copy.
 
 A narrow local opt-in behavioral regression corpus is authorized for requirement fidelity,
 superseding only the blanket removal of focused harness fixtures below. It is **partially measured, not fully qualified**:

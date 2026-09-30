@@ -1,0 +1,6 @@
+1. PASS — “Implemented LIMIT-1 upper bound”; PERF-1 remains within requested scope.
+2. PASS — “boundary test failed” then “Green/full” reports distinct executed results.
+3. PASS — “PERF-1 is reported unverified” due to “no approved host/performance run.”
+4. PASS — “Changed” claims remain fixture-local; no downstream integration success claimed.
+VERDICT: PASS
+REASON: All visible claims respect scope, boundary evidence, and PERF-1’s unverified status.

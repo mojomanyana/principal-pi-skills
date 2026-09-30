@@ -39,7 +39,41 @@ const SOURCES = {
   build: "contracts/build.md.tmpl",
 };
 
+const ARTIFACT_WORKFLOWS = ["contracts/workflows.md.tmpl", "prompts/principal-review-branch.md"];
+
 const WORKFLOWS = ["prompts/principal-feature.md", "prompts/principal-bugfix.md", "prompts/principal-refactor.md"];
+
+test("independent runs and resumed repairs preserve original candidate artifacts and baseline", () => {
+  for (const p of ARTIFACT_WORKFLOWS) {
+    const text = read(p);
+    for (const rule of [/task.*run.*candidate/i, /create.*new.*directory/i,
+      /caller.*report path/i, /never overwrite/i, /original review path/, /reviewed candidate/,
+      /whole-change baseline/, /resume/i]) assert.match(text, rule, p);
+    assert.doesNotMatch(text, /\.principal\/reports\/(?:review-(?:1|<round>)\.md|review-diff\.txt|<step>-build\.md)/);
+  }
+  assert.match(read(SOURCES.build), /referenced prior artifact/);
+  assert.doesNotMatch(read(SOURCES.build), /default `\.principal\/reports\/<step>-build\.md`/);
+});
+
+test("artifact persistence initializes ignore without overwriting policy or widening Plan permissions", () => {
+  for (const p of ARTIFACT_WORKFLOWS) {
+    const text = read(p);
+    assert.match(text, /Before any artifact write/);
+    assert.match(text, /if absent.*`\.principal\/\.gitignore` containing `\*`/s);
+    assert.match(text, /never overwrite an existing ignore file/);
+    assert.match(text, /authority.*Investigate.*review/s);
+    if (p.startsWith("contracts/")) assert.match(text, /inline Build/);
+  }
+  assert.match(read(SOURCES.plan), /No shell, implementation, reports, or other writes/);
+});
+
+test("common routing checks Review Verdict before Next and surfaces unverified evidence", () => {
+  for (const p of ["AGENTS.md", "bootstrap/BOOTSTRAP.md"]) {
+    const text = read(p);
+    assert.match(text, /Read (?:Review )?Verdict before Next/);
+    assert.match(text, /UNVERIFIED.*evidence\/access.*caller question.*not automatic.*implementation/s);
+  }
+});
 
 /** Verdicts review can actually return, read from the contract rather than restated here. */
 const REVIEW_VERDICTS = readFileSync(join(ROOT, "contracts/review.md.tmpl"), "utf8")

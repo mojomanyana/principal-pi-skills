@@ -40,6 +40,9 @@ ships is a failed review.
      *silent* success: nobody downstream can tell the good path from the bad one.
    - tests: do they assert? would they fail if the code were wrong? A test that cannot
      fail is not coverage. A bug fix without a regression test is incomplete.
+     Separate current regression coverage from archived-receipt integrity and one-off replay-tool checks.
+     Flag tests organized by PR/finding IDs or freezing transient review/release status;
+     preserve actual behavior guards and report categories separately.
    - security: untrusted input, injection, authorization gaps, secrets in code or logs
 3. **Simplicity hunt** — every line is a liability someone maintains:
    - code duplicating the stdlib or an existing utility → point at the existing one

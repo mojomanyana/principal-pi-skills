@@ -28,6 +28,10 @@ for (const mode of ["skill", "agent"]) {
     assert.match(text, /recognizable task.*conventional default/s);
     assert.match(text, /report writes.*allowed/i);
     assert.match(text, /available.*read.*missing/s);
+    assert.match(text, /Before test-first work, classify/);
+    assert.match(text, /task approval.*probably.*reasonable default.*urgency.*permission to proceed/s);
+    assert.match(text, /complete replacement definition.*explicit authorization to replace.*source meaning/s);
+    assert.match(text, /Record.*amendment.*Authority.*then proceed/s);
   });
   test(`discovery ${mode}: unavailable tools never authorize shell; tiny plans still read`, () => {
     for (const name of ["plan", "investigate"]) {
@@ -45,6 +49,21 @@ for (const mode of ["skill", "agent"]) {
     for (const field of ["Authority", "Candidate", "Requirements", "Gates", "Evidence gaps"]) assert.match(text, new RegExp(`^${field}:`, "m"));
     for (const rule of [/global gates/, /completed.*unverified.*unmet/s, /untracked/, /stale/,
       /Bare IDs are insufficient/, /passing suite.*not/i]) assert.match(text, rule);
+  });
+  test(`build ${mode}: enduring regressions and historical verification remain distinct`, () => {
+    const text = contract("build", mode);
+    assert.match(text, /regressions by product behavior.*existing suites/s);
+    assert.match(text, /PR\/finding IDs.*reports or comments/s);
+    assert.match(text, /Historical receipt checks.*one-off replay-tool tests.*separate verification category/s);
+    assert.match(text, /counts separately/);
+    assert.match(text, /Never pin transient\s+review\/release status/);
+  });
+  test(`review ${mode}: test design distinguishes current coverage from archival integrity`, () => {
+    const text = contract("review", mode);
+    assert.match(text, /current regression coverage.*archived-receipt integrity.*one-off replay-tool checks/s);
+    assert.match(text, /tests organized by PR\/finding IDs/);
+    assert.match(text, /transient review\/release status/);
+    assert.match(text, /preserve actual behavior guards.*categories separately/s);
   });
   test(`build ${mode}: compression preserves evidence fields and only nonbehavioral typos are exempt`, () => {
     const text = contract("build", mode);
@@ -76,6 +95,18 @@ for (const mode of ["skill", "agent"]) {
     assert.doesNotMatch(text, /Asked directly to fix it,\s+fix it|Never `blocked` alongside/);
   });
 }
+
+test("supplied amendment companion provides meaning and preserves source documents", () => {
+  const scenarios = JSON.parse(read("build/tests/specification.yaml")).scenarios;
+  const original = scenarios.find(s => s.id === "F04-build-missing-agent");
+  const positive = scenarios.find(s => s.id === "F04-build-supplied-amendment-agent");
+  assert.ok(positive, "missing positive amendment companion");
+  assert.equal(positive.env.workspace, original.env.workspace);
+  assert.match(positive.turns[0], /replace.*definitions.md#Count/);
+  assert.match(positive.turns[0], /Number.isSafeInteger/);
+  assert.match(positive.checklist.join(" "), /4.*malformed/);
+  assert.deepEqual(positive.assert.trace.unchanged_paths, ["SPEC.md", "definitions.md"]);
+});
 
 test("all workflow handoffs carry authority, finding definitions and successful caveats", () => {
   const text = read("contracts/workflows.md.tmpl");
@@ -130,9 +161,9 @@ test("existing routing corpus keeps choice, structure, sequence and no-skill bou
   assert.match(read("AGENTS.md"), /Tiny change: build → git-ops/);
 });
 
-test("focused behavioral corpus is opt-in and does not claim full qualification", () => {
+test("behavioral corpus is opt-in and excluded from the package and default model execution", () => {
   const text = read("README.md");
-  for (const rule of [/narrow.*opt-in/i, /partially measured, not fully qualified/i, /<skill>\/tests\/specification.yaml/,
+  for (const rule of [/narrow.*opt-in/i, /<skill>\/tests\/specification.yaml/,
     /evals\/requirement-fidelity/, /no model calls in `npm test`/i]) assert.match(text, rule);
   assert.match(read("scripts/check-pack.mjs"), /\^evals/);
 });
