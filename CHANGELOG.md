@@ -6,6 +6,45 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.7.0] — 2026-09-30
+
+**Changed — preserve requirements across skill handoffs (#58).** Plan now reads original
+specifications and referenced definitions, preserves requirement identities separately from
+implementation steps, and maps numbered requirements, unnumbered MUSTs and qualification
+gates to steps and tests. Missing normative definitions now require handoff repair;
+previously the assumption and no-stalling rules could permit guessed meanings. Complete
+multi-step plans now live in files with short chat summaries; previously the contract
+required duplicating the full plan in chat.
+
+**Changed — source-bound implementation and review (#58).** Build and Review now carry
+source references, requirement/gate status and tested-candidate identity. Workflows persist
+complete inline Build reports as well as delegated reports and carry finding definitions
+into repair; previously summaries, bare finding IDs and unbound test totals could lose
+requirements or evidence gaps. Compression now preserves applicable evidence and caveats.
+
+**Changed — selective skill composition (#58).** Investigate can supply optional factual
+source discovery without choosing authority or replacing the source. Routing now consistently
+sends choices to Decide, structure to Architect, and implementation order to Plan;
+previously some workflow/bootstrap examples sent bare technology choices to Architect.
+Decide and Architect now preserve binding constraints and expose load-bearing unknowns;
+Debug distinguishes proposed fixes, disposable proofs and changes actually applied by Build.
+Git-Ops safeguards and all tool/context ceilings are unchanged.
+
+**Added — durable, opt-in regression evidence (#58).** A focused local corpus now retains
+42 behavioral cases, a 76 KB specification with 51 obligation/gate entries, original model
+results and captured artifacts. Previously focused harness scenarios were excluded from
+this repository and the initial Plan checks were deleted. Model calls remain outside
+`npm test`; fixtures and evidence remain outside the npm package.
+
+**Validation — implementation reviewed, behavioral qualification incomplete.** The full
+suite passes 128 unit and 23 install tests, plus generation, budgets, packaging and lint.
+Independent review approved the implementation. Captured direct runs preserved the long
+specification and exercised an Investigate → Plan → Build → Review chain, but retained
+force-mode runs still include guessed definitions, forbidden-tool use and an unmeasured
+capability claim. Spark was unavailable for the configured account. These results do not
+establish universal reliability, lower-cost robustness or full behavioral qualification;
+see `evals/requirement-fidelity/evidence.md`. No historical evidence is restamped as a pass.
+
 ## [4.6.0] — 2026-09-29
 
 **Added — read-only investigation with cited facts (#56).** `investigate` reports how code,

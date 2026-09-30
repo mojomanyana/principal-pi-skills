@@ -124,10 +124,10 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.6.0
+   pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.0
    ```
 
-   The v4.6.0 `pi` manifest registers the eight skills, the four `/principal-*` commands,
+   The v4.7.0 `pi` manifest registers the eight skills, the four `/principal-*` commands,
    and the bootstrap extension — it loads automatically with
    the package; there is no separate extension-install step. Unpinned `main` moves under
    you, so install a tag if you want a fixed, nameable behavior.
