@@ -90,3 +90,26 @@ LLM compliance. Other critical force failures, normal-loading/workflow variants,
 models and cross-model robustness remain unresolved/unmeasured. Full behavioral qualification
 remains **NOT READY**. Tags, draft release, installed resources and external pi-daddy were
 not changed by these observations.
+
+## Current evidence-channel correction — separate new observations
+
+The sections above are historical assessments under their original criteria, not a
+current requirement for an extra baseline report field. Preserve every raw FAIL,
+embedded criterion, invocation and before-metadata unchanged; none is rejudged here.
+Only current F26 checklist item 2 changes: final text must accurately describe observed
+red/green without invented execution. Enduring behavior remains item 3. The baseline
+must still actually complete successfully before test mutation; red must complete before
+implementation, and green must follow it. Reads/source immutability and retained useful
+regression coverage remain required. No Build/Review contract/output change is needed.
+
+The [optional offline audit](../../oracles/admission-regression-evidence.md) consumes
+full Pi messages plus separately bound mutation receipts, never hash-only trace results
+as full proof. Its derived negative controls are not subject runs. Existing direct
+records may be reused for execution-channel audit with fresh independent disposable
+restore-bug checks; this does not promote their old reporting verdict.
+
+[Separate new observations](../regression-evidence-alignment/README.md) retain F26 raw PASS
+under the corrected rubric and complete direct execution/mutation evidence. The narrow
+automated direct audit remains UNVERIFIED; explicit manual inspection covers unsupported
+metadata commands/additional test edits. The full Build force suite remains 4/9 NOT READY.
+All earlier sections/raw grades in this packet remain historical.

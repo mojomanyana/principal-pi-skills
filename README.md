@@ -260,8 +260,10 @@ oracle, all F01–F27 status/replay recipes and runner limitations are documente
 [evals/requirement-fidelity/README.md](evals/requirement-fidelity/README.md), with an
 [evidence index](evals/requirement-fidelity/evidence.md). The three evidence-scope cases have
 [bounded live observations](evals/requirement-fidelity/evidence/evidence-scope/README.md):
-F25/F27 raw PASS, F26 reporting failure retained despite observed regression/repair actions.
-Broader qualification remains NOT READY; older 43-case results remain historical.
+F25/F27 raw PASS; F26's old reporting failure is retained, with a
+[new corrected-rubric PASS and separate execution audit](evals/requirement-fidelity/evidence/regression-evidence-alignment/README.md).
+The new Build suite remains 4/9 NOT READY; direct execution is manually verified where the
+narrow automated audit is UNVERIFIED. Older 43-case results remain historical.
 Retained live runs include failures;
 a manually orchestrated source→plan→build→review chain, full long-plan inspection, and two
 normal skill-loading probes provide narrower positive evidence, not an all-case pass.

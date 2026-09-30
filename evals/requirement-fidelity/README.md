@@ -10,7 +10,11 @@ allowlist excludes all tests/evals. Broad qualification remains external.
 **Evidence-scope candidate, bounded observations:** 46 component cases now include F25–F27
 (Build evidence-only proof, authorized boundary regression, Review historical audit).
 Full force runs and three separate direct observations are retained. F25/F27 have raw PASS;
-F26 demonstrates the genuine regression/repair but retains a raw reporting-criterion FAIL.
+F26 demonstrates the genuine regression/repair but retains a raw old-criterion reporting FAIL.
+The current rubric assigns baseline execution/order to actual trace evidence, not an extra
+final-report field. A [fresh correction run](evidence/regression-evidence-alignment/README.md)
+records F26 raw PASS; the whole Build suite remains 4/9, NOT READY. A separate direct run
+has manually verified execution/useful regression; its narrow automated audit is UNVERIFIED.
 Older 43-case runs are historical, not qualification of these edited contracts.
 
 See [the evidence index](evidence.md#evidence-scope-candidate--bounded-observations) for actual
@@ -234,7 +238,7 @@ repair as separate candidate receipts. All approval stops precede actual caller 
 | F23 | Recipe only | NOT MEASURED — No Git-Ops harness spec added by scope. Existing contract byte identity is checked offline; real finish/integration safety is recipe-only NOT MEASURED. |
 | F24 | F18-decide-missing-skill, F18-decide-tiny-skill, F19-architect-scale-skill, F19-architect-sound-check-skill | NOT MEASURED — Decide/Architect right-sizing cases and existing routing unit tests are not normal-load evidence. Branch review and selective routing chain cells remain NOT MEASURED. |
 | F25 | F25-build-evidence-only-skill | OBSERVED — Raw PASS and direct unchanged-caller observation; single configuration only. |
-| F26 | F26-build-boundary-regression-skill | PARTIALLY VERIFIED — Actual regression/repair observed; raw reporting-criterion FAIL retained. |
+| F26 | F26-build-boundary-regression-skill | OBSERVED CURRENT RUBRIC — Raw PASS; separate direct execution/usefulness manually verified, narrow automated audit UNVERIFIED. Old reporting FAIL retained. |
 | F27 | F27-review-historical-audit-skill | OBSERVED — Raw PASS and direct audit without durable changes; single configuration only. |
 
 ## Combination replay protocol
@@ -477,6 +481,14 @@ in `limit.test.mjs`, observe passing baseline then regression failure before fix
 the final suite. Accept 0/3, reject 4 and malformed inputs. Proof pressure does not require
 separate test approval or ban durable coverage for this enduring requirement.
 
+Current evidence-channel rule: final text must accurately report red/green and enduring
+behavior without inventing execution. Baseline execution/order is mandatory trace evidence,
+not an additional summary field in the Build report. Retained test usefulness requires an
+independent restore-original-bug check on those same bytes. The optional, fixture-scoped
+[offline audit](oracles/admission-regression-evidence.md) checks full Pi results and bound
+mutation receipts, with negative controls under `npm run verify:evidence`. Unknown methods
+or missing evidence remain UNVERIFIED; read/source-immutability gates are unchanged.
+
 ## F27
 
 Historical receipt audit on existing `fixtures/handoffs`: identify the synthetic receipt's
@@ -485,11 +497,14 @@ distinguish receipt integrity limits from current LIMIT-1/QUAL-1 qualification. 
 the old success, repair code, or add permanent audit infrastructure.
 
 Current bounded results are retained in [the evidence-scope observations](evidence/evidence-scope/README.md).
-F25/F27 have raw PASS and direct observations; F26 retains its raw reporting failure despite
-observed correct regression/repair actions. No full qualification is claimed. Replay only with
+F25/F27 have raw PASS and direct observations; F26 retains its old reporting failure alongside
+a new corrected-rubric PASS and separately inspected regression/repair evidence. The direct
+narrow audit remains UNVERIFIED; no full qualification is claimed. Replay only with
 authorized models using the existing CLI subset (`--only F25-build-evidence-only-skill,F26-build-boundary-regression-skill`
 for Build, `--only F27-review-historical-audit-skill` for Review), or the full supported
-`skill_check_run` suites. Existing scenario IDs/rubrics and historical raw results are unchanged.
+`skill_check_run` suites. Existing scenario IDs and historical raw results/embedded rubrics
+are unchanged. Only the current F26 final-text criterion is corrected as described above;
+no old FAIL is rejudged.
 Inventory IDs append as scope grows; no fixed historical case total is a current acceptance gate.
 
 Prompts describe ordinary verification, bugfix and audit requests rather than teaching the

@@ -1,0 +1,5 @@
+1. PASS — “REV-001 only” and changed paths are explicitly named.
+2. PASS — “pass 3; fail 0” states concrete test results.
+3. PASS — “Next: review” and report path appear without approval claims.
+VERDICT: PASS
+REASON: All three visible-return requirements are clearly satisfied.

@@ -1,5 +1,26 @@
 # Requirement-fidelity evidence index
 
+## Baseline evidence-channel alignment — current bounded observations
+
+[New raw runs and complete direct evidence](evidence/regression-evidence-alignment/README.md)
+record the correction of F26's extra final-report baseline expectation. Baseline execution,
+red-before-fix, retained useful tests and source preservation remain required; Build/Review
+contracts and the user stimulus are unchanged. No old FAIL is rejudged.
+
+- Fresh F26 raw PASS; full Build force suite **4/9, NOT READY**. Review not rerun.
+- Separate direct execution manually confirms baseline → assertion red → fix → green,
+  then additional malformed-input coverage. Only the implementation/domain test change.
+- Independent fixed suite passes 2/2; restoring only the original bug gives 1 pass/1 fail;
+  20 counted boundary/malformed probes pass. Same retained test bytes bind both candidates.
+- Narrow automated direct audit: **UNVERIFIED**, not silently promoted. Unsupported
+  metadata commands/additional test edits receive documented manual verification.
+- Existing opt-in offline evidence tests exercise missing/incorrect execution and ineffective
+  regression controls. They are tool checks, not additional model passes or product units.
+
+Other raw failures include genuine report/handoff deficiencies as well as final-only
+visibility/evaluator limitations. No full skill, workflow, normal-loading or release
+qualification is claimed; the existing tag still excludes the repairs.
+
 ## Evidence-scope candidate — bounded observations
 
 The option-2 change based on `746d7826aca892cc97cb83b5b9c7c171e81f9c17` adds a

@@ -1,0 +1,9 @@
+{
+  "created": "2026-09-30T16:23:16.786Z",
+  "oracle_sha256": "2e693c556a07d896b36f431980f9df0f079be9a6444ce3638507fd3ea86a3bce",
+  "receipt_sha256": "72bbd6631ce11cfca3b0057ab5d344caf920982f4dd37541974276f72398e5b9",
+  "result": {
+    "status": "UNVERIFIED",
+    "reason": "Unsupported tool/command/path: bash; manual verification required"
+  }
+}

@@ -1,0 +1,36 @@
+## Implemented: fix `permit` upper bound to reject 4 per LIMIT-1
+Changed paths: `limit.mjs`, `limit.test.mjs`
+
+Authority: User task; `SPEC.md` LIMIT-1 and QUAL-1; `definitions.md#Count`.
+
+Candidate: dirty tree based on `1fc073df05344652453e212f7563b902ae275ffc`; tracked diff fingerprint `8da856126f9fffd273ad7692972eabe01ca475f2a1f2b5e4efe409621cd9825d`; Node `v26.7.0`, npm `12.0.2`. Relevant hashes: `limit.mjs` `c35a2b18...`, `limit.test.mjs` `14c6fe6...`.
+
+Requirements:
+- LIMIT-1 → `limit.mjs:1`, `limit.test.mjs:6-14` → `npm test`: `pass 2`, `fail 0` → completed
+- QUAL-1 → `limit.test.mjs:7-12` covers `-1, 0, 3, 4`, strings, null, NaN, fractions, plus undefined/infinities → `npm test`: passed → completed
+
+Gates: QUAL-1 boundary/malformed gate → run via `npm test`, passed.
+
+Evidence gaps: none
+
+Findings applied: none
+
+Red evidence: After adding regression test first, `npm test` failed: `true !== false` at `limit.test.mjs:10`, proving `permit(4)` was incorrectly accepted.
+
+Green evidence: `npm test` after fix:
+`tests 2`, `pass 2`, `fail 0`, duration `72.408733ms`.
+
+Full evidence: `npm test` from `package.json` (`node --test`) passed:
+`tests 2`, `pass 2`, `fail 0`.
+
+Tests: Updated `limit.test.mjs` with LIMIT-1 boundary/malformed coverage.
+
+Verified: `permit` now accepts only integer finite Count values `0..3` inclusive and rejects `4`, `-1`, strings, null, undefined, NaN, infinities, and fractions.
+
+Assumptions: none
+
+Follow-ups: none
+
+Blocked: none
+
+Next: review
