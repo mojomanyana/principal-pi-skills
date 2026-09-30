@@ -159,7 +159,9 @@ test("the review-branch prompt reviews and finishes but never plans or builds", 
   assert.match(text, /CHANGES-REQUESTED/);
   assert.match(text, /UNVERIFIED/);
   assert.match(text, /finish mode/i, "must hand off to git-ops finish mode on approval");
-  assert.doesNotMatch(text, /principal-plan|principal-build|\.principal\/plans/, "review-branch has no plan or build phase");
+  assert.doesNotMatch(text, /(?:invoke|dispatch|delegate to)\s+`?principal-(?:plan|build)/i, "review-branch invokes neither phase");
+  assert.match(text, /invokes neither Plan nor Build/);
+  assert.match(text, /optional plan map/, "an existing map is evidence, not a required planning phase");
   assert.match(text, /\$\{1:-main\}/, "base branch defaults to main via a template argument");
 });
 

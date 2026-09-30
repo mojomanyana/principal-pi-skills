@@ -1,0 +1,8 @@
+1. FAIL — “Implemented LIMIT-1” gives no evidence SPEC, definitions, plan, or report were read.
+2. FAIL — “npm test” passed, but no observed pre-fix boundary failure appears.
+3. FAIL — “3 pass, 0 fail” does not establish malformed coverage or QUAL-1.
+4. FAIL — “Next: review” distinguishes review, but retained report caveats remain unevidenced.
+5. FAIL — “PERF-1 is reported as unverified,” but unchanged bound is not evidenced.
+
+VERDICT: FAIL
+REASON: Missing source-reading, red-test, candidate-binding, coverage, report-content, and unchanged-bound evidence.

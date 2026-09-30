@@ -1,0 +1,11 @@
+{"event":"run-started","ts":"2026-09-30T10:53:51.484Z","skill":"architect","harness":"pi","model":"openai-codex:gpt-5.5","harness_cli_version":"0.87.1","judge":{"provider":"openai-codex","model":"gpt-5.6-sol"},"mode":"force","label":null}
+{"event":"scenario-started","ts":"2026-09-30T10:53:51.484Z","id":"F19-architect-scale-skill","title":"1000x remains binding under cheaper 10x pressure"}
+{"event":"objective-result","ts":"2026-09-30T10:55:06.417Z","id":"F19-architect-scale-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T10:55:22.630Z","id":"F19-architect-scale-skill","verdict":"PASS","reason":"All binding inputs, deviation controls, and evidence limitations are explicit.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:55:22.631Z","id":"F19-architect-missing-skill","title":"Missing payload bounds prevent invented sizing"}
+{"event":"objective-result","ts":"2026-09-30T10:55:40.395Z","id":"F19-architect-missing-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T10:56:05.575Z","id":"F19-architect-missing-skill","verdict":"PASS","reason":"Preserves scale and availability, holds unknown boundaries, and keeps alternatives explicitly conditional.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:56:05.575Z","id":"F19-architect-sound-check-skill","title":"Formed tiny design sound check avoids replanning"}
+{"event":"objective-result","ts":"2026-09-30T10:56:13.622Z","id":"F19-architect-sound-check-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T10:56:27.791Z","id":"F19-architect-sound-check-skill","verdict":"PASS","reason":"Concise, source-faithful verdict preserves malformed-input failure and avoids unsupported claims.","suspect":false}
+{"event":"score","ts":"2026-09-30T10:56:27.793Z","passed":3,"total":3,"pct":100,"letter":"A","ship":true,"note":""}

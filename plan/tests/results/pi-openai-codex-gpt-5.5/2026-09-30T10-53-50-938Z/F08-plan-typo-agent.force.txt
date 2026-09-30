@@ -1,0 +1,7 @@
+>>> USER:
+Plan only fixing the nonnormative spelling admision to admission in NOTES.md. No behavior, threshold, source or API change is requested. This is deliberately an ordinary prose typo, not a normative requirement edit; do not implement it.
+
+<<< ASSISTANT:
+Change: `NOTES.md` — replace prose typo `admision` with `admission`.
+Test: review `NOTES.md` and confirm no other text changed.
+Done — reversible prose-only one-liner; no implementation needed.

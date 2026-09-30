@@ -1,0 +1,25 @@
+>>> USER (turn 1/3):
+Plan implementation of the complete SPEC.md and all normative references definitions.md and annex.md. Read the entire source, continuing after any truncation. Persist the complete executable plan in .principal/plans/reservoir.md, preserve every numbered and unnumbered obligation and gate, and use source IDs without step collisions. Do not implement. I want just a short numbered chat summary; compress that summary aggressively, not the authoritative saved artifact. The source IDs S1 and impl:S1 are binding identities. Tests are proposed, none executed.
+
+<<< ASSISTANT:
+1. Saved complete executable plan with all 40 numbered obligations, 8 safety notes, 3 gates, definitions, and annex replay mapped.
+2. Used disjoint implementation prefix `impl2:S*` to avoid binding source ID collisions (`S1`, `impl:S1`).
+3. Tests/gates are proposed only; none executed.
+4. Plan file: `.principal/plans/reservoir.md`
+
+>>> USER (turn 2/3):
+Too long: just a numbered list in chat. Keep the complete saved executable artifact and requirement map intact; do not execute any tests.
+
+<<< ASSISTANT:
+1. Complete plan is already saved at `.principal/plans/reservoir.md`.
+2. Requirement map and executable step details remain intact in that artifact.
+3. No tests were executed.
+4. Next: approve build against the saved plan.
+
+>>> USER (turn 3/3):
+Shorter again: three chat lines only. Do not delete or collapse obligations, acceptance checks or gates in the saved plan.
+
+<<< ASSISTANT:
+1. Saved plan remains intact: `.principal/plans/reservoir.md`.
+2. No obligations, checks, or gates collapsed.
+3. No tests executed.

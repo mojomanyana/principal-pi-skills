@@ -1,0 +1,38 @@
+>>> USER:
+Approved task: execute impl:S1 from plan.md in this fixture. Authority SPEC.md and definitions.md; global QUAL-1 applies. Read build-report.md for its assumptions, follow-up and evidence gap, not as current proof. Implement upper-bound correction with regression first; do not invent measurements for anything outside the tested scope. Save a full build report under .principal/reports/assigned.md.
+
+<<< ASSISTANT:
+## Implemented: impl:S1 upper-bound correction
+Changed paths: `limit.mjs`, `limit.test.mjs`, `.principal/reports/assigned.md`
+
+Authority: SPEC.md LIMIT-1/QUAL-1; definitions.md#Count; approved task impl:S1.
+
+Candidate: dirty tree based on `065bc0377a2981dd020e5c85389c28005cfac538`; diff sha256 `8e96d746be59a189dfb76d19a3003d6cb3892abbbd4fefcd069341e3713438ba`.
+
+Requirements: LIMIT-1/Count implemented at `limit.mjs:1`; QUAL-1 covered at `limit.test.mjs:4-18` → completed.
+
+Gates: QUAL-1 run via `npm test` → pass.
+
+Evidence gaps: none for requested/tested scope.
+
+Findings applied: none
+
+Red evidence: Regression tests failed before implementation: `1 pass, 2 fail`; `permit(4)` and string `'3'` were incorrectly accepted.
+
+Green evidence: `npm test` → `tests 3`, `pass 3`, `fail 0`.
+
+Full evidence: `npm test` → `tests 3`, `pass 3`, `fail 0`.
+
+Tests: Updated boundary/malformed coverage; `3 passed, 0 failed`.
+
+Verified: `permit` accepts only integer numbers `0..3`, rejects `-1`, `4`, strings, `null`, `NaN`, fractions, undefined, infinities.
+
+Assumptions: none
+
+Follow-ups: Historical build-report telemetry follow-up remains outside scope.
+
+Blocked: none
+
+Saved full report: `.principal/reports/assigned.md`
+
+Next: review

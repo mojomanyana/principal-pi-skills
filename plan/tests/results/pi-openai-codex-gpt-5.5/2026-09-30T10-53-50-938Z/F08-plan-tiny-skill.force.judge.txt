@@ -1,0 +1,5 @@
+1. PASS — “Change,” “Test,” “Done” form is exactly three lines.
+2. FAIL — “3, 4” lacks explicit acceptance and rejection expectations.
+3. PASS — “planned only; do not apply” explicitly disclaims execution.
+VERDICT: FAIL
+REASON: Item 2 omits acceptance of 3 and rejection of 4.

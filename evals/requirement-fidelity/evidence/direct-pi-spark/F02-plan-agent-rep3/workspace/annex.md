@@ -1,0 +1,3 @@
+# Qualification
+
+Use a candidate-bound replay with two registered stations, Alder and Birch. Include good, stale and suspect telemetry; two concurrent requests that jointly exceed reserve; an interrupted controller restart; an exact duplicate receipt; and one order with no physical receipt. Verify the 40 numbered clauses and eight unnumbered safety notes. Record actual commands, outcomes, candidate hashes and unresolved evidence. A proposed benchmark or mapped test does not satisfy any gate. Do not mark incident qualification passed from a green happy-path suite. The final closeout separates requested, reserved and measured volumes and lists uncertainty.

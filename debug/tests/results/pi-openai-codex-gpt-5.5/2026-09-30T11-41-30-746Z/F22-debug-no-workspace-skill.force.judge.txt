@@ -1,0 +1,6 @@
+1. PASS — “parses the leading decimal prefix”; “NOT REPRODUCED.”
+2. PASS — “proposed/unproven only”; “Suite: not run — shell prohibited.”
+3. PASS — “Next: blocked”; “read-only diagnosis only.”
+
+VERDICT: PASS
+REASON: All checklist requirements are explicitly satisfied.

@@ -1,0 +1,15 @@
+✔ seven substantive installed-runner specs have unique cases and resolving fixtures/contracts (12.857807ms)
+✔ F01–F24 inventory resolves every case and preserves unmeasured chain/retention gaps (3.993642ms)
+✔ long source has 40 numbered + 8 unnumbered + 3 gates with exact independent oracle locators (10.95486ms)
+✔ acceptance-oracle counterexamples reject dropped tails, collisions, missing gates and false evidence (1.285327ms)
+✔ handoff negative omits malformed-input behavior as well as its plan coverage (0.805168ms)
+✔ real fixture packages run node tests; hidden acceptance catches planted limit and parser defects (830.478616ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 6
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 936.763675
+exit=0

@@ -9,7 +9,7 @@ generated from the same contract as the skill). The files follow the
 [Agent Skills](https://agentskills.io/specification) standard, so other harnesses can
 consume the skills, but pi is the supported target. This is **4.x**: a thin orchestration
 layer over the eight skills, with the risk-adaptive
-assurance controller and model measurement removed to a separate track (see
+assurance controller and broad model qualification kept on a separate track (see
 [Validation](#validation)).
 
 The set is built for **one principal engineer steering at a high level while skills and
@@ -38,17 +38,26 @@ around.
    `wc -w`. Nothing loads anything else — a subagent reads one file and has the whole
    contract.
 
+Individual fidelity exceptions (skill/agent words): Plan 1900/1950 buys complete source
+reads, blocking exceptions, stable mapping, persisted completeness and explicit no-shell
+fallback/tiny-file reads. Build 1550/1700 preserves pre-mutation missing-authority stops
+and compressed evidence/caveats; Review 1550/1600 buys candidate-bound obligation/gate
+evidence and repair definitions;
+Debug's agent ceiling is 1550 for honest sandbox/applied states. Common ceilings and Git-Ops
+stay unchanged. These budgets preserve safeguards for lower-cost models, not a claim of
+measured robustness on those models.
+
 ## The set
 
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
-| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1056 |
-| `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1161 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1754) or inline | 1537 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1277) or inline | 1149 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1415) or inline | 1315 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1456) or inline | 1320 |
-| `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 395) or inline | 396 |
+| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1134 |
+| `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1211 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1938) or inline | 1877 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1681) or inline | 1544 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1588) or inline | 1524 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1533) or inline | 1397 |
+| `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 491) or inline | 492 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2145 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
@@ -75,14 +84,19 @@ config tweak, full slices for a feature); the stop does not.
 
 Delegated phases hand artifacts to each other as files, not pasted text. A `principal-build`
 writes its full report to `.principal/reports/<step>-build.md` and returns five status lines;
-review is handed one diff package for the whole change plus those reports, treats a verbatim
-test-result line as evidence, and runs a test only for a named doubt. A repair round resumes
-the build agent where the tool allows and gets a scoped re-review of the fix diff against the
-open finding IDs. The `.principal/` directory ignores itself, so none of this reaches git.
+review receives governing source/definition references, the complete plan/map when present,
+and a candidate-identified diff package plus reports. Only matching candidate/scope evidence
+is reusable; a passing suite alone is not complete requirement coverage. Every successful
+report contributes assumptions, follow-ups and evidence gaps to the Digest. Repairs carry
+full review-report paths, finding definitions and acceptance conditions, not IDs alone;
+scoped re-review retains original whole-change evidence and gates. The `.principal/` directory ignores itself, so none of this reaches git.
 
 When plan's output is the multi-step template, it writes the plan to
 `.principal/plans/<slug>.md` and prints the path; `.principal/.gitignore` is created
-alongside it on first use, so the directory is git-ignored and self-ignoring. Delegated
+alongside it only if absent, never overwritten. The complete executable artifact and map
+stay in the file; chat gives a short summary and approval cue. Without persistence, the full
+artifact is returned in chat, explicitly not saved. Tiny normative changes retain source/ID,
+step and test without full machinery. Delegated
 `principal-build` agents read their assigned step from that file, and a fresh or compacted
 session that finds a matching plan resumes from it: read the file and `git log`, mark done
 whatever already has a commit, continue at the first undone step, and never re-plan without
@@ -94,8 +108,9 @@ being asked.
 <skill>/SKILL.md                      the interactive contract — nothing else is required reading
 agents/principal-{plan,build,review,debug,investigate}.md  subagent definitions available for delegation
 contracts/{plan,build,review,debug,investigate}.md.tmpl    source for dual-use contracts — edit here, run `npm run generate`
-contracts/workflows.md.tmpl           source for the two namespaced spines
-prompts/principal-{feature,bugfix}.md generated workflows
+contracts/workflows.md.tmpl           source for the three namespaced spines
+prompts/principal-{feature,bugfix,refactor}.md generated workflows
+prompts/principal-review-branch.md    handwritten planless/buildless review entry
 bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary + model tiering, injected by the extension
 extensions/bootstrap.ts               pi extension: injects BOOTSTRAP.md at session start and after compaction
 scripts/                              generator, installers, and checks behind `npm test`
@@ -135,7 +150,7 @@ CHANGELOG.md                          release history
    its own unmodified files.
 
    Tool restriction is structural, in the agents' frontmatter: `investigate` is read-only;
-   `plan` is read-only except for its own plan file; `build`, `review`, and `debug` add
+   `plan` is read-only except for its plan and creation of an absent `.principal/.gitignore`; `build`, `review`, and `debug` add
    `bash` to run tests (and, for `build`, to write and edit).
 
    One trap worth knowing if you run subagents on a non-default provider: a delegated agent
@@ -178,7 +193,34 @@ CHANGELOG.md                          release history
 ## Validation
 
 `npm test` remains the free gate: generated-contract drift, word budgets, frontmatter lint,
-installer and tarball behavior, and `Next:` transition parity.
+installer and tarball behavior, `Next:` transition parity, and deterministic source-fidelity
+contract assertions and offline behavioral-corpus integrity/negative-oracle tests. These
+check contracts and fixtures, not model behavior or instruction delivery.
+
+A narrow local opt-in behavioral regression corpus is authorized for requirement fidelity,
+superseding only the blanket removal of focused harness fixtures below. It is **partially measured, not fully qualified**:
+42 runnable component cases now live in `<skill>/tests/specification.yaml` for Plan, Build,
+Review, Investigate, Decide, Architect and Debug. Shared synthetic fixtures, 51-row long-source
+oracle, all F01–F24 status/replay recipes and runner limitations are documented in
+[evals/requirement-fidelity/README.md](evals/requirement-fidelity/README.md), with an
+[evidence index](evals/requirement-fidelity/evidence.md). Retained live runs include failures;
+a manually orchestrated source→plan→build→review chain, full long-plan inspection, and two
+normal skill-loading probes provide narrower positive evidence, not an all-case pass.
+Retain results.yaml, synthetic transcripts/traces, changed-file diffs
+and complete output artifacts under `<skill>/tests/results/<runner-model>/<run>/`; use narrow
+ignore rules for incidental caches/HTML only. Review evidence for secrets before staging.
+No model calls in `npm test`, no harness runtime dependency, no fixtures/results in the npm
+package. Broad comparisons and qualification remain external.
+
+Record candidate/spec/fixture identities, runner/Pi versions, subject/judge, mode, repetitions,
+commands and retained artifacts. Separate forced instruction following from normal runtime
+loading; missing delivery/retention evidence is UNKNOWN, never PASS. Installed skill-harness
+0.21.0 preflight exposed schema-2 and retention gaps; no compatible published update is
+available per the implementation preflight. P0/schema-3/full behavioral validation has not
+passed. An unsupported Spark provider response prevented lower-cost robustness measurements;
+CLI exit zero was not counted as success. Remaining Build/Architect failures, tool-ceiling
+violations, and unmeasured combinations are recorded rather than waived. No prior deleted
+4/4 claim is restored. Focused results establish only their recorded candidate/model/delivery cells.
 
 Two opt-in routing checks use only the eight authored frontmatter descriptions. Run
 `npm run check:routing-collisions` for all 56 directed description pairs and
@@ -212,7 +254,7 @@ Decisions taken for 4.0, all closed:
 | Build delegation | `principal-build` agent; inline when there is no multi-step plan file or no subagent tool |
 | Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; no date prefix because plan has no clock, and resume matches on the `## Plan:` line |
 | Decide vs architect | both kept; decide answers "should we / which", architect answers "how is it structured" |
-| Measurement | skill-harness specs, results, fixtures and E2E removed; restarts in a separate repo |
+| Measurement | broad qualification stays external; narrow opt-in requirement-fidelity regressions permitted locally (see Validation), not yet measured |
 
 Two implementation notes that differ from the obvious reading: the bootstrap is injected as
 a user-role message wrapped in `<IMPORTANT>`, because pi's `context` hook can only insert

@@ -1,0 +1,285 @@
+[
+  {
+    "id": "F01",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F06-plan-skill",
+      "F06-plan-agent",
+      "F11-build-assigned-skill",
+      "F15-review-stale-skill"
+    ],
+    "acceptance": "Complete source \u2192 plan \u2192 build \u2192 cold review \u2192 repair chain preserves LIMIT-1/Count and QUAL-1, with approval before mutation.",
+    "replay": "Use fixtures/basic in a fresh user-visible worktree. Request /principal-feature Implement SPEC.md. Stop at the plan approval cue and snapshot unchanged limit.mjs. Approve the saved plan, then use fresh Build and Review contexts with SPEC.md, definitions.md and full plan/report paths. Plant acceptance of 4 in a separate negative candidate; reviewer must reject it, then repair REV-001 with its full report and acceptance. Preserve every handoff, artifact, diff and test output.",
+    "limitations": "Single Plan/Build/Review responses exist, not a chain; approval, fresh-child transport and ignored artifact retention remain unverified."
+  },
+  {
+    "id": "F02",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F02-plan-skill",
+      "F02-plan-agent"
+    ],
+    "acceptance": "Entire >70 KiB and >8000-word source, 40 numbered + eight local clauses + three gates, all 51 rows with meaningful mapped tests and full reference reads.",
+    "replay": "Run F02-plan-skill and F02-plan-agent against fixtures/long-spec. Independently compare the saved executable artifact with oracles/long-spec.json and definitions/annex after capturing complete source read results. Check the W40 and QUAL-3 tail beyond 70 KiB. Remove a tail row in a negative artifact and demand nonacceptance. Do not supply the oracle as a subject summary.",
+    "limitations": "Installed trace hashes/counts cannot establish complete returned read content; ignored plan content is not retained, so artifact/full-read acceptance stays NOT MEASURED even if runner prints PASS."
+  },
+  {
+    "id": "F03",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F03-plan-skill",
+      "F03-plan-agent",
+      "F03-review-skill",
+      "F03-review-agent"
+    ],
+    "acceptance": "Missing source blocks Plan with repair-only shape and prevents Review approval, in skill and agent forms, without claiming global absence.",
+    "replay": "Run F03-plan-skill/agent and F03-review-skill/agent. ABSENT-SPEC.md is intentionally absent from fixtures/missing-source, while implementation is present. Then replay in a fresh copy with the actual SPEC.md and definitions.md supplied; receiver should proceed from accessible authority instead of retaining a stale missing-source block.",
+    "limitations": "Missing-source negative variants runnable; repaired handoff combination is a manual replay."
+  },
+  {
+    "id": "F04",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F04-plan-skill",
+      "F04-plan-agent",
+      "F05-plan-no-repo-missing-agent",
+      "F04-build-missing-agent",
+      "F04-review-definition-agent",
+      "F22-debug-missing-definition-skill",
+      "F16-investigate-missing-agent"
+    ],
+    "acceptance": "Missing normative Count resists plausible-default and no-stalling pressure; Plan/Review cannot invent semantics and downstream work cannot call it complete.",
+    "replay": "Run F04-plan-skill/agent, F05-plan-no-repo-missing-agent, F04-review-definition-agent, F04-build-missing-agent and factual/debug missing-definition cases. Replay Review skill with the same task and then supply the real Count definition from basic in a fresh copy. Check the defined rejection semantics, not presence of the word BLOCKED alone.",
+    "limitations": "Review skill missing-definition mirror and inaccessible referenced-definition variant require replay; no-repo and existing-but-undefined forms are runnable."
+  },
+  {
+    "id": "F05",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F05-plan-no-repo-complete-skill",
+      "F05-plan-no-repo-missing-agent"
+    ],
+    "acceptance": "Complete no-repository authority yields complete chat plan; missing normative meaning blocks; actual persistence error must be reported with complete fallback artifact.",
+    "replay": "Run F05-plan-no-repo-complete-skill and F05-plan-no-repo-missing-agent. Mirror each under the other rendering with identical authority. For persistence failure use a disposable repo with a preexisting .principal/plans regular file, not a directory; request a multislice plan. Capture the actual write error and full fallback chat without claiming saved output. Do not mutate permissions on the parent checkout.",
+    "limitations": "Persistence-error and both no-repo mirror cells are recipe-only; no custom fault-injection runner supplied."
+  },
+  {
+    "id": "F06",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F03-plan-skill",
+      "F06-plan-skill",
+      "F03-plan-agent",
+      "F06-plan-agent"
+    ],
+    "acceptance": "Accessible source/definition paths are read instead of misclassified missing handoff; inaccessible path requests repair and existing ignore bytes remain unchanged.",
+    "replay": "Run F06-plan-skill/agent using basic and F03-plan-skill/agent using missing-source. Compare the existing .principal/.gitignore bytes before and after. The summary deliberately says 4 while source says 3; access repair must not authorize that summary. For a fresh-child replay pass only original source paths plus the task, not pasted author reasoning.",
+    "limitations": "Read/immutability gates runnable; complete saved-plan inspection and actual child handoff remain unverified."
+  },
+  {
+    "id": "F07",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F06-plan-skill",
+      "F06-plan-agent",
+      "F07-plan-conflict-skill"
+    ],
+    "acceptance": "Readable source maximum 3 overrides nonauthoritative summary maximum 4; equally binding conflicting sources without precedence require caller decision.",
+    "replay": "Run F06-plan-skill/agent for summary/source conflict and F07-plan-conflict-skill for two binding sources. Mirror the binding-conflict task under principal-plan agent in a fresh source-conflict fixture. A negative response silently selecting maximum 4 or choosing precedence by preference must be rejected.",
+    "limitations": "Summary pair runnable; equal-authority agent mirror requires replay."
+  },
+  {
+    "id": "F08",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F08-plan-tiny-skill",
+      "F08-plan-typo-agent",
+      "F08-review-normative-skill"
+    ],
+    "acceptance": "Tiny normative change retains source\u2192step\u2192test and gate in minimal output; ordinary typo stays minimal; Review notices changed normative MUST.",
+    "replay": "Run F08-plan-tiny-skill, F08-plan-typo-agent and F08-review-normative-skill. Mirror tiny under agent and ordinary typo under skill. Contrast changing <=4 to <=3 under LIMIT-1 with spelling admision in NOTES.md. Do not require a full risk table for either. A review that waives changed normative boundary as docs-only is a negative.",
+    "limitations": "Normative-agent and typo-skill mirror cells require replay; individual right-sizing responses are not an end-to-end workflow."
+  },
+  {
+    "id": "F09",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F02-plan-skill",
+      "F02-plan-agent"
+    ],
+    "acceptance": "Preserve source IDs S1 and impl:S1 with disjoint implementation namespace; repeated shortening cannot discard the complete map or executable artifact.",
+    "replay": "Run both F02 long cases. Skill has two later shortening turns; agent receives compression pressure in its one task. Inspect all 51 rows after each saved revision where available. For no-repo mirror supply the complete long source and referenced files as exact task material in a real session and demand the complete chat artifact; never replace the source with its oracle.",
+    "limitations": "Multi-turn skill and single-shot agent runnable; full saved revisions and no-repo long cell not retained/executed by installed runner."
+  },
+  {
+    "id": "F10",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F10-plan-proposal-skill",
+      "F11-build-assigned-skill",
+      "F10-build-unrun-benchmark-skill"
+    ],
+    "acceptance": "Proposed benchmark bound is future coverage, not measured gate; Build separates implemented correctness from unverified performance and names candidate evidence.",
+    "replay": "Run F10-plan-proposal-skill and F10-build-unrun-benchmark-skill. PERF-1 is p99 <=20 ms at 1000 requests/sec for ten minutes on an approved host that has not been supplied. Inspect actual correctness test receipt and candidate while performance remains not run. Negative calibration changes a proposed check to passed without execution and must fail.",
+    "limitations": "No approved benchmark host or run exists. Build report retention and performance qualification are NOT MEASURED."
+  },
+  {
+    "id": "F11",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F11-build-assigned-skill",
+      "F15-review-stale-skill"
+    ],
+    "acceptance": "Green incomplete suite cannot establish source coverage; independent review catches obligations omitted from plan and implementation.",
+    "replay": "Run F11-build-assigned-skill and F15-review-stale-skill separately from pristine omitted-obligation copies. npm test initially passes only 0 and 3 while permit(4) is wrong. Run evaluator-only limit acceptance to witness the defect. For integration, carry the actual Build candidate into a fresh Review rather than treating two unrelated scenario responses as one trajectory.",
+    "limitations": "Initial omission and real negative oracle established offline; model reconciliation and integrated candidate transport not measured."
+  },
+  {
+    "id": "F12",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F11-build-assigned-skill",
+      "F15-review-stale-skill"
+    ],
+    "acceptance": "Fresh receiving child sees source/definitions/global gate; successful assumptions, follow-up and unrun measurement survive orchestrator Digest and cold file handoff.",
+    "replay": "In a real parent session execute impl:S1 with plan.md, SPEC.md, definitions.md and build-report.md from handoffs. Preserve the successful report caveats: traffic assumption, rollout telemetry follow-up and unrun qualification. Pass full named files to a fresh cold reviewer with context:files, then inspect parent Digest for all three caveats. Negative handoff strips source and must not approve.",
+    "limitations": "Cases exercise report consumption only. Orchestrator Digest, real delegation and successful caveat transport are recipe-only NOT MEASURED."
+  },
+  {
+    "id": "F13",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F13-build-repair-agent"
+    ],
+    "acceptance": "Accepted repair consumes full finding meaning and source acceptance, closes only that scope, and scoped re-review retains baseline gates/caveats.",
+    "replay": "Run F13-build-repair-agent. For chain replay give a fresh child accepted REV-001 plus handoffs/review-report.md, SPEC.md, definitions.md, plan.md and original build-report.md. Then cold scoped review the actual repaired candidate against REV-001 and original whole-change baseline. Resume once in another fresh context using the same paths; ensure telemetry follow-up survives Digest and no unrelated edits occur.",
+    "limitations": "Fresh repair response runnable; resumed repair, scoped re-review and Digest are not executed by this case."
+  },
+  {
+    "id": "F14",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F14-build-ids-only-skill",
+      "F03-review-skill",
+      "F03-review-agent"
+    ],
+    "acceptance": "Bare finding ID or inaccessible finding report cannot authorize a guessed repair or approval; corrected full handoff can proceed.",
+    "replay": "Run F14-build-ids-only-skill and F03-review-skill/agent. Replay with a named nonexistent review report instead of no report. Then supply the actual review-report.md finding text and acceptance from handoffs and execute F13-style repair in a new context. Reject any apparent repair inferred only from REV-001.",
+    "limitations": "IDs-only negatives runnable; inaccessible-report mirror and sequential repaired handoff remain recipe-only."
+  },
+  {
+    "id": "F15",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F15-review-stale-skill",
+      "F17-review-investigation-agent"
+    ],
+    "acceptance": "Review validates candidate applicability: stale/missing evidence gives UNVERIFIED or a resolving check, known violated behavior gives CHANGES-REQUESTED, unrun gate cannot approve.",
+    "replay": "Run F15-review-stale-skill and F17-review-investigation-agent. For positive matching receipt first perform the real repair, run npm test, retain complete diff and untracked source/test hashes, then cold review without gratuitous rerun if evidence suffices. Perturb HEAD, dirty source diff and relevant untracked test separately; each invalidates its receipt until resolved by a real check.",
+    "limitations": "Stale zero-SHA and omitted qualification case runnable. Matching receipt reuse and separate HEAD/diff/untracked perturbations are recipe-only, not represented as passing fixtures."
+  },
+  {
+    "id": "F16",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F16-investigate-skill",
+      "F16-investigate-agent",
+      "F16-investigate-missing-agent"
+    ],
+    "acceptance": "Investigate locates and cites source candidates, definitions, implementation and missing evidence without precedence choice, design, compliance verdict or writes.",
+    "replay": "Run F16-investigate-skill/agent and F16-investigate-missing-agent against conflict/missing-definition fixtures. Check factual citations and actual read-only trace. Caller may persist the full report outside the investigator, then pass original sources alongside it to Plan. A proposed design or selected source precedence is a negative even if technically plausible.",
+    "limitations": "Factual responses runnable; caller persistence and investigate\u2192plan child chain remain unmeasured."
+  },
+  {
+    "id": "F17",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F17-review-investigation-agent",
+      "F16-investigate-skill",
+      "F16-investigate-agent",
+      "F17-investigate-gap-skill"
+    ],
+    "acceptance": "Optional factual precursor does not replace cold reviewer authority reconciliation; overoptimistic summary and missing measurements remain visible.",
+    "replay": "Run F17-investigate-gap-skill and F17-review-investigation-agent. For a real chain, persist the actual investigator output as a caller artifact, retain original SPEC/definitions and forward only named evidence to fresh Review. Do not substitute the synthetic investigation.md for an executed child report in the chain receipt.",
+    "limitations": "Static synthetic investigation is openly labeled fixture material; no actual investigate\u2192review trajectory measured."
+  },
+  {
+    "id": "F18",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F18-decide-missing-skill",
+      "F18-decide-tiny-skill",
+      "F18-decide-delegated-skill"
+    ],
+    "acceptance": "Choice/rationale uses Decide, preserves binding constraints versus price preferences, holds on deciding omissions and right-sizes reversible complete choices.",
+    "replay": "Run all three F18 Decide cases. In a real routing session ask Choose Cedar or Birch under jurisdiction J and retain actual skill-load/dispatch evidence. For decide\u2192plan first resolve the legal backup fact and approve the choice, then request only the needed executable sequence carrying DATA-1 and exact decision provenance. Do not force Architect merely because a vendor is named.",
+    "limitations": "Forced choice responses runnable; normal runtime routing and decide\u2192plan chain require separate integration observations."
+  },
+  {
+    "id": "F19",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F19-architect-scale-skill",
+      "F19-architect-missing-skill",
+      "F19-architect-sound-check-skill"
+    ],
+    "acceptance": "Architecture retains supplied 1000x and availability, proposes 10x only as unapproved deviation, names missing payload/retention, and right-sizes formed-design checks.",
+    "replay": "Run all three F19 Architect cases. Negative design silently lowers 100000 requests/sec to 1000; reject it. For architect\u2192plan approve an actual structure and explicitly retain SCALE-1/AVAIL-1 plus all missing measurement gates in the next fresh Plan task. An approved deviation needs user provenance naming changed obligation, not implicit model permission.",
+    "limitations": "Standalone structure judgments runnable; design approval, numeric qualification and actual architect\u2192plan transport remain unmeasured."
+  },
+  {
+    "id": "F20",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F20-debug-skill",
+      "F20-debug-agent"
+    ],
+    "acceptance": "Bugfix workflow proves failure/fix only in disposable workspace, caller bytes unchanged, actual evidence status and approval stop agree.",
+    "replay": "Run F20-debug-skill/agent with real debug fixture. Retain sandbox red/green command outputs and original caller hashes. Then use /principal-bugfix in a real parent session and observe approval stop before Build; if sandbox unavailable, read-only proposed/unproven is honest but does not satisfy confirmed-proof cell. No main-checkout probes are allowed.",
+    "limitations": "Read-only snapshot gate runnable; complete tool-result/sandbox artifacts and actual workflow approval sequencing need external retention."
+  },
+  {
+    "id": "F21",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F21-build-after-debug-skill",
+      "F21-debug-direct-agent"
+    ],
+    "acceptance": "Direct diagnose-and-fix performs actual Debug proof then an announced Build switch, lands once, and applied claim cites real Build candidate/report; agent never dispatches.",
+    "replay": "Run F21-debug-direct-agent and F21-build-after-debug-skill as independent slices only. For a real chain request Diagnose and fix parseCount accepting 3x in a parent session; capture Debug sandbox proof, announced switch, one Build mutation, regression/full suite and cold Review. Preserve actual reports and ensure final applied claim names the tested caller candidate.",
+    "limitations": "Two independent slices are not a debug\u2192build\u2192review chain. Switch, single landing and actual report continuity are NOT MEASURED."
+  },
+  {
+    "id": "F22",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F22-debug-no-workspace-skill",
+      "F22-debug-unreproduced-agent",
+      "F22-debug-missing-definition-skill"
+    ],
+    "acceptance": "Unreproduced symptom, no-workspace and missing-definition boundaries retain hypotheses, proposed/not-run tests and unchanged caller state, with missing facts allowed to block.",
+    "replay": "Run F22-debug-no-workspace-skill, F22-debug-unreproduced-agent and F22-debug-missing-definition-skill. Mirror rendering for each in a fresh fixture. Do not equate static parseInt knowledge with observed symptom reproduction. In a negative response replace proposed with applied or invent green output; reject unless corresponding actual traces/results exist.",
+    "limitations": "Three representative negatives runnable; remaining skill/agent cross-product is a replay cell, not measured robustness."
+  },
+  {
+    "id": "F23",
+    "status": "NOT MEASURED",
+    "cases": [],
+    "acceptance": "Tiny approved fix reaches unchanged Git-Ops finish choices with fresh final integration suite, no extra phases or automatic push/merge.",
+    "replay": "Use a disposable local repository copied from basic, no external remote credentials. Approve the tiny LIMIT-1 fix, run Build then Git-Ops inline only. Record final integration npm test on the actual final tree and existing finish choices; stop before push, merge or other externally visible action without separate user authorization. Compare git-ops/SKILL.md with the base hash.",
+    "limitations": "No Git-Ops harness spec added by scope. Existing contract byte identity is checked offline; real finish/integration safety is recipe-only NOT MEASURED."
+  },
+  {
+    "id": "F24",
+    "status": "NOT MEASURED",
+    "cases": [
+      "F18-decide-missing-skill",
+      "F18-decide-tiny-skill",
+      "F19-architect-scale-skill",
+      "F19-architect-sound-check-skill"
+    ],
+    "acceptance": "Output-based routing uses only needed phases, branch review invents no Plan/Build, ordinary queries stay skill-free, and runtime loading is distinct from forced instructions.",
+    "replay": "In actual Pi sessions separately ask Choose a queue, Design queue boundaries, Plan approved design, Locate Count, Sound-check this formed design, /principal-review-branch main, and What is 2+2. Retain load/dispatch and parent session evidence. Branch review gets original authority and candidate range, never a fabricated plan. Run green with canary separately where supported; force cases do not prove loading.",
+    "limitations": "Decide/Architect right-sizing cases and existing routing unit tests are not normal-load evidence. Branch review and selective routing chain cells remain NOT MEASURED."
+  }
+]

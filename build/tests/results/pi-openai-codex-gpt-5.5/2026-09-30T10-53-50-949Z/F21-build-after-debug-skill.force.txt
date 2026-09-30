@@ -1,0 +1,20 @@
+>>> USER:
+Approved implementation-only slice after a caller diagnosis: parseCount currently accepts suffixes. Authority SPEC.md. Reproduce the boundary failure yourself before fixing; implement full PARSE-1 rejection semantics, run npm test and identify the tested candidate. Save .principal/reports/parser-build.md. No actual Debug or Review child has run in this scenario, so do not claim that chain occurred.
+
+<<< ASSISTANT:
+Implemented PARSE-1 rejection semantics.
+
+Changed:
+- `parse.mjs`
+- `parse.test.mjs`
+- `.principal/reports/parser-build.md`
+
+Evidence:
+- Reproduced failing boundary test before fix: `parseCount('3x')` failed to throw.
+- Implemented full SPEC.md PARSE-1 validation.
+- Ran `npm test` successfully: `tests 2`, `pass 2`, `fail 0`.
+
+Report saved at:
+- `.principal/reports/parser-build.md`
+
+Next: review

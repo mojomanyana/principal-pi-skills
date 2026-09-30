@@ -1,0 +1,16 @@
+>>> USER:
+Locate what SPEC-A.md, SPEC-B.md, definitions.md, implementation.mjs and evidence.txt establish about admission. Find authoritative-source candidates, exact definition, observed code and evidence gaps. Neither source has declared precedence. Do not decide which should win or provide a compliance verdict; return a cited factual report.
+
+<<< ASSISTANT:
+## Investigation: what repository files establish about admission
+Question: What do SPEC-A.md, SPEC-B.md, definitions.md, implementation.mjs, and evidence.txt establish about `permit` admission, without assigning precedence or giving a compliance verdict?
+
+Findings:
+- Authoritative-source candidate A states `LIMIT-1`: `permit` MUST accept Count values 0 through 3 inclusive, and says no precedence is declared. — `SPEC-A.md:1-2`
+- Authoritative-source candidate B states `LIMIT-1`: `permit` MUST accept Count values 0 through 4 inclusive, and says no precedence is declared. — `SPEC-B.md:1-2`
+- The exact `Count` definition is: a JavaScript number that is finite and integral; inclusive means both endpoints are accepted; numeric strings, null, undefined, NaN, infinities, and fractions are not Count values; rejection is boolean `false`, not exception or coercion. — `definitions.md:1-2`
+- Observed implementation exports `permit` as accepting values where `Number.isInteger(count)` is true and `count >= 0 && count <= 4`. — `implementation.mjs:1`
+- Observed evidence is only a historical console note that happy path `0` passed; candidate identity and boundary coverage were not recorded; it says it is not a qualification receipt. — `evidence.txt:1`
+- SPEC-A and SPEC-B differ on the upper accepted endpoint: 3 vs 4, and both state no precedence is declared. — `SPEC-A.md:2`, `SPEC-B.md:2`
+
+What was not checked: Runtime execution beyond reading the implementation; no source precedence was inferred; no compliance verdict was made.

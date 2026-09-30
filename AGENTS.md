@@ -30,8 +30,8 @@ The set:
 
 | Input shape | Route to | How |
 |---|---|---|
-| Exploring a decision, not executing one ("should I…", "what are my options", "I'm stuck") | `decide` | inline — the dialogue is the value |
-| A system to design or a significant/irreversible choice ("design X", "Postgres or DynamoDB", "review our architecture") | `architect` | inline — drivers come from asking |
+| Choice and rationale ("should I…", "Postgres or DynamoDB", "what are my options") | `decide` | inline — the dialogue is the value |
+| System structure, components, boundaries or data ("design X", "review our architecture") | `architect` | inline — drivers come from asking |
 | A task needing order of work and code-level specs ("plan this", "break this down") | `plan` | **subagent** — it opens every file it names; keep that out of this context |
 | Code to write ("implement", "fix this known bug", "make the test pass") | `build` | inline, or `principal-build` per approved plan step when the subagent tool exists — never fan parallel writers into one working tree |
 | A change to judge before landing ("review this", "ready to merge?") | `review` | **subagent, always when available** — a fresh context judging the diff cold beats self-review; inline review of code you just wrote is anchored on its own reasoning |
@@ -39,9 +39,12 @@ The set:
 | Facts about current code, data, runtime, or history ("how does", "where is", "map", "what changed between") | `investigate` | **subagent** for heavy reading; inline when dialogue is needed |
 | A git or GitHub operation ("commit", "push", "open a PR", "I leaked a secret") | `git-ops` | inline, never delegated — needs this session's working-tree state, and destructive ops require user consequence-acceptance no subagent can obtain |
 
-**When more than one applies**, route by altitude: the highest-altitude match for the
-*actual* request, not the surface phrasing. "Redis or Memcached?" is `architect`; "how do
-I commit this" is `git-ops`, not `build`; "why is this test red" is `debug`, not `build`.
+**When more than one applies**, route by requested output: choice/rationale → `decide`,
+structure → `architect`, executable sequence → `plan`. "Redis or Memcached?" is `decide`;
+"how do I commit this" is `git-ops`, not `build`; "why is this test red" is `debug`, not `build`.
+Use only needed phases, not a mandatory chain. Optional read-only Investigate can locate
+sources/definitions before Plan or substantial Review; pass original sources too, and leave
+the verdict to Review.
 
 **When no skill fits**, don't force one. Everyday Q&A doesn't need the framework.
 
@@ -74,7 +77,7 @@ Typical spines (available as prompt templates):
 
 - Feature (`/principal-feature <task>`): plan → approval stop → build (inline or
   delegated) → review → git-ops finish. Enter `architect`/`decide` first when the call is
-  architectural or still contested.
+  requesting structure or a choice respectively, and approve that output first.
 - Bug (`/principal-bugfix <symptom>`): debug → approval stop → build → review → git-ops
   finish. If debug's note says design flaw, stop and surface it.
 - Refactor (`/principal-refactor <scope>`): the feature spine with a no-behavior-change
@@ -91,6 +94,13 @@ Typical spines (available as prompt templates):
 - Tiny change: build → git-ops, both inline — every contract carries a Right-sizing
   rule; don't add ceremony the file itself would refuse.
 
+Handoffs carry accessible source/definition references, applicable map rows/global gates,
+and full report paths, not summaries or bare finding IDs. Collect caveats even on success;
+a commit or green suite alone is not full requirement coverage. Review validates candidate-bound
+evidence independently. Plans persist completely with short chat summaries. Debug's sandbox
+proof is not applied work; a direct diagnose-and-fix request continues through an announced
+switch to Build, while the bugfix workflow retains its approval stop.
+
 A delegated step returning `BLOCKED` stops the chain: surface its one question to the
 user; don't answer it yourself and keep going.
 
@@ -101,10 +111,10 @@ and `agents/principal-<name>.md` (the single-shot contract subagents get) — di
 artifacts, not copies, but most of each pair is identical, and that shared majority is
 where they used to drift.
 
-Both are generated from `contracts/<name>.md.tmpl`. The two namespaced workflows are
-likewise generated from `contracts/workflows.md.tmpl` — five contracts plus the workflows
-template are the source of everything under `agents/`, `prompts/`, and the five dual-use
-`SKILL.md` files. Change shared behavior ONCE, there, then `npm run generate`. Editing a
+Both are generated from `contracts/<name>.md.tmpl`. The three spine workflows are
+likewise generated from `contracts/workflows.md.tmpl` — five contracts plus one workflows
+template produce five agents, five dual-use `SKILL.md` files and three prompts (13 outputs).
+`prompts/principal-review-branch.md` is handwritten. Change shared behavior ONCE, there, then `npm run generate`. Editing a
 generated file directly is reverted by the next run and fails `npm run generate:check` in
 CI.
 

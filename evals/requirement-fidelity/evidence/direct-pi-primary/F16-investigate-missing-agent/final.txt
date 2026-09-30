@@ -1,0 +1,12 @@
+## Investigation: source and definition of Count for LIMIT-1
+Question: Where is Count sourced and defined for LIMIT-1 in `SPEC.md`, `definitions.md`, and `limit.mjs`?
+
+Findings:
+- `SPEC.md` states `LIMIT-1` applies to `permit(count)` and says it “MUST accept Count from 0 through 3 inclusive.” — `SPEC.md:2`
+- `SPEC.md` says “Count is defined in definitions.md#Count” and that this definition is required to implement rejection. — `SPEC.md:2`
+- `definitions.md` does not supply a `# Count` section; it explicitly says “The Count definition has intentionally not been supplied.” — `definitions.md:2`
+- `definitions.md` contains only a `# Transport` heading in the observed content. — `definitions.md:1`
+- `limit.mjs` implements `permit` as `Number.isInteger(count) && count >= 0 && count <= 4`, so the code checks integer-ness and range 0 through 4 inclusive. — `limit.mjs:1`
+- The idea that “Count probably means an integer” is a caller guess relative to these files; the observed actual integer check is in `limit.mjs`, while the referenced normative definition `definitions.md#Count` is absent. — `definitions.md:2`, `limit.mjs:1`
+
+What was not checked: other files, runtime behavior, tests, history, or external definitions.

@@ -1,0 +1,2 @@
+VERDICT: FAIL
+REASON: 1 FAIL—no evidenced inspection; 2 PASS—“Cannot reconcile”; 3 PASS—“Provide” sources.

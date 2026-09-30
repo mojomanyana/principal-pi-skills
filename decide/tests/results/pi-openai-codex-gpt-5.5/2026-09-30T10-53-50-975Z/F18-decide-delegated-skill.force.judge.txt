@@ -1,0 +1,6 @@
+1. PASS — Keeps “independently verifiable deletion within 24 hours”; “Neither” supplied evidence.
+2. PASS — Returns “HOLD” and conditions selection on acceptable provider evidence.
+3. PASS — Stays a bounded “Decision brief”; claims no deletion measurement.
+
+VERDICT: PASS
+REASON: All requirements are explicitly preserved with an evidence-dependent HOLD.

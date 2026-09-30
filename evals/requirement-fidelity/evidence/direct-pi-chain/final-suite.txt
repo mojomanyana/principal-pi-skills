@@ -1,0 +1,12 @@
+✔ permits boundary Count values (0.775457ms)
+✔ rejects out-of-range and malformed counts without coercion (0.236312ms)
+ℹ tests 2
+ℹ suites 0
+ℹ pass 2
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 73.994881
+npm notice run test
+npm notice run node --test

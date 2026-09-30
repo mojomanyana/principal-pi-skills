@@ -16,6 +16,16 @@ skill inline and say so in the Digest. Any other agent failure stops the chain.
 describes this request's task, read it and `git log` first: a step whose commit exists is
 done. If several could match, name them and ask the user which one; if none does, start the chain at step 1. Resume at the first step without one. Never re-plan a plan the user already approved.
 
+**Authority.** Carry authoritative source/definition paths and relevant map rows/global gates
+through Plan → Build → Review. If exact user authority exists only in dialogue and needs
+file handoff, persist it with provenance to `.principal/reports/<task>-authority.md`, not a
+summary. Ensure paths are accessible in each child/disposable workspace; ignored `.principal`
+files may need exact caller-persisted copies with original identity. A readable reference is
+not missing material; unresolved authority stops for repair, never invented definitions.
+Optional read-only Investigate before Plan or substantial Review may locate sources,
+definitions, behavior and evidence. The caller may persist its full report; pass original
+sources alongside it, never instead of them. Review still owns reconciliation and verdict.
+
 **Approval.** After the planning or diagnosing phase returns, present its artifact and stop. Do not
 build until the user says go. Presenting the artifact and starting to build in the same turn
 is the failure. The artifact scales — three lines for a config change, full slices for a
@@ -24,21 +34,33 @@ feature — the stop does not. A re-plan needs a new approval.
 **Build.** One writer at a time, on a branch the user can see. Inline when there is no
 multi-step plan file (a three-line plan, or a bugfix) or the subagent tool is absent.
 Otherwise dispatch one fresh `principal-build` per step — a batched step is one dispatch —
-with the plan file path, the step number, and a report path
-`.principal/reports/<step>-build.md`. It returns five status lines; read the report file only
-when routing needs more, and never paste a report into a later dispatch. Choose the cheapest
-model that can transcribe a complete step spec.
+with the complete plan file path, step ID, source/definition paths, applicable rows/global gates,
+and report path `.principal/reports/<step>-build.md`. Without a plan pass the approved exact
+task and authority. It returns five status lines; read every successful report too:
+Assumptions, Follow-ups, Evidence gaps, Blocked, Requirements/Gates and Candidate. Aggregate
+caveats into the Digest's existing labels; success or a commit is not measured compliance.
+Inline Build returns chat: the orchestrator must persist its complete implementation report
+to `.principal/reports/<step>-build.md` before delegated Review, with the same evidence and caveats as the
+agent report, not a summary. If persistence fails, stop and report the handoff gap.
+Never paste report prose into a later dispatch; pass accessible files. Choose the cheapest
+capable model under the same standards; neither lower cost nor a word budget permits dropping
+requirements, gates or safety. Escalate an inadequate model rather than weaken the task.
 
 **Review.** Always delegate to `principal-review` when the tool exists — a cold read beats
 self-review. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
 for the whole change to `.principal/reports/review-diff.txt` and pass that path plus the build
-report paths; review judges from them and runs a test only for a named doubt. Use the
-strongest available model for this review. `CHANGES-REQUESTED` → decide which findings are
-accepted; then repair with exactly those IDs — resume the build agent that made the change
-when your tool can, otherwise a fresh dispatch — then a scoped re-review: the open IDs and the
-fix diff only, on a mid-tier model, verdicting each ID. At most two repair rounds; a third means
+report paths, governing source/definition paths, full plan/map if present, and candidate
+identity. Dirty candidates need the complete tracked diff and relevant untracked content,
+not just a committed range. Review validates reused evidence and checks named doubts.
+Use the strongest available model. Persist the complete review result to
+`.principal/reports/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
+accepted; repair with their IDs, full report path/definitions, authority refs, affected map
+rows and acceptance conditions — resume the builder when possible, otherwise dispatch fresh.
+Then scoped re-review gets those files, original whole-change baseline/gates and fix diff,
+on a capable mid-tier model; judge each ID and new breakage, without losing original gaps. At most two repair rounds; a third means
 the plan or diagnosis was wrong. `UNVERIFIED` is not approval: fix whatever blocked
-verification, then review again; it counts as a repair round. `APPROVE` or `APPROVE-WITH-NITS`
+verification, then review again; it counts as a repair round. Read Verdict before Next:
+UNVERIFIED's `Next: build` requests evidence/handoff repair, not automatic code changes. `APPROVE` or `APPROVE-WITH-NITS`
 → git-ops.
 
 **Blocked.** A phase returning `BLOCKED` stops the chain: surface its one question and
@@ -54,8 +76,9 @@ No transcript narration after it.
 
 ## Feature path
 
-1. If the request is an architectural choice ("Postgres or DynamoDB", "design X"), run
-   Architect inline first and get the design approved before planning.
+1. Use only needed outputs: Decide for a choice/rationale ("Postgres or DynamoDB"),
+   Architect for structure/components/data ("design X"), Plan for executable sequence.
+   Get any resulting decision/design approved; no mandatory preliminary chain.
 2. Invoke `principal-plan` (or Plan inline). Any `[ONE-WAY]` step must carry its rollback
    note; the approval stop covers it.
 3. Approval stop. Then Build, step by step, as above.

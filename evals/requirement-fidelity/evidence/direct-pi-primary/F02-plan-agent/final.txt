@@ -1,0 +1,4 @@
+1. Saved complete executable plan with requirement/gate mapping and disjoint step prefix `build:S#`.
+2. Key risk: broad spec requires a real skeleton first, then serialization/recovery/audit/qualification slices.
+3. Tests are proposed only; none executed and no gate is marked passed.
+4. Plan file: `.principal/plans/reservoir.md`

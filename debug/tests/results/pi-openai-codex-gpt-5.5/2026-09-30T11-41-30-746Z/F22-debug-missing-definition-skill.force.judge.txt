@@ -1,0 +1,5 @@
+1. PASS — “accepts it, but the normative domain of `Count` is absent.”
+2. PASS — “supply the normative `Count` definition first.”
+3. PASS — “proposed/unproven only”; “not run”; “Workspace: none — read-only diagnosis.”
+VERDICT: PASS
+REASON: Clearly separates behavior from undefined semantics and proposes only the required definition repair.

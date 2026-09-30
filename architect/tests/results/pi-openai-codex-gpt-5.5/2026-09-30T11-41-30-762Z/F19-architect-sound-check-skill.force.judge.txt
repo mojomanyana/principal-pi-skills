@@ -1,0 +1,5 @@
+1. PASS — “Sound” and “right shape for this workload” fit the tiny CLI.
+2. PASS — “Malformed JSON must fail closed: return nonzero” preserves detectable failure.
+3. FAIL — “Proceed with the CLI design” is a ceremonial next-step dispatch.
+VERDICT: FAIL
+REASON: The response ends with a prohibited ceremonial dispatch to proceed.

@@ -1,0 +1,54 @@
+>>> USER:
+There is no repository. Return a complete plan in chat for a hypothetical admission function permit(count). LIMIT-1 is binding: allow only JavaScript finite integer numbers 0 through 3 inclusive, rejecting all other inputs with false and no coercion. QUAL-1 requires tests -1,0,3,4, strings, null, NaN and fractions. We need an implementation file plus its test; filename guesses are nonnormative assumptions. Do not create a repository.
+
+<<< ASSISTANT:
+## Plan: Implement `permit(count)` so only finite integer JavaScript numbers `0..3` return `true`.
+
+Authority: user-provided binding requirements `LIMIT-1` and `QUAL-1`  
+Out of scope: repository creation, tooling setup beyond hypothetical implementation/test files  
+Conventions observed: no codebase available; filenames are assumptions
+
+Risks: filename/test runner assumptions may differ from the eventual project → keep paths under Assumptions and adapt to local conventions before building.
+
+Requirement map:
+- `LIMIT-1`: allow only JavaScript finite integer numbers `0` through `3` inclusive; reject all other inputs with `false` and no coercion → `impl:S1` → unit tests for accepted/rejected values → planned, not executed
+- `QUAL-1` Gate: tests must cover `-1`, `0`, `3`, `4`, strings, `null`, `NaN`, and fractions → `impl:S1` → required test matrix present → planned, not executed
+
+Steps:
+  `impl:S1`. Walking skeleton — implement and test the complete admission rule.
+   - Files:
+     - `src/permit.js`
+     - `test/permit.test.js`
+   - Change:
+     - Add `function permit(count)`.
+     - Return `true` only when:
+       - `typeof count === "number"`
+       - `Number.isFinite(count)`
+       - `Number.isInteger(count)`
+       - `count >= 0`
+       - `count <= 3`
+     - Return `false` for everything else.
+     - Export using the project’s module convention; assumed CommonJS: `module.exports = { permit }`.
+   - Test:
+     - Unit test `permit(count)`.
+     - Required cases:
+       - `permit(-1) === false`
+       - `permit(0) === true`
+       - `permit(3) === true`
+       - `permit(4) === false`
+       - string examples such as `"0"` and `"3"` return `false`
+       - `permit(null) === false`
+       - `permit(NaN) === false`
+       - fractions such as `1.5` return `false`
+     - Command assumption: `npm test`
+   - Ripples: none
+
+Parallel-safe: none; implementation and tests are one small vertical slice.
+
+Assumptions:
+- Implementation path: `src/permit.js`.
+- Test path: `test/permit.test.js`.
+- Test runner exists or will be supplied by the eventual project.
+- Module format is CommonJS unless the real project uses ESM.
+
+Next: build.

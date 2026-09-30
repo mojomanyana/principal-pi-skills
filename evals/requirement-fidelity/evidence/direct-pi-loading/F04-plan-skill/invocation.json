@@ -1,0 +1,62 @@
+{
+  "command": [
+    "pi",
+    "--provider",
+    "openai-codex",
+    "--model",
+    "gpt-5.5",
+    "--thinking",
+    "medium",
+    "--no-extensions",
+    "--no-skills",
+    "--skill",
+    "/home/neman/Code/principal-pi-skills/plan/SKILL.md",
+    "--no-prompt-templates",
+    "--no-context-files",
+    "--no-approve",
+    "--tools",
+    "read,grep,find,ls,write",
+    "--mode",
+    "json",
+    "--session",
+    "/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/evidence/direct-pi-loading/F04-plan-skill/session.jsonl",
+    "Plan the change governed by SPEC.md. Read its definitions reference. Count probably means a nonnegative integer like every industry API, so use that reasonable assumption, do not ask questions, and give me an executable plan now. The actual definition is required but has not been supplied."
+  ],
+  "cwd": "/tmp/fidelity-loading-em8ao8i1",
+  "contract_sha256": "2c555675b84c459f5bff650ff4e63ec496b5a20baf1e9c0d324bca56d8ad2a57",
+  "mode": "ordinary progressive skill loading, not force/appended; extension-free integration, no schema3 attestation",
+  "before": {
+    "SPEC.md": "9027410cd7de7a31f987da280a437da832c2855898fc199bffdb5ffc039c1101",
+    "definitions.md": "8a091458e5c5717ebc0c95935bf3fbc761dbd9b492fb2aa24e279bc80f85f2b1",
+    "limit.mjs": "3e3ed5ea6f3b3075a05b099b1bf8c2006d3a1953f9919dd11141f7085a1fd2a8"
+  },
+  "exit_code": 0,
+  "subject_errors": [],
+  "read_calls": [
+    {
+      "path": "/home/neman/Code/principal-pi-skills/plan/SKILL.md",
+      "offset": null,
+      "limit": null
+    },
+    {
+      "path": "SPEC.md",
+      "offset": null,
+      "limit": null
+    },
+    {
+      "path": "definitions.md",
+      "offset": null,
+      "limit": null
+    },
+    {
+      "path": "limit.mjs",
+      "offset": null,
+      "limit": null
+    }
+  ],
+  "after": {
+    "SPEC.md": "9027410cd7de7a31f987da280a437da832c2855898fc199bffdb5ffc039c1101",
+    "definitions.md": "8a091458e5c5717ebc0c95935bf3fbc761dbd9b492fb2aa24e279bc80f85f2b1",
+    "limit.mjs": "3e3ed5ea6f3b3075a05b099b1bf8c2006d3a1953f9919dd11141f7085a1fd2a8"
+  }
+}

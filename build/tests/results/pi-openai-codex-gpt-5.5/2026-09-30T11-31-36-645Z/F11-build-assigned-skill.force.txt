@@ -1,0 +1,39 @@
+>>> USER:
+Approved task: execute impl:S1 from plan.md in this fixture. Authority SPEC.md and definitions.md; global QUAL-1 applies. Read build-report.md for its assumptions, follow-up and evidence gap, not as current proof. Implement upper-bound correction with regression first; do not invent measurements for anything outside the tested scope. Save a full build report under .principal/reports/assigned.md.
+
+<<< ASSISTANT:
+## Implemented: impl:S1 upper-bound correction for `permit(count)`
+Changed paths: `limit.mjs`, `limit.test.mjs`, `.principal/reports/assigned.md`
+
+Authority: approved task; `plan.md` impl:S1; `SPEC.md` LIMIT-1/QUAL-1; `definitions.md#Count`; `build-report.md` read as historical context only.
+
+Candidate: dirty tree on base `33e3382fd3a49ec4488a4e31bb45d175997d3e4c`; tracked diff fingerprint `1edf68ae491ce7af1a2bc4a1d9ca9103d4e74d38cadb569b4a179c2e07595a78`.
+
+Requirements: LIMIT-1 and QUAL-1 implemented in `limit.mjs:1`, tested in `limit.test.mjs:4-18` → completed.
+
+Gates: QUAL-1 → `npm test` executed boundaries `-1, 0, 3, 4` and malformed inputs including string, null, NaN, fraction → passed.
+
+Evidence gaps: none for tested scope.
+
+Findings applied: none.
+
+Red evidence: `npm test` failed before implementation for `permit(4)` and malformed coercion.
+
+Green evidence: `npm test` after implementation:
+`tests 3`, `pass 3`, `fail 0`.
+
+Full evidence: `npm test` → pass 3, fail 0.
+
+Tests: updated `limit.test.mjs`.
+
+Verified: `permit` now only permits finite integral JS numbers `0..3`.
+
+Assumptions: none.
+
+Follow-ups: historical telemetry follow-up remains outside scope; `SUMMARY.md` still conflicts but is non-authoritative per `SPEC.md`.
+
+Blocked: none.
+
+Report saved: `.principal/reports/assigned.md`
+
+Next: review

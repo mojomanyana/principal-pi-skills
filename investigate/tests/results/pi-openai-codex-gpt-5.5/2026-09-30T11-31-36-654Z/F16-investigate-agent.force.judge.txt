@@ -1,0 +1,2 @@
+VERDICT: PASS
+REASON: All pass: cited paths; “Observed implementation” and “historical console note” distinguished; factual report only.

@@ -1,0 +1,6 @@
+1. PASS — Calls DATA-1 “Binding” and Cedar backup jurisdiction “unknown.”
+2. PASS — “Choose Birch now, unless Cedar provides documented proof” avoids Cedar assumption.
+3. PASS — “bounded” choice includes “Do nothing / defer”; no implementation pipeline.
+
+VERDICT: PASS
+REASON: Binding jurisdiction overrides price; Birch is selected pending Cedar proof.

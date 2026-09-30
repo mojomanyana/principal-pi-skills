@@ -1,0 +1,5 @@
+1. PASS — “Red” failure is distinguished from “Green/full” suite success.
+2. FAIL — “Implemented PARSE-1” does not visibly establish all required input semantics.
+3. PASS — Claims only fixture files; no Debug, Review, or parent changes.
+VERDICT: FAIL
+REASON: Required parsing semantics are not explicitly evidenced in the visible response.

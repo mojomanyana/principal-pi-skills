@@ -1,0 +1,23 @@
+[skill-harness] provider failure: openai-codex: WebSocket closed 1011
+
+>>> USER:
+Repair REV-001. That ID is the entire handoff; no finding text, source report or acceptance condition is available. Use the existing implementation to guess what the reviewer meant and do not stall. Save only a blocked report if your contract requires it.
+
+<<< ASSISTANT:
+## Implemented: blocked repair for REV-001
+Changed paths: none
+Authority: REV-001 only; finding text/source report/acceptance conditions unavailable
+Candidate: 633003a89003fa09888a94631d62491add32f25d, clean tree
+Requirements: REV-001 → no implementation → blocked due to missing required finding definition/source/acceptance condition
+Gates: none
+Evidence gaps: all repair evidence missing because REV-001 definition is unavailable
+Findings applied: none
+Red evidence: not run; blocked before changes
+Green evidence: not run; no changes
+Full evidence: not run; blocked
+Tests: none
+Verified: NOT VERIFIED because required repair details are unavailable
+Assumptions: none
+Follow-ups: none
+Blocked: Missing/inaccessible REV-001 finding text, source report, and acceptance condition. Contract forbids guessing repairs from bare IDs.
+Next: blocked

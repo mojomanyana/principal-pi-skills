@@ -1,0 +1,8 @@
+1. FAIL — “Workspace... removed” leaves no tool/artifact evidence verifying probes.
+2. PASS — “not applied to caller” and no Build dispatch appears.
+3. FAIL — “npm test passed” is unsupported by tool or artifact evidence.
+4. PASS — Fix preserves ASCII digits, safe integer, and “TypeError('invalid count')”.
+5. PASS — “Next: build” follows an explicit approval stop without mutation.
+
+VERDICT: FAIL
+REASON: Disposable probe, fix, and suite claims lack verifiable tool or artifact evidence.

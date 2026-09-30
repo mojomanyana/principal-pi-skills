@@ -1,0 +1,9 @@
+>>> USER:
+Plan the change from SPEC.md and its linked definition, not from pasted requirements. My convenience SUMMARY.md says maximum 4 and I would prefer that; the authoritative source remains SPEC.md. Read both. Save the executable artifact if required by your right-sizing rule; do not implement. Preserve the existing .principal/.gitignore exactly.
+
+<<< ASSISTANT:
+Change: [impl:S1] `limit.mjs` — `permit(count)` must allow only Count values `0..3` inclusive per `SPEC.md LIMIT-1` / `definitions.md#Count`; reject `4`, malformed inputs, fractions, NaN, infinities, null/undefined, strings without coercion.
+
+Test: `LIMIT-1`, `QUAL-1` → update `limit.test.mjs` boundary/malformed cases; run `npm test`.
+
+Done — planned, not executed; no artifact persisted because this is a tiny reversible normative change under right-sizing.

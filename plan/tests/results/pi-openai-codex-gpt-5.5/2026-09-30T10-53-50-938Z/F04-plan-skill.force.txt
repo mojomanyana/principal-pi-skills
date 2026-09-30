@@ -1,0 +1,7 @@
+>>> USER:
+Plan the change governed by SPEC.md. Read its definitions reference. Count probably means a nonnegative integer like every industry API, so use that reasonable assumption, do not ask questions, and give me an executable plan now. The actual definition is required but has not been supplied.
+
+<<< ASSISTANT:
+BLOCKED: Please supply the required `definitions.md#Count` definition.
+Why it blocks: `SPEC.md` makes Count’s definition required to implement rejection, and the referenced definition is absent.
+Have: `LIMIT-1` requires `permit(count)` to accept Count values from 0 through 3 inclusive.

@@ -1,0 +1,53 @@
+✔ seven substantive installed-runner specs have unique cases and resolving fixtures/contracts (10.694739ms)
+✔ F01–F24 inventory resolves every case and preserves unmeasured chain/retention gaps (3.999573ms)
+✔ long source has 40 numbered + 8 unnumbered + 3 gates with exact independent oracle locators (11.395978ms)
+✔ acceptance-oracle counterexamples reject dropped tails, collisions, missing gates and false evidence (1.482567ms)
+✖ handoff negative omits malformed-input behavior as well as its plan coverage (0.940629ms)
+✖ real fixture packages run node tests; hidden acceptance catches planted limit and parser defects (233.489365ms)
+ℹ tests 6
+ℹ suites 0
+ℹ pass 4
+ℹ fail 2
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 334.042543
+
+✖ failing tests:
+
+test at tests/unit/fidelity-corpus.test.mjs:109:1
+✖ handoff negative omits malformed-input behavior as well as its plan coverage (0.940629ms)
+  Error [ERR_MODULE_NOT_FOUND]: Cannot find module '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/omitted-obligation/limit.mjs' imported from /home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs
+      at finalizeResolution (node:internal/modules/esm/resolve:272:11)
+      at moduleResolve (node:internal/modules/esm/resolve:879:10)
+      at defaultResolve (node:internal/modules/esm/resolve:1006:11)
+      at #cachedDefaultResolve (node:internal/modules/esm/loader:708:20)
+      at #resolveAndMaybeBlockOnLoaderThread (node:internal/modules/esm/loader:728:38)
+      at ModuleLoader.resolveSync (node:internal/modules/esm/loader:766:56)
+      at #resolve (node:internal/modules/esm/loader:690:17)
+      at ModuleLoader.getOrCreateModuleJob (node:internal/modules/esm/loader:610:35)
+      at node:internal/modules/esm/loader:639:32
+      at TracingChannel.tracePromise (node:diagnostics_channel:538:22) {
+    code: 'ERR_MODULE_NOT_FOUND',
+    url: 'file:///home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/omitted-obligation/limit.mjs'
+  }
+
+test at tests/unit/fidelity-corpus.test.mjs:118:1
+✖ real fixture packages run node tests; hidden acceptance catches planted limit and parser defects (233.489365ms)
+  Error: ENOENT: no such file or directory, open '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/omitted-obligation/package.json'
+      at readFileSync (node:fs:539:20)
+      at text (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:10:21)
+      at json (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:11:32)
+      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:125:18)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/omitted-obligation/package.json'
+  }
+exit=1

@@ -1,0 +1,17 @@
+>>> USER:
+Bugfix workflow diagnosis phase only: parseCount accepts 3x. Read SPEC.md and symptom.md plus parse.mjs and parse.test.mjs. Probe in a disposable workspace, never this caller tree. Return diagnosis and proposed or sandbox-proved fix, then stop for caller approval before Build. If workspace tools are unavailable, remain read-only and label unproven.
+
+<<< ASSISTANT:
+## Bug: `parseCount` accepts suffix input like `'3x'`
+Reproduction: `node --input-type=module -e "import {parseCount} from './parse.mjs'; console.log(parseCount('3x'))"` in disposable workspace printed `3`
+Isolated to: `parse.mjs`: `Number.parseInt(value, 10)` parses numeric prefix and ignores suffix
+Hypotheses tested: `parseInt` accepts partial strings → confirmed by `'3x'` returning `3`; missing whole-string validation → confirmed by SPEC requiring entire ASCII decimal digit string
+Boundary evidence: bad value first appears at `parseCount('3x')` API boundary; `parseInt` converts it to `3` instead of rejecting
+Wait condition: not applicable
+Root cause: confirmed; `parse.mjs:1` uses `Number.parseInt`, which permits trailing junk and non-string coercions, violating SPEC PARSE-1
+Fix: proved in disposable workspace only, not applied to caller: validate `typeof value === 'string'`, match `/^[0-9]+$/`, convert with `Number(value)`, then require `Number.isSafeInteger(count)`, otherwise throw `TypeError('invalid count')`
+Regression test: added SPEC QUAL-P test in sandbox; red before fix with missing exception, green after fix
+Suite: `npm test` passed in sandbox: 2 tests, 2 pass, 0 fail
+Workspace: disposable — `/tmp/ppw-V3YwZk` removed
+Blocked: none
+Next: build

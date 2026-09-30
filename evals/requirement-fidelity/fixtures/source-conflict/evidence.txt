@@ -1,0 +1,1 @@
+Historical console note: happy path 0 passed. Candidate identity and boundary coverage were not recorded. This is not a qualification receipt.

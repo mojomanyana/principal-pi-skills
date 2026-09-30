@@ -1,0 +1,1018 @@
+schema: 2
+harness_version: 0.21.0
+harness_cli_version: 0.87.1
+skill: plan
+harness: pi
+model: openai-codex:gpt-5.5
+judge:
+  provider: openai-codex
+  model: gpt-5.6-sol
+timestamp: '2026-09-30T11:31:36.632Z'
+label: null
+mode: force
+source_hashes:
+  SKILL.md: 2c555675b84c459f5bff650ff4e63ec496b5a20baf1e9c0d324bca56d8ad2a57
+  skill:prompt: bf6895c8d6367795da5cc65d41f87373825023ee53a7fc06671bf4f071140fda
+  rubric:__persona: 0d66e78b28d34e51f0fc9ef8a3004f2ac9cd1cbff8bfa3b9bec871fdad43df8b
+  stimulus:F04-plan-skill: 117ac4ac33b3f59e4ab245b35790e5bb188bae2444f573a8d3e28c17c442bff0
+  rubric:F04-plan-skill: d08b0f5aae8a945fef0256dd5c03fd8e9032e01047982371906ee021a33473e0
+  policy:F04-plan-skill: e70e231ed01cfa22cf0195356437da769816a602bae8009b747d7d692a056da5
+  gates:F04-plan-skill: 68b26ddaebb0771ba5ca632a7a2ed3d3e09a893f82e8962fb131c3d3ebe39aac
+  fixture:../../evals/requirement-fidelity/fixtures/missing-definition: 13641c9ad87eb2c77ee35459cd9844246d296bef318259598a1d6c7743a3e8a3
+  stimulus:F03-plan-skill: 8b0b7c8e7cb250b3b83d45937df2fdbb1d778a1a95f2b0101eae1e4808287017
+  rubric:F03-plan-skill: b5049a1fd29323b39a193e38f7f84dfa97c42a8cf796431e8937cda72f2b57c3
+  policy:F03-plan-skill: b2dc5a7e1f2b6a66c748ff3753864eae0da89eec5d7a898b6056906c3d4a3b7d
+  gates:F03-plan-skill: 7b882c64f7340013836b7fe24e1c73c508cb80cb22df04ea881a5341c934c280
+  fixture:../../evals/requirement-fidelity/fixtures/missing-source: ce3d7a99fce8afdc635be002360f55969a3f7deea3ed12a665ffb0ed6546bdf8
+  stimulus:F02-plan-skill: a24cfb78923e18f05ad339004944da36fb17d537494b03c0e13e9a1bc5a2de54
+  rubric:F02-plan-skill: 33558b840b256f12490f3778d89fed970cbc10e6725071bd0dcf2a290f3d66d4
+  policy:F02-plan-skill: e1fe33ca1ca0ae822baeacfe728c65571c0d72708300b5bd8d840c024e773e8e
+  gates:F02-plan-skill: f97da6c71989c1fd4ec3f37ddb94cdc55821cbb8faf67a640aa6313cf6a58622
+  fixture:../../evals/requirement-fidelity/fixtures/long-spec: 9372dca7ab5dd8392956e9045e606837090b38abfd9b92dded985dcb7e112174
+  stimulus:F06-plan-skill: 6ce7568447dec42ed4adcaa737dcc1178e429d13b25820e5d090befc113ef53e
+  rubric:F06-plan-skill: 0c740c090f20e7c97dba871b774c0c5a3f33e8acf130fa944cc80d4921b8e759
+  policy:F06-plan-skill: 40b8d0da994472f18699e8f02ea4e09c2d33accc8807dfe3ce0e647f245b946e
+  gates:F06-plan-skill: 1180f1b7adb8fcfba3b18135c384e95f93f8b6cbce3626fafbbe732062fa81e5
+  fixture:../../evals/requirement-fidelity/fixtures/basic: c9c36c4c57ee3d40899400f767490cfa127bdedb3025241e57e79b1d2b6cb77d
+  stimulus:F04-plan-agent: 591a0461e58f68afbbd0e77ced67767c19d739bf2897f76fb535be17b25ad14c
+  rubric:F04-plan-agent: 413107e295811de5771a9f0512a079f0db3d424166a4e79b97d2a44388085cfc
+  policy:F04-plan-agent: 5eb8f7667443253df16d892fd7afca2977816884f003866c1e2c952ec06a7b62
+  gates:F04-plan-agent: eda82699d2bd81521ecb4f117a7041c552a9d4294a1988204546ac366262c7fe
+  ../../agents/principal-plan.md: ebe1a2004085a0b804979ff57984c6fc73e2371d0c5ecebd0a5e0e1c400a1403
+  prompt:../../agents/principal-plan.md: 6240ef8512ab2f99f951cc969fbbb6473d7004b46be588e64eab7972238f3582
+  stimulus:F03-plan-agent: 67e583b5f1a646aa66912763fa22c804afa6dc47bf73b8ce2998c3e2eb6bb022
+  rubric:F03-plan-agent: 7eabc5fd190e7a9ec5287b330da971a6a41a655b0a534544f759e70b8f4c3382
+  policy:F03-plan-agent: 88177c335b693df89b97cd306c2461e47504476c72983c561b7a52b736c61ce0
+  gates:F03-plan-agent: 8d782208ae4d3d77cb402d130bafa93fcc2abf3ee566935940d7d956fc7e0f52
+  stimulus:F02-plan-agent: b045e6bb786811ac6b9d63d212525128b35cf367d1f8d3b0a80f5b2a31c0ea70
+  rubric:F02-plan-agent: 6ba1749887a3ee21801d3b5d3ad72faea3bc0c1fc2239ced0f8f0a803b9673b4
+  policy:F02-plan-agent: 515134d8988c6c2c0ef3ef49ea452bb412ac85b9bf39bf85bbd20a417d9404e2
+  gates:F02-plan-agent: 8ec41c74e312ecaf82b1ad6870a6b23e6d21d129c9279b37799eacbb83a2b9cd
+  stimulus:F06-plan-agent: 493957aac2670c253ef087f788f2d1d6c94c6ee77e5ef0018c62c87288051a1c
+  rubric:F06-plan-agent: 318f815a9f22222adc3286708afb97510a3e8fa5a1892108765aeddae7fad31a
+  policy:F06-plan-agent: 2c0313450f77c821d731276f53bb438a4b0a622af75d279e47c2fd3f667f2af6
+  gates:F06-plan-agent: a4f301cd3bf74bcb28e8282982e7a8a2aa6b173346065cf9be9a06224447bfae
+  stimulus:F07-plan-conflict-skill: 5f97215dcef47008423f9b2b7660c13ff023c4ca9397a1d325f39a4024409bfe
+  rubric:F07-plan-conflict-skill: 2f92e9fb7be8245edd186d3ce7f1f20543392dca43c69805f715c3444c405a8e
+  policy:F07-plan-conflict-skill: 93cefdfcfdb5ae2b77d4559778c924114f328cf063c30f7aa64de2609f53abc4
+  gates:F07-plan-conflict-skill: bd8204ae39838edf101b5084d1c3dc25d1cfc85304bed9c088df7bb98fff2fea
+  fixture:../../evals/requirement-fidelity/fixtures/source-conflict: 7c7ad8e29836ac7118727761cdf12e8f63a103ccc55a631a4581f3a8756139b7
+  stimulus:F05-plan-no-repo-complete-skill: f39dc7267b8d6f089760fca854ba2a2eb4da6edfd859f8dd4ccd607ccaef1b73
+  rubric:F05-plan-no-repo-complete-skill: 18b99fa78e91d9b95e3da7c92ff061fc0d83e88bb944f98a9b6db12f800b2e98
+  policy:F05-plan-no-repo-complete-skill: eebfbd3c73bc554d779fdfe1a8fb14ed891108f96d9e945f8ea200c6955d72a0
+  gates:F05-plan-no-repo-complete-skill: 2b18d8fb157d5e01b7de3a1932c44a093040d64562884a925309378524e62503
+  stimulus:F05-plan-no-repo-missing-agent: 99cc9539100ead707dcc41cd5e87ace82c5527d92dd460c2cc621b53cd3157a3
+  rubric:F05-plan-no-repo-missing-agent: 62eb5a357e144250ca88b8489ff245314cef9b0a48f188d0ec48bda01fc31b1a
+  policy:F05-plan-no-repo-missing-agent: 1948877e13998f5558cf59c7cc7fee190ad2b980cd9ddec8bf56ae4fee9c5f3a
+  gates:F05-plan-no-repo-missing-agent: 052fa7f9cfc6afcdc95265467e81de0ba5dac2a9f71e4a2f3e008ba04306eb9a
+  stimulus:F08-plan-tiny-skill: 6b38432a7389286117e3a7bb679250eff7b3b9b50930507b68e0449450b0d14c
+  rubric:F08-plan-tiny-skill: 6a9df74749d16cf3749d5e901de512cc2439958bb3617ed06471463af812e705
+  policy:F08-plan-tiny-skill: ee70f41074636c73bf37712a41623628d0008243c94e5969543701dfcd9c499f
+  gates:F08-plan-tiny-skill: a188add2fc86e0ec7ee6b427d54bfb051bb7299a16b929ffb3289a7b17caa2b9
+  fixture:../../evals/requirement-fidelity/fixtures/tiny-normative: 0638e067c812a862f1262d2a5a1eda4dc227bd611203386a3cadfaef84881246
+  stimulus:F08-plan-typo-agent: 2229e6688b1955b7187b8879dada2061e806bf85f86ff027ba6087846e430728
+  rubric:F08-plan-typo-agent: f597b28c6906050d8fe033061aaae33666134ae686decde82cf890193156bff0
+  policy:F08-plan-typo-agent: 7a20143530cddbf2f340d95f3eb585f3cf6db1cb0160c23bf78aacf530917efd
+  gates:F08-plan-typo-agent: 3265e7cf172229482b2cbfb66796434fb241019c9145be8761802fef1707796a
+  stimulus:F10-plan-proposal-skill: 480f3f6fe8fd4e5a645ef0c740a606ae1342e1508e156b13852e281b923bbd1d
+  rubric:F10-plan-proposal-skill: 8f79504ed261e663a23f160f63ee5b026bdb17d71ea501459fc8df6dc417c550
+  policy:F10-plan-proposal-skill: a1d7dea2da9203777249e9d70e989e2791438b18f270eb78258e946477f16dc0
+  gates:F10-plan-proposal-skill: 073680f67703ba3f4144479b5316ea848b9940045c430c28d97fa436705911f0
+effective_grade:
+  passed: 4
+  total: 14
+  pct: 29
+  letter: F
+  ship: false
+  note: 'gated: 10 critical fails'
+scenarios:
+  - id: F04-plan-skill
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 1 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 14201
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 5520
+      output_tokens: 276
+      cache_read_tokens: 7168
+      cost_source: unreported
+      tool_calls: 4
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 5520
+        outputTokens: 276
+        cacheReadTokens: 7168
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: a4a0c59f46586c877c896d93d4b4bd390eb4d408ab87da1b7ea63c9169da4f24
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 1 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+  - id: F03-plan-skill
+    judge_verdict: FAIL
+    judge_reason: The response does not ask the required caller-repair question.
+    suspect: false
+    metrics:
+      wall_time_ms: 30692
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 862
+      output_tokens: 144
+      cache_read_tokens: 7168
+      cost_source: unreported
+      tool_calls: 1
+      delegated_children: 0
+      max_concurrency: 1
+    usage:
+      - repetition: 0
+        inputTokens: 862
+        outputTokens: 144
+        cacheReadTokens: 7168
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_0
+      status: PASS
+      trace_version: 2
+      trace_sha256: 6916c996e5fd9d5e44901e1cd49b9f8ae391883a5c446bd471bc34f9329caf18
+      assertions:
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: The response does not ask the required caller-repair question.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: FAIL
+                reason: “Please provide” is a request, not a caller-repair question.
+              - index: 2
+                verdict: PASS
+                reason: “cannot be read at” identifies local inaccessibility without universal absence.
+              - index: 3
+                verdict: PASS
+                reason: No implementation, speculative plan, edits, or qualification are claimed.
+        recorded_verdict: FAIL
+        objective: *ref_0
+  - id: F02-plan-skill
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 2 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 170597
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 52107
+      output_tokens: 8015
+      cache_read_tokens: 135680
+      cost_source: unreported
+      tool_calls: 11
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 52107
+        outputTokens: 8015
+        cacheReadTokens: 135680
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: 7701997eae1d6f069d0e423ee38f7cf55c5c750fb6e5d9c0cd0e85fb6275614f
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 2 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)annex\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`write` (path matches "(^|/)\\.principal/(plans|reports)/[^/]+\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 2 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: >-
+            `write` (path matches "^(?!.*(?:^|/)\\.principal/(?:plans/[^/]+\\.md|\\.gitignore)$).+")
+            not called
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`annex.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`service.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`service.test.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`package.json` unchanged'
+  - id: F06-plan-skill
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 1 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 19716
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 6526
+      output_tokens: 704
+      cache_read_tokens: 7168
+      cost_source: unreported
+      tool_calls: 8
+      delegated_children: 0
+      max_concurrency: 7
+    usage:
+      - repetition: 0
+        inputTokens: 6526
+        outputTokens: 704
+        cacheReadTokens: 7168
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: de0c7b9ac792c76d51498354a5c78d0db9b47da481613f1d2ffdb5c29164a675
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SUMMARY\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 1 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: >-
+            `write` (path matches "^(?!.*(?:^|/)\\.principal/(?:plans/[^/]+\\.md|\\.gitignore)$).+")
+            not called
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SUMMARY.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.test.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`.principal/.gitignore` unchanged'
+  - id: F04-plan-agent
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 1 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 17814
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 9498
+      output_tokens: 218
+      cache_read_tokens: 7168
+      cost_source: unreported
+      tool_calls: 3
+      delegated_children: 0
+      max_concurrency: 1
+    usage:
+      - repetition: 0
+        inputTokens: 9498
+        outputTokens: 218
+        cacheReadTokens: 7168
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: e614a48c74b687225eb6096243557a01ede8ae8fbd9f0f7e25a07807bfbb21f0
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 1 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+  - id: F03-plan-agent
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 1 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 10603
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 4838
+      output_tokens: 219
+      cache_read_tokens: 3584
+      cost_source: unreported
+      tool_calls: 2
+      delegated_children: 0
+      max_concurrency: 2
+    usage:
+      - repetition: 0
+        inputTokens: 4838
+        outputTokens: 219
+        cacheReadTokens: 3584
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: 8222da879df7cd26f63dbdbeffbb7074b852735c6b5cb620d151d77d31294a6e
+      assertions:
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 1 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+  - id: F02-plan-agent
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 2 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 88109
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 33637
+      output_tokens: 7591
+      cache_read_tokens: 83456
+      cost_source: unreported
+      tool_calls: 11
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 33637
+        outputTokens: 7591
+        cacheReadTokens: 83456
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: 919855379e911a9d1e6852815d1575e83381ed157e95db6c1cd6bbea965a0e93
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 2 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)annex\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`write` (path matches "(^|/)\\.principal/(plans|reports)/[^/]+\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 2 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: >-
+            `write` (path matches "^(?!.*(?:^|/)\\.principal/(?:plans/[^/]+\\.md|\\.gitignore)$).+")
+            not called
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`annex.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`service.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`service.test.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`package.json` unchanged'
+  - id: F06-plan-agent
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 1 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 21218
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 2101
+      output_tokens: 709
+      cache_read_tokens: 10752
+      cost_source: unreported
+      tool_calls: 7
+      delegated_children: 0
+      max_concurrency: 6
+    usage:
+      - repetition: 0
+        inputTokens: 2101
+        outputTokens: 709
+        cacheReadTokens: 10752
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: a909b2cf245a0fd91ab5a35059f4f4447972583baaa62cd7acc5f2817bc5bbdd
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SUMMARY\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 1 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: >-
+            `write` (path matches "^(?!.*(?:^|/)\\.principal/(?:plans/[^/]+\\.md|\\.gitignore)$).+")
+            not called
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SUMMARY.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.test.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`.principal/.gitignore` unchanged'
+  - id: F07-plan-conflict-skill
+    judge_verdict: PASS
+    judge_reason: All requirements are clearly satisfied.
+    suspect: false
+    metrics:
+      wall_time_ms: 33822
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 4617
+      output_tokens: 239
+      cache_read_tokens: 3584
+      cost_source: unreported
+      tool_calls: 3
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 4617
+        outputTokens: 239
+        cacheReadTokens: 3584
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_1
+      status: PASS
+      trace_version: 2
+      trace_sha256: de33214e6077e71a0a3feadf02dd3c8997e2c6f638dc7a1249d5726b1c3e643e
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC-A\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC-B\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC-A.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC-B.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`implementation.mjs` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: All requirements are clearly satisfied.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: “BLOCKED” names “0–3” and “0–4” and asks one question.
+              - index: 2
+                verdict: PASS
+                reason: “Both specs are binding” and “no precedence is supplied.”
+              - index: 3
+                verdict: PASS
+                reason: “Why it blocks” confirms unresolved conflict; no execution is claimed.
+        recorded_verdict: PASS
+        objective: *ref_1
+  - id: F05-plan-no-repo-complete-skill
+    judge_verdict: PASS
+    judge_reason: Complete hypothetical plan maps requirements and tests without execution or persistence.
+    suspect: false
+    metrics:
+      wall_time_ms: 37188
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 4018
+      output_tokens: 578
+      cost_source: unreported
+      tool_calls: 0
+      delegated_children: 0
+      max_concurrency: 0
+    usage:
+      - repetition: 0
+        inputTokens: 4018
+        outputTokens: 578
+        cacheReadTokens: null
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_2
+      status: PASS
+      trace_version: 2
+      trace_sha256: b7ba88052cb1ebb9efa55ab01989421e3e11e0958ce8da5fcebab606eefe5a1f
+      assertions:
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: >-
+              Complete hypothetical plan maps requirements and tests without execution or
+              persistence.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: Proceeds with “hypothetical `permit(count)`” despite “no repository available.”
+              - index: 2
+                verdict: PASS
+                reason: “Filename guesses are assumptions”; maps LIMIT-1/QUAL-1 to S1 and boundary tests.
+              - index: 3
+                verdict: PASS
+                reason: Says “planned, not executed” with no persistence or execution claim.
+        recorded_verdict: PASS
+        objective: *ref_2
+  - id: F05-plan-no-repo-missing-agent
+    judge_verdict: FAIL
+    judge_reason: Required caller-repair question was not asked; “Please supply” is not a question.
+    suspect: false
+    metrics:
+      wall_time_ms: 36655
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 462
+      output_tokens: 115
+      cache_read_tokens: 3584
+      cost_source: unreported
+      tool_calls: 0
+      delegated_children: 0
+      max_concurrency: 0
+    usage:
+      - repetition: 0
+        inputTokens: 462
+        outputTokens: 115
+        cacheReadTokens: 3584
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_3
+      status: PASS
+      trace_version: 2
+      trace_sha256: 492f33c9c9de7a4a221f826d8c52a7415686a1ae5f5c2d38ebcf6528b4aeb228
+      assertions:
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Required caller-repair question was not asked; “Please supply” is not a question.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: FAIL
+                reason: “Please supply” is a request, not one caller-repair question.
+              - index: 2
+                verdict: PASS
+                reason: “not available” rejects convention without claiming global absence.
+              - index: 3
+                verdict: PASS
+                reason: “BLOCKED” includes no implementation, edits, plan, or qualification claim.
+        recorded_verdict: FAIL
+        objective: *ref_3
+  - id: F08-plan-tiny-skill
+    judge_verdict: PASS
+    judge_reason: All checklist requirements are clearly satisfied.
+    suspect: false
+    metrics:
+      wall_time_ms: 34580
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 1111
+      output_tokens: 271
+      cache_read_tokens: 7168
+      cost_source: unreported
+      tool_calls: 3
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 1111
+        outputTokens: 271
+        cacheReadTokens: 7168
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_4
+      status: PASS
+      trace_version: 2
+      trace_sha256: a242c3a236f3570f2e26e56a9f69aa4e325613702ece2fd5f5974fc86ecabdf5
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)limit\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: >-
+            `write` (path matches "^(?!.*(?:^|/)\\.principal/(?:plans/[^/]+\\.md|\\.gitignore)$).+")
+            not called
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`.principal/.gitignore` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: All checklist requirements are clearly satisfied.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: Exactly three “Change,” “Test,” and “Done” lines; no risk register.
+              - index: 2
+                verdict: PASS
+                reason: “allow…3; reject…4” includes applicable “QUAL-1” malformed checks.
+              - index: 3
+                verdict: PASS
+                reason: Explicitly states “planned, not executed,” without claiming implementation.
+        recorded_verdict: PASS
+        objective: *ref_4
+  - id: F08-plan-typo-agent
+    judge_verdict: FAIL
+    judge_reason: “Done” suggests implementation occurred, contradicting the unchanged-source requirement.
+    suspect: false
+    metrics:
+      wall_time_ms: 32789
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 4577
+      output_tokens: 116
+      cache_read_tokens: 3584
+      cost_source: unreported
+      tool_calls: 1
+      delegated_children: 0
+      max_concurrency: 1
+    usage:
+      - repetition: 0
+        inputTokens: 4577
+        outputTokens: 116
+        cacheReadTokens: 3584
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_5
+      status: PASS
+      trace_version: 2
+      trace_sha256: bc626f074cac873f67831b818ed78dd238fd08a8e715f82cf405ab094118208f
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)NOTES\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: >-
+            `write` (path matches "^(?!.*(?:^|/)\\.principal/(?:plans/[^/]+\\.md|\\.gitignore)$).+")
+            not called
+        - kind: unchanged_path
+          status: PASS
+          detail: '`NOTES.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: >-
+              “Done” suggests implementation occurred, contradicting the unchanged-source
+              requirement.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: 'Minimal three-line plan: “Change,” “Test,” and “Done.”'
+              - index: 2
+                verdict: PASS
+                reason: Identifies only “NOTES.md” prose typo “admision” → “admission.”
+              - index: 3
+                verdict: FAIL
+                reason: “Done” ambiguously claims completion despite plan-only instruction.
+        recorded_verdict: FAIL
+        objective: *ref_5
+  - id: F10-plan-proposal-skill
+    judge_verdict: PASS
+    judge_reason: All requirements are preserved, explicitly planned, and not falsely claimed complete.
+    suspect: false
+    metrics:
+      wall_time_ms: 37043
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 423
+      output_tokens: 681
+      cache_read_tokens: 3584
+      cost_source: unreported
+      tool_calls: 0
+      delegated_children: 0
+      max_concurrency: 0
+    usage:
+      - repetition: 0
+        inputTokens: 423
+        outputTokens: 681
+        cacheReadTokens: 3584
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_6
+      status: PASS
+      trace_version: 2
+      trace_sha256: 8103c036371c207da29c79f79ebb3c419e3beffb5de28101d9b5a9d81ec71233
+      assertions:
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: All requirements are preserved, explicitly planned, and not falsely claimed complete.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: “≤ 20 ms at 1000 RPS for ten minutes”
+              - index: 2
+                verdict: PASS
+                reason: “PERF-1 remains unverified” until execution on “selected host.”
+              - index: 3
+                verdict: PASS
+                reason: “No repository available; file paths are assumptions.”
+        recorded_verdict: PASS
+        objective: *ref_6

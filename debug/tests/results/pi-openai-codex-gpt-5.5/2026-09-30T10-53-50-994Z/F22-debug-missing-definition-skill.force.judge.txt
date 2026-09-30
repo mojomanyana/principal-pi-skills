@@ -1,0 +1,2 @@
+VERDICT: PASS
+REASON: 1 PASS “confirmed by code”; 2 PASS “definition…missing”; 3 PASS “read-only”, “not run”.

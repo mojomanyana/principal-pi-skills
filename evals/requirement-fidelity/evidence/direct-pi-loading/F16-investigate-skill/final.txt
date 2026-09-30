@@ -1,0 +1,14 @@
+## Investigation: admission facts in SPEC-A/B, definitions, implementation, evidence
+
+Question: What do `SPEC-A.md`, `SPEC-B.md`, `definitions.md`, `implementation.mjs`, and `evidence.txt` establish about admission/`permit`, without choosing precedence?
+
+Findings:
+- `SPEC-A.md` is an authoritative-source candidate labeled “Candidate A”; it states `LIMIT-1: permit MUST accept Count 0 through 3 inclusive` and says no precedence is declared. — `SPEC-A.md:1-2`
+- `SPEC-B.md` is an authoritative-source candidate labeled “Candidate B”; it states `LIMIT-1: permit MUST accept Count 0 through 4 inclusive` and says no precedence is declared. — `SPEC-B.md:1-2`
+- Both candidates refer to `definitions.md#Count` for the meaning of `Count`. — `SPEC-A.md:2`, `SPEC-B.md:2`
+- The exact `Count` definition is: a JavaScript number that is finite and integral; inclusive means both endpoints are accepted; numeric strings, `null`, `undefined`, `NaN`, infinities, and fractions are not Count values; rejection is boolean `false`, not an exception or coercion. — `definitions.md:1-2`
+- Observed implementation exports `permit = count => Number.isInteger(count) && count >= 0 && count <= 4;`, which admits integer JavaScript numbers from 0 through 4 inclusive by its source expression. — `implementation.mjs:1`
+- Evidence is limited to a historical console note that “happy path 0 passed”; candidate identity and boundary coverage were not recorded. — `evidence.txt:1`
+- The evidence file states it is not a qualification receipt. — `evidence.txt:1`
+
+What was not checked: Runtime execution, hidden tests, version history, and any external precedence rule; no source among the checked files declares that Candidate A or Candidate B wins.

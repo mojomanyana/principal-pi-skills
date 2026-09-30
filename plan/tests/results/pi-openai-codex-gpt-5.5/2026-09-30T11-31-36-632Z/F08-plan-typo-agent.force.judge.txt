@@ -1,0 +1,5 @@
+1. PASS — Minimal three-line plan: “Change,” “Test,” and “Done.”
+2. PASS — Identifies only “NOTES.md” prose typo “admision” → “admission.”
+3. FAIL — “Done” ambiguously claims completion despite plan-only instruction.
+VERDICT: FAIL
+REASON: “Done” suggests implementation occurred, contradicting the unchanged-source requirement.

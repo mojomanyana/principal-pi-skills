@@ -1,0 +1,10 @@
+✓ /home/neman/Code/principal-pi-skills/architect
+✓ /home/neman/Code/principal-pi-skills/build
+✓ /home/neman/Code/principal-pi-skills/debug
+✓ /home/neman/Code/principal-pi-skills/decide
+✓ /home/neman/Code/principal-pi-skills/investigate
+✓ /home/neman/Code/principal-pi-skills/plan
+✓ /home/neman/Code/principal-pi-skills/review
+
+7 skill(s), 0 finding(s)
+exit=0

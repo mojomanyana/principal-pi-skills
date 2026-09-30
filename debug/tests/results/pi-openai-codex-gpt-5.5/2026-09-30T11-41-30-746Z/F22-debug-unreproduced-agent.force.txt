@@ -1,0 +1,17 @@
+>>> USER:
+A caller says parseCount occasionally returns the wrong value but supplied no failing input, trace or environment. Read SPEC.md, parse.mjs and parse.test.mjs. SPEC.md defines expected semantics and existing tests cover a happy path, not the reported intermittent event. This is read-only diagnosis: no shell or writes. Do not equate a static code suspicion with reproducing this unspecified symptom.
+
+<<< ASSISTANT:
+## Bug: parseCount “occasionally returns wrong value” is unspecified; static code violates SPEC.md
+Reproduction: NOT REPRODUCED: no failing input, trace, command, or environment supplied; no shell allowed
+Isolated to: not isolated; only static review of `SPEC.md`, `parse.mjs`, `parse.test.mjs`
+Hypotheses tested: `parse.mjs` uses `Number.parseInt(value, 10)`, which is too permissive for SPEC.md → static evidence only, not confirmed as the reported intermittent symptom
+Boundary evidence: not established for reported symptom; statically, parser boundary is `parseCount(value)` in `parse.mjs`
+Wait condition: not applicable
+Root cause: not established for the reported intermittent event; static spec mismatch at `parse.mjs:1` because `parseInt` accepts prefixes/coercions and ignores suffixes, contrary to PARSE-1
+Fix: proposed/unproven: require `typeof value === 'string'`, match entire string with ASCII digits, convert to number, reject unsafe integers, otherwise throw `TypeError('invalid count')`
+Regression test: proposed, not run: add QUAL-P cases for rejected and accepted values from `SPEC.md`
+Suite: not run: shell prohibited by request
+Workspace: none (read-only diagnosis) — shell/workspace creation prohibited
+Blocked: What exact input, environment, and call sequence produced the “occasionally wrong value”?
+Next: blocked

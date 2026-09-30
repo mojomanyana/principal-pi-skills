@@ -1,0 +1,227 @@
+schema: 2
+harness_version: 0.21.0
+harness_cli_version: 0.87.1
+skill: decide
+harness: pi
+model: openai-codex:gpt-5.5
+judge:
+  provider: openai-codex
+  model: gpt-5.6-sol
+timestamp: '2026-09-30T10:53:50.975Z'
+label: null
+mode: force
+source_hashes:
+  SKILL.md: 765d647c55330a9e067d0a4f8f69536d023e730473764703f25e7ea54fc82114
+  skill:prompt: e4b0f5b076a794a0fbbd0cbd32c2f1a0acc79c0bc6a5e37949b38cb232b29ce6
+  rubric:__persona: 22bc191ca2980a42231df4856ef26c2c92e96df19f24704351c789a72387e703
+  stimulus:F18-decide-missing-skill: 5737d9363f86fa8edea668d4f22674f08933dd9f37905c6c6cc2fc01621ebeab
+  rubric:F18-decide-missing-skill: 5afe0677d36c6d2bc77c3ebeddc92a1ff07f9ea83ec816190f0cb591f8d34940
+  policy:F18-decide-missing-skill: 015aaa7fcd0143734e989452f6eadbd10f891b68bb4cdfadf7f869716b9ffa2f
+  gates:F18-decide-missing-skill: f7108dc928d056680a8338b18a43c37c370d91b3425d8f7f7faf3c8e25eeb063
+  stimulus:F18-decide-tiny-skill: 725cf932688ff6c12466f6f4e4305015b0e5339fbc7c595377be3adeadc314fd
+  rubric:F18-decide-tiny-skill: b8f5ec5decc9b629bed45db670563865a2292cfc3781607cf8a7a62c7fb47a39
+  policy:F18-decide-tiny-skill: a057587b2879b0df2eb06a9f4a08bcd82c63d5d30bb70a744792679b267e2e09
+  gates:F18-decide-tiny-skill: eb1f868ef5478e648354bd0d146f17cc6a2664c80d87f023bc6a87aa02c98649
+  stimulus:F18-decide-delegated-skill: 2917efd9043aa022ccd5860bdbed3a31a0d6b3a05a29fdc9b4b09da7a3232d6a
+  rubric:F18-decide-delegated-skill: 09739ed8176e5797dd7c4a3d2e0983b9b4653356c7bfa2e55902105e3e30b659
+  policy:F18-decide-delegated-skill: ecfd6fe229809346ba5aaaf08164508832c420432799cdb771cc58d92af34b01
+  gates:F18-decide-delegated-skill: ad5af8f40c96733b347e4600ab57279248e3f8f033acc22d4d6b85b7b5f80d46
+effective_grade:
+  passed: 3
+  total: 3
+  pct: 100
+  letter: A
+  ship: true
+  note: ''
+scenarios:
+  - id: F18-decide-missing-skill
+    judge_verdict: PASS
+    judge_reason: Binding jurisdiction overrides price; Birch is selected pending Cedar proof.
+    suspect: false
+    metrics:
+      wall_time_ms: 38171
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 2783
+      output_tokens: 409
+      cost_source: unreported
+      tool_calls: 0
+      delegated_children: 0
+      max_concurrency: 0
+    usage:
+      - repetition: 0
+        inputTokens: 2783
+        outputTokens: 409
+        cacheReadTokens: null
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_0
+      status: PASS
+      trace_version: 2
+      trace_sha256: c3d7a45cb1bb47ac523547c6a21a4055b1d6ea7230c94572600a6f87c05b4abc
+      assertions:
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: Binding jurisdiction overrides price; Birch is selected pending Cedar proof.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: Calls DATA-1 “Binding” and Cedar backup jurisdiction “unknown.”
+              - index: 2
+                verdict: PASS
+                reason: >-
+                  “Choose Birch now, unless Cedar provides documented proof” avoids Cedar
+                  assumption.
+              - index: 3
+                verdict: PASS
+                reason: “bounded” choice includes “Do nothing / defer”; no implementation pipeline.
+        recorded_verdict: PASS
+        objective: *ref_0
+  - id: F18-decide-tiny-skill
+    judge_verdict: PASS
+    judge_reason: The response recommends the status quo without inventing requirements or implementation work.
+    suspect: false
+    metrics:
+      wall_time_ms: 30378
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 2773
+      output_tokens: 56
+      cost_source: unreported
+      tool_calls: 0
+      delegated_children: 0
+      max_concurrency: 0
+    usage:
+      - repetition: 0
+        inputTokens: 2773
+        outputTokens: 56
+        cacheReadTokens: null
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_1
+      status: PASS
+      trace_version: 2
+      trace_sha256: 2e758019444640e0855d9d6295eedfed11f9a8eabbe8eba065c73137b73db48b
+      assertions:
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: >-
+              The response recommends the status quo without inventing requirements or
+              implementation work.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: “Keep `node --test`”; cites “two maintainers” and a “working reversible command.”
+              - index: 2
+                verdict: PASS
+                reason: Cites “solely to save typing,” inventing no blockers or pipeline.
+              - index: 3
+                verdict: PASS
+                reason: >-
+                  Treats “typing savings” as nonbinding; proposes no changes, measurements, or
+                  handoff.
+        recorded_verdict: PASS
+        objective: *ref_1
+  - id: F18-decide-delegated-skill
+    judge_verdict: PASS
+    judge_reason: All requirements are explicitly preserved with an evidence-dependent HOLD.
+    suspect: false
+    metrics:
+      wall_time_ms: 31236
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 2774
+      output_tokens: 333
+      cost_source: unreported
+      tool_calls: 0
+      delegated_children: 0
+      max_concurrency: 0
+    usage:
+      - repetition: 0
+        inputTokens: 2774
+        outputTokens: 333
+        cacheReadTokens: null
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_2
+      status: PASS
+      trace_version: 2
+      trace_sha256: 9797123eae6b91547677cef7fbec5031604c7b3600d9075465440bc924f994e3
+      assertions:
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: All requirements are explicitly preserved with an evidence-dependent HOLD.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: >-
+                  Keeps “independently verifiable deletion within 24 hours”; “Neither” supplied
+                  evidence.
+              - index: 2
+                verdict: PASS
+                reason: Returns “HOLD” and conditions selection on acceptable provider evidence.
+              - index: 3
+                verdict: PASS
+                reason: Stays a bounded “Decision brief”; claims no deletion measurement.
+        recorded_verdict: PASS
+        objective: *ref_2

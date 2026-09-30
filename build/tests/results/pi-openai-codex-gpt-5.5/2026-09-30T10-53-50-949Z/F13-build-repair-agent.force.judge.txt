@@ -1,0 +1,8 @@
+1. FAIL — “Changed paths” provides no evidence named files were read.
+2. FAIL — “pass 3; fail 0” shows no observed red or candidate binding.
+3. FAIL — “Findings applied” omits completed, unverified, and unmet requirement statuses.
+4. FAIL — “Next: review” does not retain caveats or distinguish integration success.
+5. FAIL — “REV-001” is named, but acceptance-condition compliance is unsupported.
+
+VERDICT: FAIL
+REASON: The summary lacks source-reading, red-test, candidate-bound, status, and acceptance evidence.

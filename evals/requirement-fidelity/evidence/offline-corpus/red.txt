@@ -1,0 +1,107 @@
+✖ seven substantive installed-runner specs have unique cases and resolving fixtures/contracts (0.993789ms)
+✖ F01–F24 inventory resolves every case and preserves unmeasured chain/retention gaps (0.983428ms)
+✖ long source has 40 numbered + 8 unnumbered + 3 gates with exact independent oracle locators (0.227559ms)
+✖ acceptance-oracle counterexamples reject dropped tails, collisions, missing gates and false evidence (0.20226ms)
+✖ real fixture packages run node tests; hidden acceptance catches planted limit and parser defects (0.249569ms)
+ℹ tests 5
+ℹ suites 0
+ℹ pass 0
+ℹ fail 5
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 73.696413
+
+✖ failing tests:
+
+test at tests/unit/fidelity-corpus.test.mjs:14:1
+✖ seven substantive installed-runner specs have unique cases and resolving fixtures/contracts (0.993789ms)
+  Error: ENOENT: no such file or directory, open '/home/neman/Code/principal-pi-skills/plan/tests/specification.yaml'
+      at readFileSync (node:fs:539:20)
+      at text (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:10:21)
+      at json (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:11:32)
+      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:17:18)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.start (node:internal/test_runner/test:1257:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/home/neman/Code/principal-pi-skills/plan/tests/specification.yaml'
+  }
+
+test at tests/unit/fidelity-corpus.test.mjs:51:1
+✖ F01–F24 inventory resolves every case and preserves unmeasured chain/retention gaps (0.983428ms)
+  Error: ENOENT: no such file or directory, open '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/scenarios.json'
+      at readFileSync (node:fs:539:20)
+      at text (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:10:21)
+      at json (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:11:32)
+      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:52:21)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/scenarios.json'
+  }
+
+test at tests/unit/fidelity-corpus.test.mjs:65:1
+✖ long source has 40 numbered + 8 unnumbered + 3 gates with exact independent oracle locators (0.227559ms)
+  Error: ENOENT: no such file or directory, open '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/long-spec/SPEC.md'
+      at readFileSync (node:fs:539:20)
+      at text (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:10:21)
+      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:66:16)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/long-spec/SPEC.md'
+  }
+
+test at tests/unit/fidelity-corpus.test.mjs:85:1
+✖ acceptance-oracle counterexamples reject dropped tails, collisions, missing gates and false evidence (0.20226ms)
+  Error: ENOENT: no such file or directory, open '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/oracles/long-spec.json'
+      at readFileSync (node:fs:539:20)
+      at text (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:10:21)
+      at json (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:11:32)
+      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:86:18)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/oracles/long-spec.json'
+  }
+
+test at tests/unit/fidelity-corpus.test.mjs:104:1
+✖ real fixture packages run node tests; hidden acceptance catches planted limit and parser defects (0.249569ms)
+  Error: ENOENT: no such file or directory, open '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/basic/package.json'
+      at readFileSync (node:fs:539:20)
+      at text (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:10:21)
+      at json (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:11:32)
+      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-corpus.test.mjs:107:18)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)
+      at Test.postRun (node:internal/test_runner/test:1537:19)
+      at Test.run (node:internal/test_runner/test:1462:12)
+      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/basic/package.json'
+  }

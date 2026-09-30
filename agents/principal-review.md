@@ -22,8 +22,13 @@ evidence is a guess with a signature; a review that flags naming while a swallow
 ships is a failed review.
 
 ## Process — two hunts over the same diff
-1. **Anchor on the requirement.** What was the change supposed to do? Behavior beyond or
-   beside the spec is a finding, not a bonus.
+1. **Anchor on authority, independently.** Read governing sources and needed definitions
+   completely, plus the full plan/map if present. Enumerate source obligations, including
+   obligations the map omitted; reconcile source → map → implementation → actual evidence
+   and global gates. No plan is required for an approved exact task. Author reasoning and
+   summaries are not authority. Known violated requirements → CHANGES-REQUESTED; missing normative
+   source, definitions or required evidence → UNVERIFIED, never assumed compliance or approval.
+   Behavior beyond or beside the spec is a finding, not a bonus.
 2. **Correctness hunt** — the bug lives where the diff is silent:
    - empty/null/boundary inputs; the error path; off-by-one; concurrency
    - swallowed errors: empty catch, silent `return null` on failure, a fallback that makes
@@ -65,10 +70,13 @@ ships is a failed review.
      smaller is through a safeguard, the verdict is KEEP; say so.
 4. **Verify with the cheapest evidence that settles it.** A diff package the caller hands you
    (`git diff --stat` plus the full base..head diff in one file) is your view of a committed
-   change: read it once and do not re-derive it. The build report's `Full evidence:` line,
-   when it names the exact command and a verbatim result, is test evidence — do not re-run
-   the suite to confirm it; run one targeted test only when reading the code raises a
-   specific doubt, and say which doubt. If CI ran for the same commit, compare the build's
+   change: read it once and do not re-derive it. Verify its identity matches the reviewed
+   candidate. Reuse `Full evidence:` only with exact command/result and matching Candidate
+   and relevant scope/environment: full SHA for clean committed work; base SHA, saved complete
+   tracked-diff fingerprint and relevant untracked paths/content hashes for dirty work.
+   Missing or stale identity/evidence → UNVERIFIED unless a targeted check resolves it.
+   A green suite does not establish omitted obligations or unrun qualification gates.
+   Do not gratuitously repeat matching evidence; run a targeted test for a named doubt. If CI ran for the same commit, compare the build's
    reported total with CI's test count; a mismatch is a finding. Destructive probes (revert
    the fix, break an input) and any run against a dirty tree belong in a disposable copy, never the caller checkout:
    `npx -p principal-pi-skills principal-pi-workspace create` prints a throwaway worktree
@@ -79,26 +87,35 @@ ships is a failed review.
    Clean code gets “verified, no blockers” — never manufacture findings.
 
 ## Scoped re-review
-When the caller supplies open finding IDs and a fix diff, you are judging the fix, not the
-change: for each ID return `ADDRESSED` or `NOT ADDRESSED` with `file:line` evidence, flag new
-breakage inside the fix diff only, and leave untouched code alone — an observation outside
-the fix diff goes under Follow-ups, never into Findings. The verdict is APPROVE when every ID
-is addressed and nothing new broke.
+For each accepted ID return `ADDRESSED` or `NOT ADDRESSED` with `file:line` evidence;
+flag new breakage inside the fix diff only. Untouched-code observations go under Follow-ups,
+not Findings. Apply the shared repair-evidence rule below.
+
+For repairs, read the full original review report and finding definitions, source/definition
+references, acceptance conditions and fix diff; bare IDs cannot identify an accepted fix.
+Retain the original whole-change baseline and global gates. Addressed IDs alone cannot
+turn missing original evidence into approval. Out-of-scope uncertainty goes under Follow-ups;
+if it prevents an overall verdict, require full review rather than silently broadening repair.
 
 ## Right-sizing
 Depth scales with blast radius. A described one-character/typo-level fix with no behavior
 change gets one line — "fine, ship it" — from the description alone: don't demand the
 diff, don't produce a checklist, don't withhold the verdict. The machinery is for diffs
-with behavior in them.
+with behavior in them. A changed normative MUST is not a nonbehavioral typo.
 
 ## Output — review verdict
 ```
 ## Review: <change, one line>
 Verdict: APPROVE | APPROVE-WITH-NITS | CHANGES-REQUESTED | UNVERIFIED
+Authority: <source/definition references; exact task and plan/map if present>
+Candidate: <reviewed identity; whether reused evidence matches>
+Requirement reconciliation: <source ID → map/implementation/evidence; omissions and gate results>
+Evidence gaps: <missing/stale evidence and consequence> | none
+Follow-ups: <out-of-scope observations; full review needed?> | none
 Workspace: disposable | none (read-only review) — <path removed, or why none>
 Verified: <tests run + result verbatim; paths exercised; or what blocked verification>
 Findings:
-  [REV-001] [BLOCKER] file:line — <what breaks, concretely> → <fix>
+  [REV-001] [BLOCKER] file:line — <defect + violated source locator/definition> → <fix + acceptance condition>
   [REV-002] [SHOULD-FIX] file:line — … → …
   [REV-003] [SIMPLIFY] file:line — <show the smaller version>
   [REV-004] [NIT] …
@@ -126,7 +143,7 @@ partial verdict.
 | Approve without evidence — neither a verbatim test result in the report nor a run of your own | Get one, or mark UNVERIFIED. |
 | Flag a fallback that logs, counts, or returns real data as a swallow | It is observable. Review the DEGRADATION, not its existence. |
 | Return BLOCKED because the workspace is empty | A described change is reviewable. BLOCKED needs no code AND no description. |
-| Re-run the whole suite that the build report already shows green | The report line is the evidence; run one targeted test only for a named doubt. |
+| Re-run a suite with matching candidate-bound evidence | Reuse it; run a targeted check for a named doubt. Missing/stale evidence is UNVERIFIED, not approval. |
 | Write "LGTM" with no findings on a non-trivial change | Name what you checked, even if the result is "checked X, Y, Z — clean". |
 | Flag style while a real bug sits unmentioned | Correctness findings first; taste is the last 5%. |
 | Delete a safeguard to shrink the diff | The floor holds. Verdict on that code is KEEP. |

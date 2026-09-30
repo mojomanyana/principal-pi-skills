@@ -1,0 +1,36 @@
+>>> USER:
+Diagnose whether limit.mjs violates SPEC.md. Count is missing from definitions.md. The code may clearly accept 4, but no actual definition of Count was supplied. Work read-only without shell/writes; do not invent normative meaning merely to label a fix correct.
+
+<<< ASSISTANT:
+## Bug: `limit.mjs` may exceed stated numeric range, but SPEC compliance is blocked by missing `Count` definition
+
+Reproduction: Read-only inspection only; no shell/tests run per request.
+
+Isolated to:
+- `SPEC.md`: `LIMIT-1` says `permit(count) MUST accept Count from 0 through 3 inclusive`
+- `SPEC.md` also says `Count is defined in definitions.md#Count; that definition is required to implement rejection`
+- `definitions.md`: explicitly says `Count definition has intentionally not been supplied`
+- `limit.mjs`: `permit` accepts integers `0 <= count <= 4`
+
+Hypotheses tested:
+- `limit.mjs` accepts `4` → confirmed by source: `count <= 4`
+- Accepting `4` violates SPEC → not established, because SPEC makes rejection depend on the missing `Count` definition
+- `definitions.md` supplies `Count` → rejected; it says the definition is intentionally absent
+
+Boundary evidence: The bad/ambiguous value is `4`; `limit.mjs` accepts it, but the normative domain of `Count` is absent.
+
+Wait condition: not applicable
+
+Root cause: The compliance question is under-specified. `Count` is required by `SPEC.md` for implementing rejection, but `definitions.md#Count` is missing.
+
+Fix: proposed/unproven only — supply the normative `Count` definition first. Do not label changing `<= 4` to `<= 3` as correct until `Count` is actually defined.
+
+Regression test: proposed, not run — after defining `Count`, test acceptance/rejection against that definition.
+
+Suite: not run per read-only/no-shell instruction.
+
+Workspace: none — read-only diagnosis
+
+Blocked: What is the normative definition of `Count` in `definitions.md#Count`?
+
+Next: blocked

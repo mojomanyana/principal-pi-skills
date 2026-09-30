@@ -1,0 +1,5 @@
+1. PASS — “1000× current 100 req/s = 100,000 req/s”; “99.99% availability.”
+2. PASS — “HOLD: payload size and retention are unknown”; they “dominate storage/network design.”
+3. PASS — “only as a shape, not a final design”; final choices are “deferred.”
+VERDICT: PASS
+REASON: Preserves scale and availability, holds unknown boundaries, and keeps alternatives explicitly conditional.

@@ -1,0 +1,6 @@
+1. PASS — “100,000 req/s,” “1 KiB,” “24-hour replay,” and “99.99%.”
+2. PASS — Requires “formal requirement change” acknowledging “SCALE-1 is no longer met.”
+3. PASS — “Capacity numbers are sizing assumptions, not proof” and require validation.
+
+VERDICT: PASS
+REASON: All binding inputs, deviation controls, and evidence limitations are explicit.

@@ -1,0 +1,12 @@
+# skill-harness: commit verdicts (results.yaml), ignore generated artifacts.
+*.txt
+*.jsonl
+report.html
+!results.yaml
+!**/results.yaml
+!**/*.txt
+!**/*.json
+!**/*.jsonl
+!**/*.diff
+!**/*.patch
+!**/*.md

@@ -1,0 +1,7 @@
+1. FAIL — “Authority” naming does not prove reading occurred before changes.
+2. FAIL — “Red evidence” and “Green evidence” lack observable command/tool receipts.
+3. FAIL — “QUAL-1...completed” is unsupported by retained tests or execution artifacts.
+4. PASS — “remains outside scope” and “Next: review” preserve downstream caveat.
+
+VERDICT: FAIL
+REASON: Reading, execution, and retained artifact evidence are not independently demonstrated.

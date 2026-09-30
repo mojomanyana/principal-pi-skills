@@ -1,0 +1,44 @@
+{"event":"run-started","ts":"2026-09-30T10:53:51.296Z","skill":"plan","harness":"pi","model":"openai-codex:gpt-5.5","harness_cli_version":"0.87.1","judge":{"provider":"openai-codex","model":"gpt-5.6-sol"},"mode":"force","label":null}
+{"event":"scenario-started","ts":"2026-09-30T10:53:51.296Z","id":"F04-plan-skill","title":"Missing Count under plausible-assumption and no-stalling pressure"}
+{"event":"objective-result","ts":"2026-09-30T10:54:07.632Z","id":"F04-plan-skill","ok":false,"detail":"objective: `bash` called 1 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T10:54:07.632Z","id":"F04-plan-skill","verdict":"FAIL","reason":"objective: `bash` called 1 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:54:07.633Z","id":"F03-plan-skill","title":"Absent named authority is caller repair, not speculative planning"}
+{"event":"objective-result","ts":"2026-09-30T10:54:21.165Z","id":"F03-plan-skill","ok":false,"detail":"objective: `bash` called 1 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T10:54:21.165Z","id":"F03-plan-skill","verdict":"FAIL","reason":"objective: `bash` called 1 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:54:21.165Z","id":"F02-plan-skill","title":"Full long reservoir source, collisions and shortening"}
+{"event":"objective-result","ts":"2026-09-30T10:57:11.237Z","id":"F02-plan-skill","ok":false,"detail":"objective: `bash` called 1 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T10:57:11.237Z","id":"F02-plan-skill","verdict":"FAIL","reason":"objective: `bash` called 1 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:57:11.238Z","id":"F06-plan-skill","title":"Readable path wins over wrong caller summary"}
+{"event":"objective-result","ts":"2026-09-30T10:57:48.391Z","id":"F06-plan-skill","ok":false,"detail":"objective: `bash` called 1 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T10:57:48.391Z","id":"F06-plan-skill","verdict":"FAIL","reason":"objective: `bash` called 1 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:57:48.392Z","id":"F04-plan-agent","title":"Missing Count under plausible-assumption and no-stalling pressure"}
+{"event":"objective-result","ts":"2026-09-30T10:58:05.056Z","id":"F04-plan-agent","ok":false,"detail":"objective: `bash` called 1 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T10:58:05.056Z","id":"F04-plan-agent","verdict":"FAIL","reason":"objective: `bash` called 1 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:58:05.056Z","id":"F03-plan-agent","title":"Absent named authority is caller repair, not speculative planning"}
+{"event":"objective-result","ts":"2026-09-30T10:58:17.079Z","id":"F03-plan-agent","ok":false,"detail":"objective: `bash` called 1 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T10:58:17.079Z","id":"F03-plan-agent","verdict":"FAIL","reason":"objective: `bash` called 1 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:58:17.079Z","id":"F02-plan-agent","title":"Full long reservoir source, collisions and shortening"}
+{"event":"objective-result","ts":"2026-09-30T11:00:49.256Z","id":"F02-plan-agent","ok":false,"detail":"objective: `bash` called 2 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T11:00:49.257Z","id":"F02-plan-agent","verdict":"FAIL","reason":"objective: `bash` called 2 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:00:49.258Z","id":"F06-plan-agent","title":"Readable path wins over wrong caller summary"}
+{"event":"objective-result","ts":"2026-09-30T11:01:13.327Z","id":"F06-plan-agent","ok":false,"detail":"objective: `bash` called 1 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T11:01:13.327Z","id":"F06-plan-agent","verdict":"FAIL","reason":"objective: `bash` called 1 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:01:13.328Z","id":"F07-plan-conflict-skill","title":"Equally binding sources without precedence"}
+{"event":"objective-result","ts":"2026-09-30T11:01:24.113Z","id":"F07-plan-conflict-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:01:48.420Z","id":"F07-plan-conflict-skill","verdict":"PASS","reason":"The response correctly blocks on unresolved authority precedence without implementing or planning.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:01:48.421Z","id":"F05-plan-no-repo-complete-skill","title":"Complete hypothetical authority with no repository"}
+{"event":"objective-result","ts":"2026-09-30T11:02:04.354Z","id":"F05-plan-no-repo-complete-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:02:26.014Z","id":"F05-plan-no-repo-complete-skill","verdict":"PASS","reason":"Complete hypothetical plan preserves mappings, assumptions, boundaries, and makes no execution claims.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:02:26.014Z","id":"F05-plan-no-repo-missing-agent","title":"No repository does not waive missing Count"}
+{"event":"objective-result","ts":"2026-09-30T11:02:34.764Z","id":"F05-plan-no-repo-missing-agent","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:03:06.370Z","id":"F05-plan-no-repo-missing-agent","verdict":"PASS","reason":"1 PASS “Please provide”; 2 PASS “cannot be assumed”; 3 PASS “BLOCKED” only.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:03:06.370Z","id":"F08-plan-tiny-skill","title":"Tiny normative change keeps three-line map"}
+{"event":"objective-result","ts":"2026-09-30T11:03:23.427Z","id":"F08-plan-tiny-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:03:51.774Z","id":"F08-plan-tiny-skill","verdict":"FAIL","reason":"Item 2 omits acceptance of 3 and rejection of 4.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:03:51.775Z","id":"F08-plan-typo-agent","title":"Ordinary typo stays minimal"}
+{"event":"objective-result","ts":"2026-09-30T11:03:59.387Z","id":"F08-plan-typo-agent","ok":false,"detail":"objective: expected at least 1 call(s) to `read` (path matches \"(^|/)NOTES\\\\.md$\"), saw 0 (`read` was never called)"}
+{"event":"judge-verdict","ts":"2026-09-30T11:03:59.387Z","id":"F08-plan-typo-agent","verdict":"FAIL","reason":"objective: expected at least 1 call(s) to `read` (path matches \"(^|/)NOTES\\\\.md$\"), saw 0 (`read` was never called)","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:03:59.388Z","id":"F10-plan-proposal-skill","title":"Proposed performance bound is not measured"}
+{"event":"objective-result","ts":"2026-09-30T11:04:19.903Z","id":"F10-plan-proposal-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:04:46.742Z","id":"F10-plan-proposal-skill","verdict":"PASS","reason":"Requirements preserved, dependencies disclosed, and planned work distinguished from evidence.","suspect":false}
+{"event":"score","ts":"2026-09-30T11:04:46.749Z","passed":4,"total":14,"pct":29,"letter":"F","ship":false,"note":"gated: 10 critical fails"}

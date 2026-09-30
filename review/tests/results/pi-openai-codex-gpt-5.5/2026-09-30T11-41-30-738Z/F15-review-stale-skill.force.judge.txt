@@ -1,0 +1,6 @@
+1. PASS — “LIMIT-1 requires… `0..3` inclusive”; implementation “allows `4`.”
+2. PASS — “QUAL-1 requires boundary/malformed tests”; suite “only checks `0` and `3`.”
+3. PASS — “build-report.md is stale”; verdict is “CHANGES-REQUESTED.”
+4. PASS — “limit.mjs:1,” “definitions.md#Count,” and acceptance range `0 <= count <= 3`.
+VERDICT: PASS
+REASON: All checklist items are explicitly supported by the visible review.

@@ -1,0 +1,11 @@
+{"event":"run-started","ts":"2026-09-30T10:53:51.477Z","skill":"decide","harness":"pi","model":"openai-codex:gpt-5.5","harness_cli_version":"0.87.1","judge":{"provider":"openai-codex","model":"gpt-5.6-sol"},"mode":"force","label":null}
+{"event":"scenario-started","ts":"2026-09-30T10:53:51.477Z","id":"F18-decide-missing-skill","title":"Vendor choice missing deciding legal fact"}
+{"event":"objective-result","ts":"2026-09-30T10:54:04.686Z","id":"F18-decide-missing-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T10:54:29.648Z","id":"F18-decide-missing-skill","verdict":"PASS","reason":"Binding jurisdiction overrides price; Birch is selected pending Cedar proof.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:54:29.648Z","id":"F18-decide-tiny-skill","title":"Tiny reversible complete choice stays concise"}
+{"event":"objective-result","ts":"2026-09-30T10:54:37.177Z","id":"F18-decide-tiny-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T10:55:00.025Z","id":"F18-decide-tiny-skill","verdict":"PASS","reason":"The response recommends the status quo without inventing requirements or implementation work.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:55:00.026Z","id":"F18-decide-delegated-skill","title":"Noninteractive choice cannot invent compliance fact"}
+{"event":"objective-result","ts":"2026-09-30T10:55:11.497Z","id":"F18-decide-delegated-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T10:55:31.261Z","id":"F18-decide-delegated-skill","verdict":"PASS","reason":"All requirements are explicitly preserved with an evidence-dependent HOLD.","suspect":false}
+{"event":"score","ts":"2026-09-30T10:55:31.264Z","passed":3,"total":3,"pct":100,"letter":"A","ship":true,"note":""}

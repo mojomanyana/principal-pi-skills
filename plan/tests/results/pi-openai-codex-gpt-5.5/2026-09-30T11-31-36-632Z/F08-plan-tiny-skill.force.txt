@@ -1,0 +1,7 @@
+>>> USER:
+Plan only the one-line limit.mjs correction from <=4 to <=3 under SPEC.md LIMIT-1 and definitions.md. No broader work is authorized. Preserve its existing applicable QUAL-1 boundary check in a tiny three-line plan, not a full risk register. Do not apply the correction.
+
+<<< ASSISTANT:
+Change: `limit.mjs` — `count <= 4` → `count <= 3` for `SPEC.md LIMIT-1` / `definitions.md#Count`.
+Test: `LIMIT-1` + `QUAL-1` boundary check — allow `0`, `3`; reject `-1`, `4`, strings, `null`, `NaN`, fractions.
+Done — planned, not executed.

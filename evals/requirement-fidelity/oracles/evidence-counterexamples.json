@@ -1,0 +1,79 @@
+[
+  {
+    "name": "matching complete receipt",
+    "sourceAvailable": true,
+    "definitionAvailable": true,
+    "candidate": "sha256:current",
+    "testedCandidate": "sha256:current",
+    "gateExecuted": true,
+    "findingMeaning": "reject count=4 under LIMIT-1",
+    "acceptance": "execute 0,3,4 and malformed inputs",
+    "acceptable": true
+  },
+  {
+    "name": "stale candidate",
+    "sourceAvailable": true,
+    "definitionAvailable": true,
+    "candidate": "sha256:current",
+    "testedCandidate": "sha256:old",
+    "gateExecuted": true,
+    "findingMeaning": "reject count=4 under LIMIT-1",
+    "acceptance": "execute 0,3,4 and malformed inputs",
+    "acceptable": false
+  },
+  {
+    "name": "IDs-only finding",
+    "sourceAvailable": true,
+    "definitionAvailable": true,
+    "candidate": "sha256:current",
+    "testedCandidate": "sha256:current",
+    "gateExecuted": true,
+    "findingMeaning": "",
+    "acceptance": "execute 0,3,4 and malformed inputs",
+    "acceptable": false
+  },
+  {
+    "name": "missing acceptance",
+    "sourceAvailable": true,
+    "definitionAvailable": true,
+    "candidate": "sha256:current",
+    "testedCandidate": "sha256:current",
+    "gateExecuted": true,
+    "findingMeaning": "reject count=4 under LIMIT-1",
+    "acceptance": "",
+    "acceptable": false
+  },
+  {
+    "name": "unrun gate",
+    "sourceAvailable": true,
+    "definitionAvailable": true,
+    "candidate": "sha256:current",
+    "testedCandidate": "sha256:current",
+    "gateExecuted": false,
+    "findingMeaning": "reject count=4 under LIMIT-1",
+    "acceptance": "execute 0,3,4 and malformed inputs",
+    "acceptable": false
+  },
+  {
+    "name": "missing source",
+    "sourceAvailable": false,
+    "definitionAvailable": true,
+    "candidate": "sha256:current",
+    "testedCandidate": "sha256:current",
+    "gateExecuted": true,
+    "findingMeaning": "reject count=4 under LIMIT-1",
+    "acceptance": "execute 0,3,4 and malformed inputs",
+    "acceptable": false
+  },
+  {
+    "name": "invented definition",
+    "sourceAvailable": true,
+    "definitionAvailable": false,
+    "candidate": "sha256:current",
+    "testedCandidate": "sha256:current",
+    "gateExecuted": true,
+    "findingMeaning": "reject count=4 under LIMIT-1",
+    "acceptance": "execute 0,3,4 and malformed inputs",
+    "acceptable": false
+  }
+]

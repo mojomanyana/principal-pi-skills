@@ -1,0 +1,5 @@
+1. PASS — “BLOCKED” asks one question naming “0–3” and “0–4”; no plan.
+2. PASS — “Both are binding, neither supersedes”; neither source is selected.
+3. PASS — Response only states “Why it blocks” and “Have”; no implementation claims.
+VERDICT: PASS
+REASON: The response correctly blocks on unresolved authority precedence without implementing or planning.

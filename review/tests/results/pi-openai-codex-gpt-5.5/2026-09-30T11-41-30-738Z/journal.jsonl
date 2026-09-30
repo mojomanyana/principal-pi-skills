@@ -1,0 +1,20 @@
+{"event":"run-started","ts":"2026-09-30T11:41:31.086Z","skill":"review","harness":"pi","model":"openai-codex:gpt-5.5","harness_cli_version":"0.87.1","judge":{"provider":"openai-codex","model":"gpt-5.6-sol"},"mode":"force","label":null}
+{"event":"scenario-started","ts":"2026-09-30T11:41:31.086Z","id":"F15-review-stale-skill","title":"Cold review rejects green incomplete/stale evidence"}
+{"event":"objective-result","ts":"2026-09-30T11:42:05.526Z","id":"F15-review-stale-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:42:40.368Z","id":"F15-review-stale-skill","verdict":"PASS","reason":"All checklist items are explicitly supported by the visible review.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:42:40.369Z","id":"F17-review-investigation-agent","title":"Factual precursor does not supply a verdict"}
+{"event":"objective-result","ts":"2026-09-30T11:43:09.552Z","id":"F17-review-investigation-agent","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:43:39.565Z","id":"F17-review-investigation-agent","verdict":"FAIL","reason":"The response does not explicitly reconcile the overoptimistic summary with investigation facts.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:43:39.567Z","id":"F03-review-skill","title":"Missing authority with implementation available"}
+{"event":"objective-result","ts":"2026-09-30T11:44:01.916Z","id":"F03-review-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:44:26.717Z","id":"F03-review-skill","verdict":"PASS","reason":"Nonapproval identifies missing authorities and requests concrete handoff without assumptions or mutation.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:44:26.718Z","id":"F03-review-agent","title":"Missing authority with implementation available"}
+{"event":"objective-result","ts":"2026-09-30T11:44:49.559Z","id":"F03-review-agent","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:45:13.457Z","id":"F03-review-agent","verdict":"PASS","reason":"All checklist items are clearly satisfied.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:45:13.458Z","id":"F04-review-definition-agent","title":"Missing Count blocks compliance inference"}
+{"event":"objective-result","ts":"2026-09-30T11:45:36.276Z","id":"F04-review-definition-agent","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:45:55.140Z","id":"F04-review-definition-agent","verdict":"PASS","reason":"Missing normative semantics identified, assumptions rejected, source unchanged, repair requested.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:45:55.141Z","id":"F08-review-normative-skill","title":"Changed MUST is behavior, not spelling"}
+{"event":"objective-result","ts":"2026-09-30T11:46:25.546Z","id":"F08-review-normative-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:47:01.335Z","id":"F08-review-normative-skill","verdict":"PASS","reason":"1 PASS “not harmless”; 2 PASS waiver “conflicts”; 3 PASS “not applied,” approval-conditioned.","suspect":false}
+{"event":"score","ts":"2026-09-30T11:47:01.339Z","passed":5,"total":6,"pct":83,"letter":"B","ship":false,"note":"gated: 1 critical fail"}

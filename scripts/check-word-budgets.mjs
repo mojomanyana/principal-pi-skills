@@ -46,7 +46,16 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // These are still ceilings, not targets — the check exists so growth is a decision someone
 // makes, not something that happens. The plan contract is deliberately over the common
 // ceiling because normative-spec fidelity needs source, ID, gate, and coverage rules.
-const BUDGETS = { skill: 1400, agent: 1500, "plan": 1550, "plan-agent": 1760, "git-ops": 2150 };
+// Individual fidelity exceptions preserve source blocking/persistence, candidate-bound
+// build/review evidence, and debug's sandbox-vs-applied distinction; common limits stay put.
+const BUDGETS = {
+  skill: 1400, agent: 1500,
+  "plan": 1900, "plan-agent": 1950,
+  "build": 1550, "build-agent": 1700,
+  "review": 1550, "review-agent": 1600,
+  "debug-agent": 1550,
+  "git-ops": 2150,
+};
 
 const words = (p) => {
   const t = readFileSync(join(ROOT, p), "utf8").trim();
