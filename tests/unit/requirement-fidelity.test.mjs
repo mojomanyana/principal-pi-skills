@@ -58,6 +58,24 @@ for (const mode of ["skill", "agent"]) {
     assert.match(text, /counts separately/);
     assert.match(text, /Never pin transient\s+review\/release status/);
   });
+  test(`build ${mode}: evidence-only scope does not manufacture durable work`, () => {
+    const text = contract("build", mode).replace(/\s+/g, " ");
+    assert.match(text, /request for evidence is not.*request to add permanent tests or verification infrastructure/s);
+    assert.match(text, /First use existing checks or a disposable probe/);
+    assert.match(text, /lasting regression test.*protects enduring behavior.*not merely.*review finding/s);
+    assert.match(text, /protected requirement.*useful after the PR is forgotten.*current behavior.*historical receipt/s);
+    assert.match(text, /authorized bugfix.*feature.*regressions.*no separate approval/s);
+    assert.match(text, /explicit request.*permanent tests.*infrastructure.*useful/s);
+    assert.match(text, /Markdown contracts are product.*structural tests/s);
+  });
+  test(`review ${mode}: evidence scope evaluates enduring usefulness without banning tests`, () => {
+    const text = contract("review", mode).replace(/\s+/g, " ");
+    assert.match(text, /evidence-only.*existing checks or a disposable probe/s);
+    assert.match(text, /protected requirement.*useful after the PR is forgotten.*current behavior.*historical receipt/s);
+    assert.match(text, /authorized bugfix.*feature.*regressions.*explicitly requested.*useful/s);
+    assert.match(text, /Markdown contracts are product.*structural tests/s);
+    assert.match(text, /historical receipt.*captured candidate.*integrity.*current qualification/s);
+  });
   test(`review ${mode}: test design distinguishes current coverage from archival integrity`, () => {
     const text = contract("review", mode);
     assert.match(text, /current regression coverage.*archived-receipt integrity.*one-off replay-tool checks/s);
@@ -95,6 +113,29 @@ for (const mode of ["skill", "agent"]) {
     assert.doesNotMatch(text, /Asked directly to fix it,\s+fix it|Never `blocked` alongside/);
   });
 }
+
+test("evidence-only admission fixture already satisfies boundary and malformed-input behavior", async () => {
+  const { permit } = await import("../../evals/requirement-fidelity/fixtures/correct-admission/limit.mjs");
+  for (const value of [0, 1, 3]) assert.equal(permit(value), true);
+  for (const value of [-1, 4, "3", null, undefined, NaN, Infinity, 1.5]) assert.equal(permit(value), false);
+  assert.equal(JSON.parse(read("evals/requirement-fidelity/fixtures/correct-admission/package.json")).scripts.test, "node --test");
+});
+
+test("evidence scope scenarios separate read-only proof from authorized boundary repair", () => {
+  const build = JSON.parse(read("build/tests/specification.yaml")).scenarios;
+  const review = JSON.parse(read("review/tests/specification.yaml")).scenarios;
+  for (const s of [build.find(s => s.id === "F25-build-evidence-only-skill"),
+    review.find(s => s.id === "F27-review-historical-audit-skill")]) {
+    assert.ok(s, "missing evidence-only scenario");
+    assert.ok(!s.system_prompt_file, "full visible skill report, not hidden agent report");
+    assert.ok(!s.assert.trace.forbid_calls, "a disposable probe may write outside the caller tree");
+    for (const path of ["*", "limit.mjs", "limit.test.mjs", "package.json", "**/*.mjs", ".github/**"]) assert.ok(s.assert.trace.unchanged_paths.includes(path));
+  }
+  const fix = build.find(s => s.id === "F26-build-boundary-regression-skill");
+  assert.ok(fix);
+  assert.ok(fix.assert.trace.require_calls.some(c => c.tool === "read" && new RegExp(c.args.path.matches).test("limit.test.mjs")));
+  assert.ok(!fix.assert.trace.forbid_calls, "ordinary test mutation is authorized");
+});
 
 test("supplied amendment companion provides meaning and preserves source documents", () => {
   const scenarios = JSON.parse(read("build/tests/specification.yaml")).scenarios;

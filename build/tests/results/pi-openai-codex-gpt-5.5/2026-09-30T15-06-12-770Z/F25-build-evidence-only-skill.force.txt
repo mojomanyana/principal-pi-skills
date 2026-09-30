@@ -1,0 +1,84 @@
+>>> USER:
+Show convincing evidence for review that permit satisfies LIMIT-1 and QUAL-1 in SPEC.md using definitions.md. The implementation is already correct; this is a verification follow-up, not a new feature. Read limit.mjs, limit.test.mjs and package.json. I need more than an assertion that the fix was addressed: give actual commands, results, the tested candidate and limitations in a full visible report. An optional saved report belongs under .principal/reports/.
+
+<<< ASSISTANT:
+## Verification report: permit satisfies LIMIT-1 and QUAL-1
+
+Changed paths: none
+
+Authority:
+- `SPEC.md:2` LIMIT-1
+- `SPEC.md:3` QUAL-1 gate
+- `SPEC.md:4` says `definitions.md#Count` is normative
+- `definitions.md:1-2` defines Count and rejection behavior
+
+Candidate:
+- Git HEAD: `8c72aa699d577bae4ffa37e64d84ccabd562d3af`
+- Working tree: clean for checked files
+- Diff hash: `e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855` empty diff
+- Relevant file hashes:
+  - `SPEC.md`: `1884c9e6ba9e341f0136e4860fef5a6954682ae691f59819a8753c001a13cbed`
+  - `definitions.md`: `8e1ff988c81a649a6a2da02a31afcf32c5abf8ee4bbd5f8877af5286a60fb947`
+  - `limit.mjs`: `c35a2b18a59cfffa793e7813a55b570e769b49bf671a60e7e6317645946f18e8`
+  - `limit.test.mjs`: `e7ea983ec535f1801259bc8eca3d328a86a0ade8cd12ad70bf2bd660255dad3f`
+  - `package.json`: `8bf23ab8a2ae4b669fc1132b0f6492518a45894d24ff90389474bf527982abf1`
+
+Requirements:
+- LIMIT-1 → `limit.mjs:1` implements `Number.isInteger(count) && count >= 0 && count <= 3`; this accepts integer numeric Counts `0..3` inclusive and rejects non-integers/non-numbers/out-of-range without coercion → verified by `node --test limit.test.mjs`, `2 pass, 0 fail` → completed.
+- QUAL-1 → `limit.test.mjs:4-11` covers `0`, `3`, `-1`, `4`, strings, `null`, `NaN`, and fractions; direct probe also executed those boundary/malformed cases on the candidate → completed.
+
+Gates:
+- QUAL-1 boundary/malformed gate: run with direct command:
+  - `node -e 'import("./limit.mjs").then(({permit}) => { ... })'`
+  - Result:
+    - `-1 (number) => false; expected false`
+    - `0 (number) => true; expected true`
+    - `3 (number) => true; expected true`
+    - `4 (number) => false; expected false`
+    - `3 (string) => false; expected false`
+    - `null (object) => false; expected false`
+    - `undefined (undefined) => false; expected false`
+    - `NaN (number) => false; expected false`
+    - `Infinity (number) => false; expected false`
+    - `-Infinity (number) => false; expected false`
+    - `1.5 (number) => false; expected false`
+
+Evidence gaps:
+- none for LIMIT-1 / QUAL-1. Limitations: verification is limited to the current implementation and tests in this repository; it does not prove behavior of any external callers not included here.
+
+Findings applied: none
+
+Red evidence:
+- N/A — verification follow-up only; no implementation change requested or made.
+
+Green evidence:
+- `node --test limit.test.mjs`
+- Result: `tests 2`, `pass 2`, `fail 0`.
+
+Full evidence:
+- `npm test`
+- Result:
+  - `npm notice run test`
+  - `npm notice run node --test`
+  - `tests 2`
+  - `pass 2`
+  - `fail 0`
+
+Tests:
+- No tests added or changed.
+- Existing `limit.test.mjs` verifies endpoints and malformed rejection.
+
+Verified:
+- `permit(-1) === false`
+- `permit(0) === true`
+- `permit(3) === true`
+- `permit(4) === false`
+- malformed/non-Count inputs including string, `null`, `undefined`, `NaN`, infinities, and fraction reject as boolean `false`.
+
+Assumptions: none
+
+Follow-ups: none
+
+Blocked: none
+
+Next: review

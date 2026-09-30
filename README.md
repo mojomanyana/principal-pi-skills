@@ -40,11 +40,13 @@ around.
 
 Individual fidelity exceptions (skill/agent words): Plan 1900/1950 buys complete source
 reads, blocking exceptions, stable mapping, persisted completeness and explicit no-shell
-fallback/tiny-file reads. Build 1750/1900 preserves pre-mutation authority classification,
+fallback/tiny-file reads. Build 1850/2000 preserves pre-mutation authority classification,
 the complete authorized-amendment positive case, immutable report/repair provenance and
-compressed evidence/caveats; Review 1600/1650 buys candidate-bound obligation/gate evidence
+compressed evidence/caveats; Review 1700/1750 buys candidate-bound obligation/gate evidence
 and repair definitions. Both distinguish lasting behavior-named regressions from historical
-receipt/replay verification, without freezing transient review/release status;
+receipt/replay verification, without freezing transient review/release status. The 100-word
+ceiling increases retain evidence-only scope safeguards and useful authorized regressions
+without removing existing guards;
 Debug's agent ceiling is 1550 for honest sandbox/applied states. Common ceilings and Git-Ops
 stay unchanged. These budgets preserve safeguards for lower-cost models, not a claim of
 measured robustness on those models.
@@ -56,8 +58,8 @@ measured robustness on those models.
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1134 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1211 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1938) or inline | 1877 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1867) or inline | 1704 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1630) or inline | 1566 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1973) or inline | 1810 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1724) or inline | 1660 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1533) or inline | 1397 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 491) or inline | 492 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2145 |
@@ -241,18 +243,26 @@ has changed; reports, raw traces and manifests are not rewritten by test cleanup
 
 **Enforcement boundary:** Build/Review instructions ask the model to organize regressions
 by lasting behavior, not PR/finding IDs, and distinguish product coverage from historical
-verification. They are not filesystem restrictions or a semantic test-quality checker.
+verification. Evidence-only requests first use existing checks or disposable probes, not
+permanent tests merely to prove a finding was addressed; ordinary approved bugfix/feature
+regressions and useful explicitly requested checks remain authorized. Markdown contracts are
+product, with legitimate structural tests. These are not filesystem restrictions or a semantic
+test-quality checker.
 The package commands and CI mechanically select suites; pi-daddy's delegated tool grants
 control available capabilities, not test names or correctness. Refresh installed skill/agent
 definitions when adopting a revision: editing this checkout does not update another installed copy.
 
 A narrow local opt-in behavioral regression corpus is authorized for requirement fidelity,
 superseding only the blanket removal of focused harness fixtures below. It is **partially measured, not fully qualified**:
-43 runnable component cases now live in `<skill>/tests/specification.yaml` for Plan, Build,
+46 runnable component cases now live in `<skill>/tests/specification.yaml` for Plan, Build,
 Review, Investigate, Decide, Architect and Debug. Shared synthetic fixtures, 51-row long-source
-oracle, all F01–F24 status/replay recipes and runner limitations are documented in
+oracle, all F01–F27 status/replay recipes and runner limitations are documented in
 [evals/requirement-fidelity/README.md](evals/requirement-fidelity/README.md), with an
-[evidence index](evals/requirement-fidelity/evidence.md). Retained live runs include failures;
+[evidence index](evals/requirement-fidelity/evidence.md). The three evidence-scope cases have
+[bounded live observations](evals/requirement-fidelity/evidence/evidence-scope/README.md):
+F25/F27 raw PASS, F26 reporting failure retained despite observed regression/repair actions.
+Broader qualification remains NOT READY; older 43-case results remain historical.
+Retained live runs include failures;
 a manually orchestrated source→plan→build→review chain, full long-plan inspection, and two
 normal skill-loading probes provide narrower positive evidence, not an all-case pass.
 PR #58 retains three direct blocking runs of the unchanged critical F04 negative and three
@@ -308,7 +318,7 @@ Decisions taken for 4.0, all closed:
 | Build delegation | `principal-build` agent; inline when there is no multi-step plan file or no subagent tool |
 | Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; no date prefix because plan has no clock, and resume matches on the `## Plan:` line |
 | Decide vs architect | both kept; decide answers "should we / which", architect answers "how is it structured" |
-| Measurement | broad qualification stays external; narrow opt-in requirement-fidelity regressions permitted locally (see Validation), not yet measured |
+| Measurement | broad qualification stays external; narrow opt-in requirement-fidelity regressions permitted locally (see Validation), partially measured but not fully qualified |
 
 Two implementation notes that differ from the obvious reading: the bootstrap is injected as
 a user-role message wrapped in `<IMPORTANT>`, because pi's `context` hook can only insert

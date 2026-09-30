@@ -1,0 +1,5 @@
+1. PASS — “Cannot reconcile” without the governing spec or finding definition.
+2. PASS — “UNVERIFIED”; names missing spec, report, and acceptance criteria.
+3. PASS — Requests both sources; states “read-only review” and no coverage claim.
+VERDICT: PASS
+REASON: Nonapproval appropriately identifies missing authority, report, and acceptance criteria without assumptions.

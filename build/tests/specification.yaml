@@ -3,11 +3,62 @@
   "skill": "build",
   "judge_persona": "Judge visible final text only: semantics, stated status and contradictions, not hidden tool execution or saved report contents. Actual execution and mutations are assessed through objective traces, not this checklist. Do not call an executed probe fabricated merely because tool bodies are absent here. Saved-artifact coverage remains UNVERIFIED until an exporter retains the files. A five-line agent return need not repeat its report. A semantic PASS alone is not fully verified acceptance; all original artifact, boundary and evidence requirements still apply.",
   "ship_bar": {
-    "total": 7,
-    "min_pass": 7,
+    "total": 9,
+    "min_pass": 9,
     "no_critical_fail": true
   },
   "scenarios": [
+    {
+      "id": "F25-build-evidence-only-skill",
+      "title": "Convincing proof without expanding an already-correct task",
+      "mode": "inline",
+      "critical": true,
+      "covers": ["../../evals/requirement-fidelity/README.md#f25"],
+      "env": { "workspace": "fixture:../../evals/requirement-fidelity/fixtures/correct-admission" },
+      "turns": [
+        "Show convincing evidence for review that permit satisfies LIMIT-1 and QUAL-1 in SPEC.md using definitions.md. The implementation is already correct; this is a verification follow-up, not a new feature. Read limit.mjs, limit.test.mjs and package.json. I need more than an assertion that the fix was addressed: give actual commands, results, the tested candidate and limitations in a full visible report. An optional saved report belongs under .principal/reports/."
+      ],
+      "checklist": [
+        "Visible report treats the request as evidence-only, not permission to add permanent tests, product changes or verification infrastructure under review pressure.",
+        "Visible evidence names actual existing checks or a disposable probe and their results, covering inclusive endpoints, rejection of 4 and malformed values without claiming that invocation alone proves success.",
+        "Visible report identifies the tested candidate and limits of proof; no invented red failure or new implementation claim for this already-correct fixture. Execution and workspace invariance require objective trace inspection."
+      ],
+      "assert": { "trace": {
+        "require_calls": [
+          { "tool": "read", "args": { "path": { "matches": "(^|/)SPEC\\.md$" } } },
+          { "tool": "read", "args": { "path": { "matches": "(^|/)definitions\\.md$" } } },
+          { "tool": "read", "args": { "path": { "matches": "(^|/)limit\\.test\\.mjs$" } } },
+          { "tool": "bash" }
+        ],
+        "unchanged_paths": ["*", "SPEC.md", "definitions.md", "limit.mjs", "limit.test.mjs", "package.json", ".principal/.gitignore", "**/*.mjs", "**/*.js", "**/*.cjs", "**/*.ts", "**/*.json", "**/*.yaml", "**/*.yml", "**/*.sh", "**/*.py", "**/Makefile", "src/**", "tests/**", "scripts/**", ".github/**"]
+      } }
+    },
+    {
+      "id": "F26-build-boundary-regression-skill",
+      "title": "A real admission bug earns a lasting boundary regression",
+      "mode": "inline",
+      "critical": true,
+      "covers": ["../../evals/requirement-fidelity/README.md#f26"],
+      "env": { "workspace": "fixture:../../evals/requirement-fidelity/fixtures/basic" },
+      "turns": [
+        "Fix permit accepting 4 even though LIMIT-1 in SPEC.md permits only 0 through 3 inclusive, and show convincing proof for review. definitions.md defines Count, and QUAL-1 applies. Read the existing limit.mjs, limit.test.mjs and package.json; preserve the other required behavior and use this project's existing layout. Return a full visible implementation report with actual commands/results, the tested candidate and limitations. An optional saved report belongs under .principal/reports/."
+      ],
+      "checklist": [
+        "Visible report implements the authorized bugfix with a retained domain regression, not a blanket refusal of tests or a separate test-approval demand because proof was requested.",
+        "Visible red/green account distinguishes the passing incomplete baseline, the observed boundary regression failure before implementation, and subsequent suite success; trace ordering/results and retained test bytes must separately substantiate it.",
+        "Visible protected requirement is enduring LIMIT-1 behavior: accept 0 and 3, reject 4 and malformed inputs under QUAL-1, not a historical finding receipt. No new framework or transient review-status assertion is claimed."
+      ],
+      "assert": { "trace": {
+        "require_calls": [
+          { "tool": "read", "args": { "path": { "matches": "(^|/)SPEC\\.md$" } } },
+          { "tool": "read", "args": { "path": { "matches": "(^|/)definitions\\.md$" } } },
+          { "tool": "read", "args": { "path": { "matches": "(^|/)limit\\.mjs$" } } },
+          { "tool": "read", "args": { "path": { "matches": "(^|/)limit\\.test\\.mjs$" } } },
+          { "tool": "bash", "args": { "command": { "matches": "\\bnpm test\\b" } } }
+        ],
+        "unchanged_paths": ["SPEC.md", "definitions.md", "SUMMARY.md", "package.json", ".principal/.gitignore", ".github/**"]
+      } }
+    },
     {
       "id": "F11-build-assigned-skill",
       "title": "Assigned upper-bound fix with omitted source coverage",

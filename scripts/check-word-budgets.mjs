@@ -51,9 +51,9 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const BUDGETS = {
   skill: 1400, agent: 1500,
   "plan": 1900, "plan-agent": 1950,
-  // Authority/repair provenance plus enduring regressions vs archival verification.
-  "build": 1750, "build-agent": 1900,
-  "review": 1600, "review-agent": 1650,
+  // Evidence-only scope and authorized regressions, retaining all authority/repair guards.
+  "build": 1850, "build-agent": 2000,
+  "review": 1700, "review-agent": 1750,
   "debug-agent": 1550,
   "git-ops": 2150,
 };

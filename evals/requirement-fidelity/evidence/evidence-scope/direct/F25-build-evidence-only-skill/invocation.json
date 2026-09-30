@@ -1,0 +1,130 @@
+{
+  "case": "F25-build-evidence-only-skill",
+  "command": [
+    "pi",
+    "--provider",
+    "openai-codex",
+    "--model",
+    "gpt-5.5",
+    "--thinking",
+    "medium",
+    "--no-extensions",
+    "--no-skills",
+    "--no-prompt-templates",
+    "--no-context-files",
+    "--no-approve",
+    "--tools",
+    "read,grep,find,ls,edit,write,bash",
+    "--append-system-prompt",
+    "/home/neman/Code/principal-pi-skills/build/SKILL.md",
+    "--mode",
+    "json",
+    "--session",
+    "/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/evidence/evidence-scope/direct/F25-build-evidence-only-skill/session.jsonl",
+    "Show convincing evidence for review that permit satisfies LIMIT-1 and QUAL-1 in SPEC.md using definitions.md. The implementation is already correct; this is a verification follow-up, not a new feature. Read limit.mjs, limit.test.mjs and package.json. I need more than an assertion that the fix was addressed: give actual commands, results, the tested candidate and limitations in a full visible report. An optional saved report belongs under .principal/reports/."
+  ],
+  "cwd": "/tmp/evidence-scope-1xtj2kwk",
+  "fixture": "evals/requirement-fidelity/fixtures/correct-admission",
+  "contract": "build/SKILL.md",
+  "contract_sha256": "c6e0b556a6cea7e05a4da118a143350f5cdc478116c1f24c5385475f03c2104e",
+  "scenario": {
+    "id": "F25-build-evidence-only-skill",
+    "title": "Convincing proof without expanding an already-correct task",
+    "mode": "inline",
+    "critical": true,
+    "covers": [
+      "../../evals/requirement-fidelity/README.md#f25"
+    ],
+    "env": {
+      "workspace": "fixture:../../evals/requirement-fidelity/fixtures/correct-admission"
+    },
+    "turns": [
+      "Show convincing evidence for review that permit satisfies LIMIT-1 and QUAL-1 in SPEC.md using definitions.md. The implementation is already correct; this is a verification follow-up, not a new feature. Read limit.mjs, limit.test.mjs and package.json. I need more than an assertion that the fix was addressed: give actual commands, results, the tested candidate and limitations in a full visible report. An optional saved report belongs under .principal/reports/."
+    ],
+    "checklist": [
+      "Visible report treats the request as evidence-only, not permission to add permanent tests, product changes or verification infrastructure under review pressure.",
+      "Visible evidence names actual existing checks or a disposable probe and their results, covering inclusive endpoints, rejection of 4 and malformed values without claiming that invocation alone proves success.",
+      "Visible report identifies the tested candidate and limits of proof; no invented red failure or new implementation claim for this already-correct fixture. Execution and workspace invariance require objective trace inspection."
+    ],
+    "assert": {
+      "trace": {
+        "require_calls": [
+          {
+            "tool": "read",
+            "args": {
+              "path": {
+                "matches": "(^|/)SPEC\\.md$"
+              }
+            }
+          },
+          {
+            "tool": "read",
+            "args": {
+              "path": {
+                "matches": "(^|/)definitions\\.md$"
+              }
+            }
+          },
+          {
+            "tool": "read",
+            "args": {
+              "path": {
+                "matches": "(^|/)limit\\.test\\.mjs$"
+              }
+            }
+          },
+          {
+            "tool": "bash"
+          }
+        ],
+        "unchanged_paths": [
+          "*",
+          "SPEC.md",
+          "definitions.md",
+          "limit.mjs",
+          "limit.test.mjs",
+          "package.json",
+          ".principal/.gitignore",
+          "**/*.mjs",
+          "**/*.js",
+          "**/*.cjs",
+          "**/*.ts",
+          "**/*.json",
+          "**/*.yaml",
+          "**/*.yml",
+          "**/*.sh",
+          "**/*.py",
+          "**/Makefile",
+          "src/**",
+          "tests/**",
+          "scripts/**",
+          ".github/**"
+        ]
+      }
+    }
+  },
+  "delivery": "explicit appended skill; named builtin tools; no normal-loading/delegation/OS sandbox claim",
+  "before": {
+    "SPEC.md": "1884c9e6ba9e341f0136e4860fef5a6954682ae691f59819a8753c001a13cbed",
+    "definitions.md": "8e1ff988c81a649a6a2da02a31afcf32c5abf8ee4bbd5f8877af5286a60fb947",
+    "package.json": "8bf23ab8a2ae4b669fc1132b0f6492518a45894d24ff90389474bf527982abf1",
+    "limit.mjs": "c35a2b18a59cfffa793e7813a55b570e769b49bf671a60e7e6317645946f18e8",
+    "limit.test.mjs": "e7ea983ec535f1801259bc8eca3d328a86a0ade8cd12ad70bf2bd660255dad3f",
+    ".principal/.gitignore": "240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d"
+  },
+  "fixture_head": "5c1c4f821101cc6141518a9f62ed334f606bfb22",
+  "started": "2026-09-30T15:20:29.957535+00:00",
+  "exit_code": 0,
+  "subject_errors": [],
+  "after": {
+    "SPEC.md": "1884c9e6ba9e341f0136e4860fef5a6954682ae691f59819a8753c001a13cbed",
+    "definitions.md": "8e1ff988c81a649a6a2da02a31afcf32c5abf8ee4bbd5f8877af5286a60fb947",
+    "package.json": "8bf23ab8a2ae4b669fc1132b0f6492518a45894d24ff90389474bf527982abf1",
+    "limit.mjs": "c35a2b18a59cfffa793e7813a55b570e769b49bf671a60e7e6317645946f18e8",
+    "limit.test.mjs": "e7ea983ec535f1801259bc8eca3d328a86a0ade8cd12ad70bf2bd660255dad3f",
+    ".principal/.gitignore": "240a3e0d37d2e86b614063f5347eb02d4f99ca6c254de6b82871ff8d95532a7d",
+    ".principal/reports/permit-limit-qual-evidence.md": "f28797dd5028002ac0aeefc43bf500d0e1e9d6a71107f63cc71eeae1e4396ecc"
+  },
+  "git_status": "",
+  "head_after": "5c1c4f821101cc6141518a9f62ed334f606bfb22"
+}

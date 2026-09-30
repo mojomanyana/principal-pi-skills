@@ -67,6 +67,13 @@ test("artifact persistence initializes ignore without overwriting policy or wide
   assert.match(read(SOURCES.plan), /No shell, implementation, reports, or other writes/);
 });
 
+test("evidence-only followups do not restart implementation through workflow resume", () => {
+  const text = read("contracts/workflows.md.tmpl");
+  assert.match(text, /Before starting or resuming.*evidence-only/s);
+  assert.match(text, /existing checks or a disposable probe.*not.*implementation/s);
+  assert.ok(text.indexOf("evidence-only") < text.indexOf("**Resume.**"));
+});
+
 test("common routing checks Review Verdict before Next and surfaces unverified evidence", () => {
   for (const p of ["AGENTS.md", "bootstrap/BOOTSTRAP.md"]) {
     const text = read(p);

@@ -1,6 +1,27 @@
 # Requirement-fidelity evidence index
 
-## Test organization and instruction-level prevention
+## Evidence-scope candidate — bounded observations
+
+The option-2 change based on `746d7826aca892cc97cb83b5b9c7c171e81f9c17` adds a
+small Build/Review evidence-scope safeguard, workflow entry guard, and exactly three
+opt-in skill cases (F25–F27). Current inventory: **46 cases**, Build 9 and Review 7.
+[Full observations and reproduction details](evidence/evidence-scope/README.md) retain
+raw harness results plus separate direct sessions and actual workspaces.
+
+- Raw force suite: Build **5/9**, Review **6/7**, both **NOT READY**.
+- F25 evidence-only and F27 historical audit: raw PASS plus direct observations with
+  originals unchanged and no new durable product/tests/tooling.
+- F26 authorized bugfix: raw FAIL because the final report omits the passing baseline.
+  Trace ordering records baseline → failing regression → implementation → green. A separate
+  direct run retains the meaningful test; independent suite/boundary checks pass and restoring
+  only the original bug makes that test fail. The report failure remains, not rejudged away.
+
+These are single-configuration observations, not normal-loading proof, comparative lift or
+broad qualification. Prompts describe the task rather than repeat the rule under test.
+Earlier 43-case results, raw reports and hash manifests below remain historical and unchanged.
+Static contract tests and corpus lint cannot qualify the new behavior.
+
+## Earlier test organization and instruction-level prevention
 
 The cleanup on top of `6a03a35719b6334e5f7cb03670512cf53b04c934` separates current
 contract/product checks from archived observations. `npm test` passes **136 unit + 24

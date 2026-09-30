@@ -12,6 +12,9 @@ You are the orchestrator. Each phase is a skill or a `principal-*` agent; you ro
 try it once; if the subagent tool is missing or reports an unknown agent, run that phase's
 skill inline and say so in the Digest. Any other agent failure stops the chain.
 
+**Scope.** Before starting or resuming, an evidence-only follow-up calls for existing checks or a disposable probe,
+not starting/restarting implementation or adding durable tests/infrastructure merely to prove completion.
+
 **Resume.** Before the first phase, list `.principal/plans/`. If exactly one file's `## Plan:` line
 describes this request's task, read it and `git log` first: a step whose commit exists is
 done. If several could match, name them and ask the user which one; if none does, start the chain at step 1. Resume at the first step without one. Never re-plan a plan the user already approved.

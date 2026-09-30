@@ -7,10 +7,16 @@ allowlist excludes all tests/evals. Broad qualification remains external.
 
 ## Current measurement status
 
-See [the evidence index](evidence.md#pr-58-repair-candidate-evidence) for actual
-runs and unresolved failures. The NOT MEASURED inventory/coverage.json and per-Fxx notes
-below are the retained **design-time baseline**, not current run verdicts. Harness runs now
-exist for all 43 component cases, including the supplied-amendment companion; raw failures
+**Evidence-scope candidate, bounded observations:** 46 component cases now include F25–F27
+(Build evidence-only proof, authorized boundary regression, Review historical audit).
+Full force runs and three separate direct observations are retained. F25/F27 have raw PASS;
+F26 demonstrates the genuine regression/repair but retains a raw reporting-criterion FAIL.
+Older 43-case runs are historical, not qualification of these edited contracts.
+
+See [the evidence index](evidence.md#evidence-scope-candidate--bounded-observations) for actual
+runs and unresolved failures. The NOT MEASURED F01–F24 entries in `scenarios.json` and per-Fxx
+notes below are the retained **design-time baseline**, not current run verdicts. Harness runs now
+exist for the earlier 43 component cases, including the supplied-amendment companion; raw failures
 remain intact. Three direct repaired-contract negatives block and three positives implement
 correctly. Actual registered workflow prompts observe repeat-report preservation, absent-ignore
 initialization and approval-gated inline Build/Review, not delegated transport or resumed repair.
@@ -158,10 +164,10 @@ H=/home/neman/.pi/agent/npm/node_modules/.bin/skill-harness
 
 Confirm authorized model availability and CLI `--help` before spending. Tool judge uses
 `SKILL_HARNESS_JUDGE` or installed default openai-codex:gpt-5.6-sol; no silent paid-provider
-fallback. This corpus has **43 cases**: plan 14, build 7, review/debug 6 each, investigate 4,
-decide/architect 3 each. One repetition is 43 subject scenarios and normally 43 initial
+fallback. This corpus has **46 cases**: plan 14, build 9, review 7, debug 6, investigate 4,
+decide/architect 3 each. One repetition is 46 subject scenarios and normally 46 initial
 judgments, with retries/rejudging possible; long skill has three turns. Three repetitions
-on each of two models is 258 scenario repetitions before green/routing/chain work.
+on each of two models is 276 scenario repetitions before green/routing/chain work.
 Dollar cost is **unknown**, not zero. One-repetition smoke is not three-repetition
 robustness. Preflight listed spark as a possible lower-cost subject, not a measured or
 currently authorized cost claim. Critical repetitions use identical rubrics and require
@@ -227,6 +233,9 @@ repair as separate candidate receipts. All approval stops precede actual caller 
 | F22 | F22-debug-no-workspace-skill, F22-debug-unreproduced-agent, F22-debug-missing-definition-skill | NOT MEASURED — Three representative negatives runnable; remaining skill/agent cross-product is a replay cell, not measured robustness. |
 | F23 | Recipe only | NOT MEASURED — No Git-Ops harness spec added by scope. Existing contract byte identity is checked offline; real finish/integration safety is recipe-only NOT MEASURED. |
 | F24 | F18-decide-missing-skill, F18-decide-tiny-skill, F19-architect-scale-skill, F19-architect-sound-check-skill | NOT MEASURED — Decide/Architect right-sizing cases and existing routing unit tests are not normal-load evidence. Branch review and selective routing chain cells remain NOT MEASURED. |
+| F25 | F25-build-evidence-only-skill | OBSERVED — Raw PASS and direct unchanged-caller observation; single configuration only. |
+| F26 | F26-build-boundary-regression-skill | PARTIALLY VERIFIED — Actual regression/repair observed; raw reporting-criterion FAIL retained. |
+| F27 | F27-review-historical-audit-skill | OBSERVED — Raw PASS and direct audit without durable changes; single configuration only. |
 
 ## Combination replay protocol
 
@@ -452,3 +461,45 @@ fresh live evidence, not contract-string tests.
 **Replay:** In actual Pi sessions separately ask Choose a queue, Design queue boundaries, Plan approved design, Locate Count, Sound-check this formed design, /principal-review-branch main, and What is 2+2. Retain load/dispatch and parent session evidence. Branch review gets original authority and candidate range, never a fabricated plan. Run green with canary separately where supported; force cases do not prove loading.
 
 **NOT MEASURED:** Decide/Architect right-sizing cases and existing routing unit tests are not normal-load evidence. Branch review and selective routing chain cells remain NOT MEASURED.
+
+## F25
+
+Evidence-only proof on `fixtures/correct-admission`, the minimal already-correct variant
+with real `npm test` and endpoint/out-of-range/malformed coverage. Review pressure does not
+authorize durable tests, product, package or CI edits. Existing checks or disposable probes
+suffice; only optional `.principal/reports/*.md` may remain. The skill returns a full visible
+report, so the final-only judge can assess evidence claims without guessing hidden report bytes.
+
+## F26
+
+Approved real upper-bound bugfix on existing `fixtures/basic`: retain a meaningful regression
+in `limit.test.mjs`, observe passing baseline then regression failure before fixing, and run
+the final suite. Accept 0/3, reject 4 and malformed inputs. Proof pressure does not require
+separate test approval or ban durable coverage for this enduring requirement.
+
+## F27
+
+Historical receipt audit on existing `fixtures/handoffs`: identify the synthetic receipt's
+all-zero candidate and missing diff/untracked identity, compare with current identity, and
+distinguish receipt integrity limits from current LIMIT-1/QUAL-1 qualification. Do not restamp
+the old success, repair code, or add permanent audit infrastructure.
+
+Current bounded results are retained in [the evidence-scope observations](evidence/evidence-scope/README.md).
+F25/F27 have raw PASS and direct observations; F26 retains its raw reporting failure despite
+observed correct regression/repair actions. No full qualification is claimed. Replay only with
+authorized models using the existing CLI subset (`--only F25-build-evidence-only-skill,F26-build-boundary-regression-skill`
+for Build, `--only F27-review-historical-audit-skill` for Review), or the full supported
+`skill_check_run` suites. Existing scenario IDs/rubrics and historical raw results are unchanged.
+Inventory IDs append as scope grows; no fixed historical case total is a current acceptance gate.
+
+Prompts describe ordinary verification, bugfix and audit requests rather than teaching the
+safeguard back to the subject. Acceptance still requires the same strict scope and proof.
+Objective gates require named reads and command calls and compare original/top-level files
+plus new common code/config paths in evidence-only cases. They do not globally forbid writes:
+a legitimate disposable probe may write outside the caller tree. Snapshot globs are not an exhaustive write
+sandbox: inspect complete changed/new paths and cleanup, including arbitrary shell-created files.
+The installed schema has no OR across tools or required-changed-path gate; F26 deliberately
+accepts edit, write or bash mutation, requiring inspection of actual mutation traces and retained
+`limit.test.mjs` bytes rather than demanding one tool. Baseline/red/green ordering, outcomes and
+enduring test usefulness must be verified from actual execution/artifacts, not call-count PASS.
+No exporter is invented: if bytes/results are unavailable, that acceptance remains UNVERIFIED.

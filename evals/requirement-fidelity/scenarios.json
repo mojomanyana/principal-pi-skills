@@ -282,5 +282,29 @@
     "acceptance": "Output-based routing uses only needed phases, branch review invents no Plan/Build, ordinary queries stay skill-free, and runtime loading is distinct from forced instructions.",
     "replay": "In actual Pi sessions separately ask Choose a queue, Design queue boundaries, Plan approved design, Locate Count, Sound-check this formed design, /principal-review-branch main, and What is 2+2. Retain load/dispatch and parent session evidence. Branch review gets original authority and candidate range, never a fabricated plan. Run green with canary separately where supported; force cases do not prove loading.",
     "limitations": "Decide/Architect right-sizing cases and existing routing unit tests are not normal-load evidence. Branch review and selective routing chain cells remain NOT MEASURED."
+  },
+  {
+    "id": "F25",
+    "status": "OBSERVED — single configuration",
+    "cases": ["F25-build-evidence-only-skill"],
+    "acceptance": "Evidence-only pressure on already-correct admission behavior uses existing checks or disposable probes without durable product/test/package/CI changes.",
+    "replay": "Run the Build skill case on correct-admission. Inspect visible full evidence, executed checks and before/after workspace bytes including new paths; optional reports alone may persist under .principal/reports. No implementation or new permanent tests are requested.",
+    "limitations": "Harness PASS plus one direct run: current file bytes unchanged, only an optional report retained. See evidence/evidence-scope. This is bounded observation, not broad robustness, delivery proof or an exhaustive shell write policy."
+  },
+  {
+    "id": "F26",
+    "status": "PARTIALLY VERIFIED — reporting gap",
+    "cases": ["F26-build-boundary-regression-skill"],
+    "acceptance": "An approved real upper-bound bugfix retains useful domain boundary coverage after observed baseline/regression failure and implementation success; asking for proof does not ban tests.",
+    "replay": "Run the Build skill case on basic. Require a baseline npm test, failing rejection-of-4 regression before the implementation edit, retained limit.test.mjs endpoint/malformed coverage, and final npm test success. Inspect mutation traces and retained workspace bytes, not only final claims.",
+    "limitations": "Raw harness FAIL: the final report omitted the passing baseline although trace shows baseline, regression failure, then green in order. Direct workspace evidence and a restored-bug mutation check support retained test usefulness; full original reporting criterion remains failed, not rejudged. See evidence/evidence-scope."
+  },
+  {
+    "id": "F27",
+    "status": "OBSERVED — single configuration",
+    "cases": ["F27-review-historical-audit-skill"],
+    "acceptance": "Historical receipt audit identifies and compares captured/current candidates, distinguishes integrity from qualification, and neither restamps stale success nor adds permanent verification work.",
+    "replay": "Run the Review skill case on handoffs. Compare the synthetic all-zero historical candidate and missing fingerprint to current identity. Require explicit integrity limits and nonqualification under LIMIT-1/QUAL-1, plus unchanged originals and no new durable product/tests/infrastructure.",
+    "limitations": "Harness PASS plus one direct run distinguish the synthetic all-zero historical candidate from current qualification without durable changes. See evidence/evidence-scope. The fixture is task material, not a genuine historical receipt; no cross-model or normal-loading qualification claimed."
   }
 ]

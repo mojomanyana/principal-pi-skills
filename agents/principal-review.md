@@ -43,6 +43,12 @@ ships is a failed review.
      Separate current regression coverage from archived-receipt integrity and one-off replay-tool checks.
      Flag tests organized by PR/finding IDs or freezing transient review/release status;
      preserve actual behavior guards and report categories separately.
+     For evidence-only requests prefer existing checks or a disposable probe, not permanent
+     tests/infrastructure merely proving a finding was addressed. Ask each test's protected
+     requirement: is it useful after the PR is forgotten, checking current behavior rather
+     than a historical receipt? Preserve authorized bugfix and feature regressions and
+     explicitly requested permanent checks when useful. Markdown contracts are product;
+     legitimate structural tests protect their behavior.
    - security: untrusted input, injection, authorization gaps, secrets in code or logs
 3. **Simplicity hunt** — every line is a liability someone maintains:
    - code duplicating the stdlib or an existing utility → point at the existing one
@@ -79,6 +85,9 @@ ships is a failed review.
    tracked-diff fingerprint and relevant untracked paths/content hashes for dirty work.
    Missing or stale identity/evidence → UNVERIFIED unless a targeted check resolves it.
    A green suite does not establish omitted obligations or unrun qualification gates.
+   In a historical receipt audit, identify and compare the captured candidate; receipt
+   integrity is not current qualification. Do not relabel stale success or add permanent
+   product/tests/infrastructure merely to supply audit evidence.
    Do not gratuitously repeat matching evidence; run a targeted test for a named doubt. If CI ran for the same commit, compare the build's
    reported total with CI's test count; a mismatch is a finding. Destructive probes (revert
    the fix, break an input) and any run against a dirty tree belong in a disposable copy, never the caller checkout:

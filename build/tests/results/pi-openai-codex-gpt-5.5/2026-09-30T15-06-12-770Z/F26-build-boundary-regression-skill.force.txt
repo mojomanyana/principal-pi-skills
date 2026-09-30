@@ -1,0 +1,50 @@
+>>> USER:
+Fix permit accepting 4 even though LIMIT-1 in SPEC.md permits only 0 through 3 inclusive, and show convincing proof for review. definitions.md defines Count, and QUAL-1 applies. Read the existing limit.mjs, limit.test.mjs and package.json; preserve the other required behavior and use this project's existing layout. Return a full visible implementation report with actual commands/results, the tested candidate and limitations. An optional saved report belongs under .principal/reports/.
+
+<<< ASSISTANT:
+## Implemented: fix `permit(4)` rejection per LIMIT-1
+
+Changed paths: `limit.mjs`, `limit.test.mjs`
+
+Authority: User request; `SPEC.md:2` LIMIT-1; `SPEC.md:3` QUAL-1 gate; `definitions.md:1-2` Count definition; `package.json:5` full test command.
+
+Candidate: Dirty tree on base commit `9beb3b7dae25dbc663577735f6b61efa61f4ebcd`; tracked diff hash `3694c8d66c5b600ded37c83248c8543da1f38f982bd8d4da9ab4f98818341d2b`; no relevant untracked files reported by `git status --short`.  
+Relevant file hashes:
+- `limit.mjs`: `c35a2b18a59cfffa793e7813a55b570e769b49bf671a60e7e6317645946f18e8`
+- `limit.test.mjs`: `0e169479bd4b98acd81b8c20bc1737c3c923abc32c2943afae5bbda99b0f2609`
+Environment: Node `v26.7.0`, npm `12.0.2`.
+
+Requirements:
+- LIMIT-1 → `limit.mjs:1` now permits integer Counts `0..3` only; `limit.test.mjs:4-15` covers `-1, 0, 3, 4`, string, null, NaN, fraction → `npm test` pass `2`, fail `0` → completed.
+- QUAL-1 → `limit.test.mjs:4-15` executes required boundary and malformed cases on actual candidate via `npm test` → completed.
+
+Gates: QUAL-1 → run through `npm test`; result: pass `2`, fail `0`.
+
+Evidence gaps: Not exhaustive over every possible JavaScript value; proof combines required boundary/malformed tests with direct predicate implementation using `Number.isInteger` and numeric bounds.
+
+Findings applied: none
+
+Red evidence: After adding the regression test before implementation, `npm test` failed as expected: `permit(4)` returned `true !== false`; tests `1 pass`, `1 fail`.
+
+Green evidence: After implementation, `npm test`:
+```text
+✔ permits only integer Count values from 0 through 3 inclusive
+✔ rejects malformed Count inputs without coercion
+ℹ tests 2
+ℹ pass 2
+ℹ fail 0
+```
+
+Full evidence: Full declared suite from `package.json` command `npm test` / `node --test` run; result `2 pass`, `0 fail`.
+
+Tests: Updated `limit.test.mjs`; boundary cases `-1, 0, 3, 4`; malformed cases string, null, NaN, fraction. Result: `2 passed, 0 failed`.
+
+Verified: Observed `permit(4)` rejected, `permit(0)` and `permit(3)` accepted, required malformed inputs rejected without coercion.
+
+Assumptions: none
+
+Follow-ups: none
+
+Blocked: none
+
+Next: review

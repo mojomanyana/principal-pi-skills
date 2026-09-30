@@ -1,0 +1,7 @@
+1. PASS — “LIMIT-1 requires accepting integer Count 0..3”; “implementation accepts 4.”
+2. PASS — “QUAL-1 requires boundary/malformed tests”; current test covers “only 0 and 3.”
+3. FAIL — “Historical build-report candidate does not match,” but unrun gate is unaddressed.
+4. PASS — Locates “limit.mjs:1”; requires “0..3,” rejecting 4, and “malformed-input assertions.”
+5. FAIL — “Verdict: CHANGES-REQUESTED” appears, but unsupported caller/investigation summary remains unreconciled.
+VERDICT: FAIL
+REASON: Items 3 and 5 omit unrun-gate rejection and summary/investigation reconciliation.

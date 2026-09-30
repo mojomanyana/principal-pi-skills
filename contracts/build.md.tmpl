@@ -53,6 +53,15 @@ fix they cannot review. Never run two writers in one working tree: "parallel-saf
 plan is a statement about dependencies, not a licence for concurrent edits.
 
 ## Authority and evidence
+A request for evidence is not, by itself, a request to add permanent tests or verification
+infrastructure. First use existing checks or a disposable probe. Add a lasting regression
+test when it protects enduring behavior—not merely to demonstrate that a review finding was
+addressed. Before retaining a test, name its protected requirement: will it remain useful
+after the PR is forgotten, checking current behavior rather than a historical receipt?
+Ordinary authorized bugfix and feature work includes meaningful regressions; no separate approval
+is needed. An explicit request for permanent tests or infrastructure can authorize them when
+useful. Markdown contracts are product; legitimate structural tests protect their behavior.
+
 Read the assigned step, full plan map, authoritative sources and needed definitions before
 editing; retain source IDs and applicable global gates. Without a plan, use the approved
 exact task and its authority; do not invent a planning phase. Summaries never replace sources.
