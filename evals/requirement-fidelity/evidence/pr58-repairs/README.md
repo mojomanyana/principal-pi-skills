@@ -80,6 +80,19 @@ regression requires Python only for this optional helper (explicit skip if absen
 or a model call; `parser-red.txt` and `parser-green.txt` retain the observed regression.
 The prior collector's skip-on-malformed bug was repaired after these captures; strict parsing
 of all retained workflow streams succeeds, so their valid raw observations remain applicable.
+Current lifecycle subset (REV-011 round two): one low-level run with completed assistant,
+message/tool/turn activity and optional terminal `agent_settled`. Pi's `agent_end` alone does
+not describe a general session-level recovery boundary. This collector explicitly rejects
+`compaction_start`, `compaction_end`, `auto_retry_start`, `auto_retry_end`, and all three
+`summarization_retry_*` events (`scheduled`, `attempt_start`, `finished`), even paired or
+successful end markers: it cannot establish their coherence. A path/event diagnostic is
+raised before `turn()` writes final/invocation artifacts; raw output and workspace survive.
+This is not SDK/recovery support or complete protocol/payload validation. Other pre-terminal
+metadata is not validated; inherited Unicode `splitlines()` framing remains a separate limit.
+The optional evidence tests select reviewed normal/tool/error streams explicitly, not every
+future archive filename. A derived incomplete capture must reject without changing its bytes;
+complete historical error streams remain error data, never model PASS evidence.
+
 The helper copies fixtures into disposable Git repositories,
 registers the actual repository prompts/skills, records commands, resource hashes, complete
 sessions/events, before/after hashes, Git status and reports. The first branch fixture is
@@ -98,3 +111,5 @@ Runtime `.principal` files are ignored. Every run's `artifacts.json` maps them t
 not ignored working-copy accidents. `tests/unit/pr58-repair-evidence.test.mjs` checks observed
 immutability, alias hashes, actual prompt expansion and recorded status, without paid calls.
 These are evidence-integrity assertions, not a semantic model judge or a new behavioral pass.
+Current counterpart: `tests/evidence/repair-workflow-receipts.test.mjs`, selected by
+`npm run verify:evidence`. The old filename and receipts above identify their historical candidate.

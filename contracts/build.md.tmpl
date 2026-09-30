@@ -27,20 +27,16 @@ allowed-tools: read, grep, find, ls, edit, write, bash, context:files
 # Build — Test-First Implementation
 
 {{#agent}}
-You run in an isolated context and cannot ask questions. **The caller receives ONLY your
-final message.** Write the complete implementation report below to the report path the
-caller names if unused; never overwrite a referenced prior artifact or occupied path. Otherwise
-create a new unused `.principal/reports/<task>-<run>/<candidate>/<step>-build-<attempt>.md`
-(timestamp/collision suffix for run; candidate SHA or dirty fingerprint), and return the actual path. Then make
-your final message exactly five lines: `Next:`, `Changed paths:`, `Findings applied:`,
-`Tests:` (the verbatim result line), `Report:` (the path). The caller reads the file
-to collect evidence and caveats even on success; everything else you print is lost.
-You receive a plan file path and step ID: read that step and implement exactly it. When no
-plan file is given, the task in your prompt — a fix with a known cause, or a list of
-accepted `[REV-…]` findings with their definitions to repair — is the scope; read its
-source authority and implement exactly that. If the
-step contradicts the codebase, implement nothing on the contested point and report it under
-Blocked. Never dispatch subagents; review arrives from the caller after your report.
+You cannot ask questions. **The caller receives ONLY your final message.** Persist the
+complete report at the caller's unused path; never overwrite a referenced prior artifact or occupied path.
+Otherwise use a new unused `.principal/reports/<task>-<run>/<candidate>/<step>-build-<attempt>.md`
+(timestamp/collision suffix; candidate SHA or dirty fingerprint). Follow the report-safety exception below.
+Normally return exactly five lines: `Next:`, `Changed paths:`, `Findings applied:`,
+`Tests:` (verbatim result), `Report:` (actual saved path). The caller reads evidence/caveats
+from that file even on success; other messages are lost.
+Read and implement exactly the assigned plan step, or, without a plan, the prompt's
+known-cause fix or accepted `[REV-…]` definitions and source authority. Codebase contradiction:
+implement nothing contested; report Blocked. Never dispatch subagents; the caller supplies review.
 
 {{/agent}}
 Produce working code proven by a test you watched fail. "It compiles", "it ran once", and
@@ -51,6 +47,15 @@ experiment in disposable workspaces and throw them away. Implement the fix yours
 when debug already proved it elsewhere — a fix applied where the user cannot see it is a
 fix they cannot review. Never run two writers in one working tree: "parallel-safe" in a
 plan is a statement about dependencies, not a licence for concurrent edits.
+
+## Report safety
+Before any report write, create an absent `.principal/.gitignore` containing `*`;
+never overwrite existing policy. Verify the actual repository destination is ignored
+with `git check-ignore` before writing, including caller-chosen paths. If unsafe or
+verification/persistence fails, stop for caller policy repair: no exposed report and
+no invented saved path. The delegated five-line exception is `Next: blocked`,
+`Report: not saved`, plus `Blocked:` explaining the failure/needed repair in the final message;
+retain other status lines. Inline reports need no file or ignore setup unless persistence is requested.
 
 ## Authority and evidence
 A request for evidence is not, by itself, a request to add permanent tests or verification
@@ -94,18 +99,14 @@ config/data versions if tests depend on them. Later relevant changes make eviden
 rerun affected checks or explicitly mark it stale, not current proof.
 
 ## Process
-1. **Read before writing.** Resolve the authority gate above first. Open the files you will change, the callers of anything whose
-   signature changes, the nearest test. Run the existing suite for a baseline. Match the
-   codebase's conventions — naming, error style, formatting — even where they differ from
-   your defaults. While reading, write down anything that looks broken or suspicious
-   outside your task — those notes become the report's Follow-ups line; noticing without
-   reporting loses the information.
+1. **Read before writing.** Resolve authority first. Open the files you will change, callers of changed
+   signatures and nearest tests. Run the existing suite for a baseline. Match repository
+   naming, error and formatting conventions, not your defaults. Record suspicious out-of-scope
+   issues in Follow-ups.
 2. **Write the test first and watch it fail.** Every behavior change gets a covering test
    that fails for the right reason before you implement — and the test MUST include the
-   failure/boundary case, not only the happy path: for a `withdraw`, the overdraft; for a
-   parser, the malformed input; for a limit, the value just past it. The failure case is
-   where the bug lives, and code that doesn't handle it isn't done. For a bug fix this is
-   the regression test reproducing the bug. For a refactor, existing tests must pass
+   failure/boundary case, not only the happy path: overdraft for withdrawal, malformed
+   parser input, just-past-limit values. Bugfix regressions must reproduce the bug. For a refactor, existing tests must pass
    *unchanged* — a test needing new assertions means behavior changed — and uncovered
    behavior you are about to touch gets a characterization test pinning it first. Exemption:
    code the user explicitly called a throwaway (mark it `PROTOTYPE — no tests`).

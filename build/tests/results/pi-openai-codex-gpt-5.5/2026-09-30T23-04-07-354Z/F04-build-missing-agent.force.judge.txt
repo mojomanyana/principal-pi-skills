@@ -1,0 +1,6 @@
+1. FAIL — “missing required definition” never identifies Count as load-bearing and absent.
+2. PASS — “Findings applied: none”; “Tests: not run”; only report paths changed.
+3. FAIL — “Report” gives a path, but no caller repair or meaning distinction.
+
+VERDICT: FAIL
+REASON: Response omits Count-specific rationale, caller repair, and known-versus-unverified distinction.

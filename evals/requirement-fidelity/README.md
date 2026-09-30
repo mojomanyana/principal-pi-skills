@@ -13,8 +13,10 @@ Full force runs and three separate direct observations are retained. F25/F27 hav
 F26 demonstrates the genuine regression/repair but retains a raw old-criterion reporting FAIL.
 The current rubric assigns baseline execution/order to actual trace evidence, not an extra
 final-report field. A [fresh correction run](evidence/regression-evidence-alignment/README.md)
-records F26 raw PASS; the whole Build suite remains 4/9, NOT READY. A separate direct run
+records F26 raw PASS; that Build run scored 4/9, NOT READY. A separate direct run
 has manually verified execution/useful regression; its narrow automated audit is UNVERIFIED.
+[Later whole-PR repairs](evidence/full-review-repairs/README.md) retain new report-safety
+observations and a 5/9 Build run, still NOT READY; neither run is broad qualification.
 Older 43-case runs are historical, not qualification of these edited contracts.
 
 See [the evidence index](evidence.md#evidence-scope-candidate--bounded-observations) for actual

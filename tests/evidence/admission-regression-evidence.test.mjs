@@ -85,6 +85,38 @@ for (const [name, change] of [
   ['hash-only records instead of events', x => { x.events = [{ schema: 2, tool: 'bash', resultHash: sha(green.body) }]; }]
 ]) test(name + ' fails visibly', () => { const x = input(); change(x); assert.throws(() => auditAdmissionRegression(x), /event|call|result|message/i); });
 
+test('source result after mutation invocation cannot qualify even before mutation result', () => {
+  const x = input();
+  assert.equal(auditAdmissionRegression(x).status, 'PASS');
+  const sourceResult = x.events.splice(1, 1)[0];
+  x.events.splice(12, 0, sourceResult);
+  assert.notEqual(auditAdmissionRegression(x).status, 'PASS');
+});
+
+for (const path of names) {
+  test(`${path} must finish a qualifying read before mutation invocation`, () => {
+    const x = input();
+    const end = x.events.splice(x.events.findIndex(e => e.message.toolCallId === path), 1)[0];
+    x.events.splice(12, 0, end);
+    assert.notEqual(auditAdmissionRegression(x).status, 'PASS');
+  });
+  test(`${path} later unnecessary re-read preserves an earlier qualifying completion`, () => {
+    const x = input();
+    x.events.splice(13, 0, ...pair('again', 'read', { path }, { status: 0, body: before[path] }));
+    assert.equal(auditAdmissionRegression(x).status, 'PASS');
+  });
+}
+
+for (const [name, change] of [
+  ['missing source read', x => remove(x, 'SPEC.md')],
+  ['partial source read', x => { x.events[1].message.content[0].text = before['SPEC.md'].slice(0, 20); }],
+  ['failed full source read', x => { x.events[1].message.isError = true; }],
+  ['unknown read path', x => { x.events[0].message.content[0].arguments.path = 'unknown.md'; }]
+]) test(name + ' cannot establish source authority', () => {
+  const x = input(); change(x);
+  assert.notEqual(auditAdmissionRegression(x).status, 'PASS');
+});
+
 test('additional post-green coverage needs manual verification, not a false execution violation', () => {
   const x = input();
   const extended = useful + "test('another accepted value', () => assert.equal(permit(2), true));\n";

@@ -31,8 +31,9 @@ It does not execute any supplied code. Run its derived-input tests with the exis
 
 ## Deliberately narrow supported subset
 
-The basic one-line `<= 4` defect and `<= 3` fix; full matched reads of the five files;
-exact `npm test`, `node --test`, or `node --test --test-reporter=tap`; one successful
+The basic one-line `<= 4` defect and `<= 3` fix; full matched reads of the five files
+completed before each mutation invocation (later unnecessary re-reads do not erase an
+earlier qualifying completion); exact `npm test`, `node --test`, or `node --test --test-reporter=tap`; one successful
 explicit write or single-block edit to the existing test, then one to implementation.
 The source package must declare `node --test`. Node TAP/spec result bodies must contain
 nonzero counts; red must be a boolean assertion failure in `limit.test.mjs`, not a

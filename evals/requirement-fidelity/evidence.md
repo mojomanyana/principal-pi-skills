@@ -1,5 +1,23 @@
 # Requirement-fidelity evidence index
 
+## Whole-PR review repairs — latest bounded observations
+
+[Repair evidence](evidence/full-review-repairs/README.md) records REV-009–012 on top of
+`107ce59`: standalone Build report safety, source-read completion ordering, terminal
+replay lifecycle and current evidence-check navigation. Old raw results remain unchanged.
+
+- Current local checks: **145 unit + 24 install**, plus **86 separate evidence/audit-tool
+  checks**, zero failures/skips. These counts do not measure model adherence.
+- New Build force run: **5/9, NOT READY**. Review instructions unchanged; no new Review run.
+- Three separate current agent-contract observations show absent-ignore initialization,
+  preservation/blocking under conflicting policy, and refusal of an exposed caller-selected
+  report path. Actual files, policy hashes, checks and blocked/not-saved replies are retained.
+- These are explicit-body, single-configuration observations, not normal loading, registered
+  delegation, complete report/candidate fidelity or general behavioral qualification.
+
+The release-identity hold and other model/evidence gaps remain; this does not authorize
+merge, tag movement or publication.
+
 ## Baseline evidence-channel alignment — current bounded observations
 
 [New raw runs and complete direct evidence](evidence/regression-evidence-alignment/README.md)
@@ -184,6 +202,8 @@ and every chain report snapshot. `tests/unit/fidelity-evidence.test.mjs` checks 
 provider-error classification, and successful normal-loading body reads. Red/green receipts
 are `evidence/capture-regression-{red,green}.txt`. These checks validate retained evidence
 integrity, not semantics or current-candidate coverage by themselves.
+Current counterpart: `tests/evidence/captured-receipts.test.mjs`, selected by
+`npm run verify:evidence`. The old filename and receipts above identify their historical candidate.
 
 To replay a direct run, copy its original fixture into a fresh temporary directory, select
 its recorded model/tools/contract (substitute local paths), and execute the recorded Pi

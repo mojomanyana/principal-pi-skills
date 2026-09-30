@@ -44,6 +44,19 @@ for (const mode of ["skill", "agent"]) {
     assert.match(text, /Tiny.*typo.*read.*named existing file/s);
     assert.match(text, /expected.*accept.*reject/s);
   });
+  test(`build ${mode}: persisted reports require private destinations, not inline ceremony`, () => {
+    const text = contract("build", mode).replace(/\s+/g, " ");
+    assert.match(text, /Before any report write.*create an absent `\.principal\/\.gitignore` containing `\*`/);
+    assert.match(text, /never overwrite existing policy/);
+    assert.match(text, /Verify the actual repository destination is ignored.*`git check-ignore/);
+    assert.match(text, /unsafe.*stop for caller policy repair.*no exposed report.*no invented saved path/);
+    assert.match(text, /Inline reports need no file or ignore setup unless persistence is requested/);
+    assert.match(text, /exception.*`Next: blocked`.*`Report: not saved`.*`Blocked:`.*final message/);
+    if (mode === "agent") {
+      assert.match(text, /unused.*never overwrite.*prior artifact.*occupied path/);
+      assert.match(text, /report-safety exception below/);
+    }
+  });
   test(`build ${mode}: source, candidate and per-requirement evidence are explicit`, () => {
     const text = contract("build", mode);
     for (const field of ["Authority", "Candidate", "Requirements", "Gates", "Evidence gaps"]) assert.match(text, new RegExp(`^${field}:`, "m"));

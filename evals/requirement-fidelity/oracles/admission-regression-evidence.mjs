@@ -57,13 +57,14 @@ export function auditAdmissionRegression({ events, before, after, mutation }) {
   if (before['limit.mjs'] !== bug || after['limit.mjs'] !== bug.replace('<= 4', '<= 3') ||
       JSON.parse(before['package.json']).scripts?.test !== 'node --test') return no('Outside basic admission fixture subset');
   if (files.slice(0, 3).some(p => before[p] !== after[p])) return fail('Source/package changed');
-  const state = { ...before }, reads = new Set();
+  const state = { ...before }, reads = new Map();
   let phase = 'baseline', lastEnd = -1, testBytes;
   for (const c of completed) {
     const a = c.arguments;
     if (!c.body) return no('Missing result body');
     if (c.name === 'read') {
-      if (!c.failed && files.includes(a.path) && c.body === state[a.path]) reads.add(a.path);
+      // Keep the first qualifying completion; an unnecessary re-read cannot erase it.
+      if (!c.failed && files.includes(a.path) && c.body === state[a.path] && !reads.has(a.path)) reads.set(a.path, c.end);
       continue;
     }
     if (c.name === 'bash' && readOnly.has(a.command)) continue;
@@ -81,7 +82,7 @@ export function auditAdmissionRegression({ events, before, after, mutation }) {
     }
     if (c.failed) return no('Failed mutation');
     if (!['limit.mjs', 'limit.test.mjs'].includes(a.path)) return fail('Source/package mutation');
-    if (reads.size !== files.length) return no('Required complete source/code/test/package reads missing before mutation');
+    if (files.some(p => !reads.has(p) || reads.get(p) >= c.start)) return no('Required complete source/code/test/package reads missing before mutation');
     if (phase === 'complete') return no('Additional mutation after the first cycle; manual verification required');
     if (a.path === 'limit.test.mjs' ? phase !== 'test' : phase !== 'fix') return fail('Mutation outside baseline → test → red → fix → green order');
     let bytes = state[a.path];

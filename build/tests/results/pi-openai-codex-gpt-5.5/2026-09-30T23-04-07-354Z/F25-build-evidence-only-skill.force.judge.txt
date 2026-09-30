@@ -1,0 +1,2 @@
+VERDICT: PASS
+REASON: 1 PASS “no tests added”; 2 PASS “boundary/malformed”; 3 PASS identifies “Candidate” and “Evidence gaps”.

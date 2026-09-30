@@ -13,7 +13,20 @@ import sys
 import tempfile
 
 def parse_events(path):
+    # One invocation/run, with any number of assistant/tool turns. This is a
+    # lifecycle gate, not validation of provider metadata or tool-result payloads.
     events = []
+    ended = settled = started = in_turn = turns_seen = False
+    open_message = last_assistant = turn_assistant = None
+    pending_tools, seen_tools = {}, set()
+
+    def reject(reason):
+        raise ValueError(f'{path}: {reason}; raw stream and workspace retained')
+
+    def same_reply(message):
+        return isinstance(message, dict) and last_assistant is not None and all(
+            message.get(key) == last_assistant.get(key) for key in ('role', 'stopReason', 'content'))
+
     for number, line in enumerate(path.read_text().splitlines(), 1):
         try:
             event = json.loads(line)
@@ -21,9 +34,93 @@ def parse_events(path):
             raise ValueError(f'{path}: malformed JSON at line {number}; raw stream and workspace retained') from error
         if not isinstance(event, dict) or not isinstance(event.get('type'), str):
             raise ValueError(f'{path}: invalid event at line {number}; raw stream and workspace retained')
+        kind = event['type']
+        # These session-level lifecycles can continue beyond a low-level run.
+        # Even their end markers cannot prove coherence in this narrow parser.
+        if kind in ('compaction_start', 'compaction_end', 'auto_retry_start', 'auto_retry_end',
+                    'summarization_retry_scheduled', 'summarization_retry_attempt_start',
+                    'summarization_retry_finished'):
+            reject(f'unsupported recovery/compaction event {kind} at line {number}')
+        if ended:
+            # Current full Pi streams append this marker; older/minimal records
+            # can end at agent_end. No new activity or duplicate markers qualify.
+            if kind != 'agent_settled' or settled:
+                reject(f'unexpected {kind} after agent_end at line {number}')
+            settled = True
+        elif kind == 'agent_settled':
+            reject('agent_settled before agent_end')
+        elif kind == 'session':
+            if events:
+                reject('out-of-order or duplicate session header')
+        elif kind == 'agent_start':
+            if started or any(e['type'] != 'session' for e in events):
+                reject('out-of-order or duplicate agent_start')
+            started = True
+        elif kind == 'turn_start':
+            if in_turn or open_message is not None or pending_tools:
+                reject('turn_start before preceding activity completed')
+            in_turn = turns_seen = True
+            turn_assistant = None
+        elif kind == 'turn_end':
+            if not in_turn or open_message is not None or pending_tools or turn_assistant is None:
+                reject('out-of-order turn_end or outstanding activity')
+            if 'message' in event and not same_reply(event['message']):
+                reject('turn_end disagrees with completed assistant')
+            in_turn = False
+        elif kind == 'agent_end':
+            if in_turn or open_message is not None or pending_tools:
+                reject('agent_end with outstanding activity')
+            if last_assistant is None or last_assistant.get('stopReason') not in ('stop', 'length', 'error', 'aborted', 'deferred'):
+                reject('agent_end without a terminal assistant message')
+            if event.get('willRetry'):
+                reject('agent_end with retry pending')
+            if 'messages' in event:
+                messages = event['messages']
+                if not isinstance(messages, list) or any(not isinstance(m, dict) for m in messages):
+                    reject('invalid agent_end messages')
+                assistants = [m for m in messages if m.get('role') == 'assistant']
+                if not assistants or not same_reply(assistants[-1]):
+                    reject('agent_end disagrees with completed assistant')
+            ended = True
+        elif kind in ('message_start', 'message_update', 'message_end'):
+            if turns_seen and not in_turn:
+                reject('message activity outside turn')
+            if kind == 'message_update':
+                if open_message != 'assistant':
+                    reject('message_update without an open assistant message')
+            else:
+                message = event.get('message')
+                if not isinstance(message, dict) or not isinstance(message.get('role'), str):
+                    reject(f'invalid {kind} message')
+                if kind == 'message_start':
+                    if open_message is not None:
+                        reject('message_start before preceding message completed')
+                    open_message = message['role']
+                else:
+                    if open_message is not None and open_message != message['role']:
+                        reject('message_end role differs from open message')
+                    open_message = None
+                    if message['role'] == 'assistant':
+                        last_assistant = turn_assistant = message
+        elif kind in ('tool_execution_start', 'tool_execution_update', 'tool_execution_end'):
+            if turns_seen and not in_turn:
+                reject('tool activity outside turn')
+            call_id, name = event.get('toolCallId'), event.get('toolName')
+            if not isinstance(call_id, str) or not call_id or not isinstance(name, str) or not name:
+                reject('invalid tool execution identity')
+            if kind == 'tool_execution_start':
+                if call_id in seen_tools:
+                    reject('duplicate tool_execution_start')
+                seen_tools.add(call_id)
+                pending_tools[call_id] = name
+            else:
+                if pending_tools.get(call_id) != name:
+                    reject(f'unpaired or mismatched {kind}')
+                if kind == 'tool_execution_end':
+                    del pending_tools[call_id]
         events.append(event)
-    if not any(event['type'] == 'agent_end' for event in events):
-        raise ValueError(f'{path}: incomplete event stream (no agent_end); raw stream and workspace retained')
+    if not ended:
+        reject('incomplete event stream (no agent_end)')
     return events
 
 

@@ -58,7 +58,7 @@ measured robustness on those models.
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1134 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1211 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1938) or inline | 1877 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1973) or inline | 1810 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1920) or inline | 1829 |
 | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1724) or inline | 1660 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1533) or inline | 1397 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 491) or inline | 492 |
@@ -262,8 +262,10 @@ oracle, all F01–F27 status/replay recipes and runner limitations are documente
 [bounded live observations](evals/requirement-fidelity/evidence/evidence-scope/README.md):
 F25/F27 raw PASS; F26's old reporting failure is retained, with a
 [new corrected-rubric PASS and separate execution audit](evals/requirement-fidelity/evidence/regression-evidence-alignment/README.md).
-The new Build suite remains 4/9 NOT READY; direct execution is manually verified where the
-narrow automated audit is UNVERIFIED. Older 43-case results remain historical.
+[Latest whole-PR repairs](evals/requirement-fidelity/evidence/full-review-repairs/README.md)
+add bounded report-safety observations; the latest Build suite remains 5/9 NOT READY.
+The earlier narrow direct audit remains UNVERIFIED with explicit manual inspection.
+Older 43-case results remain historical.
 Retained live runs include failures;
 a manually orchestrated source→plan→build→review chain, full long-plan inspection, and two
 normal skill-loading probes provide narrower positive evidence, not an all-case pass.
