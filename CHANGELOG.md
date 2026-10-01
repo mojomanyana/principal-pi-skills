@@ -6,6 +6,45 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.7.1] — 2026-10-01
+
+**Combined release candidate — all requirement-fidelity work and repairs (#58).** This
+version contains the complete PR #58 feature described under 4.7.0 below, plus all subsequent
+review and handoff repairs. The early `v4.7.0` tag at `448ac76` remains an immutable historical
+candidate; it excludes later repairs. One new annotated `v4.7.1` tag identifies the final merged
+tree, with package metadata and installation pins aligned. GitHub/npm publication is separate.
+
+**Changed — safe, retrievable handoffs (#58).** Build now requires complete saved candidate
+patches with private collision-safe paths, byte hashes and source identities; previously a
+printed diff hash could leave the actual tested patch unavailable. Inherited material caveats
+now survive or receive explicit disposition, and evidence references use current per-file
+ranges. Safely saved complete inline reports now support concise summaries with visible
+unresolved caveats; previously inline field requirements conflicted with short file-backed
+replies. The delegated five-line return remains distinct and unchanged.
+
+**Fixed — authority, artifact and workflow boundaries (#58).** Complete explicitly authorized
+amendments now differ from guessed missing definitions; report writes now verify ignore policy
+without overwriting existing rules; artifact namespaces avoid replacing prior findings; and
+routing checks Review verdict before Next. Previously those boundaries could permit guessed
+semantics, exposed/overwritten reports or improper repair routing. Captured read ordering and
+replay lifecycle checks now reject the reviewed false-success cases. Tagged skills and agent
+installation now use matching sources instead of an unpinned older npm package.
+
+**Changed — evidence scope and honest validation (#58).** Evidence requests now prefer existing
+checks/disposable probes rather than implicitly authorizing permanent infrastructure; ordinary
+bugfixes still include enduring regressions. Product/install checks and opt-in archive checks
+are separate. Historical raw failures, provider errors, source identities and old rubrics remain
+unchanged; the current corpus has 46 cases, not a retroactive regrade of the earlier inventory.
+
+**Validation — accepted bounded improvement, not full behavioral qualification.** Local checks
+pass 153 unit and 24 install tests, plus 86 separate evidence checks. Latest Build force is
+**4/9 NOT READY**. Three full captures verify actual red/green execution and saved patches, but
+F11 still omits material caveats from its short reply and misses the literal persistence-stop
+rule; collision robustness and F04 runtime reporting remain limited. Independent reviews approve
+this documented increment, not a reliability guarantee. See
+`evals/requirement-fidelity/evidence/build-handoff/README.md`. No release combines these results
+into an all-PASS claim or proves normal loading/delegation, deployment or lower-cost robustness.
+
 ## [4.7.0] — 2026-09-30
 
 **Changed — preserve requirements across skill handoffs (#58).** Plan now reads original

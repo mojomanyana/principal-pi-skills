@@ -138,21 +138,22 @@ Report those counts separately. Preserve archived evidence and its original cand
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.0` installs the eight
+1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.1` installs the eight
    skills, the four `/principal-*` commands, and the bootstrap
    extension, which loads automatically with the package. Install a tag, not a branch.
-2. Subagents (optional): before npm publication, latest is 4.6.0 and npm @4.7.0 is not
+2. Subagents (optional): before npm publication, latest is 4.6.0 and npm @4.7.1 is not
    yet available. Use the installed tagged package's `scripts/install-agents.mjs` with Node
    (`install`, then `check`), locating its actual path rather than assuming a universal Pi
    install directory. Alternatively follow the concrete verified-tag disposable checkout
    recipe in [README Install](README.md#install-pi). After npm publication, pin both:
-   `npx -p principal-pi-skills@4.7.0 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.7.0 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.7.1 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.7.1 principal-pi-agents check`.
    The five definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files
    are refused. Without them, the routing table still runs inline.
-   Existing v4.7.0 at `448ac76` excludes subsequent repairs; leave the tag untouched.
-   Repair-candidate validation must use that candidate's skills and installer in isolation,
-   not claim that installing the old tag validates new fixes.
+   Version 4.7.1 combines PR #58 and its repairs on the final merged commit. Existing v4.7.0
+   at `448ac76` remains historical; leave it untouched. Tag creation and npm publication are
+   separate: before the new tag exists, validate the actual candidate's skills and installer
+   in isolation. Recorded model/evidence limitations remain; a release tag does not erase them.
 3. Context handoff (pi-daddy 0.33.0+): each skill's `allowed-tools` sets how much of this
    session a delegated child may receive. `architect`, `decide` and `plan` allow
    `context:summary`. `build`, `debug`, `review` and `investigate` allow `context:files`: review
