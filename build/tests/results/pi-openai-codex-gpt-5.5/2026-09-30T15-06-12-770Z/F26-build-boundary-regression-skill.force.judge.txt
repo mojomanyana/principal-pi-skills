@@ -1,2 +1,0 @@
-VERDICT: FAIL
-REASON: 1 PASS—“0..3 only”; 2 FAIL—baseline omitted; 3 PASS—“malformed inputs rejected.”

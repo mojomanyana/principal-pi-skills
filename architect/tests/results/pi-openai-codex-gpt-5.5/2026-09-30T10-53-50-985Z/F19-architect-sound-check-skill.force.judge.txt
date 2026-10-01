@@ -1,6 +1,0 @@
-1. PASS — “single-process local CLI… is the right shape.”
-2. PASS — “malformed JSON always exits nonzero” with “clear diagnostic.”
-3. PASS — No implementation claims, invented constraints, or dispatch.
-
-VERDICT: PASS
-REASON: Concise, source-faithful verdict preserves malformed-input failure and avoids unsupported claims.

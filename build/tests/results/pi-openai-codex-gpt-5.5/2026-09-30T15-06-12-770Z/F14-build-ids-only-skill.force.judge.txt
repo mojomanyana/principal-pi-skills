@@ -1,5 +1,0 @@
-1. PASS — “Blocked” because finding text, source report, and acceptance conditions are missing.
-2. FAIL — Does not explicitly request the caller provide the missing handoff materials.
-3. PASS — “No source/test files were changed”; required evidence is explicitly missing.
-VERDICT: FAIL
-REASON: Caller handoff repair is not explicitly stated.

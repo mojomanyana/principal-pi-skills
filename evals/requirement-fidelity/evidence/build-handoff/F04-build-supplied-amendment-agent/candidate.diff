@@ -1,7 +1,0 @@
-diff --git a/limit.mjs b/limit.mjs
-index e054aa3616ed7b9a6a6390c888df62b3140afedf..0a63aad37a6164d2590725299c4f082620faedd0 100644
---- a/limit.mjs
-+++ b/limit.mjs
-@@ -1 +1 @@
--export const permit = count => Number.isInteger(count) && count >= 0 && count <= 4;
-+export const permit = count => Number.isSafeInteger(count) && count >= 0 && count <= 3;

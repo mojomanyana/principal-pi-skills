@@ -1,2 +1,0 @@
-VERDICT: PASS
-REASON: Read both sources, rejected invented Count semantics, preserved code, and identified definition gap.

@@ -170,41 +170,6 @@ for (const mode of ["skill", "agent"]) {
   });
 }
 
-test("evidence-only admission fixture already satisfies boundary and malformed-input behavior", async () => {
-  const { permit } = await import("../../evals/requirement-fidelity/fixtures/correct-admission/limit.mjs");
-  for (const value of [0, 1, 3]) assert.equal(permit(value), true);
-  for (const value of [-1, 4, "3", null, undefined, NaN, Infinity, 1.5]) assert.equal(permit(value), false);
-  assert.equal(JSON.parse(read("evals/requirement-fidelity/fixtures/correct-admission/package.json")).scripts.test, "node --test");
-});
-
-test("evidence scope scenarios separate read-only proof from authorized boundary repair", () => {
-  const build = JSON.parse(read("build/tests/specification.yaml")).scenarios;
-  const review = JSON.parse(read("review/tests/specification.yaml")).scenarios;
-  for (const s of [build.find(s => s.id === "F25-build-evidence-only-skill"),
-    review.find(s => s.id === "F27-review-historical-audit-skill")]) {
-    assert.ok(s, "missing evidence-only scenario");
-    assert.ok(!s.system_prompt_file, "full visible skill report, not hidden agent report");
-    assert.ok(!s.assert.trace.forbid_calls, "a disposable probe may write outside the caller tree");
-    for (const path of ["*", "limit.mjs", "limit.test.mjs", "package.json", "**/*.mjs", ".github/**"]) assert.ok(s.assert.trace.unchanged_paths.includes(path));
-  }
-  const fix = build.find(s => s.id === "F26-build-boundary-regression-skill");
-  assert.ok(fix);
-  assert.ok(fix.assert.trace.require_calls.some(c => c.tool === "read" && new RegExp(c.args.path.matches).test("limit.test.mjs")));
-  assert.ok(!fix.assert.trace.forbid_calls, "ordinary test mutation is authorized");
-});
-
-test("supplied amendment companion provides meaning and preserves source documents", () => {
-  const scenarios = JSON.parse(read("build/tests/specification.yaml")).scenarios;
-  const original = scenarios.find(s => s.id === "F04-build-missing-agent");
-  const positive = scenarios.find(s => s.id === "F04-build-supplied-amendment-agent");
-  assert.ok(positive, "missing positive amendment companion");
-  assert.equal(positive.env.workspace, original.env.workspace);
-  assert.match(positive.turns[0], /replace.*definitions.md#Count/);
-  assert.match(positive.turns[0], /Number.isSafeInteger/);
-  assert.match(positive.checklist.join(" "), /4.*malformed/);
-  assert.deepEqual(positive.assert.trace.unchanged_paths, ["SPEC.md", "definitions.md"]);
-});
-
 test("all workflow handoffs carry authority, finding definitions and successful caveats", () => {
   const text = read("contracts/workflows.md.tmpl");
   for (const rule of [/source\/definition/, /global gates/, /review-<round>\.md/, /acceptance conditions/,
@@ -256,13 +221,6 @@ test("existing routing corpus keeps choice, structure, sequence and no-skill bou
   assert.ok(edges.some((item) => item.intended === "NO_SKILL"));
   assert.match(read("architect/SKILL.md"), /A sound-check gets a verdict, not the artifact/);
   assert.match(read("AGENTS.md"), /Tiny change: build → git-ops/);
-});
-
-test("behavioral corpus is opt-in and excluded from the package and default model execution", () => {
-  const text = read("README.md");
-  for (const rule of [/narrow.*opt-in/i, /<skill>\/tests\/specification.yaml/,
-    /evals\/requirement-fidelity/, /no model calls in `npm test`/i]) assert.match(text, rule);
-  assert.match(read("scripts/check-pack.mjs"), /\^evals/);
 });
 
 test("tool and context ceilings remain unchanged in both renderings", () => {

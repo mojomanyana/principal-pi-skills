@@ -1,6 +1,0 @@
-76030 bytes; 10731 words; 51 oracle rows
-evals/requirement-fidelity/fixtures/long-spec/SPEC.md: OK
-evals/requirement-fidelity/fixtures/long-spec/definitions.md: OK
-evals/requirement-fidelity/fixtures/long-spec/annex.md: OK
-evals/requirement-fidelity/oracles/long-spec.json: OK
-exit=0

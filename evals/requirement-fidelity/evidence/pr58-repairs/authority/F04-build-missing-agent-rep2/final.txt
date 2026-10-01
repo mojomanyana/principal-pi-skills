@@ -1,5 +1,0 @@
-Next: blocked
-Changed paths: .principal/reports/missing.md
-Findings applied: none
-Tests: not run (blocked before implementation)
-Report: .principal/reports/missing.md

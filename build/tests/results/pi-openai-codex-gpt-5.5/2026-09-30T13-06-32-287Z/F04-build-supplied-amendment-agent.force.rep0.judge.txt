@@ -1,5 +1,0 @@
-1. PASS — “Next: review” proceeds without refusal or invented default.
-2. FAIL — “Tests: ℹ pass 2” omits boundary and malformed-value claims.
-3. FAIL — Report and paths appear, but no concrete tests are identified.
-VERDICT: FAIL
-REASON: Required boundary test claims and concrete test details are absent.

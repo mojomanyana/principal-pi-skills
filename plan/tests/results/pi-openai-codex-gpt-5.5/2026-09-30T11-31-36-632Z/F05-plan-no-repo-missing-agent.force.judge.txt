@@ -1,5 +1,0 @@
-1. FAIL — “Please supply” is a request, not one caller-repair question.
-2. PASS — “not available” rejects convention without claiming global absence.
-3. PASS — “BLOCKED” includes no implementation, edits, plan, or qualification claim.
-VERDICT: FAIL
-REASON: Required caller-repair question was not asked; “Please supply” is not a question.

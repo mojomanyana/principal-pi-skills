@@ -1,6 +1,0 @@
-1. PASS — “captured `000…` with no dirty diff/untracked hashes”; “does not match today’s candidate.”
-2. PASS — “QUAL-1 not run”; “accepts 4, violating LIMIT-1”; test “only covers happy path.”
-3. PASS — “read-only audit”; reports checks, evidence gaps, and “Workspace: none.”
-
-VERDICT: PASS
-REASON: All checklist items are satisfied without treating stale green evidence as approval.

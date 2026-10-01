@@ -1,2 +1,0 @@
-VERDICT: PASS
-REASON: All items pass: cited facts distinguish sources, code, history, and avoid verdicts/actions.

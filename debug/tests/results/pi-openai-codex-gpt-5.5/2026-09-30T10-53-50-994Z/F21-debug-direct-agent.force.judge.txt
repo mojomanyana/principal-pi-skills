@@ -1,8 +1,0 @@
-1. PASS — “‘3x’ returned ‘3’” and candidate was “green after” disposable testing.
-2. PASS — “‘not applied to caller’”; disposable workspace removed; no child dispatched.
-3. PASS — “‘npm test’ → 2 pass, 0 fail” states command and result.
-4. PASS — Requires ASCII digits, safe integer, and `TypeError('invalid count')`.
-5. FAIL — “‘Next: build’” omits requirement for subsequent actual Build evidence.
-
-VERDICT: FAIL
-REASON: Applied status was not explicitly conditioned on a subsequent actual Build report.

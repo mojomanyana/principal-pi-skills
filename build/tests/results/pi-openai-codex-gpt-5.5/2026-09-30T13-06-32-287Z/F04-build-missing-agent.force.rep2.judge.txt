@@ -1,2 +1,0 @@
-VERDICT: FAIL
-REASON: It blocks on missing Count, but does not request caller repair or clarification.

@@ -1,6 +1,0 @@
-1. PASS — “Implemented: impl:S1” limits scope; report path implies no coverage.
-2. PASS — “Red first” and “Green/full” clearly report executed outcomes.
-3. PASS — Explicitly verifies malformed inputs; claims no full QUAL-1 qualification.
-4. PASS — “Next: review” avoids claiming downstream integration success.
-VERDICT: PASS
-REASON: Visible claims remain scoped, evidence-aware, and consistent with fixture-only implementation.

@@ -1,6 +1,0 @@
-1. PASS — Preserves “1000× current 100 rps = 100,000 requests/sec” and “99.99% availability.”
-2. PASS — “HOLD: payload size and retention are unknown”; design “cannot be finalized.”
-3. FAIL — Option 2 claims “Meets: 100k rps” without measured evidence.
-
-VERDICT: FAIL
-REASON: The recommended option makes an unconditional, unmeasured 100k-rps performance claim.

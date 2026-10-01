@@ -1,8 +1,0 @@
-1. PASS — “Root cause: confirmed”; reproduction “printed `3`,” distinguishing tested hypotheses.
-2. PASS — “proved in disposable workspace only, not applied to caller tree.”
-3. PASS — “node --test” reports “pass 2”; regression failed-before and passed-after.
-4. PASS — Requires whole ASCII digits, safe integer, and `TypeError`.
-5. PASS — “not applied to caller tree” and stops at “Next: build.”
-
-VERDICT: PASS
-REASON: All visible status, semantics, evidence, and approval-stop requirements are satisfied.

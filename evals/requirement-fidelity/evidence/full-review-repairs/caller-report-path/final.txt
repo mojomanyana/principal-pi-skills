@@ -1,6 +1,0 @@
-Next: blocked
-Changed paths: limit.mjs, limit.test.mjs
-Findings applied: none
-Tests: npm test — pass 2, fail 0
-Report: not saved
-Blocked: build-report.md is not ignored by git (`git check-ignore` exit 1); report safety requires an ignored destination before writing.

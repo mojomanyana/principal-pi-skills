@@ -1,5 +1,0 @@
-1. FAIL — “Blocked as required” omits missing finding meaning, source, and acceptance.
-2. FAIL — “Next: blocked” appears, but required caller handoff repair is unnamed.
-3. FAIL — “Saved report” does not explicitly report missing evidence.
-VERDICT: FAIL
-REASON: The response blocks but omits required handoff repair and missing-evidence details.

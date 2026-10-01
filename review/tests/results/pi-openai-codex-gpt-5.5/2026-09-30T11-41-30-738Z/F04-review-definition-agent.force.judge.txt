@@ -1,6 +1,0 @@
-1. PASS — “Count definition is missing,” so compliance “cannot be verified.”
-2. PASS — Explicitly states: “cannot assume it means ordinary integers.”
-3. PASS — “Workspace: none”; “Supply the normative Count definition.”
-
-VERDICT: PASS
-REASON: Missing normative semantics identified, assumptions rejected, source unchanged, repair requested.

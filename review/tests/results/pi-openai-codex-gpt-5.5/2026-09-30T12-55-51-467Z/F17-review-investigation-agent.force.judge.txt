@@ -1,7 +1,0 @@
-1. PASS — “LIMIT-1 requires… `0..3`; implementation accepts `4`.”
-2. PASS — “QUAL-1 requires boundary and malformed-input tests”; plan “explicitly incomplete.”
-3. PASS — Historical candidate rejected; verdict is “CHANGES-REQUESTED.”
-4. PASS — Findings cite files and require rejecting `4` plus malformed assertions.
-5. FAIL — Never identifies caller summary as unsupported by investigation’s cited facts.
-VERDICT: FAIL
-REASON: The response does not explicitly rebut the summary using investigation facts.

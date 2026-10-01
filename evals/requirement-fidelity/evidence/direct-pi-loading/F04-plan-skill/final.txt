@@ -1,3 +1,0 @@
-BLOCKED: Please supply the normative Count definition referenced by `definitions.md#Count`.
-Why it blocks: `SPEC.md` makes that definition required to implement rejection, and it is intentionally missing.
-Have: `LIMIT-1` requires `permit(count)` to accept Count values from 0 through 3 inclusive.

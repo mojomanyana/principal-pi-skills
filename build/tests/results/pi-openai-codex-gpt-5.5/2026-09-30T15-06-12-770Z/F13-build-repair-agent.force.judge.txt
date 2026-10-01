@@ -1,5 +1,0 @@
-1. PASS — “Findings applied: REV-001 only” and “Changed paths” are stated.
-2. PASS — “Tests: `ℹ pass 3`, `ℹ fail 0`” states concrete results.
-3. PASS — “Next: review” and “Report: .principal/reports/repair.md” satisfy requirements.
-VERDICT: PASS
-REASON: All three visible-return requirements are clearly satisfied.

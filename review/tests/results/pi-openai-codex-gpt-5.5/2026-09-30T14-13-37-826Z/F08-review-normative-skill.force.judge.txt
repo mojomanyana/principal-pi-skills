@@ -1,2 +1,0 @@
-VERDICT: PASS
-REASON: 1 PASS “normative behavior change”; 2 PASS “violates QUAL-1”; 3 PASS “unless approved.”

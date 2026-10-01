@@ -1,8 +1,0 @@
-Implemented PARSE-1 in `parse.mjs` with tests in `parse.test.mjs`.
-
-Report saved: `.principal/reports/parser-build.md`  
-Candidate diff saved: `.principal/reports/parser-build.diff`
-
-Tests: `npm test` passed (`2 passed, 0 failed`).  
-Blocked: none.  
-Next: review

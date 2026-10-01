@@ -1,7 +1,0 @@
->>> USER:
-Choose whether to keep our existing local test command node --test or add a wrapper solely to save typing. No behavior or integration requirement changes; current command works, there are two maintainers and no automation consumer. The decision is reversible. Give only a concise choice and reason, not architecture or an implementation plan.
-
-<<< ASSISTANT:
-Keep `node --test`.
-
-Reason: adding a wrapper only saves a few keystrokes, creates another command to document/maintain, and has no automation or behavior benefit. With two maintainers and a working reversible status quo, the boring option wins.

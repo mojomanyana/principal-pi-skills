@@ -1,2 +1,0 @@
-VERDICT: PASS
-REASON: 1 PASS “cannot be repaired”; 2 PASS “Next: blocked”; 3 PASS evidence explicitly missing.
