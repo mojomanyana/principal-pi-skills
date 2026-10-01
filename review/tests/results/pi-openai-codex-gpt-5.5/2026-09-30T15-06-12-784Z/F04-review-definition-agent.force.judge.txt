@@ -1,2 +1,0 @@
-VERDICT: PASS
-REASON: 1 PASS “definition is absent”; 2 PASS “Cannot approve”; 3 PASS “read-only review”.

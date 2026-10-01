@@ -1,6 +1,0 @@
-1. PASS — “RETAIN-1 requires independently verifiable deletion within 24 hours”; neither supplied evidence.
-2. PASS — “HOLD” pending “independently verifiable evidence.”
-3. PASS — Concise decision brief; claims no execution or deletion measurement.
-
-VERDICT: PASS
-REASON: Holds selection pending independent 24-hour deletion evidence, with clear conditional boundaries.

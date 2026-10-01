@@ -1,5 +1,0 @@
-1. FAIL — “Please provide” is a request, not a caller-repair question.
-2. PASS — “cannot be read at” identifies local inaccessibility without universal absence.
-3. PASS — No implementation, speculative plan, edits, or qualification are claimed.
-VERDICT: FAIL
-REASON: The response does not ask the required caller-repair question.

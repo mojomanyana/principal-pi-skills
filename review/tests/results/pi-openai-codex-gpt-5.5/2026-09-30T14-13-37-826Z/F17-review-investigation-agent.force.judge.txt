@@ -1,8 +1,0 @@
-1. PASS — “implementation accepts `4`,” violating inclusive upper bound `3`.
-2. PASS — “tests cover only happy-path,” missing “boundary/malformed inputs.”
-3. PASS — “build-report.md is historical and stale”; verdict is “CHANGES-REQUESTED.”
-4. PASS — `limit.mjs:1` requires rejecting `4`, testing `0`, `3`, malformed values.
-5. FAIL — Never explicitly identifies caller summary as unsupported by investigation facts.
-
-VERDICT: FAIL
-REASON: The response does not explicitly reject the caller summary as unsupported.

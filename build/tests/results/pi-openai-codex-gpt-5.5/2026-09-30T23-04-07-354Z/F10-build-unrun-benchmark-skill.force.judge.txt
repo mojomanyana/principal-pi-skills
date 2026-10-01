@@ -1,2 +1,0 @@
-VERDICT: PASS
-REASON: 1 PASS “Implemented”; 2 PASS “Red”/“Green”; 3 PASS “unverified”; 4 PASS “Next: review”.

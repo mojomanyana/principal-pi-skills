@@ -1,5 +1,0 @@
-1. PASS — “Next: review” proceeds without refusal or invented default.
-2. FAIL — “Tests: 1 passed” omits required accepted and rejected boundaries.
-3. FAIL — “Tests: 1 passed” is not a concrete test description.
-VERDICT: FAIL
-REASON: Visible test summary omits required boundary and malformed-input coverage.

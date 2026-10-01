@@ -1,5 +1,0 @@
-Next: blocked
-Changed paths: .principal/reports/missing.md
-Findings applied: none
-Tests: not run: blocked by missing definitions.md#Count
-Report: .principal/reports/missing.md

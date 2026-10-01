@@ -1,5 +1,0 @@
-1. PASS — “Changed paths: `limit.mjs`, `limit.test.mjs`” includes retained regression coverage.
-2. PASS — “failed as expected” before implementation; afterward “pass 2, fail 0.”
-3. PASS — “permits integer Count values `0..3` only” with malformed rejection coverage.
-VERDICT: PASS
-REASON: Report clearly documents implementation, red-green evidence, and enduring LIMIT-1/QUAL-1 coverage.

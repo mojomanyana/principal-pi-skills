@@ -1,5 +1,0 @@
-1. PASS — “Red test observed” is distinct from “Green/full evidence.”
-2. FAIL — “full PARSE-1” omits explicit digits, safe-integer, and 0,03,3 evidence.
-3. PASS — “Next: review” does not claim Debug or Review occurred.
-VERDICT: FAIL
-REASON: Required parseCount boundary semantics are not visibly established.

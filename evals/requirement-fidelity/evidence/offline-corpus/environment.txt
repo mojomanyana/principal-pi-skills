@@ -1,9 +1,0 @@
-Branch: imrpove-skills-requirements-fidelity
-Node: v26.7.0
-npm: 12.0.2
-Pi: 0.87.1
-Installed harness: 0.21.0
-Model calls: NONE; subject/judge: NOT INVOKED; delivery: UNKNOWN
-Baseline and final full command: npm test
-Targeted command: node --test tests/unit/fidelity-corpus.test.mjs
-Lint command: /home/neman/.pi/agent/npm/node_modules/.bin/skill-harness lint all --skills /home/neman/Code/principal-pi-skills

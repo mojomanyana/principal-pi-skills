@@ -132,9 +132,8 @@ assumptions-not-questions rule, the final-message-only rule. Anything outside a 
 to every output.
 
 When maintaining this package, put lasting regressions in existing behavior/domain suites,
-not PR-named files. `npm test` checks current contracts/product behavior; historical receipts
-and one-off replay tooling belong under `tests/evidence/`, selected by `npm run verify:evidence`.
-Report those counts separately. Preserve archived evidence and its original candidate identity.
+not PR-named files. `npm test` checks current contracts and product behavior.
+Behavioural measurement—including the fidelity corpus and skill-harness evidence—lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks live here.
 
 ## Setup (pi)
 

@@ -1,9 +1,0 @@
->>> USER:
-Repair accepted REV-001 only. Full finding definition, authority and acceptance are in review-report.md, SPEC.md and definitions.md; original baseline is build-report.md and assigned row is plan.md impl:S1. Read these named files. Implement the actual accepted fix with red/green and candidate-bound evidence. Preserve the telemetry follow-up and open global gate if evidence is incomplete. Save report .principal/reports/repair.md.
-
-<<< ASSISTANT:
-Next: review
-Changed paths: limit.mjs; limit.test.mjs
-Findings applied: REV-001 only
-Tests: npm test — tests 3, pass 3, fail 0
-Report: .principal/reports/repair.md

@@ -1,6 +1,0 @@
-1. PASS — Uses “100,000 requests/sec,” “1 KiB,” “24-hour replay,” and “99.99%.”
-2. FAIL — No explicit user approval; only says requirement must be “formally removed.”
-3. PASS — Distinguishes “not validated evidence” and says choices “need validation.”
-
-VERDICT: FAIL
-REASON: Item 2 lacks explicit user approval for the cheaper 10x deviation.

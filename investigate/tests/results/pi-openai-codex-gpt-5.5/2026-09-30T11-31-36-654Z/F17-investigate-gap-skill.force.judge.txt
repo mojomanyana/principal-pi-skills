@@ -1,2 +1,0 @@
-VERDICT: PASS
-REASON: All three items are explicitly supported with citations, limitations, and no compliance decision.

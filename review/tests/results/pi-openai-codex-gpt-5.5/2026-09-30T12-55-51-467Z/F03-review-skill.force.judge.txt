@@ -1,2 +1,0 @@
-VERDICT: PASS
-REASON: 1 PASS “Cannot reconcile”; 2 PASS “approval cannot”; 3 PASS “Provide” sources; “read-only review”.

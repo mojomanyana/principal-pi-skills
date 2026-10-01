@@ -1,2 +1,0 @@
-VERDICT: PASS
-REASON: 1 PASS “binding”; 2 PASS “Choose Birch”; 3 PASS “contained vendor choice.”

@@ -1,6 +1,0 @@
-1. PASS — “definition is required”; “cannot be verified or assumed.”
-2. PASS — “Cannot approve by assuming ‘ordinary integers’.”
-3. PASS — “Workspace: none”; “supply the required definition.”
-
-VERDICT: PASS
-REASON: Review rejects assumptions, preserves sources, and identifies the normative evidence gap.

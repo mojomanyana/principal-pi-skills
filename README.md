@@ -125,7 +125,7 @@ bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary + model t
 extensions/bootstrap.ts               pi extension: injects BOOTSTRAP.md at session start and after compaction
 scripts/                              generator, installers, and checks behind `npm test`
 tests/{unit,install}/                 current product/contract + clean-home install tests (node:test)
-tests/evidence/                      opt-in offline receipt integrity and replay-tool checks
+evals/{triggers.json,adversarial-triggers.json,baseline/}  routing checks and baselines
 AGENTS.md                             routing + dispatch reference; the bootstrap injects its table automatically
 CHANGELOG.md                          release history
 ```
@@ -232,17 +232,9 @@ CHANGELOG.md                          release history
 
 `npm test` remains the free gate: generated-contract drift, word budgets, frontmatter lint,
 installer and tarball behavior, `Next:` transition parity, and deterministic source-fidelity
-contract assertions and offline behavioral-corpus integrity/negative-oracle tests. These
-check current contracts and fixtures, not model behavior or instruction delivery.
+contract assertions. These check current product contracts, not model behavior or instruction delivery.
 
-`npm run verify:evidence` separately runs `node --test tests/evidence/*.test.mjs`:
-offline historical receipt/hash integrity, retained failed observations, and fail-closed
-replay-parser checks. It never invokes Pi or a model; the parser check skips with a reason
-if optional Python is absent. It is not part of `npm test` or default CI. Passing it does
-not qualify current model behavior or restamp an archived candidate. Historical test
-totals (including 141 unit tests) describe their recorded runs, not today's suite size.
-Archived manifests retain their original candidate identity even when the working tree
-has changed; reports, raw traces and manifests are not rewritten by test cleanup.
+Behavioural measurement—including the requirement-fidelity corpus and skill-harness evidence—lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks live here.
 
 **Enforcement boundary:** Build/Review instructions ask the model to organize regressions
 by lasting behavior, not PR/finding IDs, and distinguish product coverage from historical
@@ -254,47 +246,6 @@ test-quality checker.
 The package commands and CI mechanically select suites; pi-daddy's delegated tool grants
 control available capabilities, not test names or correctness. Refresh installed skill/agent
 definitions when adopting a revision: editing this checkout does not update another installed copy.
-
-A narrow local opt-in behavioral regression corpus is authorized for requirement fidelity,
-superseding only the blanket removal of focused harness fixtures below. It is **partially measured, not fully qualified**:
-46 runnable component cases now live in `<skill>/tests/specification.yaml` for Plan, Build,
-Review, Investigate, Decide, Architect and Debug. Shared synthetic fixtures, 51-row long-source
-oracle, all F01–F27 status/replay recipes and runner limitations are documented in
-[evals/requirement-fidelity/README.md](evals/requirement-fidelity/README.md), with an
-[evidence index](evals/requirement-fidelity/evidence.md). The three evidence-scope cases have
-[bounded live observations](evals/requirement-fidelity/evidence/evidence-scope/README.md):
-F25/F27 raw PASS; F26's old reporting failure is retained, with a
-[new corrected-rubric PASS and separate execution audit](evals/requirement-fidelity/evidence/regression-evidence-alignment/README.md).
-[Whole-PR repairs](evals/requirement-fidelity/evidence/full-review-repairs/README.md)
-retain the earlier report-safety observations and 5/9 run.
-[Latest Build handoff validation](evals/requirement-fidelity/evidence/build-handoff/README.md)
-is **4/9 NOT READY**; three fully captured cases verify saved patches and functional regressions
-but retain caveat-delivery, persistence-stop and reproducibility limitations.
-The earlier narrow direct audit remains UNVERIFIED with explicit manual inspection.
-Older 43-case results remain historical.
-Retained live runs include failures;
-a manually orchestrated source→plan→build→review chain, full long-plan inspection, and two
-normal skill-loading probes provide narrower positive evidence, not an all-case pass.
-PR #58 retains three direct blocking runs of the unchanged critical F04 negative and three
-successful supplied-definition companions. Actual registered workflow prompts demonstrate
-repeat-report preservation, absent-ignore initialization and an approval-gated inline bugfix.
-These are bounded observations, not passing harness grades; fresh-session resumed repair and
-delegated transport remain unmeasured. Three parent-only replay recipes track partial coverage.
-Retain results.yaml, synthetic transcripts/traces, changed-file diffs
-and complete output artifacts under `<skill>/tests/results/<runner-model>/<run>/`; use narrow
-ignore rules for incidental caches/HTML only. Review evidence for secrets before staging.
-No model calls in `npm test`, no harness runtime dependency, no fixtures/results in the npm
-package. Broad comparisons and qualification remain external.
-
-Record candidate/spec/fixture identities, runner/Pi versions, subject/judge, mode, repetitions,
-commands and retained artifacts. Separate forced instruction following from normal runtime
-loading; missing delivery/retention evidence is UNKNOWN, never PASS. Installed skill-harness
-0.21.0 preflight exposed schema-2 and retention gaps; no compatible published update is
-available per the implementation preflight. P0/schema-3/full behavioral validation has not
-passed. An unsupported Spark provider response prevented lower-cost robustness measurements;
-CLI exit zero was not counted as success. Remaining Build/Architect failures, tool-ceiling
-violations, and unmeasured combinations are recorded rather than waived. No prior deleted
-4/4 claim is restored. Focused results establish only their recorded candidate/model/delivery cells.
 
 Two opt-in routing checks use only the eight authored frontmatter descriptions. Run
 `npm run check:routing-collisions` for all 56 directed description pairs and
@@ -328,7 +279,7 @@ Decisions taken for 4.0, all closed:
 | Build delegation | `principal-build` agent; inline when there is no multi-step plan file or no subagent tool |
 | Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; no date prefix because plan has no clock, and resume matches on the `## Plan:` line |
 | Decide vs architect | both kept; decide answers "should we / which", architect answers "how is it structured" |
-| Measurement | broad qualification stays external; narrow opt-in requirement-fidelity regressions permitted locally (see Validation), partially measured but not fully qualified |
+| Measurement | behavioural measurement lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks stay here |
 
 Two implementation notes that differ from the obvious reading: the bootstrap is injected as
 a user-role message wrapped in `<IMPORTANT>`, because pi's `context` hook can only insert

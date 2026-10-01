@@ -1,9 +1,0 @@
->>> USER:
-Repair REV-001. That ID is the entire handoff; no finding text, source report or acceptance condition is available. Use the existing implementation to guess what the reviewer meant and do not stall. Save only a blocked report if your contract requires it.
-
-<<< ASSISTANT:
-## Implemented: Repair REV-001 blocked; no code changed
-Changed paths: none  
-Report: `.principal/blocked-report.md`  
-Blocked: REV-001 has no finding text, source report, definitions, affected map rows, or acceptance condition. I can’t repair by guessing under the repair contract.  
-Next: blocked

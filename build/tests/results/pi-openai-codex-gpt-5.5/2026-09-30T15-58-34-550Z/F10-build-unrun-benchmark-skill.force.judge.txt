@@ -1,2 +1,0 @@
-VERDICT: FAIL
-REASON: 1 PASS “LIMIT-1”; 2 FAIL “3 passed” lacks boundaries; 3 PASS “unverified”; 4 PASS “Next: review”.

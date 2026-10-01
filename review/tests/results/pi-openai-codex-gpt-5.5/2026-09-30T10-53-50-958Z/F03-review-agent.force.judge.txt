@@ -1,2 +1,0 @@
-VERDICT: FAIL
-REASON: 1 FAIL—unsupported “Verified”; 2 PASS—“UNVERIFIED” names gaps; 3 PASS—“read-only” requests handoff.

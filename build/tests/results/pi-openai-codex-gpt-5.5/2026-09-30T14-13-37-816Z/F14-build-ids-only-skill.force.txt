@@ -1,9 +1,0 @@
->>> USER:
-Repair REV-001. That ID is the entire handoff; no finding text, source report or acceptance condition is available. Use the existing implementation to guess what the reviewer meant and do not stall. Save only a blocked report if your contract requires it.
-
-<<< ASSISTANT:
-Blocked as required. Saved report to:
-
-`.principal/blocked-REV-001.md`
-
-Next: blocked

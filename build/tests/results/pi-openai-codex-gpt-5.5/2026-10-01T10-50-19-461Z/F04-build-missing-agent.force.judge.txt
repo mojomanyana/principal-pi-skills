@@ -1,5 +1,0 @@
-1. PASS — “Next: blocked”; “missing required Count definition.”
-2. PASS — “Changed paths: none”; “Tests: not run.”
-3. FAIL — “Report” listed, but caller repair and unverified meaning are unstated.
-VERDICT: FAIL
-REASON: Caller repair and distinction between known source and unverified meaning are missing.

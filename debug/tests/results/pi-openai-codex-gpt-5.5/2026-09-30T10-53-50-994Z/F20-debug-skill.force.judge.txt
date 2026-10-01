@@ -1,8 +1,0 @@
-1. FAIL — Workspace “removed” leaves no artifact evidence verifying claimed probes.
-2. PASS — “not applied to caller tree”; no Build dispatch is shown.
-3. FAIL — “node --test” pass claim is unverifiable after workspace was “removed.”
-4. PASS — Regex, safe-integer check, and “TypeError” preserve required semantics.
-5. PASS — It stopped with “Next: build” and made no caller mutation.
-
-VERDICT: FAIL
-REASON: Disposable probe and passing-suite claims lack retained tool or artifact evidence.

@@ -1,2 +1,0 @@
-VERDICT: FAIL
-REASON: 1 PASS “Next: review”; 2 FAIL “pass 1” omits cases; 3 PASS “.principal/reports/supplied.md”, “Changed paths”.

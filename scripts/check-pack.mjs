@@ -5,10 +5,9 @@
  * Two failures this catches, which pull in opposite directions:
  *
  *   - **Shipping too much.** Before the allowlist, `npm pack` produced 287 files and ~1 MB:
- *     every fixture and benchmark record, the evidence directory, CI config, the
- *     contract templates. None of it runs at install time, all of it is in the repo for
- *     anyone who wants it, and shipping benchmark transcripts to every consumer is
- *     bandwidth spent on nothing.
+ *     evaluation inputs, CI config, and contract templates. None of it runs at install
+ *     time, and shipping development-only files to every consumer is bandwidth spent on
+ *     nothing.
  *   - **Shipping too little.** An allowlist is a denylist's mirror image: it fails silently
  *     the moment a new runtime file is added and nobody updates `files`. A missing SKILL.md
  *     is invisible in every developer test — the checkout has it — and broken for every
@@ -42,10 +41,7 @@ const REQUIRED = [
   "bootstrap/BOOTSTRAP.md",
 ];
 
-/**
- * Nothing matching these may ship. Evidence and scenarios stay in git — the plan is explicit
- * that they are kept as history — they simply are not part of the distributable.
- */
+/** Nothing matching these development-only paths may ship. */
 const FORBIDDEN = [
   [/^evals\//, "opt-in evaluation fixtures and evidence — never runtime resources"],
   [/^docs\//, "documentation and benchmark evidence — in the repo, not the package"],

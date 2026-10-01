@@ -1,5 +1,0 @@
-1. FAIL — Only “parseCount('3x')” evidenced; malformed boundaries remain unverified.
-2. FAIL — “full SPEC.md PARSE-1 validation” lacks safe-integer and acceptance evidence.
-3. FAIL — “parse.mjs” does not identify the fixture or tested candidate.
-VERDICT: FAIL
-REASON: Claims lack evidence for required boundaries, semantics, and candidate identity.

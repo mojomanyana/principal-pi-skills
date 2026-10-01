@@ -1,6 +1,0 @@
-1. FAIL — “Verified” omits LIMIT-1/QUAL-1 and presents tested behavior as exhaustive.
-2. PASS — “Red” and “Green/full” clearly distinguish separate reported test outcomes.
-3. FAIL — “3 passed” is followed by broad “rejects malformed/non-Count inputs.”
-4. PASS — “Next: review” does not claim downstream review or integration success.
-VERDICT: FAIL
-REASON: Broad verification overclaims malformed-input and QUAL-1 coverage beyond the reported tests.

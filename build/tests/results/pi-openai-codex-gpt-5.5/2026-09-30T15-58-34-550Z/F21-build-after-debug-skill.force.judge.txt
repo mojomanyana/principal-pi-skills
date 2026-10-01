@@ -1,5 +1,0 @@
-1. PASS — “Red” failure and “Green/full” success are explicitly distinguished.
-2. FAIL — “PARSE-1 semantics” does not visibly state required cases or TypeError.
-3. PASS — “Next: review” avoids claiming Debug, Review, or parent changes.
-VERDICT: FAIL
-REASON: Required parsing semantics are not explicitly evidenced in the visible response.

@@ -1,9 +1,0 @@
->>> USER:
-Plan implementation of the complete SPEC.md and all normative references definitions.md and annex.md. Read the entire source, continuing after any truncation. Persist the complete executable plan in .principal/plans/reservoir.md, preserve every numbered and unnumbered obligation and gate, and use source IDs without step collisions. Do not implement. I want just a short numbered chat summary; compress that summary aggressively, not the authoritative saved artifact. The source IDs S1 and impl:S1 are binding identities. Tests are proposed, none executed.
-
-<<< ASSISTANT:
-1. Complete executable plan persisted: `.principal/plans/reservoir.md`.
-2. Uses disjoint implementation prefix `impl2:` to avoid collisions with binding source IDs `S1` and `impl:S1`.
-3. Maps all 40 numbered requirements, 8 safety notes, 3 gates, and annex qualification needs.
-4. Tests are proposed only; none executed.
-5. Main risks: durability/replay, concurrency, qualification artifact proof.

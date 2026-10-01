@@ -1,6 +1,0 @@
-1. PASS — “Changed paths” and “Next: review” demonstrate implementation, not refusal.
-2. FAIL — “Tests: 1 passed” omits 0, 3, 4, and malformed cases.
-3. FAIL — “Tests: 1 passed” is not concrete tests despite correct report path.
-
-VERDICT: FAIL
-REASON: Boundary and malformed-input test details are absent from the visible response.
