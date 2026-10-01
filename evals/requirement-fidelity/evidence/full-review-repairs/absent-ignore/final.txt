@@ -1,0 +1,5 @@
+Next: review
+Changed paths: limit.mjs; limit.test.mjs
+Findings applied: none
+Tests: npm test → tests 2, pass 2, fail 0
+Report: .principal/reports/limit-1-upper-bound/96384dc/limit-1-build-1.md

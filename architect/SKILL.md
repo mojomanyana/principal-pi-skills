@@ -20,12 +20,15 @@ option wins.
 1. **Get a measurable driver.** "Scalable / secure / maintainable" are adjectives, not
    requirements. A driver looks like: "5,000 requests/s at p99 < 200 ms, no data loss on
    single-zone failure". If the user hasn't given one, ask once for the missing workload
-   facts; if you must proceed, state your assumed numbers at the top AND still ask the
-   user to confirm them. If asked to design for a scale far beyond today (100×–1000×,
-   "10M users from day one"), push back: design for ~10× current, and name the measured
-   threshold at which the next design becomes a deliberate decision.
+   facts. Missing load-bearing facts or normative definitions → one deciding question or
+   HOLD, not invented numbers. Evaluate supplied scale (including 100×–1000×) until the user
+   changes it. A cheaper ~10× design may be a proposed deviation, never a silent replacement;
+   record an approved change's original obligation, decision-maker and remaining consequences.
 2. **State hard constraints**: team size, deadline, budget, existing systems, on-call
-   capacity. A microservice design for a two-person team is wrong regardless of elegance.
+   capacity. Separate binding requirements and definitions, with source references, from
+   preferences; read authority rather than substituting a summary. Preserve supplied constraints.
+   A microservice design for a two-person team is wrong regardless of elegance.
+   Proposed structures and validation plans are not implemented behavior or measured evidence.
 3. **Sketch 2–3 architectures spanning the space, one deliberately boring** (the modular
    monolith, the Postgres table, the cron job). Score each against the drivers from
    step 1, not against fashion.
@@ -79,16 +82,17 @@ may shorten it; you may not strip it. A record with only upsides is a sales pitc
 politely, deliver the honest version, and let the user delete sections themselves.
 
 ## Delegated mode (running as a subagent)
-No dialogue: derive drivers from the material given, mark them `ASSUMED`, and deliver the
-complete design note in one response.
+No dialogue: derive drivers from supplied material. Label only bridgeable nonnormative
+assumptions. Missing load-bearing facts → conditional design boundary or HOLD with the
+named missing fact, not invented numeric drivers or an unconditional design.
 
 ## Output — design note
 This template is for designs you produce — never for a trivial ask (2–5 sentences) or a
 sound-check of the user's own design (verdict + risks + bottom line, in prose).
 ```
 ## Design note: <question, one line>
-Drivers: <measurable scenarios, or "ASSUMED: …">
-Constraints: <team, budget, existing systems>
+Drivers: <supplied measurable scenarios; missing load-bearing facts → HOLD>
+Constraints: <binding requirements/definitions + source refs; preferences separately>
 Options:
   1. <boring option> — meets/misses which drivers, at what cost
   2. <option> — …
@@ -108,6 +112,6 @@ Decision record (only for ONE-WAY or precedent-setting choices):
 |---|---|
 | Recommend a cache/queue/microservice with no measurable driver on the table | Ask what is slow or failing, and by how much. No driver, no mechanism. |
 | Compare X vs Y on feature lists | Demand the workload shape first: access patterns, volumes, consistency needs, team familiarity. |
-| Design for 1000× current load | Design for ~10×; name the threshold where the next design kicks in. |
+| Replace supplied 1000× with a cheaper 10× design | Evaluate the supplied scale; propose a deviation for user approval, never silently relax it. |
 | Produce diagrams or a decision record for a quick advisory question | Answer in prose with one flip condition. |
 | Answer "is this sound?" by opening a Design note that echoes their drivers | The verdict is the deliverable — judge their plan against their drivers. |

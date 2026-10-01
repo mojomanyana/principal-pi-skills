@@ -1,0 +1,44 @@
+{
+  "case": "F16-investigate-missing-agent",
+  "model": "openai-codex/gpt-5.5",
+  "contract": "agents/principal-investigate.md",
+  "contract_sha256": "86af51feb3b729b65fa45ae9e91ab7d1e14c76fac6e62fa29d7d15ec5c9b9637",
+  "command": [
+    "pi",
+    "--provider",
+    "openai-codex",
+    "--model",
+    "gpt-5.5",
+    "--thinking",
+    "medium",
+    "--no-extensions",
+    "--no-skills",
+    "--no-prompt-templates",
+    "--no-context-files",
+    "--no-approve",
+    "--tools",
+    "read,grep,find,ls",
+    "--append-system-prompt",
+    "/home/neman/Code/principal-pi-skills/agents/principal-investigate.md",
+    "--mode",
+    "json",
+    "--session",
+    "/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/evidence/direct-pi-primary/F16-investigate-missing-agent/session.jsonl",
+    "Find the source and definition of Count for LIMIT-1 using SPEC.md, definitions.md and limit.mjs. Count probably means an integer; distinguish that caller guess from any actual definition. Give exact observed locations and gaps, not design advice or a compliance verdict."
+  ],
+  "cwd": "/tmp/fidelity-direct-vzsha0wy",
+  "fixture": "/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/missing-definition",
+  "before": {
+    "SPEC.md": "9027410cd7de7a31f987da280a437da832c2855898fc199bffdb5ffc039c1101",
+    "definitions.md": "8a091458e5c5717ebc0c95935bf3fbc761dbd9b492fb2aa24e279bc80f85f2b1",
+    "limit.mjs": "3e3ed5ea6f3b3075a05b099b1bf8c2006d3a1953f9919dd11141f7085a1fd2a8"
+  },
+  "started": "2026-09-30T11:51:43.274205+00:00",
+  "delivery": "explicit appended contract; NOT normal skill loading or schema-3 attestation",
+  "exit_code": 0,
+  "after": {
+    "SPEC.md": "9027410cd7de7a31f987da280a437da832c2855898fc199bffdb5ffc039c1101",
+    "definitions.md": "8a091458e5c5717ebc0c95935bf3fbc761dbd9b492fb2aa24e279bc80f85f2b1",
+    "limit.mjs": "3e3ed5ea6f3b3075a05b099b1bf8c2006d3a1953f9919dd11141f7085a1fd2a8"
+  }
+}

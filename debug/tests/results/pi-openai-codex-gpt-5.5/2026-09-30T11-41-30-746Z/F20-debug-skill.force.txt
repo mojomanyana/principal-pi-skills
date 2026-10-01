@@ -1,0 +1,47 @@
+>>> USER:
+Bugfix workflow diagnosis phase only: parseCount accepts 3x. Read SPEC.md and symptom.md plus parse.mjs and parse.test.mjs. Probe in a disposable workspace, never this caller tree. Return diagnosis and proposed or sandbox-proved fix, then stop for caller approval before Build. If workspace tools are unavailable, remain read-only and label unproven.
+
+<<< ASSISTANT:
+## Bug: `parseCount('3x')` is accepted as `3`
+
+Reproduction: `cd /tmp/ppw-6qypa8 && node --input-type=module -e "import { parseCount } from './parse.mjs'; console.log(parseCount('3x'))"` → printed `3`
+
+Isolated to: `parse.mjs:1`
+
+Hypotheses tested:
+- `Number.parseInt` accepts numeric prefixes and ignores suffixes → confirmed: `parseCount('3x')` returned `3`.
+- SPEC requires entire nonempty ASCII decimal digit string plus safe integer check → confirmed by `SPEC.md`; current implementation has neither whole-string validation nor safe-integer validation.
+
+Boundary evidence: bad value first appears at public API boundary `parseCount('3x')`; implementation immediately calls `Number.parseInt(value, 10)`, which parses prefix `3`.
+
+Wait condition: not applicable
+
+Root cause: confirmed; `parse.mjs:1` uses `Number.parseInt`, which accepts partial numeric prefixes instead of enforcing the full SPEC grammar.
+
+Fix: proved in disposable workspace only, not applied to caller tree:
+
+```js
+export function parseCount(value) {
+  if (typeof value !== 'string' || !/^[0-9]+$/.test(value)) {
+    throw new TypeError('invalid count');
+  }
+
+  const count = Number(value);
+  if (!Number.isSafeInteger(count)) {
+    throw new TypeError('invalid count');
+  }
+
+  return count;
+}
+```
+
+Regression test: added SPEC gate cases in disposable workspace; failed before fix on `'3x'`, passed after fix.
+
+Suite: `node --test` → pass after sandbox fix:
+`tests 2`, `pass 2`, `fail 0`
+
+Workspace: disposable — `/tmp/ppw-6qypa8` removed
+
+Blocked: none
+
+Next: build

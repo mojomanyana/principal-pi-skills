@@ -1,0 +1,52 @@
+{
+  "case": "F02-plan-agent",
+  "model": "openai-codex/gpt-5.5",
+  "contract": "agents/principal-plan.md",
+  "contract_sha256": "ebe1a2004085a0b804979ff57984c6fc73e2371d0c5ecebd0a5e0e1c400a1403",
+  "command": [
+    "pi",
+    "--provider",
+    "openai-codex",
+    "--model",
+    "gpt-5.5",
+    "--thinking",
+    "medium",
+    "--no-extensions",
+    "--no-skills",
+    "--no-prompt-templates",
+    "--no-context-files",
+    "--no-approve",
+    "--tools",
+    "read,grep,find,ls,write",
+    "--append-system-prompt",
+    "/home/neman/Code/principal-pi-skills/agents/principal-plan.md",
+    "--mode",
+    "json",
+    "--session",
+    "/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/evidence/direct-pi-primary/F02-plan-agent/session.jsonl",
+    "Plan implementation of the complete SPEC.md and all normative references definitions.md and annex.md. Read the entire source, continuing after any truncation. Persist the complete executable plan in .principal/plans/reservoir.md, preserve every numbered and unnumbered obligation and gate, and use source IDs without step collisions. Do not implement. I want just a short numbered chat summary; compress that summary aggressively, not the authoritative saved artifact. The source IDs S1 and impl:S1 are binding identities. Tests are proposed, none executed."
+  ],
+  "cwd": "/tmp/fidelity-direct-zpbi4_vj",
+  "fixture": "/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/long-spec",
+  "before": {
+    "SPEC.md": "5cd996ae2e77ba96193ea92d03ec006397661039fca50f7495fdd7725c8aebf5",
+    "definitions.md": "3ae2a2a4d17c4528a6be02d99db941ab94908ccd70da594a5fa2eccef7c7831a",
+    "package.json": "04a545e0e658ca729fcd6206cc676d86e5b6ce5e3127c6027a322ca81c91a6d0",
+    "service.test.mjs": "9f7deccb340d703f908af8ee0c21ff593899e3d22f4a05c21b44c2bf735e43cf",
+    "annex.md": "fe9bad1bb149f6dddc24215c38a058a9a86cad5ec45ed884e0c92b19ecfa6cbc",
+    "service.mjs": "72c2bc1c5f914d35eacde4217f4f230ed8eff7d796c9c5fbe30c90793a0a56bb"
+  },
+  "started": "2026-09-30T11:49:28.924349+00:00",
+  "delivery": "explicit appended contract; NOT normal skill loading or schema-3 attestation",
+  "exit_code": 0,
+  "after": {
+    "SPEC.md": "5cd996ae2e77ba96193ea92d03ec006397661039fca50f7495fdd7725c8aebf5",
+    "definitions.md": "3ae2a2a4d17c4528a6be02d99db941ab94908ccd70da594a5fa2eccef7c7831a",
+    "package.json": "04a545e0e658ca729fcd6206cc676d86e5b6ce5e3127c6027a322ca81c91a6d0",
+    "service.test.mjs": "9f7deccb340d703f908af8ee0c21ff593899e3d22f4a05c21b44c2bf735e43cf",
+    "annex.md": "fe9bad1bb149f6dddc24215c38a058a9a86cad5ec45ed884e0c92b19ecfa6cbc",
+    "service.mjs": "72c2bc1c5f914d35eacde4217f4f230ed8eff7d796c9c5fbe30c90793a0a56bb",
+    ".principal/.gitignore": "cdbcae15105d6b781e620813c79c7e868740d4e9cc53ce6f5fcbbc12387adf4b",
+    ".principal/plans/reservoir.md": "60b6568a4c84cf4909386e9850ef1086635d921a627a145b289a5f1d84da32de"
+  }
+}

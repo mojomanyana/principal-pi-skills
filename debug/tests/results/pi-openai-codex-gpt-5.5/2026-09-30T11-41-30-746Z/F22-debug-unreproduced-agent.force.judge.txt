@@ -1,0 +1,6 @@
+1. PASS — “NOT REPRODUCED”; asks for “exact input, environment, and call sequence”.
+2. PASS — Calls flaw “static evidence only”; root cause “not established”.
+3. PASS — “Fix: proposed/unproven”; “Regression test: proposed, not run”.
+
+VERDICT: PASS
+REASON: All checklist requirements are clearly satisfied.

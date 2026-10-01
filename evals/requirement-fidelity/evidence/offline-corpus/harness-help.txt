@@ -1,0 +1,32 @@
+skill-harness 0.21.0 — test/optimize loop for agent skills (pi harness)
+
+  run    <skill|all> --skills <root> [--model prov:model ...] [--models file] [--only A1,D2]
+                     [--mode red|green|force] [--judge prov:model] [--harness pi] [--label name] [--parallel N] [--reps N] [--pass-threshold T]
+                     [--canary]  green only: spend ONE probe proving the skill reached the model, and abort the run if it did not
+                     [--structured]  request structured capture (Pi uses it by default for subject usage)
+                     [--arm <name>]  measure under a named arm from <skills-root>/tests/arms.yaml
+                                     (loads its extensions, seeds pi-daddy definitions, tags the run dir)
+  grade  <run-dir>   [--judge prov:model] [--suspect-only]   re-grade saved transcripts (neutral judge)
+  rescore <run-dir>...                          re-score saved reps vs current spec thresholds (free, offline)
+  regate <run-dir>...  [--judge prov:model]     re-evaluate saved gates (no subject call; judges fail→pass reps)
+  restamp <skill|all> --skills <root> [--from <git-ref>]   record the model-visible skill digest on runs that still match (free, offline; one-time migration)
+  stability <skill|all> --skills <root> [--window N] [--all]  run-over-run verdict flips per scenario (free, offline)
+  review <skill>     --skills <root> [--port N] serve the interactive review UI
+  add-test <skill>   --skills <root> --id ID --title T --turn ... --check ... [--critical] [--mode seeded --fixture path]
+  init   <skill>     --skills <root> [--force]     scaffold a commented template spec (free, offline)
+  suggest <skill>    --skills <root> [--model prov:model] [--force]  LLM-draft a spec from SKILL.md (spends tokens)
+  list   --skills <root>                        discovered skills + spec status (free, offline)
+  lint   <skill|all> --skills <root>           validate specs/fixtures + results-consistency (free, offline; CI gate; exits non-zero on findings)
+  coverage <skill|all> --skills <root> [--strict]   which instruction sections have a declared test (free, offline)
+
+  Every command with --skills also accepts --specs <root> (default: SKILL_HARNESS_SPECS).
+  Skill text comes from --skills; test assets and results come from --specs.
+
+  version  print 0.21.0 and exit (also --version / -v)
+
+defaults: model=fireworks:accounts/fireworks/models/deepseek-v4-pro  judge=openai-codex:gpt-5.6-sol  mode=green  harness=pi
+  green and force are both scored; red is the unscored baseline. green delivery depends on the
+  harness version (pi >= 0.83.0 discloses only the skill's description and loads the body on demand),
+  so --mode force is the delivery that cannot silently degrade — and --canary proves green per run.
+  the judge default runs through Pi on your ChatGPT subscription (`openai-codex`), not a metered
+  API key. Set SKILL_HARNESS_JUDGE to change it for a repo or a shell; --judge wins over both.

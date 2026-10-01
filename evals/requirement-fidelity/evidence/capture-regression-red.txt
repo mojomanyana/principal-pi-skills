@@ -1,0 +1,28 @@
+✖ captured plans and reports have portable, hash-verified evidence aliases (1.430212ms)
+✔ provider failures remain ERROR even when Pi exits zero (11.408202ms)
+✔ normal-loading receipts include successful original skill-body reads (3.745773ms)
+ℹ tests 3
+ℹ suites 0
+ℹ pass 2
+ℹ fail 1
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 89.404232
+
+✖ failing tests:
+
+test at tests/unit/fidelity-evidence.test.mjs:14:1
+✖ captured plans and reports have portable, hash-verified evidence aliases (1.430212ms)
+  Error: ENOENT: no such file or directory, open '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/evidence/captured-artifacts.json'
+      at readFileSync (node:fs:539:20)
+      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/tests/unit/fidelity-evidence.test.mjs:15:30)
+      at Test.runInAsyncScope (node:async_hooks:226:14)
+      at Test.run (node:internal/test_runner/test:1397:25)
+      at Test.start (node:internal/test_runner/test:1257:17)
+      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {
+    errno: -2,
+    code: 'ENOENT',
+    syscall: 'open',
+    path: '/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/evidence/captured-artifacts.json'
+  }

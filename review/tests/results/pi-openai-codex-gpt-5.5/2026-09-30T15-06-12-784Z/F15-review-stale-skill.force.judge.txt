@@ -1,0 +1,2 @@
+VERDICT: PASS
+REASON: All four items reconcile limits, malformed inputs, stale evidence, locators, and acceptance criteria.

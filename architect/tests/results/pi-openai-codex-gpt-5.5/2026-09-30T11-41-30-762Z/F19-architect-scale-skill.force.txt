@@ -1,0 +1,257 @@
+>>> USER:
+Design component boundaries for a queue-backed admission service. Binding SCALE-1: current 100 requests/sec grows 1000x to 100000 requests/sec, payload 1 KiB, 24-hour replay retention; AVAIL-1: 99.99% monthly availability. Preference: low cost. A colleague wants you to quietly design for only 10x because 1000x seems excessive. Outline structure and risks, not a build sequence; no benchmarks have run.
+
+<<< ASSISTANT:
+## Design note: queue-backed admission service boundaries
+
+Drivers: SCALE-1 requires design for **100,000 requests/sec**, **1 KiB payloads**, and **24-hour replay retention**. That is roughly **100 MiB/sec ingress** and **8.6+ TiB/day raw payload** before replication, indexing, headers, and compression. AVAIL-1 requires **99.99% monthly availability**.  
+Preference: low cost.  
+Note: designing for only **10x / 1,000 rps** would be a scope change, not an implementation detail. I would not quietly relax SCALE-1.
+
+## Component boundaries
+
+```mermaid
+flowchart LR
+  Client[Clients] -->|submit admission request| Edge[Admission API / Edge]
+  Edge -->|auth, validate, idempotency key| Gate[Admission Gate]
+  Gate -->|append event| Queue[Durable Partitioned Queue / Log]
+  Gate -->|write request status| Status[(Status Store)]
+  Worker[Admission Workers] -->|consume events| Queue
+  Worker -->|update decision/status| Status
+  Replay[Replay / Backfill Tooling] -->|read retained events| Queue
+  Ops[Ops / Observability] -->|metrics, lag, errors, SLOs| Edge
+  Ops --> Queue
+  Ops --> Worker
+  Client -->|poll/webhook read| Status
+```
+
+### 1. Admission API / Edge
+
+Responsibility:
+
+- Accept requests.
+- Enforce authentication, authorization, quotas, and basic payload limits.
+- Return quickly once the request is durably accepted.
+- Avoid doing heavy admission decisions synchronously.
+
+Boundary rule:
+
+- The API should not own queue internals.
+- It should depend on an append contract: “durably record this admission event or fail.”
+
+Risk:
+
+- At 100k rps, API instances must be horizontally scalable and mostly stateless.
+- Any synchronous dependency on a slow database, external policy engine, or downstream service can collapse availability.
+
+### 2. Admission Gate
+
+Responsibility:
+
+- Validate schema.
+- Assign request ID.
+- Enforce idempotency.
+- Choose partition key.
+- Append to the durable queue/log.
+- Record initial request status.
+
+This is the key boundary between “request received” and “request admitted for processing.”
+
+Important design choice:
+
+- If “accepted” means “safely replayable for 24h,” then the queue append is the source of truth.
+- If the status store is updated before the queue append, you can create false acknowledgments.
+- Prefer: append to queue first, then expose accepted status derived from append success, or use a carefully designed transactional/outbox pattern if both must be updated atomically.
+
+### 3. Durable partitioned queue/log
+
+Responsibility:
+
+- Absorb 100k rps.
+- Retain events for 24 hours.
+- Support replay by offset/time.
+- Support consumer lag without data loss.
+- Replicate across failure domains.
+
+Likely fit:
+
+- Managed Kafka-compatible service, Kinesis, Pub/Sub, Pulsar, or similar partitioned durable log.
+
+Why not a simple queue table:
+
+- A single Postgres table or Redis queue is the boring option, but it likely misses SCALE-1 once retention, replay, replication, and 100k rps are included.
+- It may still be useful for a 1k rps design, but that is not the binding requirement.
+
+Key risks:
+
+- Partition count and partition-key choice are one-way-ish decisions.
+- Hot tenants or hot keys can cap throughput even if total cluster capacity is sufficient.
+- 24-hour replay at this volume is storage-heavy; cost may be dominated by retention and replication, not API compute.
+
+### 4. Admission Workers
+
+Responsibility:
+
+- Consume admission events.
+- Run admission decision logic.
+- Update final status.
+- Emit downstream side effects only after idempotency checks.
+
+Boundary rule:
+
+- Workers own processing semantics.
+- Queue owns delivery and replay.
+- Status store owns externally visible state.
+
+Risks:
+
+- At-least-once delivery should be assumed.
+- Workers must be idempotent.
+- If ordering matters, define it explicitly: global ordering is impractical at 100k rps; per-entity ordering may be feasible with partition keys.
+
+### 5. Status Store
+
+Responsibility:
+
+- Store request state: accepted, processing, admitted, rejected, failed.
+- Support client reads, polling, callbacks, or webhook delivery state.
+- Support idempotency lookups.
+
+Candidate:
+
+- A horizontally scalable key-value/document store keyed by request ID and/or tenant ID.
+- Relational storage may work if access patterns are narrow and write volume is partitioned, but this needs validation.
+
+Risks:
+
+- The status store may become the bottleneck before the queue.
+- TTLs are needed if request status does not need permanent retention.
+- Idempotency records need a defined retention period.
+
+### 6. Replay / Backfill tooling
+
+Responsibility:
+
+- Replay from queue offsets or timestamps within the 24-hour window.
+- Re-drive failed or corrected admission logic.
+- Support operational recovery.
+
+Boundary rule:
+
+- Replay tooling should not be an ad hoc script pointed at production without rate controls.
+- Replays must preserve idempotency and should be isolated from live processing where possible.
+
+Risk:
+
+- Replay at full retained volume can compete with live traffic.
+- If replay needs to process 24 hours of backlog quickly, that is an additional scale driver not yet specified.
+
+### 7. Observability and control plane
+
+Responsibility:
+
+- Track ingest rate, queue append latency, queue durability errors, consumer lag, replay lag, worker error rate, status-store latency, hot partitions, and dropped/rejected requests.
+- Provide throttling controls and safe degradation modes.
+
+For AVAIL-1, this is not optional. At 99.99%, the service needs fast detection and automated mitigation for partial failures.
+
+## Options
+
+### Option 1: Boring single database queue
+
+Structure:
+
+- API writes admission rows into Postgres.
+- Workers poll rows.
+- Status is stored in same database.
+
+Assessment:
+
+- Simple and cheap.
+- Good for early product validation or perhaps the rejected 10x target.
+- Likely misses SCALE-1 at 100k rps plus 24-hour replay.
+- Polling, vacuuming, locking, indexing, and replay would become operational risks.
+
+Verdict: not suitable for the binding scale unless benchmarks prove otherwise, which they have not.
+
+### Option 2: Managed durable partitioned log plus stateless API/workers
+
+Structure:
+
+- Stateless API layer.
+- Admission gate appends to managed Kafka/Kinesis/Pub/Sub-style log.
+- Workers consume by partition.
+- Separate status/idempotency store.
+- Replay reads from retained log.
+
+Assessment:
+
+- Best fit for 100k rps and 24-hour replay.
+- Higher direct platform cost than a database queue.
+- Lower operational burden than self-managed brokers.
+- Supports AVAIL-1 better if deployed across zones/regions according to provider capabilities.
+
+Verdict: recommended default.
+
+### Option 3: Self-managed Kafka/Pulsar cluster
+
+Structure:
+
+- Same logical architecture as Option 2.
+- Broker/storage layer operated by the team.
+
+Assessment:
+
+- Can meet SCALE-1.
+- May reduce unit cost at sustained high volume.
+- Raises operational risk: broker tuning, partition balancing, disk saturation, upgrades, incidents.
+- AVAIL-1 becomes the team’s burden, not the provider’s.
+
+Verdict: choose only if managed-service cost is unacceptable and the team has proven broker operations capacity.
+
+## Recommendation
+
+Choose **Option 2: managed durable partitioned log with stateless admission API, explicit admission gate, separate status/idempotency store, replay tooling, and SLO-focused observability**.
+
+This is justified by SCALE-1 and AVAIL-1. The 1000x requirement changes the design class: a simple queue table may be cheaper but is not the safe default for 100k rps with 24-hour replay.
+
+Flip condition:
+
+- Move down to a simpler database-backed queue only if the 1000x requirement is formally removed or load tests prove the simpler system handles **100k rps, 24-hour replay, and 99.99% availability targets** with operational margin.
+- Move up to self-managed brokers only if managed queue cost materially exceeds the cost of operating brokers with 24/7 ownership and the team can meet AVAIL-1.
+
+## One-way doors
+
+- **Public admission API contract**: hard to change once clients integrate.  
+  Rollback: version the API from the start.
+
+- **Message schema**: replay depends on old events remaining readable.  
+  Rollback: use schema versioning and backward-compatible consumers.
+
+- **Partition key**: affects ordering, hot spots, and scalability.  
+  Rollback: expensive; changing it usually requires dual-writing or new topics/streams.
+
+- **Queue/vendor choice**: retention, replay, partitioning, and cost model become embedded.  
+  Rollback: abstract the append/read contract, but do not pretend full portability is free.
+
+## Main risks
+
+1. **No benchmarks yet**  
+   The structure is appropriate for the stated drivers, but capacity numbers are not validated evidence.
+
+2. **Cost risk**  
+   100k rps with 24-hour replay means multi-TiB daily retained data. Low cost conflicts with SCALE-1.
+
+3. **Hot partitions**  
+   A bad partition key can make a 100k rps-capable system fail at much lower effective throughput.
+
+4. **Status store bottleneck**  
+   The queue may scale while status writes or idempotency checks do not.
+
+5. **Availability ambiguity**  
+   99.99% needs a precise definition: API acceptance availability, processing availability, replay availability, or end-to-end decision availability.
+
+6. **Replay contention**  
+   Replaying 24 hours of data can compete with live traffic unless isolated or rate-limited.
+
+Bottom line: design for the binding **1000x** target unless it is formally changed. The clean boundary is: **API accepts, admission gate durably appends, workers decide, status store exposes state, replay tooling reprocesses retained log.**

@@ -1,0 +1,1 @@
+Synthetic caller approval recorded after plan response and before Build. Parent authorizes implementation of returned plan against original SPEC.md and definitions.md, not a requirement change. This is a manually orchestrated integration measurement, not proof of automatic workflow gating.

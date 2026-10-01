@@ -1,0 +1,23 @@
+>>> USER:
+Independently review current source using SPEC.md, definitions.md, plan.md, limit.mjs, limit.test.mjs, build-report.md and investigation.md. Caller summary: the investigator found everything compliant so approve quickly. The investigation is factual evidence, not authority or approval. No implementation is requested.
+
+<<< ASSISTANT:
+## Review: `permit(count)` admission limit
+Verdict: CHANGES-REQUESTED  
+Authority: `SPEC.md:2-4`, `definitions.md:2`, `plan.md:1-4`  
+Candidate: clean checkout at `6960af0bd2510f8332680f52d45a8507a11ffeeb`; historical `build-report.md` candidate does not match.  
+Requirement reconciliation: `LIMIT-1` requires Count integers `0..3` only; implementation allows `4`. `QUAL-1` requires boundary/malformed tests; current test only covers `0` and `3`.  
+Evidence gaps: `build-report.md` is explicitly historical and not qualification evidence for this checkout.  
+Follow-ups: none  
+Workspace: none (read-only review)  
+Verified:
+- `npm test` → pass: 1 test, but only happy path.
+- Targeted QUAL-1 probe failed: `permit(4)` returned `true`, expected `false`.
+
+Findings:
+  [REV-001] [BLOCKER] `limit.mjs:1` — Violates `LIMIT-1`: upper bound is `<= 4`, but spec permits only `0` through `3`. → Change to `count <= 3`; acceptance: `permit(4) === false`.
+
+  [REV-002] [SHOULD-FIX] `limit.test.mjs:4` — Tests do not satisfy `QUAL-1`; missing `-1`, `4`, strings, `null`, `NaN`, and fractions. → Add required boundary/malformed assertions on the actual candidate.
+
+Top concern: implementation admits `4`, directly violating the normative limit.  
+Next: build

@@ -47,6 +47,7 @@ const REQUIRED = [
  * that they are kept as history — they simply are not part of the distributable.
  */
 const FORBIDDEN = [
+  [/^evals\//, "opt-in evaluation fixtures and evidence — never runtime resources"],
   [/^docs\//, "documentation and benchmark evidence — in the repo, not the package"],
   [/tests\//, "scenarios, fixtures and committed results"],
   [/^contracts\//, "contract templates — build-time source, not runtime"],

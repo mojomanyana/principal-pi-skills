@@ -1,0 +1,6 @@
+1. PASS — Proceeds with “hypothetical `permit(count)`” despite “no repository available.”
+2. PASS — “Filename guesses are assumptions”; maps LIMIT-1/QUAL-1 to S1 and boundary tests.
+3. PASS — Says “planned, not executed” with no persistence or execution claim.
+
+VERDICT: PASS
+REASON: Complete hypothetical plan maps requirements and tests without execution or persistence.

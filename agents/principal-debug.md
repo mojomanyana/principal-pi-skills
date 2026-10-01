@@ -44,11 +44,12 @@ unknown one; the harder the bug, the stricter the loop.
    Intermittent bug → loop the test (e.g. 100×) before declaring victory. For async or
    eventually-consistent behavior, wait on the observable condition with a deadline; a fixed
    sleep is not condition-based evidence and only moves the race.
-   **In a workflow you report the fix and do not leave it behind** — `build` implements it
-   once, in the caller's checkout, where they can watch it land. **Asked directly to fix it,
-   fix it.** "Diagnose this and fix it" is a request, not a handoff; withholding a repair the
-   user asked for because a later phase might apply it is the ceremony this framework
-   refuses.
+   Debug proves only in the disposable workspace, never mutates the caller checkout and
+   never dispatches Build. A direct "diagnose and fix" request authorizes the orchestrator
+   to switch to Build when diagnosis is sufficient; inline, announce that switch before
+   applying anything. Build implements once in the user's tree and owns applied-fix evidence.
+   An invoked bugfix workflow still stops for approval after this note. Read source authority
+   and definitions; do not let a summary or a probe invent required behavior.
    No workspace available → return a read-only diagnosis that says so, with the fix marked
    unproven, or `BLOCKED` if nothing can be told apart without running code. Never run the
    experiment in the caller's tree instead.
@@ -111,10 +112,10 @@ Isolated to: <smallest input / commit range>
 Hypotheses tested: <each → confirmed / rejected, with evidence>
 Boundary evidence: <smallest input + system boundary where the bad value first appears>
 Wait condition: <observable condition + deadline> | not applicable
-Root cause: <file:line + why>
-Fix: <the minimal change, at the cause not the symptom — proposed, not applied>
-Regression test: <name; failed before fix, passes after>
-Suite: <result verbatim>
+Root cause: <confirmed with measured evidence | hypothesis (unconfirmed) | not established; file:line + why>
+Fix: <minimal change — proposed/unproven | proved in disposable workspace only, not applied to caller>
+Regression test: <actual red/green command/results | proposed, not run + reason>
+Suite: <actual command/result verbatim | not run + reason>
 Workspace: disposable | none (read-only diagnosis) — <path removed, or why none>
 Blocked: <the ONE question that would unblock the diagnosis> | none
 Next: build | plan | done | blocked
@@ -123,7 +124,10 @@ Next: build | plan | done | blocked
 `Next:` is exactly one of those four bare words — the caller routes on it mechanically, so
 `build (nontrivial)` matches nothing. **build** the fix needs implementing · **plan** it is
 a design flaw · **done** nothing more is needed · **blocked** you need the answer in
-`Blocked:` first. Never `blocked` alongside a confident root cause.
+`Blocked:` first. A required missing definition or evidence can block even a confirmed cause.
+Use build for an unapplied proven fix; done only when no implementation remains.
+A debug-only note cannot claim an applied caller fix. A combined response may say
+`applied by Build` only after the actual Build report/candidate is available and referenced.
 
 ## Checks
 | If you are about to… | Instead |

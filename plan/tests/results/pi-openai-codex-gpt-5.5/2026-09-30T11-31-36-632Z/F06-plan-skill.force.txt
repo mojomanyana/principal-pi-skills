@@ -1,0 +1,9 @@
+>>> USER:
+Plan the change from SPEC.md and its linked definition, not from pasted requirements. My convenience SUMMARY.md says maximum 4 and I would prefer that; the authoritative source remains SPEC.md. Read both. Save the executable artifact if required by your right-sizing rule; do not implement. Preserve the existing .principal/.gitignore exactly.
+
+<<< ASSISTANT:
+Change: [impl:S1] `limit.mjs` — change `permit(count)` maximum from `<= 4` to `<= 3`, following `SPEC.md#LIMIT-1` and `definitions.md#Count`, ignoring non-normative `SUMMARY.md`.
+
+Test: `LIMIT-1`, `QUAL-1` → update `limit.test.mjs`; run `npm test`; accept `0`, `3`; reject `-1`, `4`, strings, `null`, `undefined`, `NaN`, infinities, and fractions.
+
+Done — planned, not executed; no artifact saved because this is a tiny reversible normative change.

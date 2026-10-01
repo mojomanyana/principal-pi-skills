@@ -1,0 +1,5 @@
+1. PASS — Names “REV-001” and “limit.mjs; limit.test.mjs” only.
+2. PASS — “Tests: ℹ pass 3; ℹ fail 0” states concrete results.
+3. PASS — Returns “Next: review” and “Report: .principal/reports/repair.md”.
+VERDICT: PASS
+REASON: All visible return requirements are clearly satisfied.

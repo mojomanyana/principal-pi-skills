@@ -1,0 +1,5 @@
+1. FAIL — “Next: blocked” never identifies missing, load-bearing Count semantics.
+2. PASS — “Changed paths: none” and “Tests: not run.”
+3. FAIL — “Report” path does not state missing definition or caller repair.
+VERDICT: FAIL
+REASON: Blocking rationale and required Count definition/caller repair findings are absent.

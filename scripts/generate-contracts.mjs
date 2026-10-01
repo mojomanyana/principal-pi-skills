@@ -3,7 +3,7 @@
  * Render dual-use skill/agent contracts plus the namespaced workflow prompts from source
  * templates.
  *
- * `plan`, `review` and `debug` each exist twice: an interactive contract loaded as a skill,
+ * `plan`, `build`, `review`, `debug` and `investigate` each exist twice: an interactive contract loaded as a skill,
  * and a single-shot contract handed to a subagent as its system prompt. The two are 74–84%
  * identical, and that shared majority is the whole problem — a rule edited in one and not
  * the other is a silent divergence, and it has happened: the D-scenarios once tested a
@@ -25,12 +25,9 @@
  *
  * ## Why the generated files carry no "generated" banner
  *
- * The plan for this change asked for a notice after the frontmatter so nobody hand-edits the
- * output. It is not there deliberately, because these files are not source code — they are
- * prompts, and every byte is measured. Adding a line would change the text behind nine
- * published scorecard cells (three skills × three models), stale every one of them, and cost
- * roughly 500 rep-executions to restore a number that would not have moved. That trade is
- * not worth a comment.
+ * These files are model-facing prompts. Keep ownership notices in source templates rather
+ * than spending runtime context on them. Historical scorecards do not establish behavior
+ * of current candidate bytes; changing prompts requires fresh behavioral measurement.
  *
  * `--check` replaces it, and protects better: a hand-edit fails CI with the exact diff,
  * whereas a banner only asks politely. The templates carry the warning instead, since the

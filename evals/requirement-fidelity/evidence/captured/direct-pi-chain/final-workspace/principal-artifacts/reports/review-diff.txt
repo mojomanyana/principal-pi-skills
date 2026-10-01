@@ -1,0 +1,26 @@
+diff --git a/limit.mjs b/limit.mjs
+index e054aa3..e0050e1 100644
+--- a/limit.mjs
++++ b/limit.mjs
+@@ -1 +1 @@
+-export const permit = count => Number.isInteger(count) && count >= 0 && count <= 4;
++export const permit = count => Number.isInteger(count) && count >= 0 && count <= 3;
+diff --git a/limit.test.mjs b/limit.test.mjs
+index 9f75562..c6c7262 100644
+--- a/limit.test.mjs
++++ b/limit.test.mjs
+@@ -1,4 +1,13 @@
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+ import { permit } from './limit.mjs';
+-test('existing happy path only', () => { assert.equal(permit(0), true); assert.equal(permit(3), true); });
++test('permits boundary Count values', () => {
++  assert.equal(permit(0), true);
++  assert.equal(permit(3), true);
++});
++
++test('rejects out-of-range and malformed counts without coercion', () => {
++  for (const count of [-1, 4, '3', null, undefined, NaN, Infinity, 1.5]) {
++    assert.equal(permit(count), false, `expected ${String(count)} to be rejected`);
++  }
++});

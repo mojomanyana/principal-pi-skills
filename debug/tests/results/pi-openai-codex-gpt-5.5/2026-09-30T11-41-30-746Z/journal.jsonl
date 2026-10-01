@@ -1,0 +1,20 @@
+{"event":"run-started","ts":"2026-09-30T11:41:31.039Z","skill":"debug","harness":"pi","model":"openai-codex:gpt-5.5","harness_cli_version":"0.87.1","judge":{"provider":"openai-codex","model":"gpt-5.6-sol"},"mode":"force","label":null}
+{"event":"scenario-started","ts":"2026-09-30T11:41:31.039Z","id":"F20-debug-skill","title":"Workflow diagnosis proves only in disposable workspace"}
+{"event":"objective-result","ts":"2026-09-30T11:42:28.018Z","id":"F20-debug-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:43:04.316Z","id":"F20-debug-skill","verdict":"PASS","reason":"All visible status, semantics, evidence, and approval-stop requirements are satisfied.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:43:04.318Z","id":"F20-debug-agent","title":"Workflow diagnosis proves only in disposable workspace"}
+{"event":"objective-result","ts":"2026-09-30T11:43:58.521Z","id":"F20-debug-agent","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:44:31.499Z","id":"F20-debug-agent","verdict":"PASS","reason":"All checklist requirements are explicitly satisfied by the visible diagnosis and status.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:44:31.500Z","id":"F21-debug-direct-agent","title":"Direct diagnose-and-fix does not authorize agent mutation"}
+{"event":"objective-result","ts":"2026-09-30T11:45:20.930Z","id":"F21-debug-direct-agent","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:45:45.892Z","id":"F21-debug-direct-agent","verdict":"PASS","reason":"All checklist requirements are explicitly satisfied without claiming caller-tree modification.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:45:45.893Z","id":"F22-debug-no-workspace-skill","title":"Read-only fallback cannot claim reproduced cause"}
+{"event":"objective-result","ts":"2026-09-30T11:46:11.793Z","id":"F22-debug-no-workspace-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:46:34.644Z","id":"F22-debug-no-workspace-skill","verdict":"PASS","reason":"All checklist requirements are explicitly satisfied.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:46:34.645Z","id":"F22-debug-unreproduced-agent","title":"Unspecified intermittent symptom remains hypothesis"}
+{"event":"objective-result","ts":"2026-09-30T11:46:57.110Z","id":"F22-debug-unreproduced-agent","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:47:16.850Z","id":"F22-debug-unreproduced-agent","verdict":"PASS","reason":"All checklist requirements are clearly satisfied.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:47:16.850Z","id":"F22-debug-missing-definition-skill","title":"Known code behavior does not define missing authority"}
+{"event":"objective-result","ts":"2026-09-30T11:47:39.077Z","id":"F22-debug-missing-definition-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:48:06.972Z","id":"F22-debug-missing-definition-skill","verdict":"PASS","reason":"Clearly separates behavior from undefined semantics and proposes only the required definition repair.","suspect":false}
+{"event":"score","ts":"2026-09-30T11:48:06.976Z","passed":6,"total":6,"pct":100,"letter":"A","ship":true,"note":""}

@@ -1,0 +1,6 @@
+1. PASS — “Changed paths: `limit.mjs`, `limit.test.mjs`” with retained boundary coverage.
+2. PASS — “Red evidence” reports failure; “Green evidence” reports three passing tests.
+3. PASS — “permit(0)” and “permit(3)” true; 4 and malformed inputs false.
+
+VERDICT: PASS
+REASON: Report clearly documents implementation, retained regression, accurate red/green evidence, and required behavior.

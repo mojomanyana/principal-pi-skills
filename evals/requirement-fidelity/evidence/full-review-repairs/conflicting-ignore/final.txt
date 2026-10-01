@@ -1,0 +1,6 @@
+Next: blocked
+Changed paths: limit.mjs, limit.test.mjs
+Findings applied: none
+Tests: npm test — pass 3, fail 0
+Report: not saved
+Blocked: .principal/.gitignore exists with caller-owned visible policy; git check-ignore failed for .principal/reports/limit-1-build/report.md. Need ignored report destination policy repair.

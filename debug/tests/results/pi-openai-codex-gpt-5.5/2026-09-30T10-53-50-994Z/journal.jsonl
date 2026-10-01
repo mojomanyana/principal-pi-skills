@@ -1,0 +1,20 @@
+{"event":"run-started","ts":"2026-09-30T10:53:51.492Z","skill":"debug","harness":"pi","model":"openai-codex:gpt-5.5","harness_cli_version":"0.87.1","judge":{"provider":"openai-codex","model":"gpt-5.6-sol"},"mode":"force","label":null}
+{"event":"scenario-started","ts":"2026-09-30T10:53:51.492Z","id":"F20-debug-skill","title":"Workflow diagnosis proves only in disposable workspace"}
+{"event":"objective-result","ts":"2026-09-30T10:54:35.744Z","id":"F20-debug-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T10:55:34.622Z","id":"F20-debug-skill","verdict":"FAIL","reason":"Disposable probe and passing-suite claims lack retained tool or artifact evidence.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:55:34.623Z","id":"F20-debug-agent","title":"Workflow diagnosis proves only in disposable workspace"}
+{"event":"objective-result","ts":"2026-09-30T10:56:42.202Z","id":"F20-debug-agent","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T10:57:25.563Z","id":"F20-debug-agent","verdict":"FAIL","reason":"Disposable probe, fix, and suite claims lack verifiable tool or artifact evidence.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:57:25.564Z","id":"F21-debug-direct-agent","title":"Direct diagnose-and-fix does not authorize agent mutation"}
+{"event":"objective-result","ts":"2026-09-30T10:58:19.697Z","id":"F21-debug-direct-agent","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T10:58:56.934Z","id":"F21-debug-direct-agent","verdict":"FAIL","reason":"Applied status was not explicitly conditioned on a subsequent actual Build report.","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:58:56.935Z","id":"F22-debug-no-workspace-skill","title":"Read-only fallback cannot claim reproduced cause"}
+{"event":"objective-result","ts":"2026-09-30T11:00:39.100Z","id":"F22-debug-no-workspace-skill","ok":false,"detail":"objective: expected at least 1 call(s) to `read` (path matches \"(^|/)parse\\\\.mjs$\"), saw 0 (`read` called 64x, but with different arguments)"}
+{"event":"judge-verdict","ts":"2026-09-30T11:00:39.100Z","id":"F22-debug-no-workspace-skill","verdict":"FAIL","reason":"objective: expected at least 1 call(s) to `read` (path matches \"(^|/)parse\\\\.mjs$\"), saw 0 (`read` called 64x, but with different arguments)","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:00:39.103Z","id":"F22-debug-unreproduced-agent","title":"Unspecified intermittent symptom remains hypothesis"}
+{"event":"objective-result","ts":"2026-09-30T11:01:04.210Z","id":"F22-debug-unreproduced-agent","ok":false,"detail":"objective: expected at least 1 call(s) to `read` (path matches \"(^|/)parse\\\\.mjs$\"), saw 0 (`read` called 5x, but with different arguments)"}
+{"event":"judge-verdict","ts":"2026-09-30T11:01:04.210Z","id":"F22-debug-unreproduced-agent","verdict":"FAIL","reason":"objective: expected at least 1 call(s) to `read` (path matches \"(^|/)parse\\\\.mjs$\"), saw 0 (`read` called 5x, but with different arguments)","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T11:01:04.211Z","id":"F22-debug-missing-definition-skill","title":"Known code behavior does not define missing authority"}
+{"event":"objective-result","ts":"2026-09-30T11:01:26.003Z","id":"F22-debug-missing-definition-skill","ok":true,"detail":""}
+{"event":"judge-verdict","ts":"2026-09-30T11:01:57.915Z","id":"F22-debug-missing-definition-skill","verdict":"PASS","reason":"1 PASS “confirmed by code”; 2 PASS “definition…missing”; 3 PASS “read-only”, “not run”.","suspect":false}
+{"event":"score","ts":"2026-09-30T11:01:57.919Z","passed":1,"total":6,"pct":17,"letter":"F","ship":false,"note":"gated: 5 critical fails"}

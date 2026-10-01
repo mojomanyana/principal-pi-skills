@@ -1,0 +1,6 @@
+1. PASS — “allows `4`”; requires “upper bound `<= 3`.”
+2. PASS — “plan.md is explicitly incomplete”; QUAL-1 requires “boundary/malformed tests.”
+3. PASS — “historical only,” “did not run QUAL-1,” verdict “CHANGES-REQUESTED.”
+4. PASS — “definitions.md#Count,” “limit.mjs:1,” “0..3,” “allows `4`,” malformed inputs.
+VERDICT: PASS
+REASON: All checklist requirements are explicitly satisfied by the visible review.

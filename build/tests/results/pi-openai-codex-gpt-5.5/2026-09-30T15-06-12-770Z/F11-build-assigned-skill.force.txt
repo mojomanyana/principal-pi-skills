@@ -1,0 +1,17 @@
+>>> USER:
+Approved task: execute impl:S1 from plan.md in this fixture. Authority SPEC.md and definitions.md; global QUAL-1 applies. Read build-report.md for its assumptions, follow-up and evidence gap, not as current proof. Implement upper-bound correction with regression first; do not invent measurements for anything outside the tested scope. Save a full build report under .principal/reports/assigned.md.
+
+<<< ASSISTANT:
+Implemented impl:S1.
+
+Changed:
+- `limit.mjs`
+- `limit.test.mjs`
+- `.principal/reports/assigned.md`
+
+Tests:
+- Red first: `npm test` failed on `permit(4)` and malformed input.
+- Green/full: `npm test` → 3 passed, 0 failed.
+
+Build report saved at:
+- `.principal/reports/assigned.md`

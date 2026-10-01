@@ -1,0 +1,2 @@
+VERDICT: PASS
+REASON: 1 PASS “not harmless”; 2 PASS waiver “conflicts”; 3 PASS “not applied,” approval-conditioned.

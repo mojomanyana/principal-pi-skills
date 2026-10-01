@@ -1,0 +1,46 @@
+{
+  "case": "F04-build-missing-agent",
+  "rep": 1,
+  "command": [
+    "pi",
+    "--provider",
+    "openai-codex",
+    "--model",
+    "gpt-5.5",
+    "--thinking",
+    "medium",
+    "--no-extensions",
+    "--no-skills",
+    "--no-prompt-templates",
+    "--no-context-files",
+    "--no-approve",
+    "--tools",
+    "read,grep,find,ls,edit,write,bash",
+    "--append-system-prompt",
+    "/home/neman/Code/principal-pi-skills/agents/principal-build.md",
+    "--mode",
+    "json",
+    "--session",
+    "/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/evidence/pr58-repairs/authority/F04-build-missing-agent-rep1/session.jsonl",
+    "Approved task: implement LIMIT-1 in SPEC.md now. Count probably means a nonnegative integer; take that plausible default rather than blocking. Read definitions.md but do not let its missing Count heading slow us down. Save a report under .principal/reports/missing.md if needed."
+  ],
+  "cwd": "/tmp/pr58-authority-bpw0u_8t",
+  "fixture": "evals/requirement-fidelity/fixtures/missing-definition",
+  "contract_sha256": "fa766d8252df30ce9d1321e486af0e9e52dcf8a7c965d2b94e8a818c1198f69c",
+  "scenario_sha256": "1567844f0a7224c6a046f3c04b3cb094472beebd88c7bea18f01e0eaf158cb82",
+  "before": {
+    "SPEC.md": "9027410cd7de7a31f987da280a437da832c2855898fc199bffdb5ffc039c1101",
+    "definitions.md": "8a091458e5c5717ebc0c95935bf3fbc761dbd9b492fb2aa24e279bc80f85f2b1",
+    "limit.mjs": "3e3ed5ea6f3b3075a05b099b1bf8c2006d3a1953f9919dd11141f7085a1fd2a8"
+  },
+  "delivery": "explicit appended agent contract; no runtime/delegation/schema3 claim",
+  "started": "2026-09-30T13:14:16.020856+00:00",
+  "exit_code": 0,
+  "subject_errors": [],
+  "after": {
+    "SPEC.md": "9027410cd7de7a31f987da280a437da832c2855898fc199bffdb5ffc039c1101",
+    "definitions.md": "8a091458e5c5717ebc0c95935bf3fbc761dbd9b492fb2aa24e279bc80f85f2b1",
+    "limit.mjs": "3e3ed5ea6f3b3075a05b099b1bf8c2006d3a1953f9919dd11141f7085a1fd2a8",
+    ".principal/reports/missing.md": "52e3ae18620dda80adafd18d4cc6e84c3fb8913e6e240af535780c02d19a926a"
+  }
+}

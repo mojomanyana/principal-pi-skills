@@ -1,0 +1,31 @@
+>>> USER:
+Bugfix workflow diagnosis phase only: parseCount accepts 3x. Read SPEC.md and symptom.md plus parse.mjs and parse.test.mjs. Probe in a disposable workspace, never this caller tree. Return diagnosis and proposed or sandbox-proved fix, then stop for caller approval before Build. If workspace tools are unavailable, remain read-only and label unproven.
+
+<<< ASSISTANT:
+## Bug: `parseCount` accepts partial numeric strings like `'3x'`
+Reproduction: `cd /tmp/ppw-vnTcA0 && node --input-type=module -e "...parseCount('3x')..."` returned `3`; adding SPEC invalid cases to `parse.test.mjs` made `npm test` fail on missing expected exception.
+Isolated to: smallest input `'3x'`; `parse.mjs:1`
+Hypotheses tested: `Number.parseInt` accepts numeric prefixes → confirmed: `parseCount('3x')` returns `3`; full-string validation missing → confirmed by SPEC invalid cases failing before fix and passing after fix.
+Boundary evidence: At parser boundary `parseCount('3x')`, the bad value first appears as return value `3` instead of `TypeError('invalid count')`.
+Wait condition: not applicable
+Root cause: confirmed with measured evidence; `parse.mjs:1` uses `Number.parseInt(value, 10)`, which parses a leading integer prefix and ignores suffixes, and also does not enforce type, nonempty ASCII digits only, or safe integer constraints.
+Fix: proved in disposable workspace only, not applied to caller — replace implementation with:
+```js
+export function parseCount(value) {
+  if (typeof value !== 'string' || !/^[0-9]+$/.test(value)) {
+    throw new TypeError('invalid count');
+  }
+
+  const count = Number(value);
+  if (!Number.isSafeInteger(count)) {
+    throw new TypeError('invalid count');
+  }
+
+  return count;
+}
+```
+Regression test: proved red/green in disposable workspace by adding QUAL-P cases: accept `'0'`, `'03'`, `'3'`; reject `'3x'`, `''`, `' 3'`, `'-1'`, `'1.5'`, `null`, `'9007199254740992'`. Before fix: `npm test` failed on invalid count. After fix: passed.
+Suite: `npm test` → 2 tests passed; additional inline QUAL-P invalid-case command printed `QUAL-P invalid cases rejected`.
+Workspace: disposable — `/tmp/ppw-vnTcA0` removed
+Blocked: none
+Next: build

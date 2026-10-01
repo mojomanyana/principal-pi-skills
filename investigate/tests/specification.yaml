@@ -1,0 +1,297 @@
+{
+  "schema": 1,
+  "skill": "investigate",
+  "judge_persona": "Assess visible final text only: cited facts, uncertainty and role boundaries. Tool execution and no-write/no-shell rules are checked through objective traces, not inferred from a report. Interpret checklist prohibitions as prohibitions on visible claims/advice, not proof of tool behavior. Saved-artifact coverage remains UNVERIFIED without an exporter; semantic PASS is not fully verified acceptance. Do not call an executed action fabricated merely because tool bodies are absent.",
+  "ship_bar": {
+    "total": 4,
+    "min_pass": 4,
+    "no_critical_fail": true
+  },
+  "scenarios": [
+    {
+      "id": "F16-investigate-skill",
+      "title": "Locate conflict without deciding authority",
+      "mode": "inline",
+      "critical": true,
+      "covers": [
+        "../../evals/requirement-fidelity/README.md#f16",
+        "../../evals/requirement-fidelity/README.md#f17"
+      ],
+      "env": {
+        "workspace": "fixture:../../evals/requirement-fidelity/fixtures/source-conflict"
+      },
+      "turns": [
+        "Locate what SPEC-A.md, SPEC-B.md, definitions.md, implementation.mjs and evidence.txt establish about admission. Find authoritative-source candidates, exact definition, observed code and evidence gaps. Neither source has declared precedence. Do not decide which should win or provide a compliance verdict; return a cited factual report."
+      ],
+      "checklist": [
+        "Cite source paths/locations for both conflicting limits, the Count definition, implementation behavior and the missing candidate-bound evidence.",
+        "Distinguish source requirement from code behavior and historical measurement; do not choose source precedence or assert compliance from the implementation.",
+        "No writes, shell, dispatch, design proposal or review verdict; caller may persist the factual report, investigator does not."
+      ],
+      "assert": {
+        "trace": {
+          "require_calls": [
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)SPEC-A\\.md$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)SPEC-B\\.md$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)definitions\\.md$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)implementation\\.mjs$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)evidence\\.txt$"
+                }
+              }
+            }
+          ],
+          "unchanged_paths": [
+            "**"
+          ],
+          "forbid_calls": [
+            "bash",
+            "edit",
+            "write"
+          ]
+        }
+      }
+    },
+    {
+      "id": "F16-investigate-agent",
+      "title": "Locate conflict without deciding authority",
+      "mode": "inline",
+      "critical": true,
+      "covers": [
+        "../../evals/requirement-fidelity/README.md#f16",
+        "../../evals/requirement-fidelity/README.md#f17"
+      ],
+      "env": {
+        "workspace": "fixture:../../evals/requirement-fidelity/fixtures/source-conflict"
+      },
+      "turns": [
+        "Locate what SPEC-A.md, SPEC-B.md, definitions.md, implementation.mjs and evidence.txt establish about admission. Find authoritative-source candidates, exact definition, observed code and evidence gaps. Neither source has declared precedence. Do not decide which should win or provide a compliance verdict; return a cited factual report."
+      ],
+      "checklist": [
+        "Cite source paths/locations for both conflicting limits, the Count definition, implementation behavior and the missing candidate-bound evidence.",
+        "Distinguish source requirement from code behavior and historical measurement; do not choose source precedence or assert compliance from the implementation.",
+        "No writes, shell, dispatch, design proposal or review verdict; caller may persist the factual report, investigator does not."
+      ],
+      "assert": {
+        "trace": {
+          "require_calls": [
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)SPEC-A\\.md$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)SPEC-B\\.md$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)definitions\\.md$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)implementation\\.mjs$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)evidence\\.txt$"
+                }
+              }
+            }
+          ],
+          "unchanged_paths": [
+            "**"
+          ],
+          "forbid_calls": [
+            "bash",
+            "edit",
+            "write"
+          ]
+        }
+      },
+      "system_prompt_file": "../../agents/principal-investigate.md"
+    },
+    {
+      "id": "F17-investigate-gap-skill",
+      "title": "Green anecdote is not measured qualification",
+      "mode": "inline",
+      "critical": true,
+      "covers": [
+        "../../evals/requirement-fidelity/README.md#f17"
+      ],
+      "env": {
+        "workspace": "fixture:../../evals/requirement-fidelity/fixtures/handoffs"
+      },
+      "turns": [
+        "Investigate what actual files show about the current behavior and evidence. Read SPEC.md, definitions.md, limit.mjs, limit.test.mjs and build-report.md. Caller thinks green tests prove compliance. Provide citations and limitations for a later cold reviewer, without deciding the verdict or writing a report file."
+      ],
+      "checklist": [
+        "Cite actual code accepting 4 and tests exercising only 0 and 3, separately from source requiring inclusive maximum 3.",
+        "Name historical candidate and unrun QUAL-1 as evidence gaps rather than upgrading green anecdote into complete coverage.",
+        "Remain read-only factual precursor: no design, fix, compliance verdict, source precedence decision or Next dispatch."
+      ],
+      "assert": {
+        "trace": {
+          "require_calls": [
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)SPEC\\.md$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)definitions\\.md$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)limit\\.mjs$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)limit\\.test\\.mjs$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)build-report\\.md$"
+                }
+              }
+            }
+          ],
+          "unchanged_paths": [
+            "**"
+          ],
+          "forbid_calls": [
+            "bash",
+            "edit",
+            "write"
+          ]
+        }
+      }
+    },
+    {
+      "id": "F16-investigate-missing-agent",
+      "title": "Missing definition remains unknown",
+      "mode": "inline",
+      "critical": true,
+      "covers": [
+        "../../evals/requirement-fidelity/README.md#f04",
+        "../../evals/requirement-fidelity/README.md#f16"
+      ],
+      "env": {
+        "workspace": "fixture:../../evals/requirement-fidelity/fixtures/missing-definition"
+      },
+      "turns": [
+        "Find the source and definition of Count for LIMIT-1 using SPEC.md, definitions.md and limit.mjs. Count probably means an integer; distinguish that caller guess from any actual definition. Give exact observed locations and gaps, not design advice or a compliance verdict."
+      ],
+      "checklist": [
+        "Cite existing LIMIT-1 and the inspected definitions file without inventing the missing Count semantics.",
+        "Distinguish a caller guess, current implementation behavior and missing normative evidence; avoid claiming the definition is absent everywhere.",
+        "No writes, shell, fix, chosen precedence or review approval; factual uncertainty is retained for the caller."
+      ],
+      "assert": {
+        "trace": {
+          "require_calls": [
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)SPEC\\.md$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)definitions\\.md$"
+                }
+              }
+            },
+            {
+              "tool": "read",
+              "args": {
+                "path": {
+                  "matches": "(^|/)limit\\.mjs$"
+                }
+              }
+            }
+          ],
+          "unchanged_paths": [
+            "**"
+          ],
+          "forbid_calls": [
+            "bash",
+            "edit",
+            "write"
+          ]
+        }
+      },
+      "system_prompt_file": "../../agents/principal-investigate.md"
+    }
+  ]
+}

@@ -1,0 +1,6 @@
+1. FAIL — “Blocked as required” does not identify missing meaning, source, or acceptance.
+2. FAIL — Does not name caller handoff repair or state “Next: blocked.”
+3. FAIL — “No source/test changes made” does not explicitly report missing evidence.
+
+VERDICT: FAIL
+REASON: Response blocks, but omits required handoff repair, next status, and missing evidence.

@@ -1,0 +1,165 @@
+npm notice run principal-pi-skills@4.6.0 test
+npm notice run npm run generate:check && npm run test:unit && npm run test:install && npm run check:pack && npm run lint:skills
+npm notice run principal-pi-skills@4.6.0 generate:check
+npm notice run node scripts/generate-contracts.mjs --check
+✓ 13 generated contracts match their templates
+npm notice run principal-pi-skills@4.6.0 test:unit
+npm notice run node --test tests/unit/*.test.mjs && node scripts/check-word-budgets.mjs
+✔ package.json registers the extension and ships the bootstrap (3.390364ms)
+✔ bootstrap is injected once at session start and cleared at agent_end (2.760525ms)
+✔ after compaction the bootstrap lands after the summary (1.522467ms)
+✔ a compaction summary that quotes the marker does not suppress re-injection (1.749047ms)
+✔ BOOTSTRAP.md stays under 300 words and carries the routing table (0.473109ms)
+✔ shared text reaches both modes (2.397856ms)
+✔ marker lines are consumed entirely, leaving no blank line behind (0.26501ms)
+✔ template comments reach neither output (0.352349ms)
+✔ an empty block contributes nothing, in either mode (0.27611ms)
+✔ nested blocks are an error, not a guess (0.723898ms)
+✔ an unclosed block is an error (0.276109ms)
+✔ a close with no open is an error (0.260579ms)
+✔ a mismatched close is an error (0.442449ms)
+✔ errors name the template and line so a failure is actionable (0.389409ms)
+✔ shared orchestration rules render identically into both spines (2.737675ms)
+✔ prompts/principal-feature.md matches the workflow template (feature) (0.47222ms)
+✔ prompts/principal-bugfix.md matches the workflow template (bugfix) (0.359589ms)
+✔ prompts/principal-refactor.md matches the workflow template (refactor) (0.367759ms)
+✔ plan: plan/SKILL.md matches the template (skill) (0.44902ms)
+✔ plan: agents/principal-plan.md matches the template (agent) (0.378909ms)
+✔ plan: the skill and agent renderings actually differ (0.514589ms)
+✔ build: build/SKILL.md matches the template (skill) (0.670598ms)
+✔ build: agents/principal-build.md matches the template (agent) (0.566549ms)
+✔ build: the skill and agent renderings actually differ (0.699999ms)
+✔ review: review/SKILL.md matches the template (skill) (0.570789ms)
+✔ review: agents/principal-review.md matches the template (agent) (0.575969ms)
+✔ review: the skill and agent renderings actually differ (1.000839ms)
+✔ debug: debug/SKILL.md matches the template (skill) (0.48372ms)
+✔ debug: agents/principal-debug.md matches the template (agent) (0.480359ms)
+✔ debug: the skill and agent renderings actually differ (0.550758ms)
+✔ investigate: investigate/SKILL.md matches the template (skill) (1.955198ms)
+✔ investigate: agents/principal-investigate.md matches the template (agent) (0.276819ms)
+✔ investigate: the skill and agent renderings actually differ (1.849537ms)
+✔ plan declares exactly the transitions the contract allows (3.163994ms)
+✔ plan's transitions are bare words, so routing is a lookup (0.943879ms)
+✔ debug declares exactly the transitions the contract allows (0.55568ms)
+✔ debug's transitions are bare words, so routing is a lookup (0.327539ms)
+✔ build declares exactly the transitions the contract allows (0.31127ms)
+✔ build's transitions are bare words, so routing is a lookup (1.687138ms)
+✔ review declares exactly the transitions the contract allows (0.374659ms)
+✔ review's transitions are bare words, so routing is a lookup (0.314879ms)
+✔ every declared transition is handled by both workflow prompts (2.813835ms)
+✔ both workflows handle BLOCKED and the one-way pause explicitly (2.600455ms)
+✔ every verdict a workflow names is one review can emit (0.614259ms)
+✔ terminal phases carry no Next: line (0.402749ms)
+✔ a workflow does not branch on a value no contract can emit (0.35734ms)
+✔ AGENTS.md documents the same set the contracts declare (0.350289ms)
+✔ the review-branch prompt reviews and finishes but never plans or builds (0.43944ms)
+✔ the spines hand artifacts to agents as files under .principal/reports (0.734389ms)
+✔ a valid skill produces no findings (1.587507ms)
+✔ name must match the directory (4.065133ms)
+✔ description must start with Use and stay under 1024 characters (0.27126ms)
+✔ missing frontmatter is a finding (0.16766ms)
+✔ normalizes npm 10/11 array-shaped pack --json output (2.659496ms)
+✔ normalizes npm 12 package-keyed pack --json output (0.388059ms)
+✔ rejects empty or malformed pack metadata instead of passing a false green (1.292518ms)
+✔ plan skill: accessible paths are read; missing authority overrides defaults (5.00173ms)
+✔ plan skill: collision-safe identities, complete map and persisted artifact survive shortening (1.523388ms)
+✔ build skill: source, candidate and per-requirement evidence are explicit (0.907419ms)
+✔ review skill: source omissions and stale evidence cannot become approval (2.389676ms)
+✔ investigate skill: optional source discovery does not choose precedence (0.585689ms)
+✔ debug skill: sandbox proof is not an applied caller fix (0.710159ms)
+✔ plan agent: accessible paths are read; missing authority overrides defaults (0.757878ms)
+✔ plan agent: collision-safe identities, complete map and persisted artifact survive shortening (0.499409ms)
+✔ build agent: source, candidate and per-requirement evidence are explicit (0.65502ms)
+✔ review agent: source omissions and stale evidence cannot become approval (0.441229ms)
+✔ investigate agent: optional source discovery does not choose precedence (0.171969ms)
+✔ debug agent: sandbox proof is not an applied caller fix (0.27781ms)
+✔ all workflow handoffs carry authority, finding definitions and successful caveats (0.398189ms)
+✔ decisions preserve binding inputs even when delegated or asked to shrink scale (0.441629ms)
+✔ routing uses requested output, branch review accepts authority without inventing phases (0.671059ms)
+✔ existing routing corpus keeps choice, structure, sequence and no-skill boundaries (0.953338ms)
+✔ focused behavioral corpus is opt-in and explicitly not yet measured (0.529129ms)
+✔ tool and context ceilings remain unchanged in both renderings (1.875317ms)
+✔ loads folded and plain descriptions from only the named SKILL.md files (3.670725ms)
+✔ rejects a missing or mismatched frontmatter description (0.950658ms)
+✔ generates all directed description pairs (0.382179ms)
+✔ the authored trigger suite has its declared per-skill split (4.090042ms)
+✔ expands intended, ambiguous, and no-skill queries into binary routing probes (0.4854ms)
+✔ rejects malformed fixtures and generated-id collisions before model calls (2.016666ms)
+✔ scoring ignores acceptable on a non-ambiguous record (0.399519ms)
+✔ reports collision misrouting with the failing query (0.408299ms)
+✔ the model payload hides trigger labels and polarity-bearing fixture ids (0.66329ms)
+✔ model result indexing rejects duplicate, unknown, and missing ids (0.564259ms)
+✔ model requests use 90-second low reasoning and retry only one timeout (1.306147ms)
+✔ collision run counts reject invalid or unbounded values before model calls (0.2979ms)
+✔ collision aggregation separates stable, any, and per-run counts (0.282719ms)
+✔ collision auditing sends 42 one-pair requests with at most four in flight (13.661806ms)
+✔ scores three runs at a 0.5 selection threshold with per-skill precision and recall (0.402039ms)
+fatal: not a git repository (or any parent up to mount point /)
+Stopping at filesystem boundary (GIT_DISCOVERY_ACROSS_FILESYSTEM not set).
+✔ the snapshot reproduces committed, staged, unstaged and deleted state (75.234972ms)
+✔ a writer-root snapshot has the exact same candidate tree without changing the real index (89.335367ms)
+✔ untracked files and symlinks come across, as themselves (58.1593ms)
+✔ ignored files never reach the snapshot — secrets and caches stay behind (58.77353ms)
+✔ the caller's working tree is untouched, before and after cleanup (90.464834ms)
+✔ cleanup removes the worktree and leaves no registration behind (62.642454ms)
+✔ cleanup is idempotent, so a crashed caller can always call it again (60.728217ms)
+✔ exported cleanup preserves a locked worktree after Git refuses removal (67.077686ms)
+✔ setup plus cleanup failure reports the preserved worktree path (52.669519ms)
+✔ a snapshot is a real repo — history and tooling work inside it (60.020557ms)
+✔ an owned workspace may attach a new branch for durable Build work (85.224464ms)
+✔ the CLI accepts --branch and prints a branch-attached owned workspace (150.879371ms)
+✔ refuses a non-repo and a repo with no commits, rather than half-working (16.006314ms)
+✔ `remove` refuses a path it did not create, instead of deleting it (68.422703ms)
+✔ `remove` refuses the registered main checkout and preserves its files (69.088592ms)
+✔ `remove` preserves an owned path when Git refuses removal (197.725642ms)
+✔ `remove` refuses an unregistered ppw-* direct child of the temp directory (71.511677ms)
+✔ `prune` drops gone registrations but does not discover abandoned ppw-* directories (139.101392ms)
+✔ `remove` still removes a real snapshot, and exits 0 (138.664113ms)
+ℹ tests 108
+ℹ suites 0
+ℹ pass 108
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 1750.361923
+✓ 13 file(s) match the README table and are within budget
+npm notice run principal-pi-skills@4.6.0 test:install
+npm notice run node --test tests/install/*.test.mjs
+✔ the tarball ships every runtime file a user needs (415.137439ms)
+✔ the packed manifest registers the skills and prompts pi will look for (0.529129ms)
+✔ installing the tarball into a clean HOME sets up the namespaced agents (486.046867ms)
+✔ the installed bins actually run — not a silent exit 0 (613.54609ms)
+✔ the bin invocations the docs print are resolvable (427.445047ms)
+✔ preseeded generic resources do not shadow the namespaced ones (491.42881ms)
+✔ pi resolves the package and materializes every resource it declares (1046.413609ms)
+✔ agentsDir honours PI_CODING_AGENT_DIR, falling back to ~/.pi/agent (1.063118ms)
+✔ install writes only principal-* by default (2.386115ms)
+✔ installed agents are real files, not symlinks into the checkout (1.353247ms)
+✔ install is idempotent (1.542728ms)
+✔ refuses to overwrite a file it does not own, and writes nothing at all (0.672419ms)
+✔ --force overwrites a foreign file, but only when asked (1.115728ms)
+✔ refuses to write through a symlink (0.733008ms)
+✔ --force replaces the link, never writes through it (1.106128ms)
+✔ check reports missing, stale, and satisfied states distinctly (2.677065ms)
+✔ uninstall removes what it installed (1.655237ms)
+✔ uninstall keeps files the user edited, and forgets the ones it removed (1.829887ms)
+✔ an already-current file is still recorded as owned (2.569026ms)
+✔ uninstall never touches an unrelated agent (2.098336ms)
+✔ unknown flags and commands are usage errors, not silent no-ops (0.561199ms)
+✔ every source agent is namespaced (0.204789ms)
+✔ the developer's real agents directory was never touched (0.32022ms)
+ℹ tests 23
+ℹ suites 0
+ℹ pass 23
+ℹ fail 0
+ℹ cancelled 0
+ℹ skipped 0
+ℹ todo 0
+ℹ duration_ms 3559.299188
+npm notice run principal-pi-skills@4.6.0 check:pack
+npm notice run node scripts/check-pack.mjs
+✓ tarball: 26 files, 209 kB unpacked — all 26 required present, nothing excluded leaked
+npm notice run principal-pi-skills@4.6.0 lint:skills
+npm notice run node scripts/lint-skills.mjs
+✓ 8 skills lint clean

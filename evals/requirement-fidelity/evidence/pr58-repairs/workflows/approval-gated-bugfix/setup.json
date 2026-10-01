@@ -1,0 +1,14 @@
+{
+  "workspace": "/tmp/pr58-workflow-p0kywhsl",
+  "fixture": "debug",
+  "base": "f091884e191bd0e230378cccee9982886191c95d",
+  "head": "f091884e191bd0e230378cccee9982886191c95d",
+  "initial_status": "",
+  "initial_hashes": {
+    "SPEC.md": "b2f3bf89283f0782d887d058003f12c78ede8140fc57ae55541d70b846692f36",
+    "package.json": "8bf23ab8a2ae4b669fc1132b0f6492518a45894d24ff90389474bf527982abf1",
+    "symptom.md": "9448077fe6fff533bdd46319d21cc79b2cef4a26c84f3c8571e0b44749783391",
+    "parse.mjs": "53f4ee614a96b2f805c91ca4da5b1f62d3bb74c26d933a4fe8b7738ea69eda12",
+    "parse.test.mjs": "c7f79f0b8df67484539c64d35fe8995ebd2312044775e777f29748fcb8a67d04"
+  }
+}

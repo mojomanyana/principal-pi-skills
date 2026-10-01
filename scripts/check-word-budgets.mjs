@@ -44,8 +44,19 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // `git-ops` is a standing exception at 2150 for its safety and release playbooks.
 //
 // These are still ceilings, not targets — the check exists so growth is a decision someone
-// makes, not something that happens.
-const BUDGETS = { skill: 1400, agent: 1500, "git-ops": 2150 };
+// makes, not something that happens. The plan contract is deliberately over the common
+// ceiling because normative-spec fidelity needs source, ID, gate, and coverage rules.
+// Individual fidelity exceptions preserve source blocking/persistence, candidate-bound
+// build/review evidence, and debug's sandbox-vs-applied distinction; common limits stay put.
+const BUDGETS = {
+  skill: 1400, agent: 1500,
+  "plan": 1900, "plan-agent": 1950,
+  // Evidence-only scope and authorized regressions, retaining all authority/repair guards.
+  "build": 1850, "build-agent": 2000,
+  "review": 1700, "review-agent": 1750,
+  "debug-agent": 1550,
+  "git-ops": 2150,
+};
 
 const words = (p) => {
   const t = readFileSync(join(ROOT, p), "utf8").trim();

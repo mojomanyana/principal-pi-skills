@@ -9,7 +9,7 @@ generated from the same contract as the skill). The files follow the
 [Agent Skills](https://agentskills.io/specification) standard, so other harnesses can
 consume the skills, but pi is the supported target. This is **4.x**: a thin orchestration
 layer over the eight skills, with the risk-adaptive
-assurance controller and model measurement removed to a separate track (see
+assurance controller and broad model qualification kept on a separate track (see
 [Validation](#validation)).
 
 The set is built for **one principal engineer steering at a high level while skills and
@@ -38,17 +38,30 @@ around.
    `wc -w`. Nothing loads anything else — a subagent reads one file and has the whole
    contract.
 
+Individual fidelity exceptions (skill/agent words): Plan 1900/1950 buys complete source
+reads, blocking exceptions, stable mapping, persisted completeness and explicit no-shell
+fallback/tiny-file reads. Build 1850/2000 preserves pre-mutation authority classification,
+the complete authorized-amendment positive case, immutable report/repair provenance and
+compressed evidence/caveats; Review 1700/1750 buys candidate-bound obligation/gate evidence
+and repair definitions. Both distinguish lasting behavior-named regressions from historical
+receipt/replay verification, without freezing transient review/release status. The 100-word
+ceiling increases retain evidence-only scope safeguards and useful authorized regressions
+without removing existing guards;
+Debug's agent ceiling is 1550 for honest sandbox/applied states. Common ceilings and Git-Ops
+stay unchanged. These budgets preserve safeguards for lower-cost models, not a claim of
+measured robustness on those models.
+
 ## The set
 
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
-| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1056 |
-| `architect` | System design from measurable drivers; significant or irreversible technical choices. The decision record is a section of the output, not a separate artifact | inline | 1161 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1458) or inline | 1241 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1277) or inline | 1149 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1415) or inline | 1315 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1456) or inline | 1320 |
-| `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 395) or inline | 396 |
+| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1134 |
+| `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1211 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1938) or inline | 1877 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1845) or inline | 1801 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1724) or inline | 1660 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1533) or inline | 1397 |
+| `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 491) or inline | 492 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2145 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
@@ -58,7 +71,7 @@ automatically at session start, so nothing needs to point pi at it by hand.
 
 ## Bootstrap and workflows
 
-A pi extension (`extensions/bootstrap.ts`) injects `bootstrap/BOOTSTRAP.md` — about 250
+A pi extension (`extensions/bootstrap.ts`) injects `bootstrap/BOOTSTRAP.md` — under 300
 words — as a leading message at session start and again after compaction, so the routing
 context survives a context reset instead of depending on someone re-reading a file. It
 carries the routing table compressed to input shape → skill → inline/subagent, the closed
@@ -74,15 +87,26 @@ failure the rule exists to catch. The artifact scales with the change (three lin
 config tweak, full slices for a feature); the stop does not.
 
 Delegated phases hand artifacts to each other as files, not pasted text. A `principal-build`
-writes its full report to `.principal/reports/<step>-build.md` and returns five status lines;
-review is handed one diff package for the whole change plus those reports, treats a verbatim
-test-result line as evidence, and runs a test only for a named doubt. A repair round resumes
-the build agent where the tool allows and gets a scoped re-review of the fix diff against the
-open finding IDs. The `.principal/` directory ignores itself, so none of this reaches git.
+writes its full report to an unused task/run/candidate-scoped path under `.principal/reports/`
+(or a valid unused caller-chosen path) and returns five status lines;
+review receives governing source/definition references, the complete plan/map when present,
+and a candidate-identified diff package plus reports. Only matching candidate/scope evidence
+is reusable; a passing suite alone is not complete requirement coverage. Every successful
+report contributes assumptions, follow-ups and evidence gaps to the Digest. Repairs carry
+full review-report paths, finding definitions and acceptance conditions, not IDs alone;
+scoped re-review retains original whole-change evidence and gates. Independent runs never
+reuse prior report/diff paths; repairs retain original review path and reviewed candidate.
+Before any artifact write, the orchestrator creates an absent `.principal/.gitignore`
+containing `*`, never overwrites it, and checks report destinations are ignored. This covers
+planless Review, inline Build and optional Investigate persistence too. An existing policy
+that exposes reports requires caller repair, not accidental runtime files in git.
 
 When plan's output is the multi-step template, it writes the plan to
 `.principal/plans/<slug>.md` and prints the path; `.principal/.gitignore` is created
-alongside it on first use, so the directory is git-ignored and self-ignoring. Delegated
+alongside it only if absent, never overwritten. The complete executable artifact and map
+stay in the file; chat gives a short summary and approval cue. Without persistence, the full
+artifact is returned in chat, explicitly not saved. Tiny normative changes retain source/ID,
+step and test without full machinery. Delegated
 `principal-build` agents read their assigned step from that file, and a fresh or compacted
 session that finds a matching plan resumes from it: read the file and `git log`, mark done
 whatever already has a commit, continue at the first undone step, and never re-plan without
@@ -94,12 +118,14 @@ being asked.
 <skill>/SKILL.md                      the interactive contract — nothing else is required reading
 agents/principal-{plan,build,review,debug,investigate}.md  subagent definitions available for delegation
 contracts/{plan,build,review,debug,investigate}.md.tmpl    source for dual-use contracts — edit here, run `npm run generate`
-contracts/workflows.md.tmpl           source for the two namespaced spines
-prompts/principal-{feature,bugfix}.md generated workflows
+contracts/workflows.md.tmpl           source for the three namespaced spines
+prompts/principal-{feature,bugfix,refactor}.md generated workflows
+prompts/principal-review-branch.md    handwritten planless/buildless review entry
 bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary + model tiering, injected by the extension
 extensions/bootstrap.ts               pi extension: injects BOOTSTRAP.md at session start and after compaction
 scripts/                              generator, installers, and checks behind `npm test`
-tests/{unit,install}/                 unit + clean-home install tests (node:test)
+tests/{unit,install}/                 current product/contract + clean-home install tests (node:test)
+tests/evidence/                      opt-in offline receipt integrity and replay-tool checks
 AGENTS.md                             routing + dispatch reference; the bootstrap injects its table automatically
 CHANGELOG.md                          release history
 ```
@@ -109,10 +135,10 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.6.0
+   pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.1
    ```
 
-   The v4.6.0 `pi` manifest registers the eight skills, the four `/principal-*` commands,
+   The v4.7.1 `pi` manifest registers the eight skills, the four `/principal-*` commands,
    and the bootstrap extension — it loads automatically with
    the package; there is no separate extension-install step. Unpinned `main` moves under
    you, so install a tag if you want a fixed, nameable behavior.
@@ -121,12 +147,39 @@ CHANGELOG.md                          release history
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
-2. **Subagents (optional).** Install the five agent definitions:
+2. **Subagents (optional).** Use the **same source** as the installed skills. Before npm
+   publication, npm latest is 4.6.0; unpinned `npx` would install/check older definitions,
+   and npm `@4.7.1` is not yet available. Either locate the actual installed tagged package
+   (its path varies by Pi configuration) and run its `scripts/install-agents.mjs` with Node,
+   or use this concrete matching-tag disposable checkout recipe:
 
+   ```sh
+   (
+     set -eu
+     source_dir=$(mktemp -d)
+     trap 'rm -rf -- "$source_dir"' EXIT
+     git clone --depth 1 --branch v4.7.1 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
+     test "$(git -C "$source_dir/package" rev-parse HEAD)" = "$(git -C "$source_dir/package" rev-parse 'v4.7.1^{commit}')"
+     git -C "$source_dir/package" rev-parse HEAD  # retain the resolved source identity
+     node "$source_dir/package/scripts/install-agents.mjs" install
+     node "$source_dir/package/scripts/install-agents.mjs" check
+   )
    ```
-   npx -p principal-pi-skills principal-pi-agents install     # → ${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents
-   npx -p principal-pi-skills principal-pi-agents check       # verify they are present and current
+
+   After npm publication, and only once the matching package is available, pin both commands:
+
+   ```sh
+   npx -p principal-pi-skills@4.7.1 principal-pi-agents install
+   npx -p principal-pi-skills@4.7.1 principal-pi-agents check
    ```
+
+   Version 4.7.1 combines PR #58 and its repairs under one new tag on the final merged
+   commit. The existing v4.7.0 tag at `448ac76` remains historical and excludes later repairs;
+   do not move it. Use the commands above after the v4.7.1 tag exists; npm publication is
+   separate. The checkout check verifies tag/HEAD consistency, not independent tag trust;
+   compare the recorded SHA with the release identity when provenance matters. Before tagging,
+   validate the actual candidate's skills and installer in an isolated `PI_CODING_AGENT_DIR`.
+   Known behavioral qualification limits remain documented; combining the release does not waive them.
 
    It installs `principal-plan`, `principal-build`, `principal-review`, `principal-debug`,
    and `principal-investigate` as **real files, not symlinks** — a symlink into a checkout breaks the
@@ -135,7 +188,7 @@ CHANGELOG.md                          release history
    its own unmodified files.
 
    Tool restriction is structural, in the agents' frontmatter: `investigate` is read-only;
-   `plan` is read-only except for its own plan file; `build`, `review`, and `debug` add
+   `plan` is read-only except for its plan and creation of an absent `.principal/.gitignore`; `build`, `review`, and `debug` add
    `bash` to run tests (and, for `build`, to write and edit).
 
    One trap worth knowing if you run subagents on a non-default provider: a delegated agent
@@ -178,7 +231,70 @@ CHANGELOG.md                          release history
 ## Validation
 
 `npm test` remains the free gate: generated-contract drift, word budgets, frontmatter lint,
-installer and tarball behavior, and `Next:` transition parity.
+installer and tarball behavior, `Next:` transition parity, and deterministic source-fidelity
+contract assertions and offline behavioral-corpus integrity/negative-oracle tests. These
+check current contracts and fixtures, not model behavior or instruction delivery.
+
+`npm run verify:evidence` separately runs `node --test tests/evidence/*.test.mjs`:
+offline historical receipt/hash integrity, retained failed observations, and fail-closed
+replay-parser checks. It never invokes Pi or a model; the parser check skips with a reason
+if optional Python is absent. It is not part of `npm test` or default CI. Passing it does
+not qualify current model behavior or restamp an archived candidate. Historical test
+totals (including 141 unit tests) describe their recorded runs, not today's suite size.
+Archived manifests retain their original candidate identity even when the working tree
+has changed; reports, raw traces and manifests are not rewritten by test cleanup.
+
+**Enforcement boundary:** Build/Review instructions ask the model to organize regressions
+by lasting behavior, not PR/finding IDs, and distinguish product coverage from historical
+verification. Evidence-only requests first use existing checks or disposable probes, not
+permanent tests merely to prove a finding was addressed; ordinary approved bugfix/feature
+regressions and useful explicitly requested checks remain authorized. Markdown contracts are
+product, with legitimate structural tests. These are not filesystem restrictions or a semantic
+test-quality checker.
+The package commands and CI mechanically select suites; pi-daddy's delegated tool grants
+control available capabilities, not test names or correctness. Refresh installed skill/agent
+definitions when adopting a revision: editing this checkout does not update another installed copy.
+
+A narrow local opt-in behavioral regression corpus is authorized for requirement fidelity,
+superseding only the blanket removal of focused harness fixtures below. It is **partially measured, not fully qualified**:
+46 runnable component cases now live in `<skill>/tests/specification.yaml` for Plan, Build,
+Review, Investigate, Decide, Architect and Debug. Shared synthetic fixtures, 51-row long-source
+oracle, all F01–F27 status/replay recipes and runner limitations are documented in
+[evals/requirement-fidelity/README.md](evals/requirement-fidelity/README.md), with an
+[evidence index](evals/requirement-fidelity/evidence.md). The three evidence-scope cases have
+[bounded live observations](evals/requirement-fidelity/evidence/evidence-scope/README.md):
+F25/F27 raw PASS; F26's old reporting failure is retained, with a
+[new corrected-rubric PASS and separate execution audit](evals/requirement-fidelity/evidence/regression-evidence-alignment/README.md).
+[Whole-PR repairs](evals/requirement-fidelity/evidence/full-review-repairs/README.md)
+retain the earlier report-safety observations and 5/9 run.
+[Latest Build handoff validation](evals/requirement-fidelity/evidence/build-handoff/README.md)
+is **4/9 NOT READY**; three fully captured cases verify saved patches and functional regressions
+but retain caveat-delivery, persistence-stop and reproducibility limitations.
+The earlier narrow direct audit remains UNVERIFIED with explicit manual inspection.
+Older 43-case results remain historical.
+Retained live runs include failures;
+a manually orchestrated source→plan→build→review chain, full long-plan inspection, and two
+normal skill-loading probes provide narrower positive evidence, not an all-case pass.
+PR #58 retains three direct blocking runs of the unchanged critical F04 negative and three
+successful supplied-definition companions. Actual registered workflow prompts demonstrate
+repeat-report preservation, absent-ignore initialization and an approval-gated inline bugfix.
+These are bounded observations, not passing harness grades; fresh-session resumed repair and
+delegated transport remain unmeasured. Three parent-only replay recipes track partial coverage.
+Retain results.yaml, synthetic transcripts/traces, changed-file diffs
+and complete output artifacts under `<skill>/tests/results/<runner-model>/<run>/`; use narrow
+ignore rules for incidental caches/HTML only. Review evidence for secrets before staging.
+No model calls in `npm test`, no harness runtime dependency, no fixtures/results in the npm
+package. Broad comparisons and qualification remain external.
+
+Record candidate/spec/fixture identities, runner/Pi versions, subject/judge, mode, repetitions,
+commands and retained artifacts. Separate forced instruction following from normal runtime
+loading; missing delivery/retention evidence is UNKNOWN, never PASS. Installed skill-harness
+0.21.0 preflight exposed schema-2 and retention gaps; no compatible published update is
+available per the implementation preflight. P0/schema-3/full behavioral validation has not
+passed. An unsupported Spark provider response prevented lower-cost robustness measurements;
+CLI exit zero was not counted as success. Remaining Build/Architect failures, tool-ceiling
+violations, and unmeasured combinations are recorded rather than waived. No prior deleted
+4/4 claim is restored. Focused results establish only their recorded candidate/model/delivery cells.
 
 Two opt-in routing checks use only the eight authored frontmatter descriptions. Run
 `npm run check:routing-collisions` for all 56 directed description pairs and
@@ -212,7 +328,7 @@ Decisions taken for 4.0, all closed:
 | Build delegation | `principal-build` agent; inline when there is no multi-step plan file or no subagent tool |
 | Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; no date prefix because plan has no clock, and resume matches on the `## Plan:` line |
 | Decide vs architect | both kept; decide answers "should we / which", architect answers "how is it structured" |
-| Measurement | skill-harness specs, results, fixtures and E2E removed; restarts in a separate repo |
+| Measurement | broad qualification stays external; narrow opt-in requirement-fidelity regressions permitted locally (see Validation), partially measured but not fully qualified |
 
 Two implementation notes that differ from the obvious reading: the bootstrap is injected as
 a user-role message wrapped in `<IMPORTANT>`, because pi's `context` hook can only insert

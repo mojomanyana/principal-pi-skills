@@ -1,0 +1,460 @@
+schema: 2
+harness_version: 0.21.0
+harness_cli_version: 0.87.1
+skill: build
+harness: pi
+model: openai-codex:gpt-5.5
+judge:
+  provider: openai-codex
+  model: gpt-5.6-sol
+timestamp: '2026-09-30T10:53:50.949Z'
+label: null
+mode: force
+source_hashes:
+  SKILL.md: e5b0b8584f9888b0779f4a857263ac49cf53c0735976b92629441ada1031ccfa
+  skill:prompt: 49e5ea67b7c542961a20c342e7100f5406d6af3708e70910f59d4f9efdbf3376
+  rubric:__persona: 22bc191ca2980a42231df4856ef26c2c92e96df19f24704351c789a72387e703
+  stimulus:F11-build-assigned-skill: 29036acc8fdd545ff59099bb9d34ce410fc43451f34d93ad3ff24d6b9b0c8a49
+  rubric:F11-build-assigned-skill: fde30190bb78fba04563a83ebf6b0f317ba9951da8888d247a2750d6b4495e99
+  policy:F11-build-assigned-skill: bf5c97a090cd860ac87cfca3e3a8a0c2c8d37b5b0c321439324a7132311bc85d
+  gates:F11-build-assigned-skill: d5d84ee79a703febee0027180f1e96cff2e00967e1ff3a72de9e7b7386943880
+  fixture:../../evals/requirement-fidelity/fixtures/omitted-obligation: ac06199b05407b8ec3d9333cdb9a45e921b2f95a9901175178e4132a4cbc3940
+  stimulus:F13-build-repair-agent: 29300bb420c691328ff63bbe73438ac0ffb307bb3356dbe091031b85ac276958
+  rubric:F13-build-repair-agent: f2bb4e27667e6f12d999c1b92d79688efa5f288f57fd202dd8c761961ef31d73
+  policy:F13-build-repair-agent: 8752c58c4ac4ea39f103f1aa035544615c2a9828e4a0af08e14dbb7997c7cd8e
+  gates:F13-build-repair-agent: 75f0c63d08f6b362cfd069bdbe5d725fa369ab1c3eb00f3f0e8610aeaea39cbe
+  ../../agents/principal-build.md: 8358b499afacd7fc8457420fd029367821277723c3eb420b2424a3235c200561
+  prompt:../../agents/principal-build.md: 1399e40038aa6f24400f1dbed375c2034612895d6331b7439ea405cabec43ed4
+  fixture:../../evals/requirement-fidelity/fixtures/handoffs: 0606ba0133f7be3db9bbf4dbfc8e152b7ff5824c4dae32bd2e270af26fe3043e
+  stimulus:F14-build-ids-only-skill: 7c45973ffc1b051b2c0a2be331d912249af5a893c1f85d86263f3596ce79174f
+  rubric:F14-build-ids-only-skill: 388d1ed01a97d54a37786004d9510467202685f9db787073679a1d605915177e
+  policy:F14-build-ids-only-skill: d6dd66a9069b03f92240f5bad2874c4a9a714414b63322113cac79fe3b0a513d
+  gates:F14-build-ids-only-skill: b0d1fad16e8dc2228654136fb0cc35a88bb23e63b9523e1a99f6d0ea80b6c997
+  fixture:../../evals/requirement-fidelity/fixtures/missing-source: ce3d7a99fce8afdc635be002360f55969a3f7deea3ed12a665ffb0ed6546bdf8
+  stimulus:F04-build-missing-agent: 4a4f02e639d2595bfef2ee9d6d181729a448c1a7d70ea4fd3cbc096f0181b1b1
+  rubric:F04-build-missing-agent: 34c4d4e88ea08800a94ae356d9f84829298607984b1f1bc0b622a7ff74124eb4
+  policy:F04-build-missing-agent: d7aa0fdcb58e89029209340ea93e3267ae38de3f75354938ed34e72e15471cb4
+  gates:F04-build-missing-agent: 719914c173c29899eeae9238fe3ec62128f706fac127b69c9a0986a3dce7aac5
+  fixture:../../evals/requirement-fidelity/fixtures/missing-definition: 13641c9ad87eb2c77ee35459cd9844246d296bef318259598a1d6c7743a3e8a3
+  stimulus:F10-build-unrun-benchmark-skill: 0f3b2c924de72082273abe334e5ab75dde69b2c9ecad844dcbaf81033d5d5e2f
+  rubric:F10-build-unrun-benchmark-skill: 1d69761794c5d68a45ed77cc64771f053d36dab04e26b0da5675833891e81f79
+  policy:F10-build-unrun-benchmark-skill: 61411259c7712d1a3ae013c004ed5fb5678b008d516ef057594a696aa9d9255a
+  gates:F10-build-unrun-benchmark-skill: 55d6bf3c1061151145961af01da7c16ef38e2b9ad027dba3b8619fc8375ba5ed
+  fixture:../../evals/requirement-fidelity/fixtures/basic: c9c36c4c57ee3d40899400f767490cfa127bdedb3025241e57e79b1d2b6cb77d
+  stimulus:F21-build-after-debug-skill: f713c268e2bc235ade2ada0c1d21162170b3cd5e707ec2869e24f1fda760edb6
+  rubric:F21-build-after-debug-skill: 9a6112607bd689cf0d75a8c277ae30bde88a9cb1cbaa0636fbda2988dcb15c10
+  policy:F21-build-after-debug-skill: a65f4f406bc4190103229fc4291e46a78554ad322713b1d3130055e6d78277bc
+  gates:F21-build-after-debug-skill: d7e9fc44e1edea2c24a5b5d7f06311e1dd7f5e4340c13868e99f16dc2a336927
+  fixture:../../evals/requirement-fidelity/fixtures/debug: 8689bd3090b5a3417cc3a4a8f6b30ee77f249b358f41bf75ae4140c7c2bc3758
+effective_grade:
+  passed: 0
+  total: 5
+  pct: 0
+  letter: F
+  ship: false
+  note: '1 infrastructure error: retry/repair evidence'
+scenarios:
+  - id: F11-build-assigned-skill
+    judge_verdict: FAIL
+    judge_reason: Reading, execution, and retained artifact evidence are not independently demonstrated.
+    suspect: false
+    metrics:
+      wall_time_ms: 123784
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 15940
+      output_tokens: 2117
+      cache_read_tokens: 51200
+      cost_source: unreported
+      tool_calls: 17
+      delegated_children: 0
+      max_concurrency: 7
+    usage:
+      - repetition: 0
+        inputTokens: 15940
+        outputTokens: 2117
+        cacheReadTokens: 51200
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_0
+      status: PASS
+      trace_version: 2
+      trace_sha256: 0da3e0e65f16a972a9ebfba0299508706d656d4d47af9b7a421f7d63e8b7d5af
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)plan\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)build-report\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`write` (path matches "(^|/)\\.principal/(plans|reports)/[^/]+\\.md$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`plan.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`build-report.md` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Reading, execution, and retained artifact evidence are not independently demonstrated.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: FAIL
+                reason: “Authority” naming does not prove reading occurred before changes.
+              - index: 2
+                verdict: FAIL
+                reason: “Red evidence” and “Green evidence” lack observable command/tool receipts.
+              - index: 3
+                verdict: FAIL
+                reason: “QUAL-1...completed” is unsupported by retained tests or execution artifacts.
+              - index: 4
+                verdict: PASS
+                reason: '“remains outside scope” and “Next: review” preserve downstream caveat.'
+        recorded_verdict: FAIL
+        objective: *ref_0
+  - id: F13-build-repair-agent
+    judge_verdict: FAIL
+    judge_reason: The summary lacks source-reading, red-test, candidate-bound, status, and acceptance evidence.
+    suspect: false
+    metrics:
+      wall_time_ms: 80056
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 19752
+      output_tokens: 2015
+      cache_read_tokens: 49664
+      cost_source: unreported
+      tool_calls: 18
+      delegated_children: 0
+      max_concurrency: 5
+    usage:
+      - repetition: 0
+        inputTokens: 19752
+        outputTokens: 2015
+        cacheReadTokens: 49664
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_1
+      status: PASS
+      trace_version: 2
+      trace_sha256: d9794673a622eb4403cb48496fa0c0bc09c498732f2912280d1a9d8d42dcbb56
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)review-report\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)plan\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)build-report\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`write` (path matches "(^|/)\\.principal/(plans|reports)/[^/]+\\.md$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`review-report.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`plan.md` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: >-
+              The summary lacks source-reading, red-test, candidate-bound, status, and acceptance
+              evidence.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: FAIL
+                reason: “Changed paths” provides no evidence named files were read.
+              - index: 2
+                verdict: FAIL
+                reason: “pass 3; fail 0” shows no observed red or candidate binding.
+              - index: 3
+                verdict: FAIL
+                reason: “Findings applied” omits completed, unverified, and unmet requirement statuses.
+              - index: 4
+                verdict: FAIL
+                reason: '“Next: review” does not retain caveats or distinguish integration success.'
+              - index: 5
+                verdict: FAIL
+                reason: “REV-001” is named, but acceptance-condition compliance is unsupported.
+        recorded_verdict: FAIL
+        objective: *ref_1
+  - id: F14-build-ids-only-skill
+    judge_verdict: ERROR
+    judge_reason: 'provider failure — openai-codex: WebSocket closed 1011'
+    suspect: false
+    metrics:
+      wall_time_ms: 14581
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 1390
+      output_tokens: 313
+      cache_read_tokens: 5120
+      cost_source: unreported
+      tool_calls: 1
+      delegated_children: 0
+      max_concurrency: 1
+    usage:
+      - repetition: 0
+        inputTokens: 1390
+        outputTokens: 313
+        cacheReadTokens: 5120
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: PASS
+      trace_version: 2
+      trace_sha256: 34c29e8d7904f898e9d60e4c4db06d593c3052bc71b8132d8277ecf7f24ec9d3
+      assertions:
+        - kind: unchanged_path
+          status: PASS
+          detail: '`limit.mjs` unchanged'
+  - id: F04-build-missing-agent
+    judge_verdict: FAIL
+    judge_reason: 'objective: `limit.mjs` changed: limit.mjs'
+    suspect: false
+    metrics:
+      wall_time_ms: 47274
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 9089
+      output_tokens: 1487
+      cache_read_tokens: 41472
+      cost_source: unreported
+      tool_calls: 12
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 9089
+        outputTokens: 1487
+        cacheReadTokens: 41472
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: 9d46f4ad7c937cb20a7a94aec01b1ac2d7f6844d1cc15c170fb8b7150b247d29
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+        - kind: unchanged_path
+          status: FAIL
+          detail: '`limit.mjs` changed: limit.mjs'
+  - id: F10-build-unrun-benchmark-skill
+    judge_verdict: FAIL
+    judge_reason: >-
+      Missing source-reading, red-test, candidate-binding, coverage, report-content, and
+      unchanged-bound evidence.
+    suspect: false
+    metrics:
+      wall_time_ms: 80580
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 12465
+      output_tokens: 1523
+      cache_read_tokens: 45568
+      cost_source: unreported
+      tool_calls: 15
+      delegated_children: 0
+      max_concurrency: 5
+    usage:
+      - repetition: 0
+        inputTokens: 12465
+        outputTokens: 1523
+        cacheReadTokens: 45568
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_2
+      status: PASS
+      trace_version: 2
+      trace_sha256: 1d48db898bff0d2f77e85784d2e988d50ba9a16b1a578be334660d6ee42d203c
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`write` (path matches "(^|/)\\.principal/(plans|reports)/[^/]+\\.md$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`definitions.md` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: >-
+              Missing source-reading, red-test, candidate-binding, coverage, report-content, and
+              unchanged-bound evidence.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: FAIL
+                reason: >-
+                  “Implemented LIMIT-1” gives no evidence SPEC, definitions, plan, or report were
+                  read.
+              - index: 2
+                verdict: FAIL
+                reason: “npm test” passed, but no observed pre-fix boundary failure appears.
+              - index: 3
+                verdict: FAIL
+                reason: “3 pass, 0 fail” does not establish malformed coverage or QUAL-1.
+              - index: 4
+                verdict: FAIL
+                reason: >-
+                  “Next: review” distinguishes review, but retained report caveats remain
+                  unevidenced.
+              - index: 5
+                verdict: FAIL
+                reason: “PERF-1 is reported as unverified,” but unchanged bound is not evidenced.
+        recorded_verdict: FAIL
+        objective: *ref_2
+  - id: F21-build-after-debug-skill
+    judge_verdict: FAIL
+    judge_reason: Claims lack evidence for required boundaries, semantics, and candidate identity.
+    suspect: false
+    metrics:
+      wall_time_ms: 84031
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 15827
+      output_tokens: 1624
+      cache_read_tokens: 36352
+      cost_source: unreported
+      tool_calls: 14
+      delegated_children: 0
+      max_concurrency: 5
+    usage:
+      - repetition: 0
+        inputTokens: 15827
+        outputTokens: 1624
+        cacheReadTokens: 36352
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_3
+      status: PASS
+      trace_version: 2
+      trace_sha256: 34975e1025fd264b61b58cd17bfd791b80a72346b32b73d2bc612105d3b68e4d
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)parse\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)parse\\.test\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`write` (path matches "(^|/)\\.principal/(plans|reports)/[^/]+\\.md$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Claims lack evidence for required boundaries, semantics, and candidate identity.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: FAIL
+                reason: Only “parseCount('3x')” evidenced; malformed boundaries remain unverified.
+              - index: 2
+                verdict: FAIL
+                reason: “full SPEC.md PARSE-1 validation” lacks safe-integer and acceptance evidence.
+              - index: 3
+                verdict: FAIL
+                reason: “parse.mjs” does not identify the fixture or tested candidate.
+        recorded_verdict: FAIL
+        objective: *ref_3

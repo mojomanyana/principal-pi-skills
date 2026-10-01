@@ -1,0 +1,7 @@
+diff --git a/limit.mjs b/limit.mjs
+index 2a7c0ab..e054aa3 100644
+--- a/limit.mjs
++++ b/limit.mjs
+@@ -1 +1 @@
+-export function permit(count) { return Number.isInteger(count) && count >= 0 && count <= 3; }
++export const permit = count => Number.isInteger(count) && count >= 0 && count <= 4;

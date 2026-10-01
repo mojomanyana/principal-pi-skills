@@ -1,0 +1,6 @@
+1. PASS — “BLOCKED” names “0–3” and “0–4” and asks one question.
+2. PASS — “Both specs are binding” and “no precedence is supplied.”
+3. PASS — “Why it blocks” confirms unresolved conflict; no execution is claimed.
+
+VERDICT: PASS
+REASON: All requirements are clearly satisfied.

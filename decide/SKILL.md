@@ -32,6 +32,14 @@ The path is a one-way ratchet: hidden complexity discovered mid-task upgrades it
 downgrades it. Mark every unknown that blocks the decision as
 `[NEEDS CLARIFICATION: <question>]` rather than answering it by assumption.
 
+## Binding inputs
+Separate binding requirements and definitions (with source references) from preferences.
+Read supplied authority; summaries and proposals are not implementation or measured evidence.
+Do not silently relax constraints. Propose a deviation for user decision; record any approved
+change's original obligation, decision-maker and remaining consequences.
+A missing load-bearing fact or normative definition is not a default: ask the one deciding
+question or HOLD. Bridgeable nonnormative assumptions may be labeled, never substituted for authority.
+
 ## Process
 1. **Problem first.** Write the problem in one sentence and confirm it is the real problem.
    If the user opened with a solution ("should I use X or Y?"), ask what problem X solves
@@ -59,21 +67,22 @@ the status quo" as an option.
 
 ## Delegated mode (running as a subagent)
 No dialogue is possible. Work from the material given, state assumptions explicitly, and
-return the complete brief in one response. If a missing fact would change the answer, put
-it under Open questions with its implication ("if volume > 1000/day, prefer option 2").
+return a conditional brief or HOLD when a missing load-bearing fact would change the answer.
+Name that fact and its implication under Open questions; do not invent its value or give an
+unconditional recommendation.
 
 ## Output — decision brief (produce when concluding)
 Emit the brief when you have enough to conclude, or when the user asks you to conclude
 ("just give me the answer", "what would you do"). Until then, in interactive mode, the reply
 is the one load-bearing question — a brief is the *conclusion* of the process, not its
-opening move. Delegated, you cannot ask, so you always conclude: state the assumption you
-would otherwise have asked about and produce the brief.
+opening move. Delegated, conclude only as far as supplied facts permit: a conditional brief
+or HOLD is a complete response.
 
 ```
 Path: spike | bounded | architectural — <why>
 ## Decision brief: <one-line question>
 Problem: <one sentence>
-Constraints: <hard limits, budgets, deadlines>
+Constraints: <binding requirements/definitions + source refs; preferences separately>
 Options:
   1. <name> — wins: … | costs: … | breaks when: …
   2. <name> — …

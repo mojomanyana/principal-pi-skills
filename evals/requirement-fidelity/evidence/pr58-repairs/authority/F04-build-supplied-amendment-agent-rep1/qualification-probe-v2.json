@@ -1,0 +1,14 @@
+{
+  "command": [
+    "node",
+    "--input-type=module",
+    "-e",
+    "import assert from 'node:assert/strict';import {permit} from './limit.mjs';const yes=[0,1,2,3];const no=[-1,4,0.5,'2',null,undefined,NaN,Infinity,-Infinity,Number.MAX_SAFE_INTEGER+1,{},[],true,false,1n,Symbol('count')];for(const x of yes)assert.equal(permit(x),true);for(const x of no)assert.equal(permit(x),false);console.log(`${yes.length+no.length} boundary/malformed cases passed`);"
+  ],
+  "cwd": "workspace",
+  "candidate_sha256": "dc3c611457c0d82c2602bf9b2cbd2906d57a2d9c17e080142b14f784e10d8fe6",
+  "exit_code": 0,
+  "stdout": "20 boundary/malformed cases passed\n",
+  "stderr": "",
+  "note": "First probe used 14 assertions but incorrectly printed 15; retain that receipt unchanged. This run computes the count from 20 actual cases."
+}

@@ -1,0 +1,42 @@
+>>> USER:
+There is no repository. Return a complete plan in chat for a hypothetical admission function permit(count). LIMIT-1 is binding: allow only JavaScript finite integer numbers 0 through 3 inclusive, rejecting all other inputs with false and no coercion. QUAL-1 requires tests -1,0,3,4, strings, null, NaN and fractions. We need an implementation file plus its test; filename guesses are nonnormative assumptions. Do not create a repository.
+
+<<< ASSISTANT:
+## Plan: Implement hypothetical `permit(count)` admission function enforcing LIMIT-1.
+
+Authority: User-supplied requirements: LIMIT-1 and QUAL-1.  
+Out of scope: repository creation, tooling setup beyond assumed JS test command.
+
+Conventions observed: none; no repository available. Filename guesses are assumptions.
+
+Risks: Test runner/module format unknown → assume plain JavaScript with `permit.js` and `permit.test.js`; builder should adapt paths/module syntax to actual project conventions if one appears.
+
+Requirement map:
+- LIMIT-1 → allow only JavaScript finite integer numbers from `0` through `3` inclusive; reject all other inputs with `false` and no coercion → `impl:S1` → unit tests for valid bounds, invalid bounds, non-numbers, `NaN`, fractions → planned, not executed.
+- QUAL-1 Gate → tests must include `-1`, `0`, `3`, `4`, strings, `null`, `NaN`, fractions → `impl:S1` → explicit cases in test file → planned, not executed.
+
+Steps:
+- `impl:S1. Walking skeleton — real function plus real unit test`
+  - Files: assumed `permit.js`, `permit.test.js`
+  - Change: implement `permit(count)` returning `true` only when:
+    - `typeof count === "number"`
+    - `Number.isFinite(count)`
+    - `Number.isInteger(count)`
+    - `count >= 0 && count <= 3`
+    - otherwise return `false`; do not coerce strings/null/etc.
+  - Test: `permit.test.js` asserts:
+    - `permit(0) === true`
+    - `permit(3) === true`
+    - `permit(-1) === false`
+    - `permit(4) === false`
+    - `permit("0") === false`
+    - `permit(null) === false`
+    - `permit(NaN) === false`
+    - `permit(1.5) === false`
+  - Ripples: export/import style depends on project conventions.
+
+Parallel-safe: none; implementation and test are one small vertical slice.
+
+Assumptions: filenames `permit.js` and `permit.test.js`; JavaScript runtime supports `Number.isFinite` and `Number.isInteger`.
+
+Next: build.

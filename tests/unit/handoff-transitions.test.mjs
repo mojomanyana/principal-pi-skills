@@ -1,7 +1,7 @@
 /**
  * The handoff contract, enforced.
  *
- * `Next:` is the only routing signal between phases, so both halves have to agree: a
+ * `Next:` is the closed transition vocabulary (Review Verdict gates its use), so a
  * contract must not emit a value no workflow handles (the chain stops for no stated
  * reason), and a workflow must not branch on a value no contract can emit (a branch that
  * looks like coverage and can never run). Both failures are invisible in review — they
@@ -39,7 +39,48 @@ const SOURCES = {
   build: "contracts/build.md.tmpl",
 };
 
+const ARTIFACT_WORKFLOWS = ["contracts/workflows.md.tmpl", "prompts/principal-review-branch.md"];
+
 const WORKFLOWS = ["prompts/principal-feature.md", "prompts/principal-bugfix.md", "prompts/principal-refactor.md"];
+
+test("independent runs and resumed repairs preserve original candidate artifacts and baseline", () => {
+  for (const p of ARTIFACT_WORKFLOWS) {
+    const text = read(p);
+    for (const rule of [/task.*run.*candidate/i, /create.*new.*directory/i,
+      /caller.*report path/i, /never overwrite/i, /original review path/, /reviewed candidate/,
+      /whole-change baseline/, /resume/i]) assert.match(text, rule, p);
+    assert.doesNotMatch(text, /\.principal\/reports\/(?:review-(?:1|<round>)\.md|review-diff\.txt|<step>-build\.md)/);
+  }
+  assert.match(read(SOURCES.build), /referenced prior artifact/);
+  assert.doesNotMatch(read(SOURCES.build), /default `\.principal\/reports\/<step>-build\.md`/);
+});
+
+test("artifact persistence initializes ignore without overwriting policy or widening Plan permissions", () => {
+  for (const p of ARTIFACT_WORKFLOWS) {
+    const text = read(p);
+    assert.match(text, /Before any artifact write/);
+    assert.match(text, /if absent.*`\.principal\/\.gitignore` containing `\*`/s);
+    assert.match(text, /never overwrite an existing ignore file/);
+    assert.match(text, /authority.*Investigate.*review/s);
+    if (p.startsWith("contracts/")) assert.match(text, /inline Build/);
+  }
+  assert.match(read(SOURCES.plan), /No shell, implementation, reports, or other writes/);
+});
+
+test("evidence-only followups do not restart implementation through workflow resume", () => {
+  const text = read("contracts/workflows.md.tmpl");
+  assert.match(text, /Before starting or resuming.*evidence-only/s);
+  assert.match(text, /existing checks or a disposable probe.*not.*implementation/s);
+  assert.ok(text.indexOf("evidence-only") < text.indexOf("**Resume.**"));
+});
+
+test("common routing checks Review Verdict before Next and surfaces unverified evidence", () => {
+  for (const p of ["AGENTS.md", "bootstrap/BOOTSTRAP.md"]) {
+    const text = read(p);
+    assert.match(text, /Read (?:Review )?Verdict before Next/);
+    assert.match(text, /UNVERIFIED.*evidence\/access.*caller question.*not automatic.*implementation/s);
+  }
+});
 
 /** Verdicts review can actually return, read from the contract rather than restated here. */
 const REVIEW_VERDICTS = readFileSync(join(ROOT, "contracts/review.md.tmpl"), "utf8")
@@ -159,15 +200,18 @@ test("the review-branch prompt reviews and finishes but never plans or builds", 
   assert.match(text, /CHANGES-REQUESTED/);
   assert.match(text, /UNVERIFIED/);
   assert.match(text, /finish mode/i, "must hand off to git-ops finish mode on approval");
-  assert.doesNotMatch(text, /principal-plan|principal-build|\.principal\/plans/, "review-branch has no plan or build phase");
+  assert.doesNotMatch(text, /(?:invoke|dispatch|delegate to)\s+`?principal-(?:plan|build)/i, "review-branch invokes neither phase");
+  assert.match(text, /invokes neither Plan nor Build/);
+  assert.match(text, /optional plan map/, "an existing map is evidence, not a required planning phase");
   assert.match(text, /\$\{1:-main\}/, "base branch defaults to main via a template argument");
 });
 
 test("the spines hand artifacts to agents as files under .principal/reports", () => {
   for (const wf of WORKFLOWS) {
     const text = read(wf);
-    assert.match(text, /\.principal\/reports\/<step>-build\.md/, `${wf} must give build agents a report path`);
-    assert.match(text, /\.principal\/reports\/review-diff\.txt/, `${wf} must hand review a diff package`);
+    assert.match(text, /\.principal\/reports\/<task>-<run>\/<candidate>\//, `${wf} must scope artifact identities`);
+    assert.match(text, /<artifact-dir>\/<step>-build-<attempt>\.md/, `${wf} must give build agents a report path`);
+    assert.match(text, /<artifact-dir>\/review-diff-<round>\.txt/, `${wf} must hand review a diff package`);
     assert.match(text, /scoped re-review/, `${wf} must scope repair-round reviews`);
   }
   assert.match(read("agents/principal-review.md"), /## Scoped re-review/);

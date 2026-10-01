@@ -1,0 +1,65 @@
+{
+  "attempts": 3,
+  "case_attempts": {
+    "F04-build-supplied-amendment-agent": 1,
+    "F11-build-assigned-skill": 1,
+    "F21-build-after-debug-skill": 1
+  },
+  "all_normal_completion": true,
+  "no_extra_model_runs_by_observer": true,
+  "parent_force_run_not_invoked_here": true,
+  "protected_count": 1781,
+  "protected_changes": {},
+  "historical_resource_copies_equal": true,
+  "historical_resource_copy_count": 25,
+  "current_resource_copies_equal": {
+    "build/SKILL.md": true,
+    "agents/principal-build.md": true,
+    "build/tests/specification.yaml": true,
+    "evals/requirement-fidelity/evidence/pr58-repairs/replay-workflows.py": true
+  },
+  "unchanged_helper_vs_prior": true,
+  "private_auth_absent": true,
+  "versions": [
+    {
+      "command": [
+        "pi",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "0.87.1\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "node",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "v26.7.0\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "npm",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "12.0.2\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "--version"
+      ],
+      "exit_code": 0,
+      "stdout": "git version 2.53.0\n",
+      "stderr": ""
+    }
+  ],
+  "report_sha256": "ce4464b5251b952a44d0158d6c3c44619f9be93d4bfd45d493a261d6045a0250",
+  "caller_head": "78ca09de4c80bf9d592ec811a1d6bebe53bb13f9",
+  "independent_test_executions": 6,
+  "offworkspace_known_file_unchanged": true
+}

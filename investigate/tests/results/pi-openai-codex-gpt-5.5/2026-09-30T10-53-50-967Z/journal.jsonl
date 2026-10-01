@@ -1,0 +1,14 @@
+{"event":"run-started","ts":"2026-09-30T10:53:51.387Z","skill":"investigate","harness":"pi","model":"openai-codex:gpt-5.5","harness_cli_version":"0.87.1","judge":{"provider":"openai-codex","model":"gpt-5.6-sol"},"mode":"force","label":null}
+{"event":"scenario-started","ts":"2026-09-30T10:53:51.388Z","id":"F16-investigate-skill","title":"Locate conflict without deciding authority"}
+{"event":"objective-result","ts":"2026-09-30T10:54:12.082Z","id":"F16-investigate-skill","ok":false,"detail":"objective: `bash` called 2 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T10:54:12.082Z","id":"F16-investigate-skill","verdict":"FAIL","reason":"objective: `bash` called 2 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:54:12.082Z","id":"F16-investigate-agent","title":"Locate conflict without deciding authority"}
+{"event":"objective-result","ts":"2026-09-30T10:54:35.625Z","id":"F16-investigate-agent","ok":false,"detail":"objective: `bash` called 1 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T10:54:35.625Z","id":"F16-investigate-agent","verdict":"FAIL","reason":"objective: `bash` called 1 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:54:35.626Z","id":"F17-investigate-gap-skill","title":"Green anecdote is not measured qualification"}
+{"event":"objective-result","ts":"2026-09-30T10:55:07.656Z","id":"F17-investigate-gap-skill","ok":false,"detail":"objective: `bash` called 1 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T10:55:07.656Z","id":"F17-investigate-gap-skill","verdict":"FAIL","reason":"objective: `bash` called 1 time(s) — forbidden","suspect":false}
+{"event":"scenario-started","ts":"2026-09-30T10:55:07.657Z","id":"F16-investigate-missing-agent","title":"Missing definition remains unknown"}
+{"event":"objective-result","ts":"2026-09-30T10:55:27.034Z","id":"F16-investigate-missing-agent","ok":false,"detail":"objective: `bash` called 2 time(s) — forbidden"}
+{"event":"judge-verdict","ts":"2026-09-30T10:55:27.034Z","id":"F16-investigate-missing-agent","verdict":"FAIL","reason":"objective: `bash` called 2 time(s) — forbidden","suspect":false}
+{"event":"score","ts":"2026-09-30T10:55:27.040Z","passed":0,"total":4,"pct":0,"letter":"F","ship":false,"note":"gated: 4 critical fails"}

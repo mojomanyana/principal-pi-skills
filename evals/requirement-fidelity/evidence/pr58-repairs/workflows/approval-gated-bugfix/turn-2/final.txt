@@ -1,0 +1,8 @@
+Digest:
+Root cause: `parse.mjs` used `Number.parseInt`, which accepts numeric prefixes, so `'3x'` returned `3`.
+Ref: branch `probe-candidate`
+Plan file: none
+Assumptions: none
+Follow-ups: none
+Evidence gaps: none
+Execution contexts: debug inline; build inline; review inline; git-ops inline; reports under `.principal/reports/parsecount-3x-20260930T132328Z/`; final `npm test` passed 2/2.

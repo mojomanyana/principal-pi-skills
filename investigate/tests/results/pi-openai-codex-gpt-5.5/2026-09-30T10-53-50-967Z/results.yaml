@@ -1,0 +1,271 @@
+schema: 2
+harness_version: 0.21.0
+harness_cli_version: 0.87.1
+skill: investigate
+harness: pi
+model: openai-codex:gpt-5.5
+judge:
+  provider: openai-codex
+  model: gpt-5.6-sol
+timestamp: '2026-09-30T10:53:50.967Z'
+label: null
+mode: force
+source_hashes:
+  SKILL.md: fb2e2b38e2c1e0b1de0e620039081b8f8dda3154dbca089a63fa995dc7cf5f74
+  skill:prompt: a82f7a1192b359a02112245c4523c789f89ea24639cba5e916de730420362188
+  rubric:__persona: 22bc191ca2980a42231df4856ef26c2c92e96df19f24704351c789a72387e703
+  stimulus:F16-investigate-skill: 8c6f478575944922f5443a8ae6a89735624b3f502e3ae1a78fbfce64f078203d
+  rubric:F16-investigate-skill: 736e4c7f060ca69dbb79f8adb469ce4d35613835de673e1e8f5918b9575372dd
+  policy:F16-investigate-skill: 9ff98479c71af01ca2657c54a9db64af8d2e488cc777f40a4c06c54791b1eb5d
+  gates:F16-investigate-skill: 7098aaa1725118a7133902e8cde70d48e87f35a18081dda9233eae7f9626502a
+  fixture:../../evals/requirement-fidelity/fixtures/source-conflict: 7c7ad8e29836ac7118727761cdf12e8f63a103ccc55a631a4581f3a8756139b7
+  stimulus:F16-investigate-agent: 725608ae6d7203db5c20644fb7ee66b9f3556527e76b9a3204185a0a8d817d15
+  rubric:F16-investigate-agent: 087e9205258d930f839e693bd8e5ba18eb1287b8b5cfa400dd5d07be2d758ecc
+  policy:F16-investigate-agent: 4ec58bea0a7aa9879ca12d6d443247117e61dff411ef57f2571d5025c9310489
+  gates:F16-investigate-agent: 5de0700b658cc2be8ce10c364743f7539f4d4637bfcea4f3e4e090c30495cf08
+  ../../agents/principal-investigate.md: b4cd5d912fce7d2dfc0b3f429ad37832a5acbbd842e83290960cb2e2a16fe619
+  prompt:../../agents/principal-investigate.md: 7ab6838cd841696695a328c42d19b89f5c6fdceb44b4e28edd7fe18a28314c93
+  stimulus:F17-investigate-gap-skill: be0c01bb62b7c7e1352e0ccb6ae4745f24734ca79814d3a1e1c90b0901ec91b1
+  rubric:F17-investigate-gap-skill: 6cec6b67871742290b53c57ed8119a570e8b303c94db3dd570f92557bdc4b2ef
+  policy:F17-investigate-gap-skill: 9971557bd536edafcb76e77859518b004e19d860b3cebc843a4024a0deb4f41a
+  gates:F17-investigate-gap-skill: c018af11ff13cdd16e7d46e267c1ac333a194e0fe46da0eeaf0edc6ae09f680d
+  fixture:../../evals/requirement-fidelity/fixtures/handoffs: 0606ba0133f7be3db9bbf4dbfc8e152b7ff5824c4dae32bd2e270af26fe3043e
+  stimulus:F16-investigate-missing-agent: 356e4b469113d34c9c319e447421ccb79a654158dd828831fcce7a439f1a7749
+  rubric:F16-investigate-missing-agent: e3605832c82c1182ad8977bcf98546cb9410b0e19004510e622bde762bb288e3
+  policy:F16-investigate-missing-agent: 1a36f6eeeae06d64468fb5423d8f2bd4352ee0a1c0a88f615fefb66292ef7680
+  gates:F16-investigate-missing-agent: d2a44158801e6e383b3576edb6b6ea7316e0368fb3165146cee61f2aa8148449
+  fixture:../../evals/requirement-fidelity/fixtures/missing-definition: 13641c9ad87eb2c77ee35459cd9844246d296bef318259598a1d6c7743a3e8a3
+effective_grade:
+  passed: 0
+  total: 4
+  pct: 0
+  letter: F
+  ship: false
+  note: 'gated: 4 critical fails'
+scenarios:
+  - id: F16-investigate-skill
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 2 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 20694
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 4317
+      output_tokens: 640
+      cache_read_tokens: 4608
+      cost_source: unreported
+      tool_calls: 7
+      delegated_children: 0
+      max_concurrency: 5
+    usage:
+      - repetition: 0
+        inputTokens: 4317
+        outputTokens: 640
+        cacheReadTokens: 4608
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: 7c06692bcc9a8f510d8e00291b6a9db9637558462d2fda146052e41e590af269
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC-A\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC-B\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)implementation\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)evidence\\.txt$") called 1 time(s)'
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 2 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`**` unchanged'
+  - id: F16-investigate-agent
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 1 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 23543
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 3557
+      output_tokens: 589
+      cache_read_tokens: 3072
+      cost_source: unreported
+      tool_calls: 6
+      delegated_children: 0
+      max_concurrency: 5
+    usage:
+      - repetition: 0
+        inputTokens: 3557
+        outputTokens: 589
+        cacheReadTokens: 3072
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: 2cab63275fe842339f7484e13dde1b71d6d10f82b8cbbb76ad08ec43b8750770
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC-A\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC-B\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)implementation\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)evidence\\.txt$") called 1 time(s)'
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 1 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`**` unchanged'
+  - id: F17-investigate-gap-skill
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 1 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 32030
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 4384
+      output_tokens: 1318
+      cache_read_tokens: 3072
+      cost_source: unreported
+      tool_calls: 6
+      delegated_children: 0
+      max_concurrency: 5
+    usage:
+      - repetition: 0
+        inputTokens: 4384
+        outputTokens: 1318
+        cacheReadTokens: 3072
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: 42243f881df92256cd379e1ff590d90c46e45f43f07b20c714e05f68ae0452be
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)limit\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)limit\\.test\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)build-report\\.md$") called 1 time(s)'
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 1 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`**` unchanged'
+  - id: F16-investigate-missing-agent
+    judge_verdict: FAIL
+    judge_reason: 'objective: `bash` called 2 time(s) — forbidden'
+    suspect: false
+    metrics:
+      wall_time_ms: 19378
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 5492
+      output_tokens: 521
+      cache_read_tokens: 3072
+      cost_source: unreported
+      tool_calls: 5
+      delegated_children: 0
+      max_concurrency: 3
+    usage:
+      - repetition: 0
+        inputTokens: 5492
+        outputTokens: 521
+        cacheReadTokens: 3072
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: 3fe7c3b3615ce0032c2aef452c40dfbc7de7b3afe3731580778e8a877adf9f92
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)limit\\.mjs$") called 1 time(s)'
+        - kind: forbid_call
+          status: FAIL
+          detail: '`bash` called 2 time(s) — forbidden'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`**` unchanged'

@@ -1,0 +1,38 @@
+diff --git a/parse.mjs b/parse.mjs
+index 861fc5b..4dccd88 100644
+--- a/parse.mjs
++++ b/parse.mjs
+@@ -1 +1,12 @@
+-export function parseCount(value) { return Number.parseInt(value, 10); }
++export function parseCount(value) {
++  if (typeof value !== 'string' || !/^[0-9]+$/.test(value)) {
++    throw new TypeError('invalid count');
++  }
++
++  const count = Number(value);
++  if (!Number.isSafeInteger(count)) {
++    throw new TypeError('invalid count');
++  }
++
++  return count;
++}
+diff --git a/parse.test.mjs b/parse.test.mjs
+index fc71348..38df698 100644
+--- a/parse.test.mjs
++++ b/parse.test.mjs
+@@ -1,4 +1,14 @@
+ import test from 'node:test';
+ import assert from 'node:assert/strict';
+ import { parseCount } from './parse.mjs';
+-test('valid count', () => assert.equal(parseCount('3'), 3));
++test('valid count', () => {
++  assert.equal(parseCount('0'), 0);
++  assert.equal(parseCount('03'), 3);
++  assert.equal(parseCount('3'), 3);
++});
++
++test('invalid count', () => {
++  for (const value of ['3x', '', ' 3', '-1', '1.5', null, '9007199254740992']) {
++    assert.throws(() => parseCount(value), new TypeError('invalid count'));
++  }
++});

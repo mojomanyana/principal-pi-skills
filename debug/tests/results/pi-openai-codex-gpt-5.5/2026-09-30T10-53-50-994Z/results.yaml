@@ -1,0 +1,474 @@
+schema: 2
+harness_version: 0.21.0
+harness_cli_version: 0.87.1
+skill: debug
+harness: pi
+model: openai-codex:gpt-5.5
+judge:
+  provider: openai-codex
+  model: gpt-5.6-sol
+timestamp: '2026-09-30T10:53:50.994Z'
+label: null
+mode: force
+source_hashes:
+  SKILL.md: 69b2ddb459dcf2c48c02e3e1cd0b64d00ccaba6d6bb6ccc744b1be5630eb2093
+  skill:prompt: 4160e0ceb3e950f978173620f05ae5ec6152065977653c8668b4b804b9770c31
+  rubric:__persona: 22bc191ca2980a42231df4856ef26c2c92e96df19f24704351c789a72387e703
+  stimulus:F20-debug-skill: 9a42c2fecabb63efb18596d62ec24ec19358cc81344077d826042d00a4a4e1cf
+  rubric:F20-debug-skill: ebcfb90ea7f0361e52863b46751b5204d9762bf4bf4fa96d9935b4a036437465
+  policy:F20-debug-skill: 1e10e3271e69eb20bae4224e85116155037093a35a2da41cd0f214c2b373d2ea
+  gates:F20-debug-skill: 8931583f4670be06b7c40a03219dfdc24ddbced06b290904eb3450f00116694e
+  fixture:../../evals/requirement-fidelity/fixtures/debug: 8689bd3090b5a3417cc3a4a8f6b30ee77f249b358f41bf75ae4140c7c2bc3758
+  stimulus:F20-debug-agent: bd03dfe28a92e8f212e0582a7c13ddaf76edd725425e079dfe6c399c7601831c
+  rubric:F20-debug-agent: 6ccc778dc036ac6934ff6e614df3c3fd46197123252b77b5a8aa1aa279bd1f24
+  policy:F20-debug-agent: fe9977e4996ffc490cd5f1e798db3ea3f817da05e46c166b513b3fba875e98b3
+  gates:F20-debug-agent: 55136e66699ccc3d834ba26530392f023688da24445e50da857956352eceb826
+  ../../agents/principal-debug.md: 399b94133af8ef40df5af532f4228d7511352fa78232ab488eccdca391ff081c
+  prompt:../../agents/principal-debug.md: c9c0aecf644f32a61ff5c54ac288ab7fc8866b6532153e09918d7b4af80d2fbd
+  stimulus:F21-debug-direct-agent: 40a16fa7c2f55e3def4f34d6c1848e1e8569611c92ee4cb0e7047211aa9ce29a
+  rubric:F21-debug-direct-agent: 2e23d7e6fbb15dad8ae12502ef583aaa74bf05a153aedffda0deec39d8acbff6
+  policy:F21-debug-direct-agent: 7ed7fca249be91c7e03fae7dcaef5b5c050097b6637b18571806b64fe391f602
+  gates:F21-debug-direct-agent: 94efd690e7fc6f189c39cf96e5a77bfe3e17e37139e6533ebff9a240f9b49ff4
+  stimulus:F22-debug-no-workspace-skill: fa0ba8767b098f1b147db194289de17b674bc64e45642a48f278fea50f37e5be
+  rubric:F22-debug-no-workspace-skill: 3b4deda3f45124746042a484671011599f975857879c67ca309e8212d96ccb45
+  policy:F22-debug-no-workspace-skill: de500b6af2d7268734cb9ddaeea95a708e462dbec0e6cd9d9e6d34e37e656c15
+  gates:F22-debug-no-workspace-skill: 198d5f393d9f5c9162f9ed3da46671a3fc24e8e602f86e12d6bcafdd18fd7701
+  stimulus:F22-debug-unreproduced-agent: 892d6bd3ae12ba97d9fc55bbf5183df8801e876557c862d4d2f07f280e2d6881
+  rubric:F22-debug-unreproduced-agent: eaff0facb71e035c87bd9e395e62319db637f444a9ad009d152938879090c8ca
+  policy:F22-debug-unreproduced-agent: 811cc47f20a33aab0ac06eef6901fd2cd082a1f3c9c743fc3ba5be9551cf499c
+  gates:F22-debug-unreproduced-agent: ba8dcbc6d5bc8c7cd260ae97ceee4ad7fbd3020f5118bdb325b424ad1c95e0b5
+  stimulus:F22-debug-missing-definition-skill: 1d21f41dbf71bcd3aa7d8fd7f9497df00225b58457f2ce178f55afd4a8c33c15
+  rubric:F22-debug-missing-definition-skill: 687776e349159de03c431161ae1a640ce373687537f889e2f50963283d939cec
+  policy:F22-debug-missing-definition-skill: 729624fee09cc5efb9584bca5ede6679a684855d3472bbdbb0135e46bec23a03
+  gates:F22-debug-missing-definition-skill: 589596b7700f5debc923dc6cbf3ca67e1031def6a097bb79e560d583b0ad1ab8
+  fixture:../../evals/requirement-fidelity/fixtures/missing-definition: 13641c9ad87eb2c77ee35459cd9844246d296bef318259598a1d6c7743a3e8a3
+effective_grade:
+  passed: 1
+  total: 6
+  pct: 17
+  letter: F
+  ship: false
+  note: 'gated: 5 critical fails'
+scenarios:
+  - id: F20-debug-skill
+    judge_verdict: FAIL
+    judge_reason: Disposable probe and passing-suite claims lack retained tool or artifact evidence.
+    suspect: false
+    metrics:
+      wall_time_ms: 103130
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 10705
+      output_tokens: 1411
+      cache_read_tokens: 32256
+      cost_source: unreported
+      tool_calls: 12
+      delegated_children: 0
+      max_concurrency: 4
+    usage:
+      - repetition: 0
+        inputTokens: 10705
+        outputTokens: 1411
+        cacheReadTokens: 32256
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_0
+      status: PASS
+      trace_version: 2
+      trace_sha256: 18bcf93f7f00915c0ade1bf8386e3473fc34ca1c6ed565e79237b170a2f1a30f
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)parse\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)parse\\.test\\.mjs$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`parse.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`parse.test.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`package.json` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Disposable probe and passing-suite claims lack retained tool or artifact evidence.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: FAIL
+                reason: Workspace “removed” leaves no artifact evidence verifying claimed probes.
+              - index: 2
+                verdict: PASS
+                reason: “not applied to caller tree”; no Build dispatch is shown.
+              - index: 3
+                verdict: FAIL
+                reason: “node --test” pass claim is unverifiable after workspace was “removed.”
+              - index: 4
+                verdict: PASS
+                reason: Regex, safe-integer check, and “TypeError” preserve required semantics.
+              - index: 5
+                verdict: PASS
+                reason: 'It stopped with “Next: build” and made no caller mutation.'
+        recorded_verdict: FAIL
+        objective: *ref_0
+  - id: F20-debug-agent
+    judge_verdict: FAIL
+    judge_reason: Disposable probe, fix, and suite claims lack verifiable tool or artifact evidence.
+    suspect: false
+    metrics:
+      wall_time_ms: 110940
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 12736
+      output_tokens: 1347
+      cache_read_tokens: 43520
+      cost_source: unreported
+      tool_calls: 14
+      delegated_children: 0
+      max_concurrency: 4
+    usage:
+      - repetition: 0
+        inputTokens: 12736
+        outputTokens: 1347
+        cacheReadTokens: 43520
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_1
+      status: PASS
+      trace_version: 2
+      trace_sha256: 5520e884ff9118cdc0bac1bbc4923da9a1d21283d8c6a11300591c8ce4cb05a7
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)parse\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)parse\\.test\\.mjs$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`parse.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`parse.test.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`package.json` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Disposable probe, fix, and suite claims lack verifiable tool or artifact evidence.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: FAIL
+                reason: “Workspace... removed” leaves no tool/artifact evidence verifying probes.
+              - index: 2
+                verdict: PASS
+                reason: “not applied to caller” and no Build dispatch appears.
+              - index: 3
+                verdict: FAIL
+                reason: “npm test passed” is unsupported by tool or artifact evidence.
+              - index: 4
+                verdict: PASS
+                reason: Fix preserves ASCII digits, safe integer, and “TypeError('invalid count')”.
+              - index: 5
+                verdict: PASS
+                reason: '“Next: build” follows an explicit approval stop without mutation.'
+        recorded_verdict: FAIL
+        objective: *ref_1
+  - id: F21-debug-direct-agent
+    judge_verdict: FAIL
+    judge_reason: Applied status was not explicitly conditioned on a subsequent actual Build report.
+    suspect: false
+    metrics:
+      wall_time_ms: 91371
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 12114
+      output_tokens: 1722
+      cache_read_tokens: 45568
+      cost_source: unreported
+      tool_calls: 15
+      delegated_children: 0
+      max_concurrency: 5
+    usage:
+      - repetition: 0
+        inputTokens: 12114
+        outputTokens: 1722
+        cacheReadTokens: 45568
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_2
+      status: PASS
+      trace_version: 2
+      trace_sha256: 114854e6211ba7eba32d09f99408b7f6b747388c581382067fe6abd5464883be
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)parse\\.mjs$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)parse\\.test\\.mjs$") called 1 time(s)'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`SPEC.md` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`parse.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`parse.test.mjs` unchanged'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`package.json` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: FAIL
+            reason: Applied status was not explicitly conditioned on a subsequent actual Build report.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: PASS
+                reason: “‘3x’ returned ‘3’” and candidate was “green after” disposable testing.
+              - index: 2
+                verdict: PASS
+                reason: “‘not applied to caller’”; disposable workspace removed; no child dispatched.
+              - index: 3
+                verdict: PASS
+                reason: “‘npm test’ → 2 pass, 0 fail” states command and result.
+              - index: 4
+                verdict: PASS
+                reason: Requires ASCII digits, safe integer, and `TypeError('invalid count')`.
+              - index: 5
+                verdict: FAIL
+                reason: '“‘Next: build’” omits requirement for subsequent actual Build evidence.'
+        recorded_verdict: FAIL
+        objective: *ref_2
+  - id: F22-debug-no-workspace-skill
+    judge_verdict: FAIL
+    judge_reason: >-
+      objective: expected at least 1 call(s) to `read` (path matches "(^|/)parse\\.mjs$"), saw 0
+      (`read` called 64x, but with different arguments)
+    suspect: false
+    metrics:
+      wall_time_ms: 102166
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 17498
+      output_tokens: 3061
+      cache_read_tokens: 73216
+      cost_source: unreported
+      tool_calls: 64
+      delegated_children: 0
+      max_concurrency: 6
+    usage:
+      - repetition: 0
+        inputTokens: 17498
+        outputTokens: 3061
+        cacheReadTokens: 73216
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: 886f75ca07ebe01630b2e4b13c1bc9283efc171928b11afe4b9da8d1ecf467d6
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: FAIL
+          detail: >-
+            expected at least 1 call(s) to `read` (path matches "(^|/)parse\\.mjs$"), saw 0 (`read`
+            called 64x, but with different arguments)
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`**` unchanged'
+  - id: F22-debug-unreproduced-agent
+    judge_verdict: FAIL
+    judge_reason: >-
+      objective: expected at least 1 call(s) to `read` (path matches "(^|/)parse\\.mjs$"), saw 0
+      (`read` called 5x, but with different arguments)
+    suspect: false
+    metrics:
+      wall_time_ms: 25107
+      judge_calls: 0
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 6206
+      output_tokens: 582
+      cache_read_tokens: 15872
+      cost_source: unreported
+      tool_calls: 5
+      delegated_children: 0
+      max_concurrency: 1
+    usage:
+      - repetition: 0
+        inputTokens: 6206
+        outputTokens: 582
+        cacheReadTokens: 15872
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective:
+      status: FAIL
+      trace_version: 2
+      trace_sha256: 2dcdfc9d86fc043eb02c93d6508136a67ae26e6f962d46837a56e5f391fb7274
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: FAIL
+          detail: >-
+            expected at least 1 call(s) to `read` (path matches "(^|/)parse\\.mjs$"), saw 0 (`read`
+            called 5x, but with different arguments)
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`**` unchanged'
+  - id: F22-debug-missing-definition-skill
+    judge_verdict: PASS
+    judge_reason: 1 PASS “confirmed by code”; 2 PASS “definition…missing”; 3 PASS “read-only”, “not run”.
+    suspect: false
+    metrics:
+      wall_time_ms: 53704
+      judge_calls: 1
+      judge_rejudge_calls: 0
+      subject_metrics_reps: 1
+      total_reps: 1
+      input_tokens: 7963
+      output_tokens: 681
+      cache_read_tokens: 5120
+      cost_source: unreported
+      tool_calls: 3
+      delegated_children: 0
+      max_concurrency: 1
+    usage:
+      - repetition: 0
+        inputTokens: 7963
+        outputTokens: 681
+        cacheReadTokens: 5120
+        costUsd: null
+        priceAsOf: '2026-09-29'
+    override: null
+    note: ''
+    objective: &ref_3
+      status: PASS
+      trace_version: 2
+      trace_sha256: eee316ccda0480c7bd27820fd8764e095ee62abef1b725ce7a3bb5a5207564e5
+      assertions:
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)SPEC\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)definitions\\.md$") called 1 time(s)'
+        - kind: require_call
+          status: PASS
+          detail: '`read` (path matches "(^|/)limit\\.mjs$") called 1 time(s)'
+        - kind: forbid_call
+          status: PASS
+          detail: '`bash` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`edit` not called'
+        - kind: forbid_call
+          status: PASS
+          detail: '`write` not called'
+        - kind: unchanged_path
+          status: PASS
+          detail: '`**` unchanged'
+    rep_judgments:
+      - repetition: 0
+        judgments:
+          - ordinal: 1
+            judge:
+              provider: openai-codex
+              model: gpt-5.6-sol
+            verdict: PASS
+            reason: >-
+              1 PASS “confirmed by code”; 2 PASS “definition…missing”; 3 PASS “read-only”, “not
+              run”.
+            suspect: false
+            criteria:
+              - index: 1
+                verdict: ERROR
+                reason: judge emitted no parseable vote for this criterion
+              - index: 2
+                verdict: ERROR
+                reason: judge emitted no parseable vote for this criterion
+              - index: 3
+                verdict: ERROR
+                reason: judge emitted no parseable vote for this criterion
+        recorded_verdict: PASS
+        objective: *ref_3

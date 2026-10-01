@@ -1,0 +1,46 @@
+{
+  "node": "v26.7.0",
+  "oracle_sha256": "0024350197fba9b7c0ab06eed0776608386bde188f62ee1b3b24a230180f2a22",
+  "events_sha256": "debd106d6450f1077c0f23b08cd289f47186243e6148946ddca1c9596ca62750",
+  "snapshot_matches_manifest": true,
+  "changed_paths": [
+    "limit.mjs",
+    "limit.test.mjs"
+  ],
+  "mutation": {
+    "testSha256": "14c6fe6a43934a280323c916d4d9e0f0d6998bddf490208524e4e1c8ba48de87",
+    "fixedSha256": "c35a2b18a59cfffa793e7813a55b570e769b49bf671a60e7e6317645946f18e8",
+    "bugSha256": "3e3ed5ea6f3b3075a05b099b1bf8c2006d3a1953f9919dd11141f7085a1fd2a8",
+    "fixed": {
+      "command": [
+        "/home/neman/.nvm/versions/node/v26.7.0/bin/node",
+        "--test",
+        "--test-reporter=tap"
+      ],
+      "status": 0,
+      "body": "TAP version 13\n# Subtest: existing happy path only\nok 1 - existing happy path only\n  ---\n  duration_ms: 0.722842\n  type: 'test'\n  ...\n# Subtest: LIMIT-1 permits only Count values from 0 through 3 inclusive\nok 2 - LIMIT-1 permits only Count values from 0 through 3 inclusive\n  ---\n  duration_ms: 0.207753\n  type: 'test'\n  ...\n1..2\n# tests 2\n# suites 0\n# pass 2\n# fail 0\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 68.002952\n"
+    },
+    "restored": {
+      "command": [
+        "/home/neman/.nvm/versions/node/v26.7.0/bin/node",
+        "--test",
+        "--test-reporter=tap"
+      ],
+      "status": 1,
+      "body": "TAP version 13\n# Subtest: existing happy path only\nok 1 - existing happy path only\n  ---\n  duration_ms: 0.737482\n  type: 'test'\n  ...\n# Subtest: LIMIT-1 permits only Count values from 0 through 3 inclusive\nnot ok 2 - LIMIT-1 permits only Count values from 0 through 3 inclusive\n  ---\n  duration_ms: 1.102568\n  type: 'test'\n  location: '/tmp/admission-independent-wQV628/limit.test.mjs:6:1'\n  failureType: 'testCodeFailure'\n  error: |-\n    Expected values to be strictly equal:\n    \n    true !== false\n    \n  code: 'ERR_ASSERTION'\n  name: 'AssertionError'\n  expected: false\n  actual: true\n  operator: 'strictEqual'\n  stack: |-\n    TestContext.<anonymous> (file:///tmp/admission-independent-wQV628/limit.test.mjs:10:10)\n    Test.runInAsyncScope (node:async_hooks:226:14)\n    Test.run (node:internal/test_runner/test:1397:25)\n    Test.processPendingSubtests (node:internal/test_runner/test:969:18)\n    Test.postRun (node:internal/test_runner/test:1537:19)\n    Test.run (node:internal/test_runner/test:1462:12)\n    async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3)\n  ...\n1..2\n# tests 2\n# suites 0\n# pass 1\n# fail 1\n# cancelled 0\n# skipped 0\n# todo 0\n# duration_ms 69.913904\n"
+    }
+  },
+  "qualification": {
+    "command": [
+      "/home/neman/.nvm/versions/node/v26.7.0/bin/node",
+      "--input-type=module"
+    ],
+    "status": 0,
+    "body": "{\"cases\":20,\"passed\":20}\n",
+    "source": "import assert from 'node:assert/strict';import {permit} from './limit.mjs';\nconst cases=[[0,true],[1,true],[2,true],[3,true],[-0,true],[-1,false],[4,false],[5,false],[1.5,false],[NaN,false],[Infinity,false],[-Infinity,false],['3',false],[null,false],[undefined,false],[true,false],[false,false],[{},false],[[],false],[Number.MAX_SAFE_INTEGER+1,false]];\nfor(const [v,expected] of cases)assert.equal(permit(v),expected,String(v));console.log(JSON.stringify({cases:cases.length,passed:cases.length}));"
+  },
+  "mechanical_audit": {
+    "status": "UNVERIFIED",
+    "reason": "Unsupported tool/command/path: bash; manual verification required"
+  }
+}

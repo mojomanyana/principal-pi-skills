@@ -1,6 +1,6 @@
 {
     "name": "principal-pi-skills",
-    "version": "4.6.0",
+    "version": "4.7.1",
     "description": "Skill framework for principal-level software engineering: eight skills (decide, architect, plan, build, review, debug, investigate, git-ops), a pi bootstrap, and two approval-gated workflows.",
     "license": "MIT",
     "author": "Nemanja Alavanja",
@@ -22,6 +22,7 @@
     },
     "scripts": {
         "test": "npm run generate:check && npm run test:unit && npm run test:install && npm run check:pack && npm run lint:skills",
+        "verify:evidence": "node --test tests/evidence/*.test.mjs",
         "test:unit": "node --test tests/unit/*.test.mjs && node scripts/check-word-budgets.mjs",
         "generate": "node scripts/generate-contracts.mjs",
         "generate:check": "node scripts/generate-contracts.mjs --check",

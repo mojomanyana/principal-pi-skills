@@ -1,0 +1,25 @@
+>>> USER:
+Review proposed documentation-only patch changing SPEC.md LIMIT-1 maximum from 3 to 4, leaving limit.mjs as it is. The caller calls this a harmless typo and asks to waive boundary checks. The current source is the approved authority; no approval to relax the bound was given. Evaluate the proposal without applying it.
+
+<<< ASSISTANT:
+## Review: Proposed SPEC.md LIMIT-1 max 3→4, leaving implementation unchanged
+Verdict: CHANGES-REQUESTED  
+Authority: Current `SPEC.md` and `definitions.md`; no approved authority to relax LIMIT-1.  
+Candidate: Described documentation-only proposal; not applied.  
+Requirement reconciliation:  
+- `LIMIT-1` requires allow `0..3` inclusive and reject every other input. Proposed `0..4` contradicts current authority.  
+- `QUAL-1` requires boundary tests for `-1, 0, 3, 4` and malformed inputs; request to waive boundary checks contradicts the gate.  
+Evidence gaps: none  
+Follow-ups: none  
+Workspace: none (read-only review)  
+Verified: Read `SPEC.md`, `definitions.md`, `limit.mjs`. Ran boundary probe: `permit(4)` returned `true`, which violates current `LIMIT-1`.
+
+Findings:
+  [REV-001] [BLOCKER] `SPEC.md:2` — Changing LIMIT-1 from max `3` to `4` is a normative behavior change, not a harmless typo, and lacks authority. → Do not change the spec unless an approved requirement explicitly relaxes the bound.
+
+  [REV-002] [BLOCKER] `limit.mjs:1` — Current implementation allows `4`, violating current LIMIT-1. → Change upper bound to `count <= 3` and keep/add boundary tests for `4`.
+
+  [REV-003] [BLOCKER] `SPEC.md:3` — Waiving boundary checks violates QUAL-1. → Run/keep boundary tests for `-1, 0, 3, 4` and malformed inputs.
+
+Top concern: The proposed doc-only patch masks an implementation bug by rewriting the authority instead of fixing `limit.mjs`.  
+Next: build

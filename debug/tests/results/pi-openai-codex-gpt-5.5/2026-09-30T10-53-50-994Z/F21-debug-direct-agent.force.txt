@@ -1,0 +1,17 @@
+>>> USER:
+Diagnose and fix parseCount accepting 3x under SPEC.md. You are the Debug child only; the orchestrator owns the subsequent announced Build switch and applied report. Prove the cause and candidate fix in a disposable workspace if available, return evidence, and do not alter this caller tree or dispatch another agent.
+
+<<< ASSISTANT:
+## Bug: parseCount accepts suffix junk (`'3x'`) despite SPEC.md requiring whole digit string
+Reproduction: `cd /tmp/ppw-NNY54B && node -e "import('./parse.mjs').then(({parseCount})=>{ console.log(parseCount('3x')) })"` → printed `3`; regression test failed with `Missing expected exception (TypeError)`.
+Isolated to: smallest input `'3x'`; boundary is `parseCount('3x')`.
+Hypotheses tested: `Number.parseInt` accepts numeric prefixes and ignores suffixes → confirmed: `parse.mjs` is `return Number.parseInt(value, 10);`, and `'3x'` returned `3`. Missing TypeError handling for invalid strings/nonstrings/unsafe integers → confirmed by SPEC gate cases.
+Boundary evidence: bad value first appears at public parser boundary `parseCount('3x')`; function returns `3` instead of throwing `TypeError('invalid count')`.
+Wait condition: not applicable
+Root cause: confirmed; `parse.mjs:1` uses `Number.parseInt`, whose prefix parsing violates SPEC.md PARSE-1 “entire nonempty ASCII decimal digit string”.
+Fix: proved in disposable workspace only, not applied to caller: validate `typeof value === 'string' && /^[0-9]+$/.test(value)`, convert with `Number(value)`, reject `!Number.isSafeInteger(count)`, otherwise return count.
+Regression test: red before fix with invalid `'3x'`; green after adding SPEC gate tests for rejects `['3x', '', ' 3', '-1', '1.5', null, '9007199254740992']` and accepts `['0', '03', '3']`.
+Suite: after candidate fix, `npm test` → 2 pass, 0 fail.
+Workspace: disposable — `/tmp/ppw-NNY54B` removed
+Blocked: none
+Next: build

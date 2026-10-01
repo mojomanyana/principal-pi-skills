@@ -6,6 +6,84 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.7.1] — 2026-10-01
+
+**Combined release candidate — all requirement-fidelity work and repairs (#58).** This
+version contains the complete PR #58 feature described under 4.7.0 below, plus all subsequent
+review and handoff repairs. The early `v4.7.0` tag at `448ac76` remains an immutable historical
+candidate; it excludes later repairs. One new annotated `v4.7.1` tag identifies the final merged
+tree, with package metadata and installation pins aligned. GitHub/npm publication is separate.
+
+**Changed — safe, retrievable handoffs (#58).** Build now requires complete saved candidate
+patches with private collision-safe paths, byte hashes and source identities; previously a
+printed diff hash could leave the actual tested patch unavailable. Inherited material caveats
+now survive or receive explicit disposition, and evidence references use current per-file
+ranges. Safely saved complete inline reports now support concise summaries with visible
+unresolved caveats; previously inline field requirements conflicted with short file-backed
+replies. The delegated five-line return remains distinct and unchanged.
+
+**Fixed — authority, artifact and workflow boundaries (#58).** Complete explicitly authorized
+amendments now differ from guessed missing definitions; report writes now verify ignore policy
+without overwriting existing rules; artifact namespaces avoid replacing prior findings; and
+routing checks Review verdict before Next. Previously those boundaries could permit guessed
+semantics, exposed/overwritten reports or improper repair routing. Captured read ordering and
+replay lifecycle checks now reject the reviewed false-success cases. Tagged skills and agent
+installation now use matching sources instead of an unpinned older npm package.
+
+**Changed — evidence scope and honest validation (#58).** Evidence requests now prefer existing
+checks/disposable probes rather than implicitly authorizing permanent infrastructure; ordinary
+bugfixes still include enduring regressions. Product/install checks and opt-in archive checks
+are separate. Historical raw failures, provider errors, source identities and old rubrics remain
+unchanged; the current corpus has 46 cases, not a retroactive regrade of the earlier inventory.
+
+**Validation — accepted bounded improvement, not full behavioral qualification.** Local checks
+pass 153 unit and 24 install tests, plus 86 separate evidence checks. Latest Build force is
+**4/9 NOT READY**. Three full captures verify actual red/green execution and saved patches, but
+F11 still omits material caveats from its short reply and misses the literal persistence-stop
+rule; collision robustness and F04 runtime reporting remain limited. Independent reviews approve
+this documented increment, not a reliability guarantee. See
+`evals/requirement-fidelity/evidence/build-handoff/README.md`. No release combines these results
+into an all-PASS claim or proves normal loading/delegation, deployment or lower-cost robustness.
+
+## [4.7.0] — 2026-09-30
+
+**Changed — preserve requirements across skill handoffs (#58).** Plan now reads original
+specifications and referenced definitions, preserves requirement identities separately from
+implementation steps, and maps numbered requirements, unnumbered MUSTs and qualification
+gates to steps and tests. Missing normative definitions now require handoff repair;
+previously the assumption and no-stalling rules could permit guessed meanings. Complete
+multi-step plans now live in files with short chat summaries; previously the contract
+required duplicating the full plan in chat.
+
+**Changed — source-bound implementation and review (#58).** Build and Review now carry
+source references, requirement/gate status and tested-candidate identity. Workflows persist
+complete inline Build reports as well as delegated reports and carry finding definitions
+into repair; previously summaries, bare finding IDs and unbound test totals could lose
+requirements or evidence gaps. Compression now preserves applicable evidence and caveats.
+
+**Changed — selective skill composition (#58).** Investigate can supply optional factual
+source discovery without choosing authority or replacing the source. Routing now consistently
+sends choices to Decide, structure to Architect, and implementation order to Plan;
+previously some workflow/bootstrap examples sent bare technology choices to Architect.
+Decide and Architect now preserve binding constraints and expose load-bearing unknowns;
+Debug distinguishes proposed fixes, disposable proofs and changes actually applied by Build.
+Git-Ops safeguards and all tool/context ceilings are unchanged.
+
+**Added — durable, opt-in regression evidence (#58).** A focused local corpus now retains
+42 behavioral cases, a 76 KB specification with 51 obligation/gate entries, original model
+results and captured artifacts. Previously focused harness scenarios were excluded from
+this repository and the initial Plan checks were deleted. Model calls remain outside
+`npm test`; fixtures and evidence remain outside the npm package.
+
+**Validation — implementation reviewed, behavioral qualification incomplete.** The full
+suite passes 128 unit and 23 install tests, plus generation, budgets, packaging and lint.
+Independent review approved the implementation. Captured direct runs preserved the long
+specification and exercised an Investigate → Plan → Build → Review chain, but retained
+force-mode runs still include guessed definitions, forbidden-tool use and an unmeasured
+capability claim. Spark was unavailable for the configured account. These results do not
+establish universal reliability, lower-cost robustness or full behavioral qualification;
+see `evals/requirement-fidelity/evidence.md`. No historical evidence is restamped as a pass.
+
 ## [4.6.0] — 2026-09-29
 
 **Added — read-only investigation with cited facts (#56).** `investigate` reports how code,
