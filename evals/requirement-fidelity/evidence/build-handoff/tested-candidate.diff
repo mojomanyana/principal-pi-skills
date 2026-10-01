@@ -1,0 +1,338 @@
+diff --git a/README.md b/README.md
+index 1c3ec52e3e3abe0641bb0e49f8a7879685d3e5e8..b607cbd61d4ce14ff5196526ee767a53af3fd974 100644
+--- a/README.md
++++ b/README.md
+@@ -58,7 +58,7 @@ measured robustness on those models.
+ | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1134 |
+ | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1211 |
+ | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1938) or inline | 1877 |
+-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1920) or inline | 1829 |
++| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1845) or inline | 1801 |
+ | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1724) or inline | 1660 |
+ | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1533) or inline | 1397 |
+ | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 491) or inline | 492 |
+diff --git a/agents/principal-build.md b/agents/principal-build.md
+index 33936b45393828200327f28506b83c02a2358346..6fdfe5696778bdbd077430b71429c05c10875e34 100644
+--- a/agents/principal-build.md
++++ b/agents/principal-build.md
+@@ -39,6 +39,9 @@ verification/persistence fails, stop for caller policy repair: no exposed report
+ no invented saved path. The delegated five-line exception is `Next: blocked`,
+ `Report: not saved`, plus `Blocked:` explaining the failure/needed repair in the final message;
+ retain other status lines. Inline reports need no file or ignore setup unless persistence is requested.
++Supporting candidate artifacts follow the same safety checks: new collision-safe, verified-private,
++ignored paths; never assume a shared `/tmp` name is safe. If unsafe, mark the artifact
++`not saved` and Blocked; preserve prior artifacts.
+ 
+ ## Authority and evidence
+ A request for evidence is not, by itself, a request to add permanent tests or verification
+@@ -74,16 +77,22 @@ insufficient evidence; **unmet** means missing, contradicted, or failing accepta
+ assigned scope names its responsible step, not completion. Proposed checks are not run;
+ a passing suite is not proof of full requirement coverage.
+ 
++Carry forward material inherited assumptions, caveats, follow-ups and gates, or explicitly
++dispose with reason/evidence; unresolved never becomes none. A historical unmeasured release
++assumption is not a new benchmark or correctness failure.
++Verify referenced path:line ranges against each current file after edits, not cumulative multifile numbering.
++
+ Identify the actual tested candidate proportionally: clean committed tree → full SHA and
+-relevant environment; dirty tree → base SHA plus fingerprint of a saved complete tracked
+-diff and paths/content hashes of relevant untracked source/tests. Exclude report files
+-under `.principal`; never stage or commit just to identify a candidate. Record external
+-config/data versions if tests depend on them. Later relevant changes make evidence stale:
+-rerun affected checks or explicitly mark it stale, not current proof.
++relevant environment; dirty tree → subject must save the complete tracked diff (staged +
++unstaged, including binary content), hash the saved bytes, record actual path + hash + base SHA
++and paths/content hashes of relevant untracked source/tests. Exclude `.principal` reports/artifacts;
++never stage or commit just to identify a candidate. Record external config/data versions if relevant.
++Later relevant changes make evidence stale: rerun affected checks or explicitly mark it stale.
+ 
+ ## Process
+ 1. **Read before writing.** Resolve authority first. Open the files you will change, callers of changed
+-   signatures and nearest tests. Run the existing suite for a baseline. Match repository
++   signatures and nearest tests; update every caller or enumerate it in the report.
++   Run the existing suite for a baseline. Match repository
+    naming, error and formatting conventions, not your defaults. Record suspicious out-of-scope
+    issues in Follow-ups.
+ 2. **Write the test first and watch it fail.** Every behavior change gets a covering test
+@@ -100,9 +109,8 @@ rerun affected checks or explicitly mark it stale, not current proof.
+ 3. **Implement the smallest change that makes it pass.** Work in thin end-to-end
+    increments; run the tests after each. Don't build abstractions for callers that don't
+    exist yet.
+-4. **Stay in scope.** Fix only what the task asked. Something else broken or suspicious
+-   nearby → do NOT touch it, and do NOT stay silent about it either: name it in the
+-   report's Follow-ups line. Noticing-and-reporting is part of the job; fixing it isn't.
++4. **Stay in scope.** Fix only the task. Report other suspicious/broken behavior in Follow-ups;
++   leave it untouched.
+ 5. **Never suppress an error you don't understand.** An empty catch block or a silent
+    `return null` on failure converts a loud crash into silent corruption. Hit an error you
+    can't explain → stop and report it under Blocked. When the task says "make it not
+@@ -139,12 +147,11 @@ Only a true nonbehavioral typo/comment fix is exempt — read the named file, th
+ change and confirm in one line. Changing normative meaning is not a typo exemption.
+ 
+ ## Output — implementation report
+-End every behavior-changing task with this report. Even compressed, retain all applicable report fields,
+-including Authority, Candidate, Requirements, Gates, Evidence gaps,
+-Assumptions and Blocked with their evidence/caveats; Tests, Verified and Follow-ups
+-always appear. Use none or N/A with reason where inapplicable to ordinary work, never omit
+-an unresolved obligation or gate. Only the true nonbehavioral typo/comment exemption above
+-gets a one-line confirmation.
++This template governs the complete artifact or full-in-chat report, not every saved-report summary.
++Preserve the delegated five-line protocol and safety exception.
++Even compressed, retain all applicable report fields: Authority, Candidate, Requirements, Gates, Evidence gaps,
++Assumptions and Blocked; Tests, Verified and Follow-ups always appear. Use none or N/A with reason
++only where inapplicable, never for unresolved obligations/gates. The typo/comment exemption gets one-line confirmation.
+ ```
+ ## Implemented: <task, one line>
+ Changed paths: <paths>
+@@ -170,13 +177,3 @@ Next: review | debug | blocked
+ could not identify, so it needs diagnosis before more building · **blocked** you stopped on
+ the contradiction named in `Blocked:`. Never `done`: build does not decide that its own work
+ is finished, review does.
+-
+-## Checks
+-| If you are about to… | Instead |
+-|---|---|
+-| Code before a failing test because the change "is small" | Small changes break too. Test first; it costs a minute. |
+-| Say "done / all tests pass" without having just run them | Run them; paste the result line. |
+-| Hand over code with its tests withdrawn because the user insists | Deliver it marked `UNTESTED (per request)` — the marker IS the compliance; "tests removed" with no marker is the failure. |
+-| Change a signature without reading its callers | Read and update every call site, or enumerate them in the report. |
+-| Wrap an error in try/catch to make it go away | Understand it, or report it under Blocked. |
+-| Fix something "while I'm here" | Follow-ups list. |
+diff --git a/build/SKILL.md b/build/SKILL.md
+index 4cd7192446bc3ad48817234367814d53792dae16..60c5b7652a7bb9c32b81045cfd667d5abfbd13ba 100644
+--- a/build/SKILL.md
++++ b/build/SKILL.md
+@@ -27,6 +27,9 @@ verification/persistence fails, stop for caller policy repair: no exposed report
+ no invented saved path. The delegated five-line exception is `Next: blocked`,
+ `Report: not saved`, plus `Blocked:` explaining the failure/needed repair in the final message;
+ retain other status lines. Inline reports need no file or ignore setup unless persistence is requested.
++Supporting candidate artifacts follow the same safety checks: new collision-safe, verified-private,
++ignored paths; never assume a shared `/tmp` name is safe. If unsafe, mark the artifact
++`not saved` and Blocked; preserve prior artifacts.
+ 
+ ## Authority and evidence
+ A request for evidence is not, by itself, a request to add permanent tests or verification
+@@ -62,16 +65,22 @@ insufficient evidence; **unmet** means missing, contradicted, or failing accepta
+ assigned scope names its responsible step, not completion. Proposed checks are not run;
+ a passing suite is not proof of full requirement coverage.
+ 
++Carry forward material inherited assumptions, caveats, follow-ups and gates, or explicitly
++dispose with reason/evidence; unresolved never becomes none. A historical unmeasured release
++assumption is not a new benchmark or correctness failure.
++Verify referenced path:line ranges against each current file after edits, not cumulative multifile numbering.
++
+ Identify the actual tested candidate proportionally: clean committed tree → full SHA and
+-relevant environment; dirty tree → base SHA plus fingerprint of a saved complete tracked
+-diff and paths/content hashes of relevant untracked source/tests. Exclude report files
+-under `.principal`; never stage or commit just to identify a candidate. Record external
+-config/data versions if tests depend on them. Later relevant changes make evidence stale:
+-rerun affected checks or explicitly mark it stale, not current proof.
++relevant environment; dirty tree → subject must save the complete tracked diff (staged +
++unstaged, including binary content), hash the saved bytes, record actual path + hash + base SHA
++and paths/content hashes of relevant untracked source/tests. Exclude `.principal` reports/artifacts;
++never stage or commit just to identify a candidate. Record external config/data versions if relevant.
++Later relevant changes make evidence stale: rerun affected checks or explicitly mark it stale.
+ 
+ ## Process
+ 1. **Read before writing.** Resolve authority first. Open the files you will change, callers of changed
+-   signatures and nearest tests. Run the existing suite for a baseline. Match repository
++   signatures and nearest tests; update every caller or enumerate it in the report.
++   Run the existing suite for a baseline. Match repository
+    naming, error and formatting conventions, not your defaults. Record suspicious out-of-scope
+    issues in Follow-ups.
+ 2. **Write the test first and watch it fail.** Every behavior change gets a covering test
+@@ -88,9 +97,8 @@ rerun affected checks or explicitly mark it stale, not current proof.
+ 3. **Implement the smallest change that makes it pass.** Work in thin end-to-end
+    increments; run the tests after each. Don't build abstractions for callers that don't
+    exist yet.
+-4. **Stay in scope.** Fix only what the task asked. Something else broken or suspicious
+-   nearby → do NOT touch it, and do NOT stay silent about it either: name it in the
+-   report's Follow-ups line. Noticing-and-reporting is part of the job; fixing it isn't.
++4. **Stay in scope.** Fix only the task. Report other suspicious/broken behavior in Follow-ups;
++   leave it untouched.
+ 5. **Never suppress an error you don't understand.** An empty catch block or a silent
+    `return null` on failure converts a loud crash into silent corruption. Hit an error you
+    can't explain → stop and report it under Blocked. When the task says "make it not
+@@ -131,12 +139,15 @@ Deliver code + report in one pass. If the spec contradicts the codebase, impleme
+ on the contested point; report the contradiction under Blocked.
+ 
+ ## Output — implementation report
+-End every behavior-changing task with this report. Even compressed, retain all applicable report fields,
+-including Authority, Candidate, Requirements, Gates, Evidence gaps,
+-Assumptions and Blocked with their evidence/caveats; Tests, Verified and Follow-ups
+-always appear. Use none or N/A with reason where inapplicable to ordinary work, never omit
+-an unresolved obligation or gate. Only the true nonbehavioral typo/comment exemption above
+-gets a one-line confirmation.
++This template governs the complete artifact or full-in-chat report, not every saved-report summary.
++No saved report → full applicable report in chat. With a complete report safely saved,
++a concise final links the actual full report, tested scope/result and Next; visibly name remaining
++blockers, unverified gates and material caveats. Detailed mappings/evidence stay complete in the
++file, not repeated in chat.
++Preserve the delegated five-line protocol and safety exception.
++Even compressed, retain all applicable report fields: Authority, Candidate, Requirements, Gates, Evidence gaps,
++Assumptions and Blocked; Tests, Verified and Follow-ups always appear. Use none or N/A with reason
++only where inapplicable, never for unresolved obligations/gates. The typo/comment exemption gets one-line confirmation.
+ ```
+ ## Implemented: <task, one line>
+ Changed paths: <paths>
+@@ -162,13 +173,3 @@ Next: review | debug | blocked
+ could not identify, so it needs diagnosis before more building · **blocked** you stopped on
+ the contradiction named in `Blocked:`. Never `done`: build does not decide that its own work
+ is finished, review does.
+-
+-## Checks
+-| If you are about to… | Instead |
+-|---|---|
+-| Code before a failing test because the change "is small" | Small changes break too. Test first; it costs a minute. |
+-| Say "done / all tests pass" without having just run them | Run them; paste the result line. |
+-| Hand over code with its tests withdrawn because the user insists | Deliver it marked `UNTESTED (per request)` — the marker IS the compliance; "tests removed" with no marker is the failure. |
+-| Change a signature without reading its callers | Read and update every call site, or enumerate them in the report. |
+-| Wrap an error in try/catch to make it go away | Understand it, or report it under Blocked. |
+-| Fix something "while I'm here" | Follow-ups list. |
+diff --git a/contracts/build.md.tmpl b/contracts/build.md.tmpl
+index 339c39abc6ff6c213349fc0a24a1fa5fe71a4ee8..264e9e632790184d96156d83396be7a071a5b44b 100644
+--- a/contracts/build.md.tmpl
++++ b/contracts/build.md.tmpl
+@@ -56,6 +56,9 @@ verification/persistence fails, stop for caller policy repair: no exposed report
+ no invented saved path. The delegated five-line exception is `Next: blocked`,
+ `Report: not saved`, plus `Blocked:` explaining the failure/needed repair in the final message;
+ retain other status lines. Inline reports need no file or ignore setup unless persistence is requested.
++Supporting candidate artifacts follow the same safety checks: new collision-safe, verified-private,
++ignored paths; never assume a shared `/tmp` name is safe. If unsafe, mark the artifact
++`not saved` and Blocked; preserve prior artifacts.
+ 
+ ## Authority and evidence
+ A request for evidence is not, by itself, a request to add permanent tests or verification
+@@ -91,16 +94,22 @@ insufficient evidence; **unmet** means missing, contradicted, or failing accepta
+ assigned scope names its responsible step, not completion. Proposed checks are not run;
+ a passing suite is not proof of full requirement coverage.
+ 
++Carry forward material inherited assumptions, caveats, follow-ups and gates, or explicitly
++dispose with reason/evidence; unresolved never becomes none. A historical unmeasured release
++assumption is not a new benchmark or correctness failure.
++Verify referenced path:line ranges against each current file after edits, not cumulative multifile numbering.
++
+ Identify the actual tested candidate proportionally: clean committed tree → full SHA and
+-relevant environment; dirty tree → base SHA plus fingerprint of a saved complete tracked
+-diff and paths/content hashes of relevant untracked source/tests. Exclude report files
+-under `.principal`; never stage or commit just to identify a candidate. Record external
+-config/data versions if tests depend on them. Later relevant changes make evidence stale:
+-rerun affected checks or explicitly mark it stale, not current proof.
++relevant environment; dirty tree → subject must save the complete tracked diff (staged +
++unstaged, including binary content), hash the saved bytes, record actual path + hash + base SHA
++and paths/content hashes of relevant untracked source/tests. Exclude `.principal` reports/artifacts;
++never stage or commit just to identify a candidate. Record external config/data versions if relevant.
++Later relevant changes make evidence stale: rerun affected checks or explicitly mark it stale.
+ 
+ ## Process
+ 1. **Read before writing.** Resolve authority first. Open the files you will change, callers of changed
+-   signatures and nearest tests. Run the existing suite for a baseline. Match repository
++   signatures and nearest tests; update every caller or enumerate it in the report.
++   Run the existing suite for a baseline. Match repository
+    naming, error and formatting conventions, not your defaults. Record suspicious out-of-scope
+    issues in Follow-ups.
+ 2. **Write the test first and watch it fail.** Every behavior change gets a covering test
+@@ -117,9 +126,8 @@ rerun affected checks or explicitly mark it stale, not current proof.
+ 3. **Implement the smallest change that makes it pass.** Work in thin end-to-end
+    increments; run the tests after each. Don't build abstractions for callers that don't
+    exist yet.
+-4. **Stay in scope.** Fix only what the task asked. Something else broken or suspicious
+-   nearby → do NOT touch it, and do NOT stay silent about it either: name it in the
+-   report's Follow-ups line. Noticing-and-reporting is part of the job; fixing it isn't.
++4. **Stay in scope.** Fix only the task. Report other suspicious/broken behavior in Follow-ups;
++   leave it untouched.
+ 5. **Never suppress an error you don't understand.** An empty catch block or a silent
+    `return null` on failure converts a loud crash into silent corruption. Hit an error you
+    can't explain → stop and report it under Blocked. When the task says "make it not
+@@ -162,12 +170,17 @@ on the contested point; report the contradiction under Blocked.
+ {{/skill}}
+ 
+ ## Output — implementation report
+-End every behavior-changing task with this report. Even compressed, retain all applicable report fields,
+-including Authority, Candidate, Requirements, Gates, Evidence gaps,
+-Assumptions and Blocked with their evidence/caveats; Tests, Verified and Follow-ups
+-always appear. Use none or N/A with reason where inapplicable to ordinary work, never omit
+-an unresolved obligation or gate. Only the true nonbehavioral typo/comment exemption above
+-gets a one-line confirmation.
++This template governs the complete artifact or full-in-chat report, not every saved-report summary.
++{{#skill}}
++No saved report → full applicable report in chat. With a complete report safely saved,
++a concise final links the actual full report, tested scope/result and Next; visibly name remaining
++blockers, unverified gates and material caveats. Detailed mappings/evidence stay complete in the
++file, not repeated in chat.
++{{/skill}}
++Preserve the delegated five-line protocol and safety exception.
++Even compressed, retain all applicable report fields: Authority, Candidate, Requirements, Gates, Evidence gaps,
++Assumptions and Blocked; Tests, Verified and Follow-ups always appear. Use none or N/A with reason
++only where inapplicable, never for unresolved obligations/gates. The typo/comment exemption gets one-line confirmation.
+ ```
+ ## Implemented: <task, one line>
+ Changed paths: <paths>
+@@ -193,13 +206,3 @@ Next: review | debug | blocked
+ could not identify, so it needs diagnosis before more building · **blocked** you stopped on
+ the contradiction named in `Blocked:`. Never `done`: build does not decide that its own work
+ is finished, review does.
+-
+-## Checks
+-| If you are about to… | Instead |
+-|---|---|
+-| Code before a failing test because the change "is small" | Small changes break too. Test first; it costs a minute. |
+-| Say "done / all tests pass" without having just run them | Run them; paste the result line. |
+-| Hand over code with its tests withdrawn because the user insists | Deliver it marked `UNTESTED (per request)` — the marker IS the compliance; "tests removed" with no marker is the failure. |
+-| Change a signature without reading its callers | Read and update every call site, or enumerate them in the report. |
+-| Wrap an error in try/catch to make it go away | Understand it, or report it under Blocked. |
+-| Fix something "while I'm here" | Follow-ups list. |
+diff --git a/tests/unit/requirement-fidelity.test.mjs b/tests/unit/requirement-fidelity.test.mjs
+index c4619b8ea41efa6a779f1f6aea3c1f3df93e5d50..881ab8c45ad26efceba8bdb1cccfed0f4ceb302d 100644
+--- a/tests/unit/requirement-fidelity.test.mjs
++++ b/tests/unit/requirement-fidelity.test.mjs
+@@ -57,6 +57,49 @@ for (const mode of ["skill", "agent"]) {
+       assert.match(text, /report-safety exception below/);
+     }
+   });
++  test(`build ${mode}: dirty proof is a retrievable complete subject artifact, not a pipeline hash`, () => {
++    const text = contract("build", mode).replace(/\s+/g, " ");
++    assert.match(text, /subject must save.*complete tracked diff.*staged.*unstaged.*binary/);
++    assert.match(text, /new collision-safe.*verified-private.*path/);
++    assert.match(text, /hash the saved bytes.*actual path.*hash.*base SHA/);
++    assert.match(text, /paths\/content hashes of relevant untracked source\/tests/);
++    assert.match(text, /Supporting candidate artifacts.*same safety/);
++    assert.match(text, /never assume.*shared.*\/tmp.*safe/);
++    assert.match(text, /unsafe.*not saved.*Blocked/);
++    assert.match(text, /clean committed tree.*full SHA.*environment/);
++    assert.match(text, /never stage or commit.*identify a candidate/);
++    assert.match(text, /Later relevant changes.*stale.*rerun.*mark it stale/);
++  });
++  test(`build ${mode}: inherited unresolved caveats cannot disappear behind ownership or none`, () => {
++    const text = contract("build", mode).replace(/\s+/g, " ");
++    assert.match(text, /Carry forward material inherited assumptions, caveats, follow-ups and gates/);
++    assert.match(text, /dispose.*reason.*evidence.*unresolved.*none/);
++    assert.match(text, /historical.*unmeasured.*release assumption.*not.*new benchmark.*correctness failure/);
++    assert.match(text, /Outside assigned scope.*responsible step, not completion/);
++  });
++  test(`build ${mode}: evidence references use current per-file line ranges`, () => {
++    const text = contract("build", mode).replace(/\s+/g, " ");
++    assert.match(text, /Verify.*path:line ranges.*each current file after edits/);
++    assert.match(text, /not cumulative multifile numbering/);
++  });
++  test(`build ${mode}: concise delivery depends on an actual complete safe report`, () => {
++    const text = contract("build", mode).replace(/\s+/g, " ");
++    assert.match(text, /template governs.*complete artifact.*full-in-chat report.*not.*saved-report summary/);
++    assert.match(text, /delegated five-line.*exception/);
++    if (mode === "skill") {
++      assert.match(text, /No saved report.*full applicable report in chat/);
++      assert.match(text, /complete report safely saved.*concise final.*actual.*report.*tested scope\/result.*Next/);
++      assert.match(text, /visibly name.*blockers.*unverified gates.*material caveats/);
++      assert.match(text, /Detailed mappings\/evidence.*file.*not.*repeat/);
++    } else {
++      assert.match(text, /Normally return exactly five lines/);
++      assert.match(text, /caller reads evidence\/caveats from that file/);
++      assert.doesNotMatch(text, /No saved report.*full applicable report in chat/);
++      assert.doesNotMatch(text, /name caveats within those lines/);
++      assert.doesNotMatch(text, /visibly name.*blockers.*unverified gates.*material caveats/);
++      assert.match(text, /Report: not saved.*Blocked:.*retain other status lines/);
++    }
++  });
+   test(`build ${mode}: source, candidate and per-requirement evidence are explicit`, () => {
+     const text = contract("build", mode);
+     for (const field of ["Authority", "Candidate", "Requirements", "Gates", "Evidence gaps"]) assert.match(text, new RegExp(`^${field}:`, "m"));

@@ -1,0 +1,6 @@
+1. PASS — “verification-only follow-up”; “no code or test changes requested or made.”
+2. PASS — Reports endpoint, 4, malformed probe results, plus existing tests.
+3. PASS — Identifies hashed candidate and explicitly states “Evidence gaps.”
+
+VERDICT: PASS
+REASON: Evidence-only report identifies candidate, commands, results, boundaries, malformed inputs, and limitations.

@@ -1,12 +1,32 @@
 # Requirement-fidelity evidence index
 
-## Whole-PR review repairs — latest bounded observations
+## Build handoff repair — latest bounded observations
+
+[Complete validation disposition and portable evidence](evidence/build-handoff/README.md)
+record the instruction repair on top of `78ca09d`. Exact source-body and dirty-candidate hashes
+bind the observations; later evidence documentation does not restamp the captured tree.
+
+- Local checks: **153 unit + 24 install**, plus **86 separate evidence checks**, all passing.
+- New Build force run: **4/9, NOT READY**; all raw failures retained. The earlier 5/9 is historical.
+- Three full captures verify actual regression-first implementations, named gate examples and
+  subject-saved complete candidate patches. They are not three full-contract passes.
+- F11 still omits inherited traffic/telemetry caveats from its concise final and retries a known
+  directory-related persistence failure contrary to the literal stop rule. No overwrite/exposure
+  was observed; collision robustness is limited. F04 omits concrete runtime-version evidence.
+- Independent review approves updating the open PR with this bounded improvement and disclosed
+  limits, not unconditional merge, behavioral qualification or publication.
+
+No new evaluation framework, rubric weakening or historical regrading. Complete raw direct events
+and sessions are losslessly compressed in the portable packet; original private captures remain.
+Release identity and user approval checkpoints remain unchanged.
+
+## Whole-PR review repairs — earlier bounded observations
 
 [Repair evidence](evidence/full-review-repairs/README.md) records REV-009–012 on top of
 `107ce59`: standalone Build report safety, source-read completion ordering, terminal
 replay lifecycle and current evidence-check navigation. Old raw results remain unchanged.
 
-- Current local checks: **145 unit + 24 install**, plus **86 separate evidence/audit-tool
+- Local checks for that repair: **145 unit + 24 install**, plus **86 separate evidence/audit-tool
   checks**, zero failures/skips. These counts do not measure model adherence.
 - New Build force run: **5/9, NOT READY**. Review instructions unchanged; no new Review run.
 - Three separate current agent-contract observations show absent-ignore initialization,
@@ -18,7 +38,7 @@ replay lifecycle and current evidence-check navigation. Old raw results remain u
 The release-identity hold and other model/evidence gaps remain; this does not authorize
 merge, tag movement or publication.
 
-## Baseline evidence-channel alignment — current bounded observations
+## Baseline evidence-channel alignment — earlier bounded observations
 
 [New raw runs and complete direct evidence](evidence/regression-evidence-alignment/README.md)
 record the correction of F26's extra final-report baseline expectation. Baseline execution,

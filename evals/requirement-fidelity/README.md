@@ -17,6 +17,9 @@ records F26 raw PASS; that Build run scored 4/9, NOT READY. A separate direct ru
 has manually verified execution/useful regression; its narrow automated audit is UNVERIFIED.
 [Later whole-PR repairs](evidence/full-review-repairs/README.md) retain new report-safety
 observations and a 5/9 Build run, still NOT READY; neither run is broad qualification.
+[Latest Build handoff repair](evidence/build-handoff/README.md) records a new **4/9 NOT READY**
+run and three complete direct captures. Actual saved patches and regression execution are verified;
+remaining caveat-delivery/persistence behavior and evidence limits are not waived.
 Older 43-case runs are historical, not qualification of these edited contracts.
 
 See [the evidence index](evidence.md#evidence-scope-candidate--bounded-observations) for actual

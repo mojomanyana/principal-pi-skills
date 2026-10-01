@@ -1,0 +1,19 @@
+Implemented impl:S1.
+
+Changed paths:
+- `limit.mjs`
+- `limit.test.mjs`
+
+Report saved:
+- `.principal/reports/assigned.md`
+
+Evidence:
+- Red: `npm test` failed after regression first: 1 passed, 2 failed.
+- Green/full: `npm test` passed: 3 passed, 0 failed.
+
+Candidate diff saved:
+- `.principal/reports/assigned.diff`
+- sha256 `599a2a04eb6ad86a6ea80a71352a745155d8de5f5c9fb117a4bab1a0b6d9a0eb`
+
+Blocked: none.  
+Next: review

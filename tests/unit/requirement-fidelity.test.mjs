@@ -57,6 +57,49 @@ for (const mode of ["skill", "agent"]) {
       assert.match(text, /report-safety exception below/);
     }
   });
+  test(`build ${mode}: dirty proof is a retrievable complete subject artifact, not a pipeline hash`, () => {
+    const text = contract("build", mode).replace(/\s+/g, " ");
+    assert.match(text, /subject must save.*complete tracked diff.*staged.*unstaged.*binary/);
+    assert.match(text, /new collision-safe.*verified-private.*path/);
+    assert.match(text, /hash the saved bytes.*actual path.*hash.*base SHA/);
+    assert.match(text, /paths\/content hashes of relevant untracked source\/tests/);
+    assert.match(text, /Supporting candidate artifacts.*same safety/);
+    assert.match(text, /never assume.*shared.*\/tmp.*safe/);
+    assert.match(text, /unsafe.*not saved.*Blocked/);
+    assert.match(text, /clean committed tree.*full SHA.*environment/);
+    assert.match(text, /never stage or commit.*identify a candidate/);
+    assert.match(text, /Later relevant changes.*stale.*rerun.*mark it stale/);
+  });
+  test(`build ${mode}: inherited unresolved caveats cannot disappear behind ownership or none`, () => {
+    const text = contract("build", mode).replace(/\s+/g, " ");
+    assert.match(text, /Carry forward material inherited assumptions, caveats, follow-ups and gates/);
+    assert.match(text, /dispose.*reason.*evidence.*unresolved.*none/);
+    assert.match(text, /historical.*unmeasured.*release assumption.*not.*new benchmark.*correctness failure/);
+    assert.match(text, /Outside assigned scope.*responsible step, not completion/);
+  });
+  test(`build ${mode}: evidence references use current per-file line ranges`, () => {
+    const text = contract("build", mode).replace(/\s+/g, " ");
+    assert.match(text, /Verify.*path:line ranges.*each current file after edits/);
+    assert.match(text, /not cumulative multifile numbering/);
+  });
+  test(`build ${mode}: concise delivery depends on an actual complete safe report`, () => {
+    const text = contract("build", mode).replace(/\s+/g, " ");
+    assert.match(text, /template governs.*complete artifact.*full-in-chat report.*not.*saved-report summary/);
+    assert.match(text, /delegated five-line.*exception/);
+    if (mode === "skill") {
+      assert.match(text, /No saved report.*full applicable report in chat/);
+      assert.match(text, /complete report safely saved.*concise final.*actual.*report.*tested scope\/result.*Next/);
+      assert.match(text, /visibly name.*blockers.*unverified gates.*material caveats/);
+      assert.match(text, /Detailed mappings\/evidence.*file.*not.*repeat/);
+    } else {
+      assert.match(text, /Normally return exactly five lines/);
+      assert.match(text, /caller reads evidence\/caveats from that file/);
+      assert.doesNotMatch(text, /No saved report.*full applicable report in chat/);
+      assert.doesNotMatch(text, /name caveats within those lines/);
+      assert.doesNotMatch(text, /visibly name.*blockers.*unverified gates.*material caveats/);
+      assert.match(text, /Report: not saved.*Blocked:.*retain other status lines/);
+    }
+  });
   test(`build ${mode}: source, candidate and per-requirement evidence are explicit`, () => {
     const text = contract("build", mode);
     for (const field of ["Authority", "Candidate", "Requirements", "Gates", "Evidence gaps"]) assert.match(text, new RegExp(`^${field}:`, "m"));

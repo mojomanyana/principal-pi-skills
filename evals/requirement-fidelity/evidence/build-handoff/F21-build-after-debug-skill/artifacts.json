@@ -1,0 +1,53 @@
+[
+  {
+    "original": ".principal/.gitignore",
+    "alias": "saved-artifacts/.principal/.gitignore",
+    "sha256": "cdbcae15105d6b781e620813c79c7e868740d4e9cc53ce6f5fcbbc12387adf4b",
+    "ignore_check": {
+      "command": [
+        "git",
+        "check-ignore",
+        "-v",
+        "--",
+        ".principal/.gitignore"
+      ],
+      "exit_code": 0,
+      "stdout": ".principal/.gitignore:1:*\t.principal/.gitignore\n",
+      "stderr": ""
+    }
+  },
+  {
+    "original": ".principal/reports/parser-build.md",
+    "alias": "saved-artifacts/.principal/reports/parser-build.md",
+    "sha256": "fd6448428716da2bbc065d15e87ef818e7cbd9baa44f32b2e6c0d021c754d070",
+    "ignore_check": {
+      "command": [
+        "git",
+        "check-ignore",
+        "-v",
+        "--",
+        ".principal/reports/parser-build.md"
+      ],
+      "exit_code": 0,
+      "stdout": ".principal/.gitignore:1:*\t.principal/reports/parser-build.md\n",
+      "stderr": ""
+    }
+  },
+  {
+    "original": ".principal/reports/parser-build.diff",
+    "alias": "saved-artifacts/.principal/reports/parser-build.diff",
+    "sha256": "977a840f66489dab98fd91776a20fb50ce235029cfcdfec2eb1405926680fc70",
+    "ignore_check": {
+      "command": [
+        "git",
+        "check-ignore",
+        "-v",
+        "--",
+        ".principal/reports/parser-build.diff"
+      ],
+      "exit_code": 0,
+      "stdout": ".principal/.gitignore:1:*\t.principal/reports/parser-build.diff\n",
+      "stderr": ""
+    }
+  }
+]

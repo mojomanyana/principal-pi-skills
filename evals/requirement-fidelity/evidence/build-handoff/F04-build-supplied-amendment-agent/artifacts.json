@@ -1,0 +1,53 @@
+[
+  {
+    "original": ".principal/.gitignore",
+    "alias": "saved-artifacts/.principal/.gitignore",
+    "sha256": "cdbcae15105d6b781e620813c79c7e868740d4e9cc53ce6f5fcbbc12387adf4b",
+    "ignore_check": {
+      "command": [
+        "git",
+        "check-ignore",
+        "-v",
+        "--",
+        ".principal/.gitignore"
+      ],
+      "exit_code": 0,
+      "stdout": ".principal/.gitignore:1:*\t.principal/.gitignore\n",
+      "stderr": ""
+    }
+  },
+  {
+    "original": ".principal/reports/supplied.md",
+    "alias": "saved-artifacts/.principal/reports/supplied.md",
+    "sha256": "b2f2cea0c1696080502ae81f6c13660fd032242a8b8b12e3245eb9293fda708f",
+    "ignore_check": {
+      "command": [
+        "git",
+        "check-ignore",
+        "-v",
+        "--",
+        ".principal/reports/supplied.md"
+      ],
+      "exit_code": 0,
+      "stdout": ".principal/.gitignore:1:*\t.principal/reports/supplied.md\n",
+      "stderr": ""
+    }
+  },
+  {
+    "original": ".principal/reports/supplied.diff",
+    "alias": "saved-artifacts/.principal/reports/supplied.diff",
+    "sha256": "b16b6598365ab6a57f22da20587eb47247be7a1ab9e3f991e608e1ec72afe677",
+    "ignore_check": {
+      "command": [
+        "git",
+        "check-ignore",
+        "-v",
+        "--",
+        ".principal/reports/supplied.diff"
+      ],
+      "exit_code": 0,
+      "stdout": ".principal/.gitignore:1:*\t.principal/reports/supplied.diff\n",
+      "stderr": ""
+    }
+  }
+]

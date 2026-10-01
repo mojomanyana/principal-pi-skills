@@ -1,0 +1,760 @@
+{
+  "F04-build-supplied-amendment-agent": {
+    "normal_completion": true,
+    "attempt": 1,
+    "started": "2026-10-01T10:54:41.229698+00:00",
+    "finished": "2026-10-01T10:55:45.071843+00:00",
+    "assistant_models": [
+      [
+        "openai-codex",
+        "gpt-5.5",
+        null
+      ]
+    ],
+    "lifecycle": {
+      "agent_start": 1,
+      "agent_end": 1,
+      "agent_settled": 1,
+      "auto_retry_start": 0,
+      "compaction_start": 0
+    },
+    "session_model_and_thinking": [
+      {
+        "type": "model_change",
+        "id": "2f133cf4",
+        "parentId": null,
+        "timestamp": "2026-10-01T10:54:41.518Z",
+        "provider": "openai-codex",
+        "modelId": "gpt-5.5"
+      },
+      {
+        "type": "thinking_level_change",
+        "id": "3163e771",
+        "parentId": "2f133cf4",
+        "timestamp": "2026-10-01T10:54:41.518Z",
+        "thinkingLevel": "medium"
+      }
+    ],
+    "contract_bytes_in_system": true,
+    "exact_prompt": true,
+    "initial_fixture_equal": true,
+    "report_checks": [
+      {
+        "path": ".principal/reports/supplied.md",
+        "write_event": 1461,
+        "sha256": "b2f2cea0c1696080502ae81f6c13660fd032242a8b8b12e3245eb9293fda708f",
+        "payload_equal": true,
+        "alias_equal": true,
+        "initially_absent": true,
+        "ignore": {
+          "command": [
+            "git",
+            "check-ignore",
+            "-v",
+            "--",
+            ".principal/reports/supplied.md"
+          ],
+          "exit_code": 0,
+          "stdout": ".principal/.gitignore:1:*\t.principal/reports/supplied.md\n",
+          "stderr": ""
+        },
+        "missing_fields": [],
+        "references": [
+          {
+            "citation": "limit.mjs:1",
+            "exists": true,
+            "range_exists": true,
+            "actual_lines": [
+              "export const permit = count => Number.isSafeInteger(count) && count >= 0 && count <= 3;"
+            ]
+          },
+          {
+            "citation": "limit.test.mjs:6-14",
+            "exists": true,
+            "range_exists": true,
+            "actual_lines": [
+              "test('permit accepts only safe integer Counts from 0 through 3 inclusive', () => {",
+              "  for (const count of [0, 1, 2, 3]) {",
+              "    assert.equal(permit(count), true, `${count} should be permitted`);",
+              "  }",
+              "",
+              "  for (const count of [4, -1, 1.5, '1', null, undefined, NaN, Infinity, -Infinity, Number.MAX_SAFE_INTEGER + 1]) {",
+              "    assert.equal(permit(count), false, `${String(count)} should be rejected`);",
+              "  }",
+              "});"
+            ]
+          }
+        ]
+      }
+    ],
+    "patch_check": {
+      "subject_path": ".principal/reports/supplied.diff",
+      "sha256": "b16b6598365ab6a57f22da20587eb47247be7a1ab9e3f991e608e1ec72afe677",
+      "apply": {
+        "command": [
+          "git",
+          "apply",
+          "/home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F04-build-supplied-amendment-agent/after-workspace/.principal/reports/supplied.diff"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "tracked_mismatches": [],
+      "full_tracked_candidate_reconstructed": true,
+      "observer_patch_sha256": "c3a599f6fd3bac96360a02dbc381c3a0fe8e5ca5a7329cde080f4dd1407fbe1a",
+      "observer_and_subject_are_distinct": true,
+      "before_base": "1bfab4abe94e44c0e75b44d0a079c9c83b7c8f94"
+    },
+    "observer_diff_matches_snapshot": true,
+    "reads": [
+      {
+        "path": "SPEC.md",
+        "start": 24,
+        "completion": 27,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "definitions.md",
+        "start": 25,
+        "completion": 28,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "limit.mjs",
+        "start": 50,
+        "completion": 51,
+        "complete_initial_bytes": true,
+        "is_error": false
+      }
+    ],
+    "tests": [
+      {
+        "command": "git status --short && git rev-parse HEAD && node --test",
+        "start": 89,
+        "completion": 93,
+        "is_error": false,
+        "counts": {
+          "tests": 0,
+          "pass": 0,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "full_result": "1bfab4abe94e44c0e75b44d0a079c9c83b7c8f94\n\u2139 tests 0\n\u2139 suites 0\n\u2139 pass 0\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 14.863057\n"
+      },
+      {
+        "command": "node --test",
+        "start": 303,
+        "completion": 307,
+        "is_error": true,
+        "counts": {
+          "tests": 1,
+          "pass": 0,
+          "fail": 1,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "full_result": "\u2716 permit accepts only safe integer Counts from 0 through 3 inclusive (1.347525ms)\n\u2139 tests 1\n\u2139 suites 0\n\u2139 pass 0\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 68.374325\n\n\u2716 failing tests:\n\ntest at limit.test.mjs:6:1\n\u2716 permit accepts only safe integer Counts from 0 through 3 inclusive (1.347525ms)\n  AssertionError [ERR_ASSERTION]: 4 should be rejected\n  \n  true !== false\n  \n      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F04-build-supplied-amendment-agent/live-workspace/limit.test.mjs:12:12)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1397:25)\n      at Test.start (node:internal/test_runner/test:1257:17)\n      at startSubtestAfterBootstrap (node:internal/test_runner/harness:387:17) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: true,\n    expected: false,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\n\nCommand exited with code 1"
+      },
+      {
+        "command": "node --test",
+        "start": 406,
+        "completion": 410,
+        "is_error": false,
+        "counts": {
+          "tests": 1,
+          "pass": 1,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "full_result": "\u2714 permit accepts only safe integer Counts from 0 through 3 inclusive (0.846923ms)\n\u2139 tests 1\n\u2139 suites 0\n\u2139 pass 1\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 73.599629\n"
+      }
+    ],
+    "mutations": [
+      {
+        "tool": "write",
+        "path": "limit.test.mjs",
+        "start": 282,
+        "completion": 283
+      },
+      {
+        "tool": "edit",
+        "path": "limit.mjs",
+        "start": 385,
+        "completion": 386
+      },
+      {
+        "tool": "write",
+        "path": ".principal/reports/supplied.md",
+        "start": 1461,
+        "completion": 1462
+      }
+    ],
+    "workspace_delta": {
+      ".principal/.gitignore": [
+        null,
+        "cdbcae15105d6b781e620813c79c7e868740d4e9cc53ce6f5fcbbc12387adf4b"
+      ],
+      "limit.test.mjs": [
+        null,
+        "5e60f07dc6c16b3607c8c0b8c6c7039fb6e2d2527a18cc5f7a0a666ad8f4b2d4"
+      ],
+      "limit.mjs": [
+        "3e3ed5ea6f3b3075a05b099b1bf8c2006d3a1953f9919dd11141f7085a1fd2a8",
+        "dc3c611457c0d82c2602bf9b2cbd2906d57a2d9c17e080142b14f784e10d8fe6"
+      ],
+      ".principal/reports/supplied.md": [
+        null,
+        "b2f2cea0c1696080502ae81f6c13660fd032242a8b8b12e3245eb9293fda708f"
+      ],
+      ".principal/reports/supplied.diff": [
+        null,
+        "b16b6598365ab6a57f22da20587eb47247be7a1ab9e3f991e608e1ec72afe677"
+      ]
+    },
+    "git_delta": {},
+    "head_unchanged": true,
+    "branch_unchanged": true,
+    "index_entries_unchanged": true,
+    "config_unchanged": true,
+    "truncation_markers": [],
+    "verbatim_caller_amendment_in_report": true,
+    "untracked_test_hash_in_report": true,
+    "untracked_bytes_equal": true
+  },
+  "F11-build-assigned-skill": {
+    "normal_completion": true,
+    "attempt": 1,
+    "started": "2026-10-01T10:53:30.175705+00:00",
+    "finished": "2026-10-01T10:54:41.147332+00:00",
+    "assistant_models": [
+      [
+        "openai-codex",
+        "gpt-5.5",
+        null
+      ]
+    ],
+    "lifecycle": {
+      "agent_start": 1,
+      "agent_end": 1,
+      "agent_settled": 1,
+      "auto_retry_start": 0,
+      "compaction_start": 0
+    },
+    "session_model_and_thinking": [
+      {
+        "type": "model_change",
+        "id": "36f6bd52",
+        "parentId": null,
+        "timestamp": "2026-10-01T10:53:30.474Z",
+        "provider": "openai-codex",
+        "modelId": "gpt-5.5"
+      },
+      {
+        "type": "thinking_level_change",
+        "id": "611575f8",
+        "parentId": "36f6bd52",
+        "timestamp": "2026-10-01T10:53:30.474Z",
+        "thinkingLevel": "medium"
+      }
+    ],
+    "contract_bytes_in_system": true,
+    "exact_prompt": true,
+    "initial_fixture_equal": true,
+    "report_checks": [
+      {
+        "path": ".principal/reports/assigned.md",
+        "write_event": 1355,
+        "sha256": "c377f1eb3f9e63f2a28dd100fcd64f945223a75520032323c3ba1690e335f925",
+        "payload_equal": true,
+        "alias_equal": true,
+        "initially_absent": true,
+        "ignore": {
+          "command": [
+            "git",
+            "check-ignore",
+            "-v",
+            "--",
+            ".principal/reports/assigned.md"
+          ],
+          "exit_code": 0,
+          "stdout": ".principal/.gitignore:1:*\t.principal/reports/assigned.md\n",
+          "stderr": ""
+        },
+        "missing_fields": [],
+        "references": [
+          {
+            "citation": "limit.mjs:1",
+            "exists": true,
+            "range_exists": true,
+            "actual_lines": [
+              "export const permit = count => Number.isInteger(count) && count >= 0 && count <= 3;"
+            ]
+          },
+          {
+            "citation": "limit.test.mjs:4-19",
+            "exists": true,
+            "range_exists": true,
+            "actual_lines": [
+              "test('permits integer Count values from 0 through 3 inclusive', () => {",
+              "  assert.equal(permit(0), true);",
+              "  assert.equal(permit(3), true);",
+              "});",
+              "",
+              "test('rejects values outside the inclusive range', () => {",
+              "  assert.equal(permit(-1), false);",
+              "  assert.equal(permit(4), false);",
+              "});",
+              "",
+              "test('rejects malformed inputs without coercion', () => {",
+              "  assert.equal(permit('2'), false);",
+              "  assert.equal(permit(null), false);",
+              "  assert.equal(permit(Number.NaN), false);",
+              "  assert.equal(permit(1.5), false);",
+              "});"
+            ]
+          }
+        ]
+      }
+    ],
+    "patch_check": {
+      "subject_path": ".principal/reports/assigned.diff",
+      "sha256": "599a2a04eb6ad86a6ea80a71352a745155d8de5f5c9fb117a4bab1a0b6d9a0eb",
+      "apply": {
+        "command": [
+          "git",
+          "apply",
+          "/home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F11-build-assigned-skill/after-workspace/.principal/reports/assigned.diff"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "tracked_mismatches": [],
+      "full_tracked_candidate_reconstructed": true,
+      "observer_patch_sha256": "7f99d700009848a7ba6c062128f4c0f0c2532d576fdb0a94567854bb665d02ed",
+      "observer_and_subject_are_distinct": true,
+      "before_base": "0e1cd837d977b515d5c4c1a5e9dda09ce4488f1d"
+    },
+    "observer_diff_matches_snapshot": true,
+    "reads": [
+      {
+        "path": "plan.md",
+        "start": 24,
+        "completion": 28,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "SPEC.md",
+        "start": 25,
+        "completion": 29,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "definitions.md",
+        "start": 26,
+        "completion": 30,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "build-report.md",
+        "start": 27,
+        "completion": 31,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "limit.mjs",
+        "start": 61,
+        "completion": 64,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "limit.test.mjs",
+        "start": 62,
+        "completion": 65,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "package.json",
+        "start": 63,
+        "completion": 66,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": ".principal/.gitignore",
+        "start": 138,
+        "completion": 139,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": ".principal/reports/assigned.md",
+        "start": 1374,
+        "completion": 1376,
+        "complete_initial_bytes": false,
+        "is_error": false
+      }
+    ],
+    "tests": [
+      {
+        "command": "npm test",
+        "start": 93,
+        "completion": 104,
+        "is_error": false,
+        "counts": {
+          "tests": 1,
+          "pass": 1,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "full_result": "npm notice run test\nnpm notice run node --test\n\u2714 existing happy path only (0.748153ms)\n\u2139 tests 1\n\u2139 suites 0\n\u2139 pass 1\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 86.842075\n"
+      },
+      {
+        "command": "npm test",
+        "start": 374,
+        "completion": 379,
+        "is_error": true,
+        "counts": {
+          "tests": 3,
+          "pass": 1,
+          "fail": 2,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "full_result": "npm notice run test\nnpm notice run node --test\n\u2714 permits integer Count values from 0 through 3 inclusive (0.867254ms)\n\u2716 rejects values outside the inclusive range (0.920633ms)\n\u2716 rejects malformed inputs without coercion (0.224421ms)\n\u2139 tests 3\n\u2139 suites 0\n\u2139 pass 1\n\u2139 fail 2\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 88.322574\n\n\u2716 failing tests:\n\ntest at limit.test.mjs:9:1\n\u2716 rejects values outside the inclusive range (0.920633ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  true !== false\n  \n      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F11-build-assigned-skill/live-workspace/limit.test.mjs:11:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1397:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)\n      at Test.postRun (node:internal/test_runner/test:1537:19)\n      at Test.run (node:internal/test_runner/test:1462:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: true,\n    expected: false,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\ntest at limit.test.mjs:14:1\n\u2716 rejects malformed inputs without coercion (0.224421ms)\n  AssertionError [ERR_ASSERTION]: Expected values to be strictly equal:\n  \n  true !== false\n  \n      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F11-build-assigned-skill/live-workspace/limit.test.mjs:15:10)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1397:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)\n      at Test.postRun (node:internal/test_runner/test:1537:19)\n      at Test.run (node:internal/test_runner/test:1462:12)\n      at async Test.processPendingSubtests (node:internal/test_runner/test:969:7) {\n    generatedMessage: true,\n    code: 'ERR_ASSERTION',\n    actual: true,\n    expected: false,\n    operator: 'strictEqual',\n    diff: 'simple'\n  }\n\n\nCommand exited with code 1"
+      },
+      {
+        "command": "npm test",
+        "start": 470,
+        "completion": 475,
+        "is_error": false,
+        "counts": {
+          "tests": 3,
+          "pass": 3,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "full_result": "npm notice run test\nnpm notice run node --test\n\u2714 permits integer Count values from 0 through 3 inclusive (0.724052ms)\n\u2714 rejects values outside the inclusive range (0.13551ms)\n\u2714 rejects malformed inputs without coercion (0.15781ms)\n\u2139 tests 3\n\u2139 suites 0\n\u2139 pass 3\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 72.911686\n"
+      }
+    ],
+    "mutations": [
+      {
+        "tool": "edit",
+        "path": "limit.test.mjs",
+        "start": 354,
+        "completion": 355
+      },
+      {
+        "tool": "edit",
+        "path": "limit.mjs",
+        "start": 450,
+        "completion": 451
+      },
+      {
+        "tool": "write",
+        "path": ".principal/reports/assigned.md",
+        "start": 1355,
+        "completion": 1356
+      }
+    ],
+    "workspace_delta": {
+      "limit.test.mjs": [
+        "8a9741575e5fd3f1d2efca84adecc3d7ca176f46d2e20d3724cc6b5764502a92",
+        "5d110d68e73ce7951e738410e2c2b94c285fbe6414df2367260e8c7d0eb07fb0"
+      ],
+      "limit.mjs": [
+        "ad9933f37f248d93a0573c6e6f618c50b7434181cb799b353b19045ee10341c7",
+        "c35a2b18a59cfffa793e7813a55b570e769b49bf671a60e7e6317645946f18e8"
+      ],
+      ".principal/reports/assigned.diff": [
+        null,
+        "599a2a04eb6ad86a6ea80a71352a745155d8de5f5c9fb117a4bab1a0b6d9a0eb"
+      ],
+      ".principal/reports/assigned.md": [
+        null,
+        "c377f1eb3f9e63f2a28dd100fcd64f945223a75520032323c3ba1690e335f925"
+      ]
+    },
+    "git_delta": {},
+    "head_unchanged": true,
+    "branch_unchanged": true,
+    "index_entries_unchanged": true,
+    "config_unchanged": true,
+    "truncation_markers": []
+  },
+  "F21-build-after-debug-skill": {
+    "normal_completion": true,
+    "attempt": 1,
+    "started": "2026-10-01T10:55:45.164376+00:00",
+    "finished": "2026-10-01T10:56:45.850655+00:00",
+    "assistant_models": [
+      [
+        "openai-codex",
+        "gpt-5.5",
+        null
+      ]
+    ],
+    "lifecycle": {
+      "agent_start": 1,
+      "agent_end": 1,
+      "agent_settled": 1,
+      "auto_retry_start": 0,
+      "compaction_start": 0
+    },
+    "session_model_and_thinking": [
+      {
+        "type": "model_change",
+        "id": "306f46da",
+        "parentId": null,
+        "timestamp": "2026-10-01T10:55:45.470Z",
+        "provider": "openai-codex",
+        "modelId": "gpt-5.5"
+      },
+      {
+        "type": "thinking_level_change",
+        "id": "66dd2bba",
+        "parentId": "306f46da",
+        "timestamp": "2026-10-01T10:55:45.470Z",
+        "thinkingLevel": "medium"
+      }
+    ],
+    "contract_bytes_in_system": true,
+    "exact_prompt": true,
+    "initial_fixture_equal": true,
+    "report_checks": [
+      {
+        "path": ".principal/reports/parser-build.md",
+        "write_event": 1294,
+        "sha256": "fd6448428716da2bbc065d15e87ef818e7cbd9baa44f32b2e6c0d021c754d070",
+        "payload_equal": true,
+        "alias_equal": true,
+        "initially_absent": true,
+        "ignore": {
+          "command": [
+            "git",
+            "check-ignore",
+            "-v",
+            "--",
+            ".principal/reports/parser-build.md"
+          ],
+          "exit_code": 0,
+          "stdout": ".principal/.gitignore:1:*\t.principal/reports/parser-build.md\n",
+          "stderr": ""
+        },
+        "missing_fields": [],
+        "references": [
+          {
+            "citation": "parse.mjs:1-12",
+            "exists": true,
+            "range_exists": true,
+            "actual_lines": [
+              "export function parseCount(value) {",
+              "  if (typeof value !== 'string' || !/^[0-9]+$/.test(value)) {",
+              "    throw new TypeError('invalid count');",
+              "  }",
+              "",
+              "  const count = Number(value);",
+              "  if (!Number.isSafeInteger(count)) {",
+              "    throw new TypeError('invalid count');",
+              "  }",
+              "",
+              "  return count;",
+              "}"
+            ]
+          },
+          {
+            "citation": "parse.test.mjs:4-14",
+            "exists": true,
+            "range_exists": true,
+            "actual_lines": [
+              "test('valid count', () => {",
+              "  assert.equal(parseCount('0'), 0);",
+              "  assert.equal(parseCount('03'), 3);",
+              "  assert.equal(parseCount('3'), 3);",
+              "});",
+              "",
+              "test('invalid count', () => {",
+              "  for (const value of ['3x', '', ' 3', '-1', '1.5', null, '9007199254740992']) {",
+              "    assert.throws(() => parseCount(value), new TypeError('invalid count'));",
+              "  }",
+              "});"
+            ]
+          },
+          {
+            "citation": "parse.test.mjs:4-14",
+            "exists": true,
+            "range_exists": true,
+            "actual_lines": [
+              "test('valid count', () => {",
+              "  assert.equal(parseCount('0'), 0);",
+              "  assert.equal(parseCount('03'), 3);",
+              "  assert.equal(parseCount('3'), 3);",
+              "});",
+              "",
+              "test('invalid count', () => {",
+              "  for (const value of ['3x', '', ' 3', '-1', '1.5', null, '9007199254740992']) {",
+              "    assert.throws(() => parseCount(value), new TypeError('invalid count'));",
+              "  }",
+              "});"
+            ]
+          }
+        ]
+      }
+    ],
+    "patch_check": {
+      "subject_path": ".principal/reports/parser-build.diff",
+      "sha256": "977a840f66489dab98fd91776a20fb50ce235029cfcdfec2eb1405926680fc70",
+      "apply": {
+        "command": [
+          "git",
+          "apply",
+          "/home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F21-build-after-debug-skill/after-workspace/.principal/reports/parser-build.diff"
+        ],
+        "exit_code": 0,
+        "stdout": "",
+        "stderr": ""
+      },
+      "tracked_mismatches": [],
+      "full_tracked_candidate_reconstructed": true,
+      "observer_patch_sha256": "5c803700a4b3b425809efa0bb457481dfac012c194edfce4063ce51967ee3c44",
+      "observer_and_subject_are_distinct": true,
+      "before_base": "ef2a33121bd0be9b39c03bb3d0b6eeaa207b955b"
+    },
+    "observer_diff_matches_snapshot": true,
+    "reads": [
+      {
+        "path": "SPEC.md",
+        "start": 35,
+        "completion": 39,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "parse.mjs",
+        "start": 36,
+        "completion": 40,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "parse.test.mjs",
+        "start": 37,
+        "completion": 41,
+        "complete_initial_bytes": true,
+        "is_error": false
+      },
+      {
+        "path": "package.json",
+        "start": 38,
+        "completion": 42,
+        "complete_initial_bytes": true,
+        "is_error": false
+      }
+    ],
+    "tests": [
+      {
+        "command": "npm test",
+        "start": 66,
+        "completion": 73,
+        "is_error": false,
+        "counts": {
+          "tests": 1,
+          "pass": 1,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "full_result": "npm notice run test\nnpm notice run node --test\n\u2714 valid count (0.845104ms)\n\u2139 tests 1\n\u2139 suites 0\n\u2139 pass 1\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 80.738597\n"
+      },
+      {
+        "command": "npm test",
+        "start": 267,
+        "completion": 272,
+        "is_error": true,
+        "counts": {
+          "tests": 2,
+          "pass": 1,
+          "fail": 1,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "full_result": "npm notice run test\nnpm notice run node --test\n\u2714 valid count (0.716303ms)\n\u2716 invalid count (0.698072ms)\n\u2139 tests 2\n\u2139 suites 0\n\u2139 pass 1\n\u2139 fail 1\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 78.860787\n\n\u2716 failing tests:\n\ntest at parse.test.mjs:10:1\n\u2716 invalid count (0.698072ms)\n  AssertionError [ERR_ASSERTION]: Missing expected exception (TypeError).\n      at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F21-build-after-debug-skill/live-workspace/parse.test.mjs:12:12)\n      at Test.runInAsyncScope (node:async_hooks:226:14)\n      at Test.run (node:internal/test_runner/test:1397:25)\n      at Test.processPendingSubtests (node:internal/test_runner/test:969:18)\n      at Test.postRun (node:internal/test_runner/test:1537:19)\n      at Test.run (node:internal/test_runner/test:1462:12)\n      at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3) {\n    generatedMessage: false,\n    code: 'ERR_ASSERTION',\n    actual: undefined,\n    expected: TypeError: invalid count\n        at TestContext.<anonymous> (file:///home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F21-build-after-debug-skill/live-workspace/parse.test.mjs:12:44)\n        at Test.runInAsyncScope (node:async_hooks:226:14)\n        at Test.run (node:internal/test_runner/test:1397:25)\n        at Test.processPendingSubtests (node:internal/test_runner/test:969:18)\n        at Test.postRun (node:internal/test_runner/test:1537:19)\n        at Test.run (node:internal/test_runner/test:1462:12)\n        at async startSubtestAfterBootstrap (node:internal/test_runner/harness:387:3),\n    operator: 'throws',\n    diff: 'simple'\n  }\n\n\nCommand exited with code 1"
+      },
+      {
+        "command": "npm test",
+        "start": 431,
+        "completion": 436,
+        "is_error": false,
+        "counts": {
+          "tests": 2,
+          "pass": 2,
+          "fail": 0,
+          "cancelled": 0,
+          "skipped": 0
+        },
+        "full_result": "npm notice run test\nnpm notice run node --test\n\u2714 valid count (0.750933ms)\n\u2714 invalid count (0.763854ms)\n\u2139 tests 2\n\u2139 suites 0\n\u2139 pass 2\n\u2139 fail 0\n\u2139 cancelled 0\n\u2139 skipped 0\n\u2139 todo 0\n\u2139 duration_ms 76.195029\n"
+      }
+    ],
+    "mutations": [
+      {
+        "tool": "edit",
+        "path": "parse.test.mjs",
+        "start": 247,
+        "completion": 248
+      },
+      {
+        "tool": "edit",
+        "path": "parse.mjs",
+        "start": 411,
+        "completion": 412
+      },
+      {
+        "tool": "write",
+        "path": ".principal/reports/parser-build.md",
+        "start": 1294,
+        "completion": 1295
+      }
+    ],
+    "workspace_delta": {
+      ".principal/.gitignore": [
+        null,
+        "cdbcae15105d6b781e620813c79c7e868740d4e9cc53ce6f5fcbbc12387adf4b"
+      ],
+      "parse.test.mjs": [
+        "c7f79f0b8df67484539c64d35fe8995ebd2312044775e777f29748fcb8a67d04",
+        "a6a1b8670ba0eb3af6be3b90f235075a244eaf133c105950de2b9e9ed26b36b9"
+      ],
+      "parse.mjs": [
+        "53f4ee614a96b2f805c91ca4da5b1f62d3bb74c26d933a4fe8b7738ea69eda12",
+        "be6e52f6ea5b567fc6896ab642006ba1108824025be6d0c549900ebb93df95e1"
+      ],
+      ".principal/reports/parser-build.diff": [
+        null,
+        "977a840f66489dab98fd91776a20fb50ce235029cfcdfec2eb1405926680fc70"
+      ],
+      ".principal/reports/parser-build.md": [
+        null,
+        "fd6448428716da2bbc065d15e87ef818e7cbd9baa44f32b2e6c0d021c754d070"
+      ]
+    },
+    "git_delta": {},
+    "head_unchanged": true,
+    "branch_unchanged": true,
+    "index_entries_unchanged": true,
+    "config_unchanged": true,
+    "truncation_markers": []
+  }
+}

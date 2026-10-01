@@ -1,0 +1,5 @@
+1. FAIL — “required repair materials” does not explicitly name source report and acceptance.
+2. FAIL — No caller handoff repair is named; only “Next: blocked.”
+3. PASS — “required repair materials are missing”; no fix or acceptance claimed.
+VERDICT: FAIL
+REASON: Missing explicit source, acceptance, and caller handoff requirements.

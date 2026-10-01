@@ -1,0 +1,837 @@
+{
+  "case": {
+    "id": "F21-build-after-debug-skill",
+    "title": "Build slice after diagnosis, not a claimed chain",
+    "mode": "inline",
+    "critical": true,
+    "covers": [
+      "../../evals/requirement-fidelity/README.md#f21"
+    ],
+    "env": {
+      "workspace": "fixture:../../evals/requirement-fidelity/fixtures/debug"
+    },
+    "turns": [
+      "Approved implementation-only slice after a caller diagnosis: parseCount currently accepts suffixes. Authority SPEC.md. Reproduce the boundary failure yourself before fixing; implement full PARSE-1 rejection semantics, run npm test and identify the tested candidate. Save .principal/reports/parser-build.md. No actual Debug or Review child has run in this scenario, so do not claim that chain occurred."
+    ],
+    "checklist": [
+      "Visible test claims distinguish regression failure from subsequent suite success or explicitly name missing evidence; execution is assessed separately through traces.",
+      "Any visible semantics preserve entire-string digits and safe integers, TypeError invalid count otherwise, and 0,03,3 acceptance; absent saved test content remains UNVERIFIED rather than inferred from a summary.",
+      "Visible applied claims refer only to the fixture Build slice; no invented Debug proof, Review approval or parent repository change."
+    ],
+    "assert": {
+      "trace": {
+        "require_calls": [
+          {
+            "tool": "bash",
+            "args": {
+              "command": {
+                "matches": "\\bnpm test\\b"
+              }
+            }
+          },
+          {
+            "tool": "read",
+            "args": {
+              "path": {
+                "matches": "(^|/)SPEC\\.md$"
+              }
+            }
+          },
+          {
+            "tool": "read",
+            "args": {
+              "path": {
+                "matches": "(^|/)parse\\.mjs$"
+              }
+            }
+          },
+          {
+            "tool": "read",
+            "args": {
+              "path": {
+                "matches": "(^|/)parse\\.test\\.mjs$"
+              }
+            }
+          },
+          {
+            "tool": "write",
+            "args": {
+              "path": {
+                "matches": "(^|/)\\.principal/(plans|reports)/[^/]+\\.md$"
+              }
+            }
+          }
+        ],
+        "unchanged_paths": [
+          "SPEC.md"
+        ]
+      }
+    }
+  },
+  "fixture": "/home/neman/Code/principal-pi-skills/evals/requirement-fidelity/fixtures/debug",
+  "fixture_hashes": {
+    "parse.test.mjs": "c7f79f0b8df67484539c64d35fe8995ebd2312044775e777f29748fcb8a67d04",
+    "parse.mjs": "53f4ee614a96b2f805c91ca4da5b1f62d3bb74c26d933a4fe8b7738ea69eda12",
+    "symptom.md": "9448077fe6fff533bdd46319d21cc79b2cef4a26c84f3c8571e0b44749783391",
+    "package.json": "8bf23ab8a2ae4b669fc1132b0f6492518a45894d24ff90389474bf527982abf1",
+    "SPEC.md": "b2f3bf89283f0782d887d058003f12c78ede8140fc57ae55541d70b846692f36"
+  },
+  "setup": [
+    {
+      "command": [
+        "git",
+        "init",
+        "-b",
+        "observation-fixture"
+      ],
+      "exit_code": 0,
+      "stdout": "Initialized empty Git repository in /home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F21-build-after-debug-skill/live-workspace/.git/\n",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "config",
+        "user.name",
+        "Disposable full-capture observer"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "config",
+        "user.email",
+        "observer@example.invalid"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "add",
+        "."
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    {
+      "command": [
+        "git",
+        "-c",
+        "commit.gpgsign=false",
+        "commit",
+        "-m",
+        "Pristine fixture baseline (observer setup)"
+      ],
+      "exit_code": 0,
+      "stdout": "[observation-fixture (root-commit) ef2a331] Pristine fixture baseline (observer setup)\n 5 files changed, 16 insertions(+)\n create mode 100644 SPEC.md\n create mode 100644 package.json\n create mode 100644 parse.mjs\n create mode 100644 parse.test.mjs\n create mode 100644 symptom.md\n",
+      "stderr": ""
+    }
+  ],
+  "before": {
+    "stats": {
+      "parse.test.mjs": {
+        "mode": 33188,
+        "size": 174,
+        "mtime_ns": 1790764428555824103
+      },
+      "parse.mjs": {
+        "mode": 33188,
+        "size": 73,
+        "mtime_ns": 1790764428555733023
+      },
+      "symptom.md": {
+        "mode": 33188,
+        "size": 156,
+        "mtime_ns": 1790764428555965383
+      },
+      "package.json": {
+        "mode": 33188,
+        "size": 88,
+        "mtime_ns": 1790764428555560024
+      },
+      "SPEC.md": {
+        "mode": 33188,
+        "size": 431,
+        "mtime_ns": 1790764428555899223
+      },
+      ".git/index": {
+        "mode": 33188,
+        "size": 449,
+        "mtime_ns": 1790852145113390205
+      },
+      ".git/HEAD": {
+        "mode": 33188,
+        "size": 36,
+        "mtime_ns": 1790852145096902023
+      },
+      ".git/config": {
+        "mode": 33188,
+        "size": 174,
+        "mtime_ns": 1790852145104086709
+      },
+      ".git/COMMIT_EDITMSG": {
+        "mode": 33188,
+        "size": 43,
+        "mtime_ns": 1790852145114549739
+      },
+      ".git/description": {
+        "mode": 33188,
+        "size": 73,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/logs/HEAD": {
+        "mode": 33188,
+        "size": 220,
+        "mtime_ns": 1790852145116005305
+      },
+      ".git/info/exclude": {
+        "mode": 33188,
+        "size": 240,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/push-to-checkout.sample": {
+        "mode": 33261,
+        "size": 2783,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-commit.sample": {
+        "mode": 33261,
+        "size": 1649,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/applypatch-msg.sample": {
+        "mode": 33261,
+        "size": 478,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-push.sample": {
+        "mode": 33261,
+        "size": 1374,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/prepare-commit-msg.sample": {
+        "mode": 33261,
+        "size": 1492,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/sendemail-validate.sample": {
+        "mode": 33261,
+        "size": 2308,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-rebase.sample": {
+        "mode": 33261,
+        "size": 4898,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-receive.sample": {
+        "mode": 33261,
+        "size": 544,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/update.sample": {
+        "mode": 33261,
+        "size": 3650,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-merge-commit.sample": {
+        "mode": 33261,
+        "size": 416,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/commit-msg.sample": {
+        "mode": 33261,
+        "size": 896,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-applypatch.sample": {
+        "mode": 33261,
+        "size": 424,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/fsmonitor-watchman.sample": {
+        "mode": 33261,
+        "size": 4726,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/post-update.sample": {
+        "mode": 33261,
+        "size": 189,
+        "mtime_ns": 1790852145092786229
+      },
+      ".git/refs/heads/observation-fixture": {
+        "mode": 33188,
+        "size": 41,
+        "mtime_ns": 1790852145114549739
+      },
+      ".git/logs/refs/heads/observation-fixture": {
+        "mode": 33188,
+        "size": 220,
+        "mtime_ns": 1790852145116668857
+      },
+      ".git/objects/86/1fc5b7a36623eb556ae6bf8e191bae5a23ee14": {
+        "mode": 33060,
+        "size": 80,
+        "mtime_ns": 1790852145104786386
+      },
+      ".git/objects/5e/1da4a5400cc40ad1f264e1743593d4aae9e0c2": {
+        "mode": 33060,
+        "size": 314,
+        "mtime_ns": 1790852145104786386
+      },
+      ".git/objects/fc/71348bf1d6dab9a0bd9f3f0927852aa4c95c52": {
+        "mode": 33060,
+        "size": 133,
+        "mtime_ns": 1790852145104786386
+      },
+      ".git/objects/72/90bfa84864fc0dafcfa475ce98edf1077627dc": {
+        "mode": 33060,
+        "size": 138,
+        "mtime_ns": 1790852145108786441
+      },
+      ".git/objects/ef/2a33121bd0be9b39c03bb3d0b6eeaa207b955b": {
+        "mode": 33060,
+        "size": 167,
+        "mtime_ns": 1790852145114549739
+      },
+      ".git/objects/8f/26659a0f9c353d50cfa38efcb4913817cc60dd": {
+        "mode": 33060,
+        "size": 183,
+        "mtime_ns": 1790852145113390205
+      },
+      ".git/objects/6f/b203a36c0afe9854b553f5e7eed3aea3196bb7": {
+        "mode": 33060,
+        "size": 85,
+        "mtime_ns": 1790852145104786386
+      }
+    },
+    "hashes": {
+      "parse.test.mjs": "c7f79f0b8df67484539c64d35fe8995ebd2312044775e777f29748fcb8a67d04",
+      "parse.mjs": "53f4ee614a96b2f805c91ca4da5b1f62d3bb74c26d933a4fe8b7738ea69eda12",
+      "symptom.md": "9448077fe6fff533bdd46319d21cc79b2cef4a26c84f3c8571e0b44749783391",
+      "package.json": "8bf23ab8a2ae4b669fc1132b0f6492518a45894d24ff90389474bf527982abf1",
+      "SPEC.md": "b2f3bf89283f0782d887d058003f12c78ede8140fc57ae55541d70b846692f36"
+    },
+    "git_hashes": {
+      ".git/index": "42218f2867883fb57d8d8ff9641e0a41794090fd88141595285d87dedd27a739",
+      ".git/HEAD": "4043a8a2df780d1a86de9b5159dec3de2f3cfbc798105b84cf2fff1186d32fb1",
+      ".git/config": "4b699afae1a413723dae363d50182c9e4f1dc157bc342bf91fe183d22e7a9b33",
+      ".git/COMMIT_EDITMSG": "9b9b5646c8e8737a9b7f1b055b5e829eef0bd3192b94685781047519c6da9126",
+      ".git/description": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee",
+      ".git/logs/HEAD": "92d4718e65c41152850658e2e8170a4dd94ffbf4e0c7d71b693a0f96aba61d28",
+      ".git/info/exclude": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1",
+      ".git/hooks/push-to-checkout.sample": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f",
+      ".git/hooks/pre-commit.sample": "57185b7b9f05239d7ab52db045f5b89eb31348d7b2177eab214f5eb872e1971b",
+      ".git/hooks/applypatch-msg.sample": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7",
+      ".git/hooks/pre-push.sample": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a",
+      ".git/hooks/prepare-commit-msg.sample": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619",
+      ".git/hooks/sendemail-validate.sample": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92",
+      ".git/hooks/pre-rebase.sample": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3",
+      ".git/hooks/pre-receive.sample": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989",
+      ".git/hooks/update.sample": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106",
+      ".git/hooks/pre-merge-commit.sample": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53",
+      ".git/hooks/commit-msg.sample": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437",
+      ".git/hooks/pre-applypatch.sample": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475",
+      ".git/hooks/fsmonitor-watchman.sample": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0",
+      ".git/hooks/post-update.sample": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5",
+      ".git/refs/heads/observation-fixture": "c70681cea33c7c9d06dc9b6693be01bfc534dbc9065c7b952aa3d8936fa614e0",
+      ".git/logs/refs/heads/observation-fixture": "92d4718e65c41152850658e2e8170a4dd94ffbf4e0c7d71b693a0f96aba61d28",
+      ".git/objects/86/1fc5b7a36623eb556ae6bf8e191bae5a23ee14": "b9f7cb50d77242d131cd6872bd6d0b179e09e70ca9a9d3f287604ede4275d1ef",
+      ".git/objects/5e/1da4a5400cc40ad1f264e1743593d4aae9e0c2": "b50667d013cc0e1905c687b23a149339a33b2f42f421d3ab0ec7cc4a594c0278",
+      ".git/objects/fc/71348bf1d6dab9a0bd9f3f0927852aa4c95c52": "8049da442ac0efe159376936f3eb3dbf4246fa685428de0716bda685e6b63006",
+      ".git/objects/72/90bfa84864fc0dafcfa475ce98edf1077627dc": "eac5071ec152a79d2ac3d9aa888a684ef85c67fca7d0d5a40dac98ab6556d429",
+      ".git/objects/ef/2a33121bd0be9b39c03bb3d0b6eeaa207b955b": "66d5c61d8747f7791a7658595abd1bc342e801518ed4b938fd812875db06ad01",
+      ".git/objects/8f/26659a0f9c353d50cfa38efcb4913817cc60dd": "60a92ac152676f31772644e1ddcd3140bf3a7fc6e9664a72a650f2bc9e0a8de6",
+      ".git/objects/6f/b203a36c0afe9854b553f5e7eed3aea3196bb7": "37e14acee7e32ccca106a0071483665c865aa1c7c5b3c0334c2059284a3ec168"
+    },
+    "head": {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "ef2a33121bd0be9b39c03bb3d0b6eeaa207b955b\n",
+      "stderr": ""
+    },
+    "status": {
+      "command": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "ignored_status": {
+      "command": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "index": {
+      "command": [
+        "git",
+        "ls-files",
+        "--stage"
+      ],
+      "exit_code": 0,
+      "stdout": "100644 5e1da4a5400cc40ad1f264e1743593d4aae9e0c2 0\tSPEC.md\n100644 6fb203a36c0afe9854b553f5e7eed3aea3196bb7 0\tpackage.json\n100644 861fc5b7a36623eb556ae6bf8e191bae5a23ee14 0\tparse.mjs\n100644 fc71348bf1d6dab9a0bd9f3f0927852aa4c95c52 0\tparse.test.mjs\n100644 7290bfa84864fc0dafcfa475ce98edf1077627dc 0\tsymptom.md\n",
+      "stderr": ""
+    },
+    "nonignored_untracked": {
+      "command": [
+        "git",
+        "ls-files",
+        "--others",
+        "--exclude-standard"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "all_untracked": {
+      "command": [
+        "git",
+        "ls-files",
+        "--others"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "config": {
+      "command": [
+        "git",
+        "config",
+        "--show-origin",
+        "--list"
+      ],
+      "exit_code": 0,
+      "stdout": "file:/home/neman/.gitconfig\tuser.name=mojomanyana\nfile:/home/neman/.gitconfig\tuser.email=nemanjaalavanja@gmail.com\nfile:/home/neman/.gitconfig\tcredential.https://github.com.helper=\nfile:/home/neman/.gitconfig\tcredential.https://github.com.helper=!/usr/bin/gh auth git-credential\nfile:/home/neman/.gitconfig\tcredential.https://gist.github.com.helper=\nfile:/home/neman/.gitconfig\tcredential.https://gist.github.com.helper=!/usr/bin/gh auth git-credential\nfile:.git/config\tcore.repositoryformatversion=0\nfile:.git/config\tcore.filemode=true\nfile:.git/config\tcore.bare=false\nfile:.git/config\tcore.logallrefupdates=true\nfile:.git/config\tuser.name=Disposable full-capture observer\nfile:.git/config\tuser.email=observer@example.invalid\n",
+      "stderr": ""
+    },
+    "identity": {
+      "command": [
+        "git",
+        "show",
+        "-s",
+        "--format=fuller",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "commit ef2a33121bd0be9b39c03bb3d0b6eeaa207b955b\nAuthor:     Disposable full-capture observer <observer@example.invalid>\nAuthorDate: Thu Oct 1 12:55:45 2026 +0200\nCommit:     Disposable full-capture observer <observer@example.invalid>\nCommitDate: Thu Oct 1 12:55:45 2026 +0200\n\n    Pristine fixture baseline (observer setup)\n",
+      "stderr": ""
+    },
+    "branch": {
+      "command": [
+        "git",
+        "symbolic-ref",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "refs/heads/observation-fixture\n",
+      "stderr": ""
+    }
+  },
+  "command": [
+    "pi",
+    "--provider",
+    "openai-codex",
+    "--model",
+    "gpt-5.5",
+    "--thinking",
+    "medium",
+    "--no-extensions",
+    "--no-skills",
+    "--no-prompt-templates",
+    "--no-context-files",
+    "--no-approve",
+    "--tools",
+    "read,grep,find,ls,edit,write,bash",
+    "--append-system-prompt",
+    "/home/neman/Code/principal-pi-skills/build/SKILL.md",
+    "--mode",
+    "json",
+    "--session",
+    "/home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F21-build-after-debug-skill/session.jsonl",
+    "Approved implementation-only slice after a caller diagnosis: parseCount currently accepts suffixes. Authority SPEC.md. Reproduce the boundary failure yourself before fixing; implement full PARSE-1 rejection semantics, run npm test and identify the tested candidate. Save .principal/reports/parser-build.md. No actual Debug or Review child has run in this scenario, so do not claim that chain occurred."
+  ],
+  "cwd": "/home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/F21-build-after-debug-skill/live-workspace",
+  "prompt": "Approved implementation-only slice after a caller diagnosis: parseCount currently accepts suffixes. Authority SPEC.md. Reproduce the boundary failure yourself before fixing; implement full PARSE-1 rejection semantics, run npm test and identify the tested candidate. Save .principal/reports/parser-build.md. No actual Debug or Review child has run in this scenario, so do not claim that chain occurred.",
+  "parent_SHA": "78ca09de4c80bf9d592ec811a1d6bebe53bb13f9",
+  "contract": "/home/neman/Code/principal-pi-skills/build/SKILL.md",
+  "contract_sha256": "f84c8387c5f516c999b205c1af18923134c344ee1928312bbd2282776c952dcf",
+  "helper_sha256": "194a319cfb59a1c8191afb50f39ffb5f048b64f54dc2229d4b4c14fa8b92f457",
+  "timeout_seconds": 900,
+  "started": "2026-10-01T10:55:45.164376+00:00",
+  "attempt": 1,
+  "environment_overrides": {
+    "PI_CODING_AGENT_DIR": "/home/neman/Code/principal-pi-skills/.principal/reports/build-handoff-repair-78ca09d/observations-after/private-agent",
+    "PI_OFFLINE": "1",
+    "PI_SKIP_VERSION_CHECK": "1",
+    "PI_TELEMETRY": "0",
+    "GIT_OPTIONAL_LOCKS": "0"
+  },
+  "exit_code": 0,
+  "after": {
+    "stats": {
+      "parse.test.mjs": {
+        "mode": 33188,
+        "size": 450,
+        "mtime_ns": 1790852159940983466
+      },
+      "parse.mjs": {
+        "mode": 33188,
+        "size": 279,
+        "mtime_ns": 1790852165933063061
+      },
+      "symptom.md": {
+        "mode": 33188,
+        "size": 156,
+        "mtime_ns": 1790764428555965383
+      },
+      "package.json": {
+        "mode": 33188,
+        "size": 88,
+        "mtime_ns": 1790764428555560024
+      },
+      "SPEC.md": {
+        "mode": 33188,
+        "size": 431,
+        "mtime_ns": 1790764428555899223
+      },
+      ".git/index": {
+        "mode": 33188,
+        "size": 449,
+        "mtime_ns": 1790852145113390205
+      },
+      ".git/HEAD": {
+        "mode": 33188,
+        "size": 36,
+        "mtime_ns": 1790852145096902023
+      },
+      ".git/config": {
+        "mode": 33188,
+        "size": 174,
+        "mtime_ns": 1790852145104086709
+      },
+      ".git/COMMIT_EDITMSG": {
+        "mode": 33188,
+        "size": 43,
+        "mtime_ns": 1790852145114549739
+      },
+      ".git/description": {
+        "mode": 33188,
+        "size": 73,
+        "mtime_ns": 1790852145091261200
+      },
+      ".principal/.gitignore": {
+        "mode": 33188,
+        "size": 2,
+        "mtime_ns": 1790852174506483094
+      },
+      ".principal/reports/parser-build.md": {
+        "mode": 33188,
+        "size": 1881,
+        "mtime_ns": 1790852196881473985
+      },
+      ".principal/reports/parser-build.diff": {
+        "mode": 33188,
+        "size": 1137,
+        "mtime_ns": 1790852179461211669
+      },
+      ".git/logs/HEAD": {
+        "mode": 33188,
+        "size": 220,
+        "mtime_ns": 1790852145116005305
+      },
+      ".git/info/exclude": {
+        "mode": 33188,
+        "size": 240,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/push-to-checkout.sample": {
+        "mode": 33261,
+        "size": 2783,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-commit.sample": {
+        "mode": 33261,
+        "size": 1649,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/applypatch-msg.sample": {
+        "mode": 33261,
+        "size": 478,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-push.sample": {
+        "mode": 33261,
+        "size": 1374,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/prepare-commit-msg.sample": {
+        "mode": 33261,
+        "size": 1492,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/sendemail-validate.sample": {
+        "mode": 33261,
+        "size": 2308,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-rebase.sample": {
+        "mode": 33261,
+        "size": 4898,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-receive.sample": {
+        "mode": 33261,
+        "size": 544,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/update.sample": {
+        "mode": 33261,
+        "size": 3650,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-merge-commit.sample": {
+        "mode": 33261,
+        "size": 416,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/commit-msg.sample": {
+        "mode": 33261,
+        "size": 896,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/pre-applypatch.sample": {
+        "mode": 33261,
+        "size": 424,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/fsmonitor-watchman.sample": {
+        "mode": 33261,
+        "size": 4726,
+        "mtime_ns": 1790852145091261200
+      },
+      ".git/hooks/post-update.sample": {
+        "mode": 33261,
+        "size": 189,
+        "mtime_ns": 1790852145092786229
+      },
+      ".git/refs/heads/observation-fixture": {
+        "mode": 33188,
+        "size": 41,
+        "mtime_ns": 1790852145114549739
+      },
+      ".git/logs/refs/heads/observation-fixture": {
+        "mode": 33188,
+        "size": 220,
+        "mtime_ns": 1790852145116668857
+      },
+      ".git/objects/86/1fc5b7a36623eb556ae6bf8e191bae5a23ee14": {
+        "mode": 33060,
+        "size": 80,
+        "mtime_ns": 1790852145104786386
+      },
+      ".git/objects/5e/1da4a5400cc40ad1f264e1743593d4aae9e0c2": {
+        "mode": 33060,
+        "size": 314,
+        "mtime_ns": 1790852145104786386
+      },
+      ".git/objects/fc/71348bf1d6dab9a0bd9f3f0927852aa4c95c52": {
+        "mode": 33060,
+        "size": 133,
+        "mtime_ns": 1790852145104786386
+      },
+      ".git/objects/72/90bfa84864fc0dafcfa475ce98edf1077627dc": {
+        "mode": 33060,
+        "size": 138,
+        "mtime_ns": 1790852145108786441
+      },
+      ".git/objects/ef/2a33121bd0be9b39c03bb3d0b6eeaa207b955b": {
+        "mode": 33060,
+        "size": 167,
+        "mtime_ns": 1790852145114549739
+      },
+      ".git/objects/8f/26659a0f9c353d50cfa38efcb4913817cc60dd": {
+        "mode": 33060,
+        "size": 183,
+        "mtime_ns": 1790852145113390205
+      },
+      ".git/objects/6f/b203a36c0afe9854b553f5e7eed3aea3196bb7": {
+        "mode": 33060,
+        "size": 85,
+        "mtime_ns": 1790852145104786386
+      }
+    },
+    "hashes": {
+      "parse.test.mjs": "a6a1b8670ba0eb3af6be3b90f235075a244eaf133c105950de2b9e9ed26b36b9",
+      "parse.mjs": "be6e52f6ea5b567fc6896ab642006ba1108824025be6d0c549900ebb93df95e1",
+      "symptom.md": "9448077fe6fff533bdd46319d21cc79b2cef4a26c84f3c8571e0b44749783391",
+      "package.json": "8bf23ab8a2ae4b669fc1132b0f6492518a45894d24ff90389474bf527982abf1",
+      "SPEC.md": "b2f3bf89283f0782d887d058003f12c78ede8140fc57ae55541d70b846692f36",
+      ".principal/.gitignore": "cdbcae15105d6b781e620813c79c7e868740d4e9cc53ce6f5fcbbc12387adf4b",
+      ".principal/reports/parser-build.md": "fd6448428716da2bbc065d15e87ef818e7cbd9baa44f32b2e6c0d021c754d070",
+      ".principal/reports/parser-build.diff": "977a840f66489dab98fd91776a20fb50ce235029cfcdfec2eb1405926680fc70"
+    },
+    "git_hashes": {
+      ".git/index": "42218f2867883fb57d8d8ff9641e0a41794090fd88141595285d87dedd27a739",
+      ".git/HEAD": "4043a8a2df780d1a86de9b5159dec3de2f3cfbc798105b84cf2fff1186d32fb1",
+      ".git/config": "4b699afae1a413723dae363d50182c9e4f1dc157bc342bf91fe183d22e7a9b33",
+      ".git/COMMIT_EDITMSG": "9b9b5646c8e8737a9b7f1b055b5e829eef0bd3192b94685781047519c6da9126",
+      ".git/description": "85ab6c163d43a17ea9cf7788308bca1466f1b0a8d1cc92e26e9bf63da4062aee",
+      ".git/logs/HEAD": "92d4718e65c41152850658e2e8170a4dd94ffbf4e0c7d71b693a0f96aba61d28",
+      ".git/info/exclude": "6671fe83b7a07c8932ee89164d1f2793b2318058eb8b98dc5c06ee0a5a3b0ec1",
+      ".git/hooks/push-to-checkout.sample": "a53d0741798b287c6dd7afa64aee473f305e65d3f49463bb9d7408ec3b12bf5f",
+      ".git/hooks/pre-commit.sample": "57185b7b9f05239d7ab52db045f5b89eb31348d7b2177eab214f5eb872e1971b",
+      ".git/hooks/applypatch-msg.sample": "0223497a0b8b033aa58a3a521b8629869386cf7ab0e2f101963d328aa62193f7",
+      ".git/hooks/pre-push.sample": "ecce9c7e04d3f5dd9d8ada81753dd1d549a9634b26770042b58dda00217d086a",
+      ".git/hooks/prepare-commit-msg.sample": "e9ddcaa4189fddd25ed97fc8c789eca7b6ca16390b2392ae3276f0c8e1aa4619",
+      ".git/hooks/sendemail-validate.sample": "44ebfc923dc5466bc009602f0ecf067b9c65459abfe8868ddc49b78e6ced7a92",
+      ".git/hooks/pre-rebase.sample": "4febce867790052338076f4e66cc47efb14879d18097d1d61c8261859eaaa7b3",
+      ".git/hooks/pre-receive.sample": "a4c3d2b9c7bb3fd8d1441c31bd4ee71a595d66b44fcf49ddb310252320169989",
+      ".git/hooks/update.sample": "8d5f2fa83e103cf08b57eaa67521df9194f45cbdbcb37da52ad586097a14d106",
+      ".git/hooks/pre-merge-commit.sample": "d3825a70337940ebbd0a5c072984e13245920cdf8898bd225c8d27a6dfc9cb53",
+      ".git/hooks/commit-msg.sample": "1f74d5e9292979b573ebd59741d46cb93ff391acdd083d340b94370753d92437",
+      ".git/hooks/pre-applypatch.sample": "e15c5b469ea3e0a695bea6f2c82bcf8e62821074939ddd85b77e0007ff165475",
+      ".git/hooks/fsmonitor-watchman.sample": "e0549964e93897b519bd8e333c037e51fff0f88ba13e086a331592bf801fa1d0",
+      ".git/hooks/post-update.sample": "81765af2daef323061dcbc5e61fc16481cb74b3bac9ad8a174b186523586f6c5",
+      ".git/refs/heads/observation-fixture": "c70681cea33c7c9d06dc9b6693be01bfc534dbc9065c7b952aa3d8936fa614e0",
+      ".git/logs/refs/heads/observation-fixture": "92d4718e65c41152850658e2e8170a4dd94ffbf4e0c7d71b693a0f96aba61d28",
+      ".git/objects/86/1fc5b7a36623eb556ae6bf8e191bae5a23ee14": "b9f7cb50d77242d131cd6872bd6d0b179e09e70ca9a9d3f287604ede4275d1ef",
+      ".git/objects/5e/1da4a5400cc40ad1f264e1743593d4aae9e0c2": "b50667d013cc0e1905c687b23a149339a33b2f42f421d3ab0ec7cc4a594c0278",
+      ".git/objects/fc/71348bf1d6dab9a0bd9f3f0927852aa4c95c52": "8049da442ac0efe159376936f3eb3dbf4246fa685428de0716bda685e6b63006",
+      ".git/objects/72/90bfa84864fc0dafcfa475ce98edf1077627dc": "eac5071ec152a79d2ac3d9aa888a684ef85c67fca7d0d5a40dac98ab6556d429",
+      ".git/objects/ef/2a33121bd0be9b39c03bb3d0b6eeaa207b955b": "66d5c61d8747f7791a7658595abd1bc342e801518ed4b938fd812875db06ad01",
+      ".git/objects/8f/26659a0f9c353d50cfa38efcb4913817cc60dd": "60a92ac152676f31772644e1ddcd3140bf3a7fc6e9664a72a650f2bc9e0a8de6",
+      ".git/objects/6f/b203a36c0afe9854b553f5e7eed3aea3196bb7": "37e14acee7e32ccca106a0071483665c865aa1c7c5b3c0334c2059284a3ec168"
+    },
+    "head": {
+      "command": [
+        "git",
+        "rev-parse",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "ef2a33121bd0be9b39c03bb3d0b6eeaa207b955b\n",
+      "stderr": ""
+    },
+    "status": {
+      "command": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--untracked-files=all"
+      ],
+      "exit_code": 0,
+      "stdout": " M parse.mjs\n M parse.test.mjs\n",
+      "stderr": ""
+    },
+    "ignored_status": {
+      "command": [
+        "git",
+        "status",
+        "--porcelain=v1",
+        "--ignored",
+        "--untracked-files=all"
+      ],
+      "exit_code": 0,
+      "stdout": " M parse.mjs\n M parse.test.mjs\n!! .principal/.gitignore\n!! .principal/reports/parser-build.diff\n!! .principal/reports/parser-build.md\n",
+      "stderr": ""
+    },
+    "index": {
+      "command": [
+        "git",
+        "ls-files",
+        "--stage"
+      ],
+      "exit_code": 0,
+      "stdout": "100644 5e1da4a5400cc40ad1f264e1743593d4aae9e0c2 0\tSPEC.md\n100644 6fb203a36c0afe9854b553f5e7eed3aea3196bb7 0\tpackage.json\n100644 861fc5b7a36623eb556ae6bf8e191bae5a23ee14 0\tparse.mjs\n100644 fc71348bf1d6dab9a0bd9f3f0927852aa4c95c52 0\tparse.test.mjs\n100644 7290bfa84864fc0dafcfa475ce98edf1077627dc 0\tsymptom.md\n",
+      "stderr": ""
+    },
+    "nonignored_untracked": {
+      "command": [
+        "git",
+        "ls-files",
+        "--others",
+        "--exclude-standard"
+      ],
+      "exit_code": 0,
+      "stdout": "",
+      "stderr": ""
+    },
+    "all_untracked": {
+      "command": [
+        "git",
+        "ls-files",
+        "--others"
+      ],
+      "exit_code": 0,
+      "stdout": ".principal/.gitignore\n.principal/reports/parser-build.diff\n.principal/reports/parser-build.md\n",
+      "stderr": ""
+    },
+    "config": {
+      "command": [
+        "git",
+        "config",
+        "--show-origin",
+        "--list"
+      ],
+      "exit_code": 0,
+      "stdout": "file:/home/neman/.gitconfig\tuser.name=mojomanyana\nfile:/home/neman/.gitconfig\tuser.email=nemanjaalavanja@gmail.com\nfile:/home/neman/.gitconfig\tcredential.https://github.com.helper=\nfile:/home/neman/.gitconfig\tcredential.https://github.com.helper=!/usr/bin/gh auth git-credential\nfile:/home/neman/.gitconfig\tcredential.https://gist.github.com.helper=\nfile:/home/neman/.gitconfig\tcredential.https://gist.github.com.helper=!/usr/bin/gh auth git-credential\nfile:.git/config\tcore.repositoryformatversion=0\nfile:.git/config\tcore.filemode=true\nfile:.git/config\tcore.bare=false\nfile:.git/config\tcore.logallrefupdates=true\nfile:.git/config\tuser.name=Disposable full-capture observer\nfile:.git/config\tuser.email=observer@example.invalid\n",
+      "stderr": ""
+    },
+    "identity": {
+      "command": [
+        "git",
+        "show",
+        "-s",
+        "--format=fuller",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "commit ef2a33121bd0be9b39c03bb3d0b6eeaa207b955b\nAuthor:     Disposable full-capture observer <observer@example.invalid>\nAuthorDate: Thu Oct 1 12:55:45 2026 +0200\nCommit:     Disposable full-capture observer <observer@example.invalid>\nCommitDate: Thu Oct 1 12:55:45 2026 +0200\n\n    Pristine fixture baseline (observer setup)\n",
+      "stderr": ""
+    },
+    "branch": {
+      "command": [
+        "git",
+        "symbolic-ref",
+        "HEAD"
+      ],
+      "exit_code": 0,
+      "stdout": "refs/heads/observation-fixture\n",
+      "stderr": ""
+    }
+  },
+  "observer_diff_exit": 0,
+  "finished": "2026-10-01T10:56:45.850655+00:00",
+  "parser": "accepted unchanged parse_events",
+  "assistant_models": [
+    [
+      "openai-codex",
+      "gpt-5.5",
+      null
+    ]
+  ],
+  "subject_errors": [],
+  "last_stop_reason": "stop"
+}

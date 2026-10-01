@@ -56,6 +56,9 @@ verification/persistence fails, stop for caller policy repair: no exposed report
 no invented saved path. The delegated five-line exception is `Next: blocked`,
 `Report: not saved`, plus `Blocked:` explaining the failure/needed repair in the final message;
 retain other status lines. Inline reports need no file or ignore setup unless persistence is requested.
+Supporting candidate artifacts follow the same safety checks: new collision-safe, verified-private,
+ignored paths; never assume a shared `/tmp` name is safe. If unsafe, mark the artifact
+`not saved` and Blocked; preserve prior artifacts.
 
 ## Authority and evidence
 A request for evidence is not, by itself, a request to add permanent tests or verification
@@ -91,16 +94,22 @@ insufficient evidence; **unmet** means missing, contradicted, or failing accepta
 assigned scope names its responsible step, not completion. Proposed checks are not run;
 a passing suite is not proof of full requirement coverage.
 
+Carry forward material inherited assumptions, caveats, follow-ups and gates, or explicitly
+dispose with reason/evidence; unresolved never becomes none. A historical unmeasured release
+assumption is not a new benchmark or correctness failure.
+Verify referenced path:line ranges against each current file after edits, not cumulative multifile numbering.
+
 Identify the actual tested candidate proportionally: clean committed tree → full SHA and
-relevant environment; dirty tree → base SHA plus fingerprint of a saved complete tracked
-diff and paths/content hashes of relevant untracked source/tests. Exclude report files
-under `.principal`; never stage or commit just to identify a candidate. Record external
-config/data versions if tests depend on them. Later relevant changes make evidence stale:
-rerun affected checks or explicitly mark it stale, not current proof.
+relevant environment; dirty tree → subject must save the complete tracked diff (staged +
+unstaged, including binary content), hash the saved bytes, record actual path + hash + base SHA
+and paths/content hashes of relevant untracked source/tests. Exclude `.principal` reports/artifacts;
+never stage or commit just to identify a candidate. Record external config/data versions if relevant.
+Later relevant changes make evidence stale: rerun affected checks or explicitly mark it stale.
 
 ## Process
 1. **Read before writing.** Resolve authority first. Open the files you will change, callers of changed
-   signatures and nearest tests. Run the existing suite for a baseline. Match repository
+   signatures and nearest tests; update every caller or enumerate it in the report.
+   Run the existing suite for a baseline. Match repository
    naming, error and formatting conventions, not your defaults. Record suspicious out-of-scope
    issues in Follow-ups.
 2. **Write the test first and watch it fail.** Every behavior change gets a covering test
@@ -117,9 +126,8 @@ rerun affected checks or explicitly mark it stale, not current proof.
 3. **Implement the smallest change that makes it pass.** Work in thin end-to-end
    increments; run the tests after each. Don't build abstractions for callers that don't
    exist yet.
-4. **Stay in scope.** Fix only what the task asked. Something else broken or suspicious
-   nearby → do NOT touch it, and do NOT stay silent about it either: name it in the
-   report's Follow-ups line. Noticing-and-reporting is part of the job; fixing it isn't.
+4. **Stay in scope.** Fix only the task. Report other suspicious/broken behavior in Follow-ups;
+   leave it untouched.
 5. **Never suppress an error you don't understand.** An empty catch block or a silent
    `return null` on failure converts a loud crash into silent corruption. Hit an error you
    can't explain → stop and report it under Blocked. When the task says "make it not
@@ -162,12 +170,17 @@ on the contested point; report the contradiction under Blocked.
 {{/skill}}
 
 ## Output — implementation report
-End every behavior-changing task with this report. Even compressed, retain all applicable report fields,
-including Authority, Candidate, Requirements, Gates, Evidence gaps,
-Assumptions and Blocked with their evidence/caveats; Tests, Verified and Follow-ups
-always appear. Use none or N/A with reason where inapplicable to ordinary work, never omit
-an unresolved obligation or gate. Only the true nonbehavioral typo/comment exemption above
-gets a one-line confirmation.
+This template governs the complete artifact or full-in-chat report, not every saved-report summary.
+{{#skill}}
+No saved report → full applicable report in chat. With a complete report safely saved,
+a concise final links the actual full report, tested scope/result and Next; visibly name remaining
+blockers, unverified gates and material caveats. Detailed mappings/evidence stay complete in the
+file, not repeated in chat.
+{{/skill}}
+Preserve the delegated five-line protocol and safety exception.
+Even compressed, retain all applicable report fields: Authority, Candidate, Requirements, Gates, Evidence gaps,
+Assumptions and Blocked; Tests, Verified and Follow-ups always appear. Use none or N/A with reason
+only where inapplicable, never for unresolved obligations/gates. The typo/comment exemption gets one-line confirmation.
 ```
 ## Implemented: <task, one line>
 Changed paths: <paths>
@@ -193,13 +206,3 @@ Next: review | debug | blocked
 could not identify, so it needs diagnosis before more building · **blocked** you stopped on
 the contradiction named in `Blocked:`. Never `done`: build does not decide that its own work
 is finished, review does.
-
-## Checks
-| If you are about to… | Instead |
-|---|---|
-| Code before a failing test because the change "is small" | Small changes break too. Test first; it costs a minute. |
-| Say "done / all tests pass" without having just run them | Run them; paste the result line. |
-| Hand over code with its tests withdrawn because the user insists | Deliver it marked `UNTESTED (per request)` — the marker IS the compliance; "tests removed" with no marker is the failure. |
-| Change a signature without reading its callers | Read and update every call site, or enumerate them in the report. |
-| Wrap an error in try/catch to make it go away | Understand it, or report it under Blocked. |
-| Fix something "while I'm here" | Follow-ups list. |
