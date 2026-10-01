@@ -135,10 +135,10 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install an immutable tag, not a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.1
+   pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.2
    ```
 
-   The v4.7.1 `pi` manifest registers the eight skills, the four `/principal-*` commands,
+   The v4.7.2 `pi` manifest registers the eight skills, the four `/principal-*` commands,
    and the bootstrap extension — it loads automatically with
    the package; there is no separate extension-install step. Unpinned `main` moves under
    you, so install a tag if you want a fixed, nameable behavior.
@@ -148,8 +148,8 @@ CHANGELOG.md                          release history
    and reports success. `2.3.1` is the lowest safe version.
 
 2. **Subagents (optional).** Use the **same source** as the installed skills. Before npm
-   publication, npm latest is 4.6.0; unpinned `npx` would install/check older definitions,
-   and npm `@4.7.1` is not yet available. Either locate the actual installed tagged package
+   publication, npm latest is 4.7.1; unpinned `npx` would install/check older definitions,
+   and npm `@4.7.2` is not yet available. Either locate the actual installed tagged package
    (its path varies by Pi configuration) and run its `scripts/install-agents.mjs` with Node,
    or use this concrete matching-tag disposable checkout recipe:
 
@@ -158,8 +158,8 @@ CHANGELOG.md                          release history
      set -eu
      source_dir=$(mktemp -d)
      trap 'rm -rf -- "$source_dir"' EXIT
-     git clone --depth 1 --branch v4.7.1 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
-     test "$(git -C "$source_dir/package" rev-parse HEAD)" = "$(git -C "$source_dir/package" rev-parse 'v4.7.1^{commit}')"
+     git clone --depth 1 --branch v4.7.2 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
+     test "$(git -C "$source_dir/package" rev-parse HEAD)" = "$(git -C "$source_dir/package" rev-parse 'v4.7.2^{commit}')"
      git -C "$source_dir/package" rev-parse HEAD  # retain the resolved source identity
      node "$source_dir/package/scripts/install-agents.mjs" install
      node "$source_dir/package/scripts/install-agents.mjs" check
@@ -169,14 +169,14 @@ CHANGELOG.md                          release history
    After npm publication, and only once the matching package is available, pin both commands:
 
    ```sh
-   npx -p principal-pi-skills@4.7.1 principal-pi-agents install
-   npx -p principal-pi-skills@4.7.1 principal-pi-agents check
+   npx -p principal-pi-skills@4.7.2 principal-pi-agents install
+   npx -p principal-pi-skills@4.7.2 principal-pi-agents check
    ```
 
-   Version 4.7.1 combines PR #58 and its repairs under one new tag on the final merged
-   commit. The existing v4.7.0 tag at `448ac76` remains historical and excludes later repairs;
-   do not move it. Use the commands above after the v4.7.1 tag exists; npm publication is
-   separate. The checkout check verifies tag/HEAD consistency, not independent tag trust;
+   Version 4.7.2 moves behavioral measurement to the separate
+   `principal-pi-skills-evals` repository while retaining routing checks here. Use the commands
+   above after the v4.7.2 tag exists; npm publication is separate. The checkout check verifies
+   tag/HEAD consistency, not independent tag trust;
    compare the recorded SHA with the release identity when provenance matters. Before tagging,
    validate the actual candidate's skills and installer in an isolated `PI_CODING_AGENT_DIR`.
    Known behavioral qualification limits remain documented; combining the release does not waive them.

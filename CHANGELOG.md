@@ -6,6 +6,21 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.7.2] — 2026-10-01
+
+**Changed — behavioral measurement moved out (#59).** The requirement-fidelity corpus,
+skill-harness specifications and results, retained evidence, replay tooling, and their
+repository tests now live in
+[principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals).
+Routing inputs and baselines remain here, and `npm test` now covers only current product and
+contract behavior; previously this repository also retained the behavioral corpus and
+historical evidence checks.
+
+**Reaffirmed — the 4.0.1 boundary.** Behavioral measurement belongs in the external
+measurement repository rather than this runtime package. PR #59 applies that original 4.0.1
+decision to the later requirement-fidelity material instead of maintaining a local exception.
+No skill, agent, prompt, bootstrap, or generated contract text changed.
+
 ## [4.7.1] — 2026-10-01
 
 **Combined release candidate — all requirement-fidelity work and repairs (#58).** This
