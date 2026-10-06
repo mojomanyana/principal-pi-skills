@@ -6,6 +6,23 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.7.3] — 2026-10-06
+
+**Changed — current release and measurement documentation.** Installation examples and
+subagent pins now target the immutable `v4.7.3` release; before npm publication, the documented
+registry latest is 4.7.2 and npm `@4.7.3` remains unavailable. Previously the documentation
+still described 4.7.2 as unpublished after it became npm `latest`.
+
+**Documented — external frozen-rubric baseline.** The README now links the current
+[principal-pi-skills-evals baseline](https://github.com/mojomanyana/principal-pi-skills-evals/blob/main/BASELINE.md),
+which records DeepSeek V4.1 Flash at 56/158 (35%) with 2 infrastructure-error scenarios
+and Nemotron Lightning at 28/158 (18%) with 12. Infrastructure errors are retained as
+non-passes, both subjects remain NOT READY across all eight skills, and the observations
+include disclosed infrastructure gaps; they do not change or qualify the runtime package.
+
+**Compatibility.** No skill, agent, prompt, bootstrap, generated contract, tool ceiling, or
+runtime behavior changed from 4.7.2. Tag creation and npm publication remain separate.
+
 ## [4.7.2] — 2026-10-01
 
 **Changed — behavioral measurement moved out (#59).** The requirement-fidelity corpus,
