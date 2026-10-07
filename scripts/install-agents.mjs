@@ -27,189 +27,300 @@
  * Exit codes: 0 success / satisfied, 1 refusal or drift, 2 usage error.
  */
 
-import { readFileSync, writeFileSync, mkdirSync, readdirSync, rmSync, existsSync, lstatSync, realpathSync } from "node:fs";
-import { createHash } from "node:crypto";
-import { join, dirname } from "node:path";
+import fs from "node:fs";
+import { createHash, randomUUID } from "node:crypto";
+import { join, dirname, resolve, parse } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MANIFEST = ".principal-pi-skills.json";
 const PKG = "principal-pi-skills";
-
-const sha = (s) => createHash("sha256").update(s).digest("hex");
+const SOURCE_NAMES = ["principal-build.md", "principal-debug.md", "principal-investigate.md", "principal-plan.md", "principal-review.md"];
+// These three aliases shipped before 7e9eb43 removed generic aliases. Read ownership for
+// check/uninstall only; never recreate them or accept arbitrary historical filenames.
+const OWNED_NAMES = new Set([...SOURCE_NAMES, "debug.md", "plan.md", "review.md"]);
+const METADATA_LIMIT = 64 * 1024;
+const AGENT_LIMIT = 1024 * 1024;
+const sha = (value) => createHash("sha256").update(value).digest("hex");
+const fail = (message) => { throw new Error(message); };
+const ordinaryObject = (value) => value !== null && typeof value === "object" && !Array.isArray(value);
 
 export function agentsDir(env = process.env, home = homedir()) {
   return join(env.PI_CODING_AGENT_DIR || join(home, ".pi", "agent"), "agents");
 }
 
-/** Source agents. All are generated from contracts/, and all are namespaced. */
-export function sources(root = ROOT) {
-  return readdirSync(join(root, "agents")).filter((f) => f.endsWith(".md") && f.startsWith("principal-")).sort();
+function statOrAbsent(path) {
+  try { return fs.lstatSync(path); }
+  catch (error) { if (error.code === "ENOENT") return null; throw error; }
 }
 
-const readManifest = (dir) => {
-  try {
-    const m = JSON.parse(readFileSync(join(dir, MANIFEST), "utf8"));
-    return m && typeof m === "object" && m.files && typeof m.files === "object" ? m : { package: PKG, files: {} };
-  } catch {
-    return { package: PKG, files: {} };
+// Inspect every existing ancestor, including dangling links, before opening a file or
+// creating a directory. This is a trusted-local-filesystem tool, not an adversarial
+// dirfd sandbox; an observed concurrent replacement refuses instead of guessing ownership.
+function directories(path) {
+  const absolute = resolve(path);
+  const paths = [];
+  for (let at = absolute; ; at = dirname(at)) {
+    paths.unshift(at);
+    if (at === parse(at).root) break;
   }
-};
+  const found = new Map();
+  for (const at of paths) {
+    const st = statOrAbsent(at);
+    if (!st) break;
+    if (!st.isDirectory() || st.isSymbolicLink()) fail(`${at}: expected an ordinary directory, not a symlink or other file type`);
+    found.set(at, st);
+  }
+  return found;
+}
+
+const sameInode = (a, b) => a && b && a.dev === b.dev && a.ino === b.ino;
+
+function readOrdinary(path, limit, optional = false) {
+  const before = statOrAbsent(path);
+  if (!before) {
+    if (optional) return null;
+    fail(`${path}: required file is absent`);
+  }
+  if (!before.isFile() || before.isSymbolicLink()) fail(`${path}: expected an ordinary file, not a symlink or other file type`);
+  if (before.size > limit) fail(`${path}: exceeds ${limit}-byte limit`);
+  // Nonblocking + nofollow prevents a replaced leaf FIFO/link from being opened as a
+  // normal blocking file. Read a bounded amount from the same validated descriptor.
+  const fd = fs.openSync(path, fs.constants.O_RDONLY | fs.constants.O_NOFOLLOW | fs.constants.O_NONBLOCK);
+  try {
+    const st = fs.fstatSync(fd);
+    if (!st.isFile() || !sameInode(st, before) || st.size > limit) fail(`${path}: file changed while opening`);
+    const buffer = Buffer.alloc(limit + 1);
+    let length = 0;
+    while (length < buffer.length) {
+      const count = fs.readSync(fd, buffer, length, buffer.length - length, null);
+      if (!count) break;
+      length += count;
+    }
+    const after = fs.fstatSync(fd);
+    if (length > limit || after.size !== st.size || after.mtimeMs !== st.mtimeMs || length !== st.size) fail(`${path}: file changed or exceeded its bound while reading`);
+    const content = buffer.subarray(0, length);
+    return { stat: after, content, hash: sha(content) };
+  } finally { fs.closeSync(fd); }
+}
+
+function parseMetadata(content, path) {
+  let value;
+  try { value = JSON.parse(content.toString("utf8")); }
+  catch { fail(`${path}: invalid JSON; restore known-good metadata before retrying`); }
+  // JSON.parse accepts duplicate keys (including escaped equivalents). Once syntax is
+  // valid, a token walk can reject ambiguity without implementing a second JSON parser.
+  const stack = [];
+  for (const [token] of content.toString("utf8").matchAll(/"(?:\\.|[^"\\])*"|[{}\[\],:]/g)) {
+    const top = stack.at(-1);
+    if (token === "{") stack.push({ keys: new Set(), nextKey: true });
+    else if (token === "[") stack.push(null);
+    else if (token === "}" || token === "]") stack.pop();
+    else if (token === "," && top) top.nextKey = true;
+    else if (token === ":" && top) top.nextKey = false;
+    else if (token.startsWith('"') && top?.nextKey) {
+      const key = JSON.parse(token);
+      if (top.keys.has(key)) fail(`${path}: duplicate metadata key ${JSON.stringify(key)}`);
+      top.keys.add(key);
+      top.nextKey = false;
+    }
+  }
+  return value;
+}
+
+function readManifest(dir) {
+  const path = join(dir, MANIFEST);
+  const snapshot = readOrdinary(path, METADATA_LIMIT, true);
+  if (!snapshot) return { manifest: { package: PKG, files: {} }, snapshot: null };
+  const m = parseMetadata(snapshot.content, path);
+  if (!ordinaryObject(m) || Object.keys(m).length !== 2 || m.package !== PKG || !ordinaryObject(m.files)) {
+    fail(`${path}: expected { package: "${PKG}", files: { basename: sha256 } }; damaged or foreign ownership metadata`);
+  }
+  for (const [name, hash] of Object.entries(m.files)) {
+    if (!OWNED_NAMES.has(name) || typeof hash !== "string" || !/^[a-f0-9]{64}$/.test(hash)) {
+      fail(`${path}: invalid ownership entry ${JSON.stringify(name)}; restore known-good metadata before retrying`);
+    }
+  }
+  return { manifest: m, snapshot };
+}
+
+/** Exactly the shipped names; inventory, identity and source types are preflight inputs. */
+export function sources(root = ROOT) {
+  directories(join(root, "agents"));
+  const pkg = parseMetadata(readOrdinary(join(root, "package.json"), METADATA_LIMIT).content, join(root, "package.json"));
+  if (!ordinaryObject(pkg) || pkg.name !== PKG) fail(`${root}: unexpected package identity`);
+  const names = fs.readdirSync(join(root, "agents")).sort();
+  if (JSON.stringify(names) !== JSON.stringify(SOURCE_NAMES)) fail(`${root}: agent inventory differs from the supported package names`);
+  for (const name of names) readOrdinary(join(root, "agents", name), AGENT_LIMIT);
+  return names;
+}
+
+function ownership(dir) {
+  const ancestors = directories(dir);
+  const { manifest, snapshot } = readManifest(dir);
+  const targets = new Map();
+  // Finish every manifest row before consumers may mutate even the first valid target.
+  for (const name of Object.keys(manifest.files)) targets.set(name, readOrdinary(join(dir, name), AGENT_LIMIT, true));
+  return { manifest, snapshot, targets, ancestors };
+}
 
 export function plan(dir, wanted, root = ROOT) {
-  const manifest = readManifest(dir);
+  if (!Array.isArray(wanted) || new Set(wanted).size !== wanted.length || wanted.some((name) => !SOURCE_NAMES.includes(name))) {
+    fail("requested agents must be unique supported package basenames");
+  }
+  sources(root);
+  const state = ownership(dir);
   const actions = [];
   for (const file of wanted) {
-    const content = readFileSync(join(root, "agents", file), "utf8");
-    const target = join(dir, file);
-    const owned = Object.hasOwn(manifest.files, file);
-
-    if (!existsSync(target)) {
-      actions.push({ file, content, kind: "install" });
-      continue;
-    }
-    // lstat, not stat: a symlink we would otherwise "overwrite" writes through to whatever
-    // it points at, which could be any file on the system.
-    if (lstatSync(target).isSymbolicLink()) {
-      actions.push({ file, content, kind: "refuse", why: "exists as a symlink — resolve it by hand; writing through it would edit its target" });
-      continue;
-    }
-    const current = readFileSync(target, "utf8");
-    if (current === content) {
-      actions.push({ file, kind: "current" });
-    } else if (owned && manifest.files[file] === sha(current)) {
-      actions.push({ file, content, kind: "update" });
-    } else if (owned) {
-      actions.push({ file, content, kind: "refuse", why: "was installed by this package but has been edited since — your changes would be lost" });
-    } else {
-      actions.push({ file, content, kind: "refuse", why: `exists and was not installed by ${PKG} — it belongs to something else` });
-    }
+    const content = readOrdinary(join(root, "agents", file), AGENT_LIMIT).content;
+    const current = state.targets.has(file) ? state.targets.get(file) : readOrdinary(join(dir, file), AGENT_LIMIT, true);
+    state.targets.set(file, current);
+    const owned = Object.hasOwn(state.manifest.files, file);
+    if (!current) actions.push({ file, content, kind: "install" });
+    else if (!owned) actions.push({ file, kind: "refuse", why: `exists and was not installed by ${PKG}, even if byte-identical` });
+    else if (state.manifest.files[file] !== current.hash) actions.push({ file, kind: "refuse", why: "edited since install; preserve your changes and restore known-good ownership explicitly" });
+    else actions.push({ file, content, kind: current.content.equals(content) ? "current" : "update" });
   }
-  return { manifest, actions };
+  return { ...state, actions };
 }
 
-function install({ dir, wanted, force }) {
-  mkdirSync(dir, { recursive: true });
-  const { manifest, actions } = plan(dir, wanted);
-  const refusals = actions.filter((a) => a.kind === "refuse");
+function guardDirectories(dir, ancestors) {
+  const now = directories(dir);
+  for (const [path, st] of ancestors) if (!sameInode(st, now.get(path))) fail(`${path}: directory changed since preflight`);
+}
 
-  if (refusals.length && !force) {
+function guardFile(path, expected, limit) {
+  const now = readOrdinary(path, limit, true);
+  if (expected === null ? now !== null : !now || !sameInode(expected.stat, now.stat) || expected.hash !== now.hash) {
+    fail(`${path}: changed since preflight; refusing mutation`);
+  }
+}
+
+function writeAtomic(path, content, expected, limit, context) {
+  guardDirectories(context.dir, context.ancestors);
+  guardFile(path, expected, limit);
+  const temporary = join(context.dir, `.principal-pi-skills-${randomUUID()}.tmp`);
+  let fd;
+  try {
+    fd = fs.openSync(temporary, "wx", 0o600);
+    fs.writeFileSync(fd, content);
+    fs.fsyncSync(fd);
+    fs.closeSync(fd);
+    fd = undefined;
+    guardDirectories(context.dir, context.ancestors);
+    guardFile(path, expected, limit);
+    // A new destination is linked exclusively, never renamed over a newly arrived file.
+    // Updates replace only a rechecked owned leaf; neither operation follows leaf links.
+    if (expected === null) fs.linkSync(temporary, path);
+    else fs.renameSync(temporary, path);
+    context.completed.push(path);
+  } finally {
+    if (fd !== undefined) fs.closeSync(fd);
+    if (statOrAbsent(temporary)) fs.unlinkSync(temporary);
+  }
+}
+
+function removeOwned(path, expected, limit, context) {
+  guardDirectories(context.dir, context.ancestors);
+  guardFile(path, expected, limit);
+  fs.unlinkSync(path);
+  context.completed.push(path);
+}
+
+function mutate(dir, state, action) {
+  const context = { dir, ancestors: state.ancestors, completed: [] };
+  try { return action(context); }
+  catch (error) {
+    console.error(`✗ operation failed: ${error.message}`);
+    console.error(`Partial effects may remain; completed writes/removals: ${context.completed.join(", ") || "none"}. Directory/temporary changes may also remain. Ownership metadata may be stale; inspect and restore known-good state before retrying. No rollback was performed.`);
+    return 1;
+  }
+}
+
+function install({ dir, wanted, root }) {
+  const state = plan(dir, wanted, root);
+  const refusals = state.actions.filter((a) => a.kind === "refuse");
+  if (refusals.length) {
     for (const r of refusals) console.error(`✗ ${r.file}: ${r.why}`);
-    console.error(`\n${refusals.length} file(s) not installed. Re-run with --force to overwrite them,`);
-    console.error(`or remove them yourself. Nothing was written.`);
+    console.error(`${refusals.length} file(s) refused. Nothing was written; --force cannot bypass validation or ownership.`);
     return 1;
   }
-
-  let wrote = 0;
-  for (const a of actions) {
-    if (a.kind === "current") {
-      // Record it anyway. Ownership is what `uninstall` removes by, and a file that was
-      // already byte-identical (a re-install, or a user who copied it in by hand) would
-      // otherwise never enter the manifest — making uninstall a permanent no-op for it.
-      manifest.files[a.file] ??= sha(readFileSync(join(dir, a.file), "utf8"));
-      continue;
+  return mutate(dir, state, (context) => {
+    guardDirectories(dir, state.ancestors);
+    fs.mkdirSync(dir, { recursive: true });
+    guardDirectories(dir, state.ancestors);
+    context.ancestors = directories(dir);
+    let wrote = 0;
+    for (const a of state.actions) {
+      if (a.kind === "current") continue;
+      writeAtomic(join(dir, a.file), a.content, state.targets.get(a.file), AGENT_LIMIT, context);
+      state.manifest.files[a.file] = sha(a.content);
+      wrote++;
     }
-    if (a.kind === "refuse" && !force) continue;
-    // Remove first. Writing to a path that is a symlink writes THROUGH it, editing whatever
-    // it points at — which is why plan() refuses links at all. --force means "replace the
-    // thing in my agents directory", never "overwrite an arbitrary file elsewhere".
-    rmSync(join(dir, a.file), { force: true });
-    writeFileSync(join(dir, a.file), a.content);
-    manifest.files[a.file] = sha(a.content);
-    wrote++;
-  }
-  manifest.package = PKG;
-  writeFileSync(join(dir, MANIFEST), `${JSON.stringify(manifest, null, 2)}\n`);
-
-  console.log(`✓ ${wrote} installed/updated, ${actions.filter((a) => a.kind === "current").length} already current → ${dir}`);
-  for (const a of actions) if (a.kind !== "current") console.log(`  ${a.kind === "refuse" ? "forced" : a.kind}: ${a.file}`);
-  return 0;
+    const metadata = Buffer.from(`${JSON.stringify(state.manifest, null, 2)}\n`);
+    if (!state.snapshot || !state.snapshot.content.equals(metadata)) writeAtomic(join(dir, MANIFEST), metadata, state.snapshot, METADATA_LIMIT, context);
+    console.log(`✓ ${wrote} installed/updated, ${state.actions.length - wrote} already current → ${dir}`);
+    return 0;
+  });
 }
 
-function check({ dir, wanted }) {
-  if (!existsSync(dir)) {
-    console.error(`✗ ${dir} does not exist — run \`principal-pi-agents install\``);
-    return 1;
-  }
-  // Check everything we own, not just what this invocation would install. Otherwise check
-  // reports green while a stale file from an older install — e.g. a generic alias this
-  // package no longer ships — sits stale, the drift check missing exactly the file it is
-  // responsible for.
-  const owned = Object.keys(readManifest(dir).files);
-  const all = [...new Set([...wanted, ...owned])].filter((f) => existsSync(join(ROOT, "agents", f)));
-  const { actions } = plan(dir, all);
-  const bad = actions.filter((a) => a.kind !== "current");
-  for (const a of bad) {
-    console.error(`✗ ${a.file}: ${a.kind === "install" ? "not installed" : a.kind === "update" ? "out of date" : a.why}`);
-  }
-  if (bad.length) {
-    console.error(`\n${bad.length} of ${actions.length} agent(s) need attention.`);
-    return 1;
-  }
-  console.log(`✓ ${actions.length} agent(s) installed and current in ${dir}`);
+function check({ dir, wanted, root }) {
+  const state = plan(dir, wanted, root);
+  const bad = state.actions.filter((a) => a.kind !== "current");
+  for (const a of bad) console.error(`✗ ${a.file}: ${a.kind === "install" ? "not installed" : a.kind === "update" ? "out of date" : a.why}`);
+  const retired = Object.keys(state.manifest.files).filter((name) => !SOURCE_NAMES.includes(name) && state.targets.get(name));
+  for (const name of retired) console.error(`✗ ${name}: retired owned alias; inspect it and use uninstall to remove unchanged owned files`);
+  if (bad.length || retired.length) return 1;
+  console.log(`✓ ${state.actions.length} agent(s) installed and current in ${dir}`);
   return 0;
 }
 
 function uninstall({ dir }) {
-  const manifest = readManifest(dir);
-  const entries = Object.entries(manifest.files);
-  if (!entries.length) {
+  const state = ownership(dir);
+  if (!state.snapshot) {
     console.log(`✓ nothing installed by ${PKG} in ${dir}`);
     return 0;
   }
-  let removed = 0;
   const kept = {};
-  for (const [file, hash] of entries) {
-    const target = join(dir, file);
-    if (!existsSync(target)) continue;
-    const current = readFileSync(target, "utf8");
-    if (sha(current) !== hash) {
-      console.error(`• kept ${file}: edited since install — it is yours now, remove it by hand if you meant to`);
+  const removals = [];
+  for (const [file, hash] of Object.entries(state.manifest.files)) {
+    const current = state.targets.get(file);
+    if (!current) continue;
+    if (current.hash !== hash) {
       kept[file] = hash;
-      continue;
-    }
-    rmSync(target);
-    removed++;
+      console.error(`• kept ${file}: edited since install; remove it by hand only if intended`);
+    } else removals.push(file);
   }
-  if (Object.keys(kept).length) {
-    writeFileSync(join(dir, MANIFEST), `${JSON.stringify({ package: PKG, files: kept }, null, 2)}\n`);
-  } else {
-    rmSync(join(dir, MANIFEST), { force: true });
-  }
-  console.log(`✓ removed ${removed} agent(s) from ${dir}`);
-  return 0;
+  return mutate(dir, state, (context) => {
+    for (const file of removals) removeOwned(join(dir, file), state.targets.get(file), AGENT_LIMIT, context);
+    if (Object.keys(kept).length) {
+      const metadata = Buffer.from(`${JSON.stringify({ package: PKG, files: kept }, null, 2)}\n`);
+      if (!metadata.equals(state.snapshot.content)) writeAtomic(join(dir, MANIFEST), metadata, state.snapshot, METADATA_LIMIT, context);
+    } else removeOwned(join(dir, MANIFEST), state.snapshot, METADATA_LIMIT, context);
+    console.log(`✓ removed ${removals.length} agent(s) from ${dir}; kept ${Object.keys(kept).length} edited file(s)`);
+    return 0;
+  });
 }
 
-export function run(argv, env = process.env) {
-  const cmd = argv[0];
-  const flags = new Set(argv.slice(1));
+export function run(argv, env = process.env, { root = ROOT } = {}) {
+  const [cmd, ...flags] = argv;
+  if (!["install", "check", "uninstall"].includes(cmd) || flags.some((flag) => flag !== "--force") || new Set(flags).size !== flags.length) {
+    console.error("usage: principal-pi-agents <install|check|uninstall> [--force]");
+    console.error("--force is accepted for compatibility only; validation and ownership always apply.");
+    return 2;
+  }
   const dir = agentsDir(env);
-  const wanted = sources();
-  const force = flags.has("--force");
-
-  for (const f of flags) {
-    if (!["--force"].includes(f)) {
-      console.error(`unknown flag: ${f}`);
-      return 2;
-    }
-  }
-
-  switch (cmd) {
-    case "install":
-      return install({ dir, wanted, force });
-    case "check":
-      return check({ dir, wanted });
-    case "uninstall":
-      return uninstall({ dir });
-    default:
-      console.error("usage: principal-pi-agents <install|check|uninstall> [--force]");
-      console.error(`\nagents directory: ${dir}`);
-      console.error("  (override with PI_CODING_AGENT_DIR)");
-      return cmd ? 2 : 2;
+  try {
+    const wanted = sources(root);
+    if (cmd === "install") return install({ dir, wanted, root });
+    if (cmd === "check") return check({ dir, wanted, root });
+    return uninstall({ dir });
+  } catch (error) {
+    console.error(`✗ preflight refused: ${error.message}. Nothing was written.`);
+    return 1;
   }
 }
-
 // realpathSync, not a bare compare: npm installs bins as symlinks
 // (node_modules/.bin/<name> -> ../<pkg>/scripts/<file>.mjs), so argv[1] is the .bin path
 // while import.meta.url is already resolved. Comparing them unresolved makes this false for
@@ -217,7 +328,7 @@ export function run(argv, env = process.env) {
 const invokedDirectly = (() => {
   if (!process.argv[1]) return false;
   try {
-    return fileURLToPath(import.meta.url) === realpathSync(process.argv[1]);
+    return fileURLToPath(import.meta.url) === fs.realpathSync(process.argv[1]);
   } catch {
     return false;
   }

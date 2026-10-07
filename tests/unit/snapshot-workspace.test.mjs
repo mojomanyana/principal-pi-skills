@@ -14,7 +14,7 @@
 import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, symlinkSync, lstatSync, readlinkSync, unlinkSync } from "node:fs";
+import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, existsSync, rmSync, symlinkSync, lstatSync, readlinkSync, unlinkSync, cpSync, chmodSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -343,4 +343,69 @@ test("`remove` still removes a real snapshot, and exits 0", () => {
 
 test.after(() => {
   for (const d of created) rmSync(d, { recursive: true, force: true });
+});
+
+test("Git recovery requires operation-specific preservation before destructive authorization", () => {
+  const contract = readFileSync(join(dirname(CLI), "..", "git-ops", "SKILL.md"), "utf8");
+  const recovery = contract.split("## Destructive recovery preservation")[1]?.split("## Release mode")[0] ?? "";
+  assert.match(recovery, /tracked.*index.*untracked.*ignored/s);
+  assert.match(recovery, /outside.*destructive scope/s);
+  assert.match(recovery, /restor.*disposable/s);
+  assert.match(recovery, /fresh.*state/s);
+  assert.match(recovery, /explicit.*acceptance/s);
+  assert.match(recovery, /snapshot.*index.*ignored/s);
+  assert.match(recovery, /publication.*unknown.*published/s);
+});
+
+test("the workspace snapshot is not a backup of distinct index and working-tree states", () => {
+  const repo = fixture();
+  writeFileSync(join(repo, "staged.txt"), "UNSTAGED ON TOP OF STAGED\n");
+  const stagedBefore = git(["diff", "--cached", "--binary"], repo);
+  const { path, cleanup } = createSnapshot(repo);
+  try {
+    assert.equal(readFileSync(join(path, "staged.txt"), "utf8"), "UNSTAGED ON TOP OF STAGED\n");
+    assert.notEqual(stagedBefore, "");
+    assert.equal(git(["diff", "--cached", "--binary"], path), "", "helper deliberately flattens the index into working bytes");
+    assert.equal(git(["diff", "--cached", "--binary"], repo), stagedBefore, "source index is untouched");
+    assert.ok(!existsSync(join(path, ".env")), "ignored state is deliberately absent");
+  } finally { cleanup(); }
+});
+
+test("an external private fixture backup restores index, working, untracked and ignored state", () => {
+  // This is one fully inventoried standalone-repository case, not a universal backup
+  // helper: linked worktrees, external object stores and submodules need their own proof.
+  const repo = fixture();
+  writeFileSync(join(repo, "staged.txt"), "UNSTAGED ON TOP OF STAGED\n");
+  writeFileSync(join(repo, "binary.dat"), Buffer.from([0, 255, 1, 0]));
+  git(["add", "binary.dat"], repo);
+  writeFileSync(join(repo, "binary.dat"), Buffer.from([0, 254, 2, 0]));
+  chmodSync(join(repo, "unstaged.txt"), 0o755);
+  const external = mkdtempSync(join(tmpdir(), "pp-preservation-"));
+  created.push(external);
+  chmodSync(external, 0o700);
+  const backup = join(external, "backup");
+  const restored = join(external, "restored");
+  const state = (path) => ({
+    head: git(["rev-parse", "HEAD"], path),
+    status: git(["status", "--porcelain=v1", "--ignored", "--untracked-files=all", "-z"], path),
+    index: git(["ls-files", "--stage", "-z"], path),
+    staged: git(["diff", "--cached", "--binary", "--no-ext-diff", "--no-textconv"], path),
+    working: git(["diff", "--binary", "--no-ext-diff", "--no-textconv"], path),
+    untracked: readFileSync(join(path, "untracked.txt")).toString("hex"),
+    ignored: readFileSync(join(path, ".env")).toString("hex"),
+    ignoredNested: readFileSync(join(path, "node_modules", "left-pad", "index.js")).toString("hex"),
+    link: readlinkSync(join(path, "untracked-link")),
+    mode: lstatSync(join(path, "unstaged.txt")).mode,
+  });
+  const before = state(repo);
+  cpSync(repo, backup, { recursive: true, verbatimSymlinks: true });
+  cpSync(backup, restored, { recursive: true, verbatimSymlinks: true });
+  assert.deepEqual(state(restored), before, "restoration is proved BEFORE the disposable destructive operation");
+  assert.deepEqual(state(repo), before, "fresh source state still matches the preserved state");
+  assert.ok(!backup.startsWith(`${repo}/`), "backup stays outside the destructive scope");
+  git(["reset", "--hard", "HEAD"], repo);
+  git(["clean", "-fdx"], repo);
+  assert.ok(!existsSync(join(repo, "untracked.txt")) && !existsSync(join(repo, ".env")), "fixture exercises real at-risk state");
+  assert.deepEqual(state(restored), before, "verified restoration remains available after the original state is removed");
+  assert.deepEqual(state(backup), before, "preserved copy remains intact");
 });

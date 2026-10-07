@@ -126,13 +126,49 @@ the rewrite IS the operation, and their version is not the primary or the fallba
 | Situation | Move |
 |---|---|
 | Wrong branch, nothing committed yet | `git switch -c right-branch` — the changes come with you |
-| Wrong branch, committed, **not** pushed | cherry-pick onto the right branch, then `git reset --hard HEAD~<n>` the wrong one |
+| Wrong branch, committed, **not** pushed | preserve the commits on the right branch; reset the wrong one only after the destructive-recovery gate below |
 | Wrong branch, committed and **pushed** | cherry-pick onto the right branch, then `git revert` on the wrong one — a published commit is never reset away |
-| Wrong branch, publication unknown | check first — `git branch -r --contains <sha>`; can't tell → treat it as published. Revert is the recoverable mistake, reset is not |
+| Wrong branch, publication unknown | verify current remote publication; stale remote-tracking refs cannot prove absence. Unknown counts as published: use revert |
 | Lost commits | `git reflog`, then branch at the SHA |
 | Undo the last local commit | `git reset --soft HEAD~1` |
 | Undo a pushed commit (shared) | `git revert <sha>` |
 | Find the breaking commit | `git bisect run <test-command>` |
+
+## Destructive recovery preservation
+Before a reset, clean, forced checkout, or deletion, bind the exact repository/worktree,
+current branch/HEAD, target revision and affected paths. Inspect tracked working bytes,
+index state (including staged-versus-unstaged differences), untracked files and ignored
+paths threatened by that specific operation. A clean `git status` does not prove that an
+untracked collision or ignored directory is safe. Include modes, symlinks, deletions and
+relevant nested repositories; stop if the actual overwrite/delete scope is uncertain.
+
+Require either verified absence of at-risk work or restorable preservation **outside the
+destructive scope**. Inventory what must survive, keep private backups private, and do not
+print secret contents. Preserve the relevant refs/objects plus distinct index and working
+state; a commit or patch alone omits untracked/ignored work. Verify restoration in a separate
+disposable location against the inventory: bytes, paths, modes, link targets, staged entries
+and unstaged differences. A successful copy/stash command or backup hash alone is not this
+proof. Failed restoration, missing entries or a backup inside the destructive scope stops
+the affected operation; offer retaining the branch/worktree or a non-destructive alternative.
+
+The `principal-pi-workspace` snapshot helper is for experiments: it flattens staged and
+unstaged tracked changes into working bytes, does not preserve the distinct index, and
+omits ignored files. It is not a full recovery backup. A standalone repository copy may
+suffice only after checking its restoration; linked worktrees, submodules, external object
+stores and conflicted indexes require their own preservation proof. Do not extend the
+helper to copy credentials merely to make this gate pass.
+
+Before rewriting misplaced commits, establish fresh publication evidence from the relevant
+remotes; local remote-tracking refs alone cannot prove unpublished status. If publication
+is unknown or cannot be verified, treat the commits as published and use revert. Preserve
+misplaced commits on a durable ref before changing the original branch.
+
+Stop concurrent writers, then recheck fresh repository state and operation scope against
+the preservation inventory. Any change invalidates the corresponding proof. Obtain explicit
+consequence-acceptance for the exact destructive operation, named paths/commits and effects;
+a prior planning decision is not that acceptance. Execute only after these checks and the
+existing published-history rules permit it. Keep the verified recovery material until the
+result is checked and its retention/disposal is explicitly resolved.
 
 ## Release mode
 Read the previous release before changing anything: find the last release commit or release
