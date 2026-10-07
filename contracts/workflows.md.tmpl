@@ -38,6 +38,28 @@ No alternate runner or inline substitution after failure. Only when native tools
 absent may an explicitly configured legacy `principal-*` runner be used. Inline is an explicit
 workflow choice. Follow authored model/effort policy, not phase-based tier overrides.
 
+**Evidence ownership.** Give each gate an owner and due stage, preserving source-required
+ordering. Before dispatch, the coordinator verifies authority, binding and permitted runtime
+configuration. Initialize private artifacts as below and preserve the unmodified
+`delegate_describe` response in a new handoff report, with the actual selected skill/agent
+source references and package manifest. Resolve paths from selected Pi resources; the describe
+response alone supplies no source path. Verify full source bytes against the described binding;
+never guess an installation path or substitute a different same-name definition. When copies
+are needed, retain exact bytes, original paths/hashes and capture provenance. Pass accessible
+handoff/source files, the assigned step and each gate's owner/due stage to the child.
+Missing evidence due before the assigned work stops dispatch; metadata is not new authority.
+
+The leaf verifies its assigned, due-now obligations and reports later coordinator gates as
+pending. It cannot obtain its own future terminal/cleanup receipt or dispatch a future reviewer.
+After each child returns, the coordinator retains the full native result and checks terminal,
+report and cleanup evidence before dependent work. Supply those observations to the next
+reviewer. The coordinator also checks the reviewer's own settlement before consuming its verdict;
+do not make the reviewer certify its future return. Unknown or failed evidence stays unresolved.
+Process settlement requires native `cleanup.state=settled` and its matching identity-bound receipt.
+No disposable workspace does not mean process cleanup is verified. Preserve the emitted runtime
+evidence; if it is unavailable, block dependent work and task completion even when tests or review pass.
+A later due stage cannot postpone a prerequisite required by source authority.
+
 **Scope.** Before starting or resuming, an evidence-only follow-up calls for existing checks or a disposable probe,
 not starting/restarting implementation or adding durable tests/infrastructure merely to prove completion.
 
@@ -76,15 +98,23 @@ base/head range or saved tracked diff plus relevant untracked content/hashes) in
 Authority/Candidate fields. Keep full original finding definitions, gates and evidence files
 accessible through every repair/re-review; REV IDs are scoped to that original report.
 Recompute candidate identity after Build; use the new candidate directory for Review while
-passing earlier report paths unchanged. The optional coordinator helper `principal-pi-progress`
-allocates private ignored runs and writes complete reports exclusively; its README usage
-also defines the compact progress record. Do not install or fetch it merely to write a report.
+passing earlier report paths unchanged. The installed coordinator helper `principal-pi-progress`
+allocates private ignored runs and writes complete reports exclusively. Progress indexes are
+optional, but every index write must use this helper; never hand-write `run.json` or JSONL.
+Use the actual selected package's `scripts/progress-artifacts.mjs` with Node if its binary is
+not on PATH. Read its installed README example; do not install/fetch a helper or guess its schema.
 
-**Progress.** The coordinator may append `progress.jsonl` inside the existing candidate run,
-after saving complete evidence. Version 1 records plan file/hash or explicit none, step,
-caller-established candidate, independent planned/implemented/reviewed/integrated/verified
-facts (`unknown`, `incomplete`, `complete`), exact evidence references, finding/comment
-identities/statuses and next-action text. A completed review fact records its verdict, even
+**Progress.** If tracking progress, use helper `create` for the candidate run, `report` and
+`reference` for complete evidence, then `append` for each phase update. Version 1 requires a
+candidate string, plan reference or null, step, findings, nextAction and all five facts:
+planned/implemented/reviewed/integrated/verified, each an object `{state,evidence,note}`.
+States are `unknown`, `incomplete` or `complete`; file references are absolute path/SHA-256
+objects returned by the helper. After every append and before claiming valid progress on resume
+or completion, run `check <run> <actual-current-candidate>`; require exit zero and inspect both
+top-level and per-record issues. Diagnostic `read` alone does not fail its exit status on issues.
+An integrity-valid index may contain incomplete facts; reconcile required phases by step and
+actual evidence before claiming completion. The helper neither computes candidate identity nor
+validates approval or evidence meaning. A completed review fact records its verdict, even
 CHANGES-REQUESTED; it is not approval. Preserve full sources/reports, original baseline,
 unresolved findings and caveats; the index only points to them. Reconcile all step records,
 not just the final line. Evidence hashing proves bytes, not their meaning or broad candidate
@@ -112,7 +142,7 @@ feature — the stop does not. A re-plan needs a new approval.
 **Build.** One writer per working tree, on branches the user can see. Inline when there is no
 multi-step plan file (a three-line plan, or a bugfix) and inline work is the chosen workflow.
 Otherwise dispatch native `build` with its captured `definitionId` per step — a batched step is one child —
-with the complete plan file path, step ID, source/definition paths, applicable rows/global gates,
+with the complete plan file path, step ID, coordinator handoff report, source/definition paths, applicable rows/global gates,
 and unused report path `<artifact-dir>/<step>-build-<attempt>.md`. Without a plan pass the approved exact
 task and authority. It returns five status lines; read every successful report too:
 Assumptions, Follow-ups, Evidence gaps, Blocked, Requirements/Gates and Candidate. Aggregate
@@ -144,7 +174,7 @@ obligations. Optional focused reviewers need a concrete independent concern, not
 Use native `delegate({agent:"review",definitionId,...})` when available — a cold read beats
 self-review. The ID must be the described review definition; legacy names follow only the absent-native rule above. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
 for the whole change to `<artifact-dir>/review-diff-<round>.txt` and pass that path plus the build
-report paths, governing source/definition paths, full plan/map if present, and candidate
+report paths, coordinator handoff and settled prior-execution evidence, governing source/definition paths, full plan/map if present, and candidate
 identity. Dirty candidates need the complete tracked diff and relevant untracked content,
 not just a committed range. Review validates reused evidence and checks named doubts.
 Persist the complete review result to

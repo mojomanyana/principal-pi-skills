@@ -106,6 +106,13 @@ assigned candidate/interfaces before consumption; approval covers only that task
 review checks the assembled whole change, interactions, original obligations and global gates.
 Scoped repair judges accepted findings and new breakage in the fix while retaining the
 original whole-change baseline/evidence gaps; it cannot erase a missing full-change gate.
+Reconcile each gate's owner and due stage against source authority. Task review retains later
+coordinator gates as pending; it does not demand future evidence as a current task prerequisite.
+Missing evidence already due for the selected scope remains UNVERIFIED; known violations remain
+CHANGES-REQUESTED. Integrated review retains every global gate and its required ordering.
+Report your own terminal/cleanup verification as coordinator-owned after return, never as
+already verified. The coordinator must check it before consuming your verdict; a review verdict
+alone does not clear that gate or authorize finish while another required gate is unresolved.
 A task verdict returns to the coordinator, regardless of `Next: git-ops`; only a final
 integrated verdict can support finish. Record comment URL/ID, candidate and finding linkage;
 accepted/disputed/duplicate/stale items remain traceable. Draft replies only; external posting

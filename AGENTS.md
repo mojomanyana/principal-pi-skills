@@ -35,6 +35,15 @@ permission/context refusal, timeout, report gap or uncertain cleanup stops depen
 never substitute legacy, foreign or inline execution after failure. Follow authored model/effort
 policy without phase-tier overrides. Inline is a workflow choice, not a fallback.
 
+Coordinator handoffs preserve the unmodified describe response and accessible selected
+skill/agent source references or exact copies with original identities. Each gate has an owner
+and due stage fixed by source authority. Leaf agents check current assigned obligations and
+retain later coordinator terminal/cleanup/review gates as pending. The coordinator checks full
+native results and settlement after return, including the reviewer, before dependent work.
+Missing prerequisites still block; ownership never waives or delays a required gate.
+Native process cleanup needs a settled identity-bound receipt even when no disposable workspace
+exists. Missing emitted runtime evidence blocks dependent work and task completion.
+
 For approved independent batches, use one `delegate_all({children:[...]})` call; every child
 carries its native phase name and described `definitionId`. Do not overlap single `delegate`
 calls: each conservatively reserves available subtree capacity. Writers need distinct
@@ -118,6 +127,9 @@ Typical spines (available as prompt templates):
 - Progress records are optional coordinator evidence indexes, never approval or execution.
   Reconcile actual authority, work and current report/candidate references; commit, review,
   integration and verification are separate facts. Incomplete/stale records stay unresolved.
+  If used, all progress writes go through the installed `principal-pi-progress` helper; never
+  hand-write its run manifest or JSONL. Run `check <run> <actual-current-candidate>` after append
+  and before relying on resumed progress. Zero issues means index integrity, not completion or approval.
 
 Before any orchestrator artifact write (including planless Review, inline Build or optional
 Investigate persistence), create an absent `.principal/.gitignore` containing `*`, never
@@ -161,30 +173,39 @@ When maintaining this package, put lasting regressions in existing behavior/doma
 not PR-named files. `npm test` checks current contracts and product behavior.
 Behavioural measurement—including the fidelity corpus and skill-harness evidence—lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks live here.
 
+## Future advisory optimization
+
+Consider JEV and later LoRA for optional recommendations about inline/delegated routing,
+step grouping and handoff readiness. Keep stable gate IDs, owners, due stages, candidate/step
+identities and observed outcomes available through the existing reports/progress references.
+Version advisory experiment records separately; never add model judgments to authority or
+silently widen the progress schema. Start with offline/shadow evaluation against independently
+checked outcomes. Only reviewed, eligible examples may enter a future training dataset; private
+reasoning and credential material are excluded. These are extension points, not an enabled
+service, new model calls, automatic labels or trained model. OpenAI Decisions remains excluded.
+
 ## Setup (pi)
 
-1. Install the stable tag:
-   `pi install git:github.com/mojomanyana/principal-pi-skills@v4.8.0` installs the eight
-   skills, the four `/principal-*` commands, and the bootstrap extension, which loads
-   automatically with the package. This release is stable 4.8.0. Native delegation
-   requires companion pi-daddy 0.44.0 and exactly the qualified Pi 1.0.4 setup; generated
-   skill/agent bindings and captured definition IDs must match the selected package.
-2. Legacy subagents (optional): native delegation does not need this separate installation.
-   A configured legacy runner is available only when native tools are genuinely absent;
-   native refusal or failure cannot fall back to it. Npm publication is separate from this
-   prerelease. Use the installed tagged package's `scripts/install-agents.mjs` with Node
-   (`install`, then `check`), locating its actual path rather than assuming a universal Pi
-   install directory. Alternatively follow the concrete verified-tag disposable checkout
-   recipe in [README Install](README.md#install-pi). Pin both npm commands:
-   `npx -p principal-pi-skills@4.8.0 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.8.0 principal-pi-agents check`.
-   The five definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files
-   are refused. These files serve a configured legacy runner; they do not override native selection.
-   Version 4.8.0 adds native bindings, request-local routing, workflow and installer
-   safety changes, and manual progress records. Behavioral measurement remains in
-   `principal-pi-skills-evals` while routing checks remain here. To validate the tagged release,
-   validate the actual candidate's skills and installer
-   in isolation. Recorded model/evidence limitations remain; a release tag does not erase them.
+1. Install exact npm releases, then restart Pi:
+   `pi install npm:principal-pi-skills@4.8.1`,
+   `pi install npm:pi-daddy@0.44.4` and `pi install npm:skill-harness@0.24.3`.
+   Native delegation uses exactly Pi 1.0.4 and the qualified captured setup
+   (`PI_DADDY_HERDR=0`). Generated skill/agent bindings and captured definition IDs must
+   match the selected package. Other versions/backends require separate qualification.
+   Enable built-in discovery through Pi `settings.json` `defaultTools` containing
+   `read`, `bash`, `edit`, `write`, `grep`, `find`, `ls`; preserve other settings and check
+   active tools after restart. Pi's default coding selection omits the three discovery tools.
+   Plan cannot replace missing discovery with shell or run the progress CLI; it only plans
+   later coordinator-owned progress work. See [README Install](README.md#install-pi).
+2. Legacy subagents are optional and usable only when native tools are genuinely absent.
+   Native delegation needs no separate agent installation and cannot fall back after failure.
+   Pin both `npx -p principal-pi-skills@4.8.1 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.8.1 principal-pi-agents check`, matching installed skills.
+   Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
+   Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
+   Validate release candidates in isolation. Tags/publication are separate and do not erase
+   behavioral qualification limits; routing checks stay here and behavioral measurement in
+   `principal-pi-skills-evals`.
 3. Context handoff (matching pi-daddy candidate): each skill's `allowed-tools` sets how much of this
    session a delegated child may receive. `architect`, `decide` and `plan` allow
    `context:summary`. `build`, `debug`, `review` and `investigate` allow `context:files`: review

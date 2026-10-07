@@ -300,3 +300,35 @@ test("review scopes preserve whole-change gates and explicit external-posting au
   assert.match(workflow, /manual reconciliation, not automatic resume/);
   assert.doesNotMatch(workflow, /a step whose commit exists is\s+done/);
 });
+for (const mode of ["skill", "agent"]) {
+  test(`gate ownership ${mode}: later coordinator work cannot erase current prerequisites`, () => {
+    const plan = contract("plan", mode).replace(/\s+/g, " ");
+    assert.match(plan, /gate.*owner and due stage/);
+    assert.match(plan, /ownership does not postpone a mandatory prerequisite/);
+    const build = contract("build", mode).replace(/\s+/g, " ");
+    assert.match(build, /Verify all gates due for this build/);
+    assert.match(build, /later coordinator-owned gates explicitly pending/);
+    assert.match(build, /must not call unavailable coordinator tools or certify those future facts/);
+    assert.match(build, /missing current authority, sources or mandatory evidence still blocks before source\/test mutation/);
+    const review = contract("review", mode).replace(/\s+/g, " ");
+    assert.match(review, /Missing evidence already due.*UNVERIFIED.*known violations.*CHANGES-REQUESTED/);
+    assert.match(review, /Integrated review retains every global gate/);
+    assert.match(review, /own terminal\/cleanup verification.*coordinator-owned after return/);
+    assert.match(review, /coordinator must check it before consuming your verdict/);
+  });
+}
+
+test("optional progress is helper-written and checked without manufacturing completion", () => {
+  for (const kind of ["feature", "bugfix", "refactor"]) {
+    const text = read(`prompts/principal-${kind}.md`).replace(/\s+/g, " ");
+    assert.match(text, /Progress indexes are optional, but every index write must use this helper/);
+    assert.match(text, /never hand-write `run.json` or JSONL/);
+    assert.match(text, /each an object `\{state,evidence,note\}`/);
+    assert.match(text, /After every append.*check <run> <actual-current-candidate>/);
+    assert.match(text, /both top-level and per-record issues/);
+    assert.match(text, /integrity-valid index may contain incomplete facts/);
+    assert.match(text, /reconcile required phases by step/);
+    assert.match(text, /preserve those bytes and use a new run rather than truncating history/);
+    assert.match(text, /No automatic execution/);
+  }
+});

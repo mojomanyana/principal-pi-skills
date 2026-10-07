@@ -38,11 +38,11 @@ around.
    `wc -w`. Nothing loads anything else — a subagent reads one file and has the whole
    contract.
 
-Individual contract exceptions (skill/agent words): Plan 2000/2050 preserves complete
+Individual contract exceptions (skill/agent words): Plan 2050/2100 preserves complete
 source/requirement maps and adds exact connected interfaces and shared-resource checks.
-Build 2000/2000 retains authority, full evidence and immutable repair provenance while adding
-meaningful test maintenance and a guarded inline path. Review 1800/1850 retains candidate-bound
-gates and distinguishes task, integrated and repair scope. Debug 1450/1600 preserves honest
+Build 2100/2100 retains authority, full evidence and immutable repair provenance while adding
+meaningful test maintenance and explicit gate ownership/due stages. Review 1900/1950 retains candidate-bound
+gates and distinguishes task, integrated and repair scope. Debug 1453/1600 preserves honest
 disposable/applied states while making diagnosis sufficient for handoff and protecting
 boundary evidence. These narrow increases retain the existing safeguards; they are not
 claims of measured model compliance. Common ceilings remain unchanged.
@@ -53,9 +53,9 @@ claims of measured model compliance. Common ceilings remain unchanged.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 2024) or inline | 1963 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1970) or inline | 1960 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1841) or inline | 1777 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 2081) or inline | 2020 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 2070) or inline | 2060 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1934) or inline | 1870 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1587) or inline | 1451 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 494) or inline | 495 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2507 |
@@ -148,64 +148,55 @@ CHANGELOG.md                          release history
 
 ## Install (pi)
 
-1. **Skills + prompts** — this prerelease targets stable 4.8.0. Once the immutable tag
-   exists, install it rather than a branch:
+1. **Skills + prompts** — install the exact npm release:
 
-   ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.8.0
+   ```sh
+   pi install npm:principal-pi-skills@4.8.1
+   pi install npm:pi-daddy@0.44.4
+   pi install npm:skill-harness@0.24.3
    ```
 
-   The v4.8.0 `pi` manifest registers the eight skills, the four `/principal-*` commands,
-   and the bootstrap extension — it loads automatically with
-   the package; there is no separate extension-install step. Unpinned `main` moves under
-   you, so install a tag if you want a fixed, nameable behavior.
+   Restart Pi after package changes. The `pi` manifest registers eight skills, four
+   `/principal-*` commands and the bootstrap extension automatically. Exact npm pins keep
+   the installed source version identifiable.
+
+   For planning or review that needs repository discovery, merge this setting into your Pi
+   `settings.json` (preserving its other fields), then restart Pi:
+
+   ```json
+   { "defaultTools": ["read", "bash", "edit", "write", "grep", "find", "ls"] }
+   ```
+
+   Pi 1.0.4's default coding tool selection omits `grep`, `find` and `ls`. This setting
+   enables those built-in discovery tools while retaining extension tools such as `delegate`.
+   Check the active tool inventory after restart. Plan still forbids shell substitution and
+   may correctly block when essential discovery is unavailable. During Plan, describe later
+   coordinator-owned progress work; the coordinator runs the helper after that phase, within
+   its own authority. Planning does not run the CLI or widen its write ceiling.
 
    **Do not install `2.3.0`** — it is deprecated on npm for a destructive defect: its
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
-   Native delegation requires the companion pi-daddy 0.44.0 release and **exactly
-   Pi 1.0.4**, the qualified version. This is not a claim of compatibility with every Pi 1.x
-   release; other or unknown versions require separate qualification before use. The selected package's generated `principal-agents.json`
-   binds each delegated phase to its skill and agent bytes. Native routing uses
-   `delegate_describe` and a captured `definitionId`; a native refusal or failure does
-   not fall back to a legacy runner or inline execution.
+   Native delegation uses the companion pi-daddy release with **exactly Pi 1.0.4** and
+   the qualified captured setup (`PI_DADDY_HERDR=0`). Other Pi versions/backends need separate
+   qualification. The selected package's generated `principal-agents.json` binds each phase
+   to its skill and agent bytes. Native routing uses `delegate_describe` and the captured
+   `definitionId`; refusal or failure cannot fall back to a legacy runner or inline execution.
 
-2. **Legacy subagents (optional).** A configured legacy runner can use the five agent
-   definitions when native tools are genuinely absent. Native delegation does not need
-   this separate agent installation. Use the **same source** as the installed skills:
-   locate the actual installed tagged package (its path varies by Pi configuration) and
-   run its `scripts/install-agents.mjs` with Node, or use this matching-tag disposable
-   checkout recipe after the tag exists. This prerelease does not imply npm publication.
+2. **Legacy subagents (optional).** A configured legacy runner can use the five definitions
+   when native tools are genuinely absent. Native delegation needs no separate agent install.
+   Use the same npm package version as the installed skills:
 
    ```sh
-   (
-     set -eu
-     source_dir=$(mktemp -d)
-     trap 'rm -rf -- "$source_dir"' EXIT
-     git clone --depth 1 --branch v4.8.0 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
-     test "$(git -C "$source_dir/package" rev-parse HEAD)" = "$(git -C "$source_dir/package" rev-parse 'v4.8.0^{commit}')"
-     git -C "$source_dir/package" rev-parse HEAD  # retain the resolved source identity
-     node "$source_dir/package/scripts/install-agents.mjs" install
-     node "$source_dir/package/scripts/install-agents.mjs" check
-   )
+   npx -p principal-pi-skills@4.8.1 principal-pi-agents install
+   npx -p principal-pi-skills@4.8.1 principal-pi-agents check
    ```
 
-   Pin both npm commands:
-
-   ```sh
-   npx -p principal-pi-skills@4.8.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.8.0 principal-pi-agents check
-   ```
-
-   Version 4.8.0 adds native phase bindings, request-local bootstrap routing, stricter
-   workflow contracts, manual progress records, and installer ownership checks. Behavioral
-   measurement remains in the separate `principal-pi-skills-evals` repository, while routing
-   checks remain here. The checkout check
-   verifies tag/HEAD consistency, not independent tag trust;
-   compare the recorded SHA with the release identity when provenance matters. Before tagging,
-   validate the actual candidate's skills and installer in an isolated `PI_CODING_AGENT_DIR`.
-   Known behavioral qualification limits remain documented; combining the release does not waive them.
+   Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
+   package; resolve its path from Pi resources instead of guessing an installation directory.
+   Source tags and npm publication are separate. Validate candidate installs in an isolated
+   `PI_CODING_AGENT_DIR` before release; known behavioral qualification limits still apply.
 
    It installs `principal-plan`, `principal-build`, `principal-review`, `principal-debug`,
    and `principal-investigate` as **real files, not symlinks** — a symlink into a checkout breaks the
@@ -262,14 +253,45 @@ CHANGELOG.md                          release history
    those turns. Forwarded context still reaches the child and its provider; raising another
    skill's ceiling extends that exposure to it.
 
+## Coordinator evidence handoffs
+
+Before native delegation, save the complete unmodified `delegate_describe` response in a private
+handoff report and retain accessible references to the actual selected skill/agent files and
+package manifest. Resolve their paths from selected Pi resources, verify the binding hashes,
+and preserve original paths/hashes when copying bytes into a child workspace. The handshake
+contains identity data, not source paths or new authority. Pass the files, not a prose substitute.
+
+Each gate records its owner and due stage. A typical assignment is:
+
+| Due stage | Owner | Required observations |
+|---|---|---|
+| Before dispatch | Coordinator | Actual authority, selected definition and permitted runtime configuration |
+| During implementation | Builder | Due source requirements, scope, tests, candidate identity and full report |
+| After builder return | Coordinator | Complete native result, report and terminal/cleanup evidence |
+| Candidate review | Reviewer | Exact candidate, applicable source requirements, supplied evidence and verdict |
+| After reviewer return | Coordinator | Reviewer settlement, then authorized integration and final verification |
+
+Native process settlement needs `cleanup.state=settled` with its matching identity-bound receipt.
+An absent disposable workspace is not process-cleanup evidence. Retain the model-visible runtime
+evidence emitted by pi-daddy 0.44.4; missing evidence blocks dependent work and task completion even with
+passing tests or review.
+
+This example cannot change source-required ordering. A leaf reports later coordinator gates as
+pending and does not certify its future exit or call tools it lacks. Missing evidence required
+for current work still blocks. Every dependent step waits for the coordinator's actual return
+checks. Final integrated review preserves global obligations; a task verdict covers only its scope.
+
 ## Reports and manual progress
 
 Use the installed `principal-pi-progress` helper when a coordinator needs repeated report
 allocation/persistence. It creates private unused candidate directories beneath ignored
 `.principal/reports/`, writes complete `.md` reports exclusively, and appends a small
 `progress.jsonl` index. It preserves an existing ignore policy and refuses an exposed path.
-The helper is optional; Plan's write ceiling and Investigate's read-only ceiling do not grow.
-Do not fetch/install it solely to write a report.
+Progress tracking is optional; when used, all index writes must go through the installed helper.
+Never hand-write its `run.json` or `progress.jsonl`. Plan's write ceiling and Investigate's
+read-only ceiling do not grow. If the binary is not on PATH, invoke
+`node /actual/selected/principal-pi-skills/scripts/progress-artifacts.mjs` with the same arguments,
+resolving the package from the selected Pi resources. Do not guess paths or fetch/install a helper.
 
 ```sh
 principal-pi-progress create /path/to/repo task-name '<actual candidate identity>'
@@ -277,6 +299,8 @@ principal-pi-progress create /path/to/repo task-name '<actual candidate identity
 principal-pi-progress report "$RUN" step-1-build.md < complete-report.md
 principal-pi-progress reference /absolute/path/to/plan.md
 principal-pi-progress append "$RUN" < record.json
+principal-pi-progress check "$RUN" '<actual current candidate identity>'
+# For diagnostics only (read reports issues but does not fail its exit status):
 principal-pi-progress read "$RUN" '<actual current candidate identity>'
 ```
 
@@ -308,6 +332,13 @@ Each finding has `id`, `source` reference and `status` (`open`, `addressed`, `ve
 `accepted`, `disputed`, `duplicate`, `stale`); a duplicate also names `duplicateOf`. Preserve original
 review baseline/definitions and PR comment URLs/IDs in the referenced complete reports.
 
+Run `check` after each append and before relying on a resumed or final index. Its explicit
+candidate argument is a caller assertion, not a Git snapshot. It returns `integrityValid` plus
+the same top-level/per-record reconciliation as `read`; any issue makes `check` exit nonzero.
+A valid index can honestly contain unknown/incomplete facts and a completed CHANGES-REQUESTED
+review. Success means schema/reference consistency only; inspect every relevant step's required
+phases, actual verdict and current authority separately before claiming completion or integration.
+
 The coordinator is the single writer. Save the report before appending progress; an append
 failure preserves that report and leaves progress incomplete. Never force-clear a writer
 lock. Reads return the original records plus independently assessed facts/issues: changed or
@@ -319,6 +350,21 @@ candidate equivalence. It neither computes candidate identity nor resumes/runs t
 actual user authority/current work before choosing the next action; a title, role, commit or
 self-authored boolean cannot grant approval. This is a trusted-coordinator filesystem helper,
 not hostile-process containment or an atomic multi-file transaction.
+
+## Future JEV and LoRA integration
+
+The useful initial decisions are whether to stay inline, which approved independent steps to
+group, and whether a handoff has its required inputs. An optional JEV evaluator can later consume
+explicit task context, eligible actions, gate owner/due-stage maps and referenced observations
+in an offline or shadow experiment. Candidate/step IDs and source hashes let it join suggestions
+to actual correctness, review, completion, latency and cleanup outcomes without inventing labels.
+The existing version 1 progress contract remains unchanged; version any advisory record separately.
+
+Advisory output never grants permission, changes a required gate, replaces deterministic evidence
+validation or triggers a fallback. Keep missing evidence, failures and incomplete workflows in the
+evaluation. Later LoRA training requires reviewed, eligible examples and separate held-out evaluation;
+private reasoning and credentials are excluded. No JEV service, training job, automatic collection
+or OpenAI Decisions integration is activated by this patch.
 
 ## Validation
 

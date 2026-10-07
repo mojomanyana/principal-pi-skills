@@ -6,6 +6,28 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.8.1] — 2026-10-07
+
+**Fixed — coordinator and leaf evidence ownership.** Preserve describe/source handoffs and assign
+gate owners/due stages without postponing source-required prerequisites. Leaves verify current
+obligations and retain later coordinator terminal/cleanup/review checks as pending. The coordinator
+checks every child, including reviewers, before consuming their results. Require a settled
+process receipt even without a disposable workspace; use companion pi-daddy 0.44.4, which exposes
+that runtime evidence to the coordinator model.
+
+**Fixed — progress integrity at phase boundaries.** Optional progress indexes must use the installed
+helper. New `check <run> <candidate>` reports reconciliation and fails on malformed/stale evidence;
+diagnostic `read` retains its existing behavior. Valid incomplete records and review verdicts remain
+separate from approval/completion. Original failed indexes are preserved, not rewritten.
+
+**Documented — complete Pi setup.** Pin all three npm packages and enable Pi's built-in discovery
+tools through `defaultTools` when planning/review needs them. Plan keeps its existing shell/write
+ceiling; helper execution belongs to the coordinator after planning.
+
+**Documented — future advisory seam.** Gate ownership and existing candidate/step/source references
+can support separately versioned JEV evaluation and eligible LoRA datasets later. This release adds
+no model service, automatic collection, training or execution authority.
+
 ## [4.8.0] — 2026-10-07
 
 **Fixed — installer compatibility without ownership bypass.** Symlinked directory ancestors

@@ -253,3 +253,16 @@ test("native workflows use phase identities and batch independent parallel child
     assert.match(text, /preserve completed\s+siblings/);
   }
 });
+
+// Routing clauses are product contracts; these guards do not measure model compliance.
+test("coordinator handoffs preserve selected evidence and wait for reviewer settlement", () => {
+  for (const path of [...WORKFLOWS, "prompts/principal-review-branch.md"]) {
+    const text = read(path).replace(/\s+/g, " ");
+    assert.match(text, /unmodified.*describe.*(?:response|handoff)/i, path);
+    assert.match(text, /selected.*skill\/agent.*(?:source|file)/i, path);
+    assert.match(text, /(?:owner.*due stage|owners\/due stages)/, path);
+    assert.match(text, /(?:After.*returns|After return).*native result.*(?:cleanup|settlement).*verdict/i, path);
+    assert.match(text, /(?:Missing evidence due|Missing due prerequisites)/, path);
+    assert.match(text, /(?:never guess|never guess an).*path/i, path);
+  }
+});

@@ -1,10 +1,10 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, rmSync, symlinkSync, statSync } from "node:fs";
+import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, rmSync, symlinkSync, statSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { execFileSync } from "node:child_process";
-import { createRun, saveReport, reference, appendProgress, readProgress } from "../../scripts/progress-artifacts.mjs";
+import { execFileSync, spawnSync } from "node:child_process";
+import { createRun, saveReport, reference, appendProgress, readProgress, checkProgress } from "../../scripts/progress-artifacts.mjs";
 
 function fixture(t) {
   const repo = mkdtempSync(join(tmpdir(), "principal-progress-test-"));
@@ -216,4 +216,116 @@ test("run metadata must be exactly the supported object with a valid candidate i
     writeFileSync(manifest, JSON.stringify(invalid));
     assert.throws(() => readProgress(run, "candidate-A"), /run manifest|run identity|candidate/);
   }
+});
+test("observed hand-written progress shapes cannot create or alter an index", t => {
+  const run = createRun(fixture(t), "task", "candidate-A"), report = saveReport(run, "build.md", "full original report");
+  const index = join(run, "progress.jsonl"), valid = entry(report);
+  const mutations = [
+    record => { record.candidate = { commit: "candidate-A" }; },
+    record => { record.facts.implemented = "complete"; },
+    record => { record.facts.implemented.evidence[0].path = ".principal/reports/build.md"; },
+    record => { record.recordedAt = "2026-10-07T13:57:49Z"; },
+  ];
+  for (const mutate of mutations) {
+    const invalid = structuredClone(valid);
+    mutate(invalid);
+    assert.throws(() => appendProgress(run, invalid), /candidate|fact|absolute|unknown record/);
+    assert.equal(existsSync(index), false);
+  }
+  appendProgress(run, valid);
+  const originalIndex = readFileSync(index, "utf8");
+  for (const mutate of mutations) {
+    const invalid = structuredClone(valid);
+    mutate(invalid);
+    assert.throws(() => appendProgress(run, invalid), /candidate|fact|absolute|unknown record/);
+    assert.equal(readFileSync(index, "utf8"), originalIndex);
+    assert.equal(readFileSync(report.path, "utf8"), "full original report");
+  }
+});
+
+test("integrity check requires a candidate and preserves incomplete facts and review verdicts", t => {
+  const run = createRun(fixture(t), "task", "candidate-A"), report = saveReport(run, "review.md", "CHANGES-REQUESTED REV-1");
+  for (const candidate of [undefined, null, "", "  ", { commit: "candidate-A" }]) {
+    assert.throws(() => checkProgress(run, candidate), /expected candidate must be nonempty text/);
+  }
+  const record = entry(report);
+  record.facts.implemented = { state: "incomplete", evidence: [report], note: "Repair pending" };
+  record.facts.reviewed = { state: "complete", evidence: [report], note: "CHANGES-REQUESTED" };
+  record.findings = [{ id: "REV-1", source: report, status: "open" }];
+  appendProgress(run, record);
+  const checked = checkProgress(run, "candidate-A");
+  assert.equal(checked.integrityValid, true);
+  assert.deepEqual(checked.records[0].record, record);
+  assert.deepEqual(checked.records[0].facts, record.facts);
+  const { integrityValid, ...reconciliation } = checked;
+  assert.deepEqual(reconciliation, readProgress(run, "candidate-A"));
+  assert.equal(readProgress(run).records[0].facts.reviewed.state, "unknown");
+});
+
+test("integrity check covers stale earlier records even when the final record is current", t => {
+  const run = createRun(fixture(t), "task", "candidate-A"), report = saveReport(run, "build.md", "original evidence");
+  appendProgress(run, entry(report));
+  assert.equal(checkProgress(run, "candidate-B").integrityValid, false);
+  writeFileSync(report.path, "changed evidence");
+  appendProgress(run, entry(reference(report.path), { step: "step-2" }));
+  const index = join(run, "progress.jsonl"), before = readFileSync(index, "utf8");
+  const stale = checkProgress(run, "candidate-A");
+  assert.deepEqual(stale.issues, []);
+  assert.equal(stale.integrityValid, false);
+  assert.match(stale.records[0].issues.join(" "), /changed evidence/);
+  assert.deepEqual(stale.records[1].issues, []);
+  assert.equal(readFileSync(index, "utf8"), before);
+  assert.equal(readFileSync(report.path, "utf8"), "changed evidence");
+  rmSync(report.path);
+  const missing = checkProgress(run, "candidate-A");
+  assert.equal(missing.integrityValid, false);
+  assert.match(missing.records[1].issues.join(" "), /unavailable evidence/);
+  assert.equal(readFileSync(index, "utf8"), before);
+});
+
+test("integrity check preserves malformed or torn history and requires a separate repair run", t => {
+  const repo = fixture(t), run = createRun(repo, "task", "candidate-A"), report = saveReport(run, "build.md", "retained full evidence");
+  const absent = checkProgress(run, "candidate-A");
+  assert.equal(absent.integrityValid, false);
+  assert.match(absent.issues.join(" "), /no complete progress record/);
+  const valid = entry(report), line = JSON.stringify(valid) + "\n", index = join(run, "progress.jsonl");
+  for (const damaged of ['{"facts":"complete"}\n' + line, line + '{"version":1']) {
+    writeFileSync(index, damaged);
+    const checked = checkProgress(run, "candidate-A");
+    assert.equal(checked.integrityValid, false);
+    assert.equal(checked.records.length, 1);
+    assert.ok(checked.issues.length > 0);
+    assert.deepEqual(checked.records[0].issues, []);
+    assert.throws(() => appendProgress(run, valid), /invalid record|incomplete final/);
+    assert.equal(readFileSync(index, "utf8"), damaged);
+    assert.equal(readFileSync(report.path, "utf8"), "retained full evidence");
+    const repair = createRun(repo, "repair", "candidate-A");
+    appendProgress(repair, valid);
+    assert.equal(checkProgress(repair, "candidate-A").integrityValid, true);
+    assert.equal(readFileSync(index, "utf8"), damaged);
+  }
+});
+
+test("CLI check exposes integrity failure through exit status while read remains diagnostic", t => {
+  const run = createRun(fixture(t), "task", "candidate-A"), report = saveReport(run, "build.md", "unreviewed implementation");
+  const cli = new URL("../../scripts/progress-artifacts.mjs", import.meta.url).pathname;
+  const call = (...args) => spawnSync(process.execPath, [cli, ...args], { encoding: "utf8" });
+  for (const args of [["check", run], ["check", run, ""]]) assert.equal(call(...args).status, 1);
+  const missing = call("check", run, "candidate-A");
+  assert.equal(missing.status, 1);
+  assert.equal(JSON.parse(missing.stdout).integrityValid, false);
+  appendProgress(run, entry(report));
+  const valid = call("check", run, "candidate-A");
+  assert.equal(valid.status, 0);
+  assert.equal(JSON.parse(valid.stdout).integrityValid, true);
+  assert.equal(JSON.parse(valid.stdout).records[0].facts.reviewed.state, "unknown");
+  const stale = call("check", run, "candidate-B");
+  assert.equal(stale.status, 1);
+  assert.equal(JSON.parse(stale.stdout).integrityValid, false);
+  assert.equal(call("read", run, "candidate-B").status, 0);
+  writeFileSync(report.path, "changed evidence");
+  const changed = call("check", run, "candidate-A");
+  assert.equal(changed.status, 1);
+  assert.equal(JSON.parse(changed.stdout).integrityValid, false);
+  assert.equal(call("read", run, "candidate-A").status, 0);
 });

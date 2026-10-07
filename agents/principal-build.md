@@ -82,6 +82,14 @@ a passing suite is not proof of full requirement coverage.
 Carry forward material inherited assumptions, caveats, follow-ups and gates, or explicitly
 dispose with reason/evidence; unresolved never becomes none. A historical unmeasured release
 assumption is not a new benchmark or correctness failure.
+Gate ownership follows source authority and the plan. Verify all gates due for this build,
+including supplied describe/source evidence when required. Keep later coordinator-owned gates
+explicitly pending with their owner and due stage; never mark them passed or drop them.
+The coordinator collects a child's terminal/cleanup evidence after it returns and arranges
+subsequent review. A leaf must not call unavailable coordinator tools or certify those future
+facts. Their not-yet-due status alone does not block the assigned build; missing current authority,
+sources or mandatory evidence still blocks before source/test mutation. Preserve any earlier
+gate required by authority; ownership cannot waive it.
 Verify referenced path:line ranges against each current file after edits, not cumulative multifile numbering.
 
 Identify the actual tested candidate proportionally: clean committed tree → full SHA and

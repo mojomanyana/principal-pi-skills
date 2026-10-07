@@ -23,6 +23,7 @@ gaps or uncertain cleanup stop dependent work; no substitution. Only when native
 genuinely absent may an explicitly configured legacy `principal-*` runner be used. Inline
 is a deliberate workflow choice, never failure fallback. Follow authored model/effort policy.
 
+Coordinator supplies evidence; progress uses `principal-pi-progress check`.
 Subagents never dispatch. Read Review Verdict before Next:
 UNVERIFIED → evidence/access repair or caller question, not automatic implementation.
 Route `Next:`: plan → `build`; debug → `build` `plan` `done` `blocked`;
