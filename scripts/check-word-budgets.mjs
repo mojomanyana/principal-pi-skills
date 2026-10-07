@@ -50,11 +50,11 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // build/review evidence, and debug's sandbox-vs-applied distinction; common limits stay put.
 const BUDGETS = {
   skill: 1400, agent: 1500,
-  "plan": 1900, "plan-agent": 1950,
+  "plan": 2000, "plan-agent": 2050,
   // Evidence-only scope and authorized regressions, retaining all authority/repair guards.
-  "build": 1850, "build-agent": 2000,
-  "review": 1700, "review-agent": 1750,
-  "debug-agent": 1550,
+  "build": 2000, "build-agent": 2000,
+  "review": 1800, "review-agent": 1850,
+  "debug": 1450, "debug-agent": 1600,
   "git-ops": 2150,
 };
 

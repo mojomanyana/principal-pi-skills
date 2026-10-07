@@ -5,7 +5,10 @@ argument-hint: "[base]"
 Review this branch against `${1:-main}` and finish it.
 
 You are the orchestrator; this chain invokes neither Plan nor Build. Work that was
-built outside the workflows gets the same cold review the workflows give.
+built outside the workflows gets the same cold review the workflows give. Use `integrated`
+review scope: prior task approval does not cover assembled interactions or global gates.
+Any scoped repair keeps the original full branch baseline and unresolved source obligations;
+comment URL/ID, candidate and accepted/disputed/duplicate/stale statuses remain traceable.
 
 1. Find the range: `git merge-base ${1:-main} HEAD` is the base; `HEAD` is the head. If
    the working tree is dirty, say so and stop — review judges committed work.

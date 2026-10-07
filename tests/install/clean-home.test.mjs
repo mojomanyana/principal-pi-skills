@@ -155,6 +155,16 @@ test("the installed bins actually run — not a silent exit 0", () => {
   const path = execFileSync(wsBin, ["create"], { cwd: proj, env, encoding: "utf8" }).trim();
   assert.ok(path.length > 0 && existsSync(path), `create must print a real worktree path, got ${JSON.stringify(path)}`);
   execFileSync(wsBin, ["remove", path], { cwd: proj, env, stdio: "pipe" });
+
+  const progressBin = join(proj, "node_modules", ".bin", "principal-pi-progress");
+  assert.ok(existsSync(progressBin), "the progress bin must be linked");
+  const run = JSON.parse(execFileSync(progressBin, ["create", proj, "task", "candidate-A"], { env, encoding: "utf8" }));
+  const report = JSON.parse(execFileSync(progressBin, ["report", run, "build.md"], {
+    env, encoding: "utf8", input: "Complete report\nCaveat: runtime not tested\n",
+  }));
+  assert.equal(readFileSync(report.path, "utf8"), "Complete report\nCaveat: runtime not tested\n");
+  const progress = JSON.parse(execFileSync(progressBin, ["read", run, "candidate-A"], { env, encoding: "utf8" }));
+  assert.match(progress.issues.join(" "), /progress incomplete/);
 });
 
 test("tagged skill and agent install recipes use the package version and matching sources", () => {

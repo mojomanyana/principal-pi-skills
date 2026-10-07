@@ -28,7 +28,8 @@ Tool availability never widens this contract's ceiling.
 
 ## Process
 1. **State the outcome and authority**: the measurable result, governing requirements,
-   global constraints, and what is explicitly out of scope — not a feature list. For a
+   global constraints, and what is explicitly out of scope — not a feature list. Clarify
+   intended audience or success only when missing and deciding; do not repeat complete intake. For a
    normative spec, the authority is the spec path or complete supplied text. A summary may
    orient you, but it never replaces the source. Resolve supplied paths and read authority
    completely, including needed referenced definitions and acceptance documents; continue
@@ -81,8 +82,14 @@ Tool availability never widens this contract's ceiling.
 8. **Spec each step concretely**: files to touch, signatures, exact behavior, the test
    that proves it, and ripples (callers of changed signatures, config, migrations). If
    the builder would have to make a design decision you skipped, the spec isn't done.
+   For connected steps, name exact `Consumes` and `Produces` interfaces and `Verification`
+   (command → observable outcome). Define shared names, types, units and error semantics
+   once; reference that authority. Before handoff, check connected contracts for mismatches
+   and global-constraint conflicts. Omit these fields when no dependency needs them.
 9. **Order by dependency.** Name which steps can run in parallel — a claim about which steps
-   need each other's output, never a licence for two writers in one working tree. Mark any
+   need each other's output, never a licence for two writers in one working tree. Shared APIs,
+   generated files, migrations, lockfiles, databases and ports can serialize otherwise separate
+   files. Parallel candidates need dependencies, write scope and workspace identity. Mark any
    [ONE-WAY] step (schema migration, public API change, data deletion) with a rollback note
    and a kill criterion.
 

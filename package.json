@@ -51,7 +51,8 @@
     },
     "bin": {
         "principal-pi-agents": "./scripts/install-agents.mjs",
-        "principal-pi-workspace": "./scripts/snapshot-workspace.mjs"
+        "principal-pi-workspace": "./scripts/snapshot-workspace.mjs",
+        "principal-pi-progress": "./scripts/progress-artifacts.mjs"
     },
     "files": [
         "AGENTS.md",
@@ -68,6 +69,7 @@
         "agents/*.md",
         "scripts/install-agents.mjs",
         "scripts/snapshot-workspace.mjs",
+        "scripts/progress-artifacts.mjs",
         "extensions/bootstrap.ts",
         "bootstrap/BOOTSTRAP.md"
     ],

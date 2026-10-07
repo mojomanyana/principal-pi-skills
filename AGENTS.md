@@ -82,7 +82,8 @@ Typical spines (available as prompt templates):
 - Bug (`/principal-bugfix <symptom>`): debug → approval stop → build → review → git-ops
   finish. If debug's note says design flaw, stop and surface it.
 - Refactor (`/principal-refactor <scope>`): the feature spine with a no-behavior-change
-  frame — existing tests pass unchanged, uncovered behavior gets a characterization test first.
+  frame — behavior and coverage stay equivalent; test maintenance is allowed, and uncovered
+  behavior gets a characterization test first.
 - Review a branch (`/principal-review-branch [base]`): cold `principal-review` of
   `merge-base <base> HEAD..HEAD`, then git-ops finish mode on APPROVE; findings stop for the
   user otherwise. No plan, no build.
@@ -92,8 +93,16 @@ Typical spines (available as prompt templates):
   rounds; a third means the plan or the diagnosis was wrong, not the code.
 - Multi-step plans are written to `.principal/plans/<slug>.md` (git-ignored) so a delegated
   build reads its step from the file and a compacted or fresh session resumes from it.
-- Tiny change: build → git-ops, both inline — every contract carries a Right-sizing
-  rule; don't add ceremony the file itself would refuse.
+- Tiny change: build → git-ops only when finish is requested. Clear, reversible, localized
+  low-risk direct work may finish inline with actual checks and caveats, without `Next:`.
+  Honor requested review and existing approvals; a tiny security or normative edit is
+  consequential. Delegated status/report protocols and explicit spine approval stops remain.
+- Review scope is task, integrated or scoped repair. Task approval covers only its candidate
+  and interfaces; only final integrated approval supports Git-Ops finish. Keep original
+  whole-change obligations and gates through repairs.
+- Progress records are optional coordinator evidence indexes, never approval or execution.
+  Reconcile actual authority, work and current report/candidate references; commit, review,
+  integration and verification are separate facts. Incomplete/stale records stay unresolved.
 
 Before any orchestrator artifact write (including planless Review, inline Build or optional
 Investigate persistence), create an absent `.principal/.gitignore` containing `*`, never

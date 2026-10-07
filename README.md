@@ -38,29 +38,25 @@ around.
    `wc -w`. Nothing loads anything else — a subagent reads one file and has the whole
    contract.
 
-Individual fidelity exceptions (skill/agent words): Plan 1900/1950 buys complete source
-reads, blocking exceptions, stable mapping, persisted completeness and explicit no-shell
-fallback/tiny-file reads. Build 1850/2000 preserves pre-mutation authority classification,
-the complete authorized-amendment positive case, immutable report/repair provenance and
-compressed evidence/caveats; Review 1700/1750 buys candidate-bound obligation/gate evidence
-and repair definitions. Both distinguish lasting behavior-named regressions from historical
-receipt/replay verification, without freezing transient review/release status. The 100-word
-ceiling increases retain evidence-only scope safeguards and useful authorized regressions
-without removing existing guards;
-Debug's agent ceiling is 1550 for honest sandbox/applied states. Common ceilings and Git-Ops
-stay unchanged. These budgets preserve safeguards for lower-cost models, not a claim of
-measured robustness on those models.
+Individual contract exceptions (skill/agent words): Plan 2000/2050 preserves complete
+source/requirement maps and adds exact connected interfaces and shared-resource checks.
+Build 2000/2000 retains authority, full evidence and immutable repair provenance while adding
+meaningful test maintenance and a guarded inline path. Review 1800/1850 retains candidate-bound
+gates and distinguishes task, integrated and repair scope. Debug 1450/1600 preserves honest
+disposable/applied states while making diagnosis sufficient for handoff and protecting
+boundary evidence. These narrow increases retain the existing safeguards; they are not
+claims of measured model compliance. Common ceilings remain unchanged.
 
 ## The set
 
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
-| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1134 |
-| `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1211 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1938) or inline | 1877 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1845) or inline | 1801 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1724) or inline | 1660 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1533) or inline | 1397 |
+| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
+| `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 2021) or inline | 1960 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1967) or inline | 1957 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1838) or inline | 1774 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1584) or inline | 1448 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 491) or inline | 492 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2145 |
 
@@ -229,6 +225,64 @@ CHANGELOG.md                          release history
    switch on by delegating with `pruned` while an advisor is on. Raising any other skill's
    ceiling extends that exposure to it.
 
+## Reports and manual progress
+
+Use the installed `principal-pi-progress` helper when a coordinator needs repeated report
+allocation/persistence. It creates private unused candidate directories beneath ignored
+`.principal/reports/`, writes complete `.md` reports exclusively, and appends a small
+`progress.jsonl` index. It preserves an existing ignore policy and refuses an exposed path.
+The helper is optional; Plan's write ceiling and Investigate's read-only ceiling do not grow.
+Do not fetch/install it solely to write a report.
+
+```sh
+principal-pi-progress create /path/to/repo task-name '<actual candidate identity>'
+# Set RUN to the decoded returned path; use the same caller-established identity below.
+principal-pi-progress report "$RUN" step-1-build.md < complete-report.md
+principal-pi-progress reference /absolute/path/to/plan.md
+principal-pi-progress append "$RUN" < record.json
+principal-pi-progress read "$RUN" '<actual current candidate identity>'
+```
+
+`report` and `reference` return `{ "path": "/absolute/path", "sha256": "<64 hex>" }`.
+A version 1 record has exactly these fields (replace `REPORT_REF` with that returned object):
+
+```json
+{
+  "version": 1,
+  "plan": null,
+  "step": "impl:S1",
+  "candidate": "<actual candidate identity>",
+  "facts": {
+    "planned": { "state": "unknown", "evidence": [], "note": "No separate plan" },
+    "implemented": { "state": "complete", "evidence": ["REPORT_REF"], "note": "Implementation saved; review pending" },
+    "reviewed": { "state": "unknown", "evidence": [], "note": "Not reviewed" },
+    "integrated": { "state": "unknown", "evidence": [], "note": "Not integrated" },
+    "verified": { "state": "unknown", "evidence": [], "note": "Qualification not run" }
+  },
+  "findings": [],
+  "nextAction": "Request task review"
+}
+```
+
+`plan` is null or a file reference. Every fact has `unknown`, `incomplete` or `complete`
+state, evidence references and an honest note; complete needs evidence. A completed review
+means the review occurred, and its note must retain the verdict, including CHANGES-REQUESTED.
+Each finding has `id`, `source` reference and `status` (`open`, `addressed`, `verified`,
+`accepted`, `disputed`, `duplicate`, `stale`); a duplicate also names `duplicateOf`. Preserve original
+review baseline/definitions and PR comment URLs/IDs in the referenced complete reports.
+
+The coordinator is the single writer. Save the report before appending progress; an append
+failure preserves that report and leaves progress incomplete. Never force-clear a writer
+lock. Reads return the original records plus independently assessed facts/issues: changed or
+missing files, changed/unconfirmed candidates and malformed/incomplete records remain
+unresolved. An incomplete final JSONL line is ignored/reported, never promoted to complete;
+preserve its bytes and start a new run if needed. Reconcile records by step, not just the
+last line. No helper claim proves its evidence's meaning, model judgment, approval or broad
+candidate equivalence. It neither computes candidate identity nor resumes/runs tasks. Check
+actual user authority/current work before choosing the next action; a title, role, commit or
+self-authored boolean cannot grant approval. This is a trusted-coordinator filesystem helper,
+not hostile-process containment or an atomic multi-file transaction.
+
 ## Validation
 
 `npm test` remains the free gate: generated-contract drift, word budgets, frontmatter lint,
@@ -278,7 +332,7 @@ Decisions taken for 4.0, all closed:
 | Human approval | always, after plan (feature) or after the debug note (bugfix); the artifact scales, the stop does not |
 | Routing delivery | a pi extension injects `bootstrap/BOOTSTRAP.md` at session start and after compaction |
 | Build delegation | `principal-build` agent; inline when there is no multi-step plan file or no subagent tool |
-| Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; no date prefix because plan has no clock, and resume matches on the `## Plan:` line |
+| Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; titles locate candidates, while manual resume checks actual authority, current work and evidence |
 | Decide vs architect | both kept; decide answers "should we / which", architect answers "how is it structured" |
 | Measurement | behavioural measurement lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks stay here |
 

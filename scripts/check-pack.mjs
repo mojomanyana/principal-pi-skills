@@ -37,6 +37,7 @@ const REQUIRED = [
   ...["principal-plan", "principal-review", "principal-debug", "principal-build", "principal-investigate"].map((a) => `agents/${a}.md`),
   "scripts/install-agents.mjs",
   "scripts/snapshot-workspace.mjs",
+  "scripts/progress-artifacts.mjs",
   "extensions/bootstrap.ts",
   "bootstrap/BOOTSTRAP.md",
 ];
@@ -48,7 +49,7 @@ const FORBIDDEN = [
   [/tests\//, "scenarios, fixtures and committed results"],
   [/^contracts\//, "contract templates — build-time source, not runtime"],
   [/^\.github\//, "CI configuration"],
-  [/^scripts\/(?!install-agents\.mjs$|snapshot-workspace\.mjs$)/, "dev-only scripts"],
+  [/^scripts\/(?!install-agents\.mjs$|snapshot-workspace\.mjs$|progress-artifacts\.mjs$)/, "dev-only scripts"],
   [/(^|\/)\.claude\//, "local editor/agent settings"],
   [/(^|\/)\.pi\//, "local pi settings"],
   [/package-lock\.json$/, "lockfile — not consumed by installers of this package"],
