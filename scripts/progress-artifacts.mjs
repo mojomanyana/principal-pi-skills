@@ -71,9 +71,11 @@ function runInfo(run) {
   for (const part of parts) { current = join(current, part); plain(current, "directory"); }
   plain(join(path, "run.json"), "file");
   const info = JSON.parse(readFileSync(join(path, "run.json"), "utf8"));
+  object(info, ["version", "root", "candidate"], "run manifest");
+  text(info.candidate, "run candidate");
   if (info.version !== 1 || info.root !== root || typeof info.candidate !== "string" || hash(info.candidate).slice(0, 16) !== parts[3]) fail("invalid run identity");
   ignored(root, join(path, "unused-probe"));
-  return { path, ...info };
+  return { path, version: 1, root, candidate: info.candidate };
 }
 
 /** References identify exact file bytes, not the truth of their contents or a filesystem snapshot. */

@@ -183,3 +183,37 @@ test("dangling index symlinks are reported instead of looking like absent progre
   symlinkSync(join(run, "missing"), join(run, "progress.jsonl"));
   assert.throws(() => readProgress(run, "candidate-A"), /symlink/);
 });
+for (const operation of ["report", "append", "read"]) {
+  test(`${operation} refuses unknown run metadata before reading or writing another directory`, t => {
+    const repo = fixture(t), run = createRun(repo, "task", "candidate-A");
+    const report = saveReport(run, "existing.md", "original report");
+    appendProgress(run, entry(report));
+    const originalIndex = readFileSync(join(run, "progress.jsonl"), "utf8");
+    const foreign = join(repo, ".principal", "foreign");
+    mkdirSync(foreign);
+    writeFileSync(join(foreign, "progress.jsonl"), "foreign sentinel\n");
+    const manifest = join(run, "run.json"), original = JSON.parse(readFileSync(manifest, "utf8"));
+    const invoke = () => operation === "report" ? saveReport(run, "escaped.md", "must not save")
+      : operation === "append" ? appendProgress(run, entry(report)) : readProgress(run, "candidate-A");
+    for (const extra of [{ path: foreign }, { approved: true }, { unexpected: "metadata" }]) {
+      writeFileSync(manifest, JSON.stringify({ ...original, ...extra }));
+      assert.throws(invoke, /unknown run manifest field/);
+      assert.equal(readFileSync(join(foreign, "progress.jsonl"), "utf8"), "foreign sentinel\n");
+      assert.equal(readFileSync(join(run, "progress.jsonl"), "utf8"), originalIndex);
+      assert.throws(() => readFileSync(join(foreign, "escaped.md")), /ENOENT/);
+      assert.throws(() => readFileSync(join(foreign, ".progress.lock")), /ENOENT/);
+    }
+    writeFileSync(manifest, JSON.stringify(original));
+    assert.equal(readProgress(run, "candidate-A").records.length, 1);
+  });
+}
+
+test("run metadata must be exactly the supported object with a valid candidate identity", t => {
+  const run = createRun(fixture(t), "task", "candidate-A"), manifest = join(run, "run.json");
+  const original = JSON.parse(readFileSync(manifest, "utf8"));
+  for (const invalid of [null, [], { ...original, version: 2 }, { ...original, candidate: "" },
+    { version: 1, root: original.root }, { version: 1, candidate: original.candidate }]) {
+    writeFileSync(manifest, JSON.stringify(invalid));
+    assert.throws(() => readProgress(run, "candidate-A"), /run manifest|run identity|candidate/);
+  }
+});
