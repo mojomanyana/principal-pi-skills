@@ -160,6 +160,20 @@ CHANGELOG.md                          release history
    `/principal-*` commands and the bootstrap extension automatically. Exact npm pins keep
    the installed source version identifiable.
 
+   For planning or review that needs repository discovery, merge this setting into your Pi
+   `settings.json` (preserving its other fields), then restart Pi:
+
+   ```json
+   { "defaultTools": ["read", "bash", "edit", "write", "grep", "find", "ls"] }
+   ```
+
+   Pi 1.0.4's default coding tool selection omits `grep`, `find` and `ls`. This setting
+   enables those built-in discovery tools while retaining extension tools such as `delegate`.
+   Check the active tool inventory after restart. Plan still forbids shell substitution and
+   may correctly block when essential discovery is unavailable. During Plan, describe later
+   coordinator-owned progress work; the coordinator runs the helper after that phase, within
+   its own authority. Planning does not run the CLI or widen its write ceiling.
+
    **Do not install `2.3.0`** — it is deprecated on npm for a destructive defect: its
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.

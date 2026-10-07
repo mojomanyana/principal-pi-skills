@@ -190,6 +190,11 @@ service, new model calls, automatic labels or trained model. OpenAI Decisions re
    Native delegation uses exactly Pi 1.0.4 and the qualified captured setup
    (`PI_DADDY_HERDR=0`). Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
+   Enable built-in discovery through Pi `settings.json` `defaultTools` containing
+   `read`, `bash`, `edit`, `write`, `grep`, `find`, `ls`; preserve other settings and check
+   active tools after restart. Pi's default coding selection omits the three discovery tools.
+   Plan cannot replace missing discovery with shell or run the progress CLI; it only plans
+   later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
    Pin both `npx -p principal-pi-skills@4.8.1 principal-pi-agents install` and

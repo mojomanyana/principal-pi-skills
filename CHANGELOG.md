@@ -18,6 +18,10 @@ helper. New `check <run> <candidate>` reports reconciliation and fails on malfor
 diagnostic `read` retains its existing behavior. Valid incomplete records and review verdicts remain
 separate from approval/completion. Original failed indexes are preserved, not rewritten.
 
+**Documented — complete Pi setup.** Pin all three npm packages and enable Pi's built-in discovery
+tools through `defaultTools` when planning/review needs them. Plan keeps its existing shell/write
+ceiling; helper execution belongs to the coordinator after planning.
+
 **Documented — future advisory seam.** Gate ownership and existing candidate/step/source references
 can support separately versioned JEV evaluation and eligible LoRA datasets later. This release adds
 no model service, automatic collection, training or execution authority.
