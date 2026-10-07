@@ -41,6 +41,8 @@ and due stage fixed by source authority. Leaf agents check current assigned obli
 retain later coordinator terminal/cleanup/review gates as pending. The coordinator checks full
 native results and settlement after return, including the reviewer, before dependent work.
 Missing prerequisites still block; ownership never waives or delays a required gate.
+Native process cleanup needs a settled identity-bound receipt even when no disposable workspace
+exists. Missing emitted runtime evidence blocks dependent work and task completion.
 
 For approved independent batches, use one `delegate_all({children:[...]})` call; every child
 carries its native phase name and described `definitionId`. Do not overlap single `delegate`
@@ -186,7 +188,7 @@ service, new model calls, automatic labels or trained model. OpenAI Decisions re
 
 1. Install exact npm releases, then restart Pi:
    `pi install npm:principal-pi-skills@4.8.1`,
-   `pi install npm:pi-daddy@0.44.3` and `pi install npm:skill-harness@0.24.3`.
+   `pi install npm:pi-daddy@0.44.4` and `pi install npm:skill-harness@0.24.3`.
    Native delegation uses exactly Pi 1.0.4 and the qualified captured setup
    (`PI_DADDY_HERDR=0`). Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.

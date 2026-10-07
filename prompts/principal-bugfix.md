@@ -36,6 +36,9 @@ After each child returns, the coordinator retains the full native result and che
 report and cleanup evidence before dependent work. Supply those observations to the next
 reviewer. The coordinator also checks the reviewer's own settlement before consuming its verdict;
 do not make the reviewer certify its future return. Unknown or failed evidence stays unresolved.
+Process settlement requires native `cleanup.state=settled` and its matching identity-bound receipt.
+No disposable workspace does not mean process cleanup is verified. Preserve the emitted runtime
+evidence; if it is unavailable, block dependent work and task completion even when tests or review pass.
 A later due stage cannot postpone a prerequisite required by source authority.
 
 **Scope.** Before starting or resuming, an evidence-only follow-up calls for existing checks or a disposable probe,

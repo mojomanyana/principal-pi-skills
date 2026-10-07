@@ -11,7 +11,9 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 **Fixed — coordinator and leaf evidence ownership.** Preserve describe/source handoffs and assign
 gate owners/due stages without postponing source-required prerequisites. Leaves verify current
 obligations and retain later coordinator terminal/cleanup/review checks as pending. The coordinator
-checks every child, including reviewers, before consuming their results.
+checks every child, including reviewers, before consuming their results. Require a settled
+process receipt even without a disposable workspace; use companion pi-daddy 0.44.4, which exposes
+that runtime evidence to the coordinator model.
 
 **Fixed — progress integrity at phase boundaries.** Optional progress indexes must use the installed
 helper. New `check <run> <candidate>` reports reconciliation and fails on malformed/stale evidence;

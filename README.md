@@ -152,7 +152,7 @@ CHANGELOG.md                          release history
 
    ```sh
    pi install npm:principal-pi-skills@4.8.1
-   pi install npm:pi-daddy@0.44.3
+   pi install npm:pi-daddy@0.44.4
    pi install npm:skill-harness@0.24.3
    ```
 
@@ -270,6 +270,11 @@ Each gate records its owner and due stage. A typical assignment is:
 | After builder return | Coordinator | Complete native result, report and terminal/cleanup evidence |
 | Candidate review | Reviewer | Exact candidate, applicable source requirements, supplied evidence and verdict |
 | After reviewer return | Coordinator | Reviewer settlement, then authorized integration and final verification |
+
+Native process settlement needs `cleanup.state=settled` with its matching identity-bound receipt.
+An absent disposable workspace is not process-cleanup evidence. Retain the model-visible runtime
+evidence emitted by pi-daddy 0.44.4; missing evidence blocks dependent work and task completion even with
+passing tests or review.
 
 This example cannot change source-required ordering. A leaf reports later coordinator gates as
 pending and does not certify its future exit or call tools it lacks. Missing evidence required
