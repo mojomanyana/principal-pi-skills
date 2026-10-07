@@ -50,10 +50,10 @@ const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 // build/review evidence, and debug's sandbox-vs-applied distinction; common limits stay put.
 const BUDGETS = {
   skill: 1400, agent: 1500,
-  "plan": 2000, "plan-agent": 2050,
-  // Evidence-only scope and authorized regressions, retaining all authority/repair guards.
-  "build": 2000, "build-agent": 2000,
-  "review": 1800, "review-agent": 1850,
+  "plan": 2050, "plan-agent": 2100,
+  // Gate ownership and due stages prevent impossible leaf prerequisites without waiving real gates.
+  "build": 2100, "build-agent": 2100,
+  "review": 1900, "review-agent": 1950,
   // Three generated identity-marker words prevent missing-package inline fallback.
   "debug": 1453, "debug-agent": 1600,
   // Destructive recovery must cover distinct index/working state and verified restoration.

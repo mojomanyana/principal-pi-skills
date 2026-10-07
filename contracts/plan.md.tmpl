@@ -96,6 +96,11 @@ Tool availability never widens this contract's ceiling.
    independently testable clause under an ID in that row's tests. Type gate rows `Gate`;
    mapping never means passed. Preserve named definitions as references, not invented tests.
    No requirement may be dropped, renamed, or marked covered without a step and a test.
+   Each gate names its responsible owner and due stage. Separate coordinator pre-dispatch
+   checks, assigned implementation checks, coordinator post-return terminal/cleanup checks,
+   subsequent review and final integration/verification. Later coordinator gates remain pending;
+   never require a leaf to obtain its own future terminal receipt or dispatch its reviewer.
+   Preserve source-required ordering: ownership does not postpone a mandatory prerequisite.
 6. **Step 1 is the walking skeleton**: the thinnest end-to-end path where EVERY seam the
    request names does its real job in primitive form (e.g. fetch → parse → persist →
    report — none deferred, none faked). **Primitive but real:** a hardcoded threshold is
@@ -197,7 +202,7 @@ Authority: <approved design, requirement, or exact user request>
 Out of scope: <explicit exclusions> | none
 Conventions observed: <naming / error / test patterns found in the codebase>
 Risks: <risk → mitigation or spike step>
-Requirement map: <source/definition + ID/local locator + obligation (Gate if applicable) → impl:step(s) → acceptance tests → planned, not executed> | none
+Requirement map: <source/definition + ID/local locator + obligation (Gate: owner and due stage) → impl:step(s) → acceptance tests → planned, not executed> | none
 Steps:
   impl:S1. Walking skeleton — <thinnest real path through every named seam> — proves: <each seam, exercised for real>
      Files: <paths>

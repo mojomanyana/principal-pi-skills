@@ -183,6 +183,13 @@ export function readProgress(run, expectedCandidate = null) {
   };
 }
 
+/** Check index integrity, not completion, approval, evidence meaning or candidate equivalence. */
+export function checkProgress(run, expectedCandidate) {
+  text(expectedCandidate, "expected candidate");
+  const result = readProgress(run, expectedCandidate);
+  return { integrityValid: result.issues.length === 0 && result.records.every(record => record.issues.length === 0), ...result };
+}
+
 function main(args) {
   const [command, ...rest] = args;
   if (command === "create" && rest.length === 3) return createRun(...rest);
@@ -190,7 +197,12 @@ function main(args) {
   if (command === "reference" && rest.length === 1) return reference(rest[0]);
   if (command === "append" && rest.length === 1) { appendProgress(rest[0], JSON.parse(readFileSync(0, "utf8"))); return { appended: true }; }
   if (command === "read" && rest.length >= 1 && rest.length <= 2) return readProgress(...rest);
-  fail("usage: principal-pi-progress create <repo> <task> <candidate> | report <run> <name.md> < full-report | reference <file> | append <run> < record.json | read <run> [candidate]");
+  if (command === "check" && rest.length === 2) {
+    const result = checkProgress(...rest);
+    if (!result.integrityValid) process.exitCode = 1;
+    return result;
+  }
+  fail("usage: principal-pi-progress create <repo> <task> <candidate> | report <run> <name.md> < full-report | reference <file> | append <run> < record.json | read <run> [candidate] | check <run> <candidate>");
 }
 if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try { console.log(JSON.stringify(main(process.argv.slice(2)), null, 2)); }

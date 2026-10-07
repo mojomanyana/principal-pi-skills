@@ -6,6 +6,22 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.8.1] — 2026-10-07
+
+**Fixed — coordinator and leaf evidence ownership.** Preserve describe/source handoffs and assign
+gate owners/due stages without postponing source-required prerequisites. Leaves verify current
+obligations and retain later coordinator terminal/cleanup/review checks as pending. The coordinator
+checks every child, including reviewers, before consuming their results.
+
+**Fixed — progress integrity at phase boundaries.** Optional progress indexes must use the installed
+helper. New `check <run> <candidate>` reports reconciliation and fails on malformed/stale evidence;
+diagnostic `read` retains its existing behavior. Valid incomplete records and review verdicts remain
+separate from approval/completion. Original failed indexes are preserved, not rewritten.
+
+**Documented — future advisory seam.** Gate ownership and existing candidate/step/source references
+can support separately versioned JEV evaluation and eligible LoRA datasets later. This release adds
+no model service, automatic collection, training or execution authority.
+
 ## [4.8.0] — 2026-10-07
 
 **Fixed — installer compatibility without ownership bypass.** Symlinked directory ancestors

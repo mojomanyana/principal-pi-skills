@@ -175,17 +175,17 @@ test("the installed bins actually run — not a silent exit 0", () => {
   assert.match(progress.issues.join(" "), /progress incomplete/);
 });
 
-test("tagged skill and agent install recipes use the package version and matching sources", () => {
+test("npm skill and agent install recipes use the package version and matching sources", () => {
   const { version } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
   for (const p of ["README.md", "AGENTS.md"]) {
     const text = readFileSync(join(ROOT, p), "utf8");
-    const skillTags = [...text.matchAll(/pi install git:\S*principal-pi-skills@v([^\s`]+)/g)];
-    assert.ok(skillTags.length > 0, `${p}: missing tagged skill install`);
+    const skillTags = [...text.matchAll(/pi install npm:principal-pi-skills@([^\s`,]+)/g)];
+    assert.ok(skillTags.length > 0, `${p}: missing pinned npm skill install`);
     for (const [, tag] of skillTags) assert.equal(tag, version, p);
     // If npm recipes are documented, both installation and checking must use the
     // same pinned version. Do not freeze a prepublication fallback or its wording.
     for (const [, pin] of text.matchAll(/npx -p principal-pi-skills(?:@([^\s`]+))? principal-pi-agents (?:install|check)\b/g)) {
-      assert.equal(pin, version, `${p}: agent command must match tagged skills`);
+      assert.equal(pin, version, `${p}: agent command must match npm skills`);
     }
   }
 });
