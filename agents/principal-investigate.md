@@ -1,5 +1,7 @@
 ---
 name: principal-investigate
+metadata:
+  principal-package: principal-pi-skills
 description: >
   Delegate to this agent to report how code, data, runtime, or history currently behaves or
   is laid out. Returns facts with file and line citations. Changes nothing, fixes nothing,

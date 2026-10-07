@@ -1,5 +1,7 @@
 ---
 name: review
+metadata:
+  principal-package: principal-pi-skills
 description: >
   Use to review code before it lands — "review this", "is this ready to merge", "check
   this diff", "simplify this", "is this over-engineered", or after any non-trivial

@@ -1,5 +1,7 @@
 ---
 name: principal-debug
+metadata:
+  principal-package: principal-pi-skills
 description: >
   Delegate to this agent to diagnose a failure — a failing or flaky test, a stack trace,
   a crash, a CI or lint error — "why is this failing", "find the bug", "debug this", "it

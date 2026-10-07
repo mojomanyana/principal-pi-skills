@@ -54,7 +54,8 @@ const BUDGETS = {
   // Evidence-only scope and authorized regressions, retaining all authority/repair guards.
   "build": 2000, "build-agent": 2000,
   "review": 1800, "review-agent": 1850,
-  "debug": 1450, "debug-agent": 1600,
+  // Three generated identity-marker words prevent missing-package inline fallback.
+  "debug": 1453, "debug-agent": 1600,
   // Destructive recovery must cover distinct index/working state and verified restoration.
   "git-ops": 2550,
 };

@@ -1,5 +1,7 @@
 ---
 name: principal-build
+metadata:
+  principal-package: principal-pi-skills
 description: >
   Delegate to this agent to implement one approved plan step or a fix with a known cause —
   "implement step 3 of the plan", "make this test pass", "apply this fix". Returns an

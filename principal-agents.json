@@ -5,32 +5,32 @@
     "plan": {
       "skill": "plan/SKILL.md",
       "agent": "agents/principal-plan.md",
-      "skillSha256": "22fd0338345bce04336b5f687924e0d231f313792e4f90aa2a8bdf308003afab",
-      "agentSha256": "7475a4a539c6517a56292c878812d721a11d13ac6e2b9f4238e412e02a7d0dbd"
+      "skillSha256": "d4b3de2931b5cd5301d4938a16937d38af1fe1b886df58e4df797f079aae9c67",
+      "agentSha256": "ee8a5034d50554fd19db88179e712854fb33a0aa52bc09c623441ff3e23a9b8e"
     },
     "review": {
       "skill": "review/SKILL.md",
       "agent": "agents/principal-review.md",
-      "skillSha256": "fcd1839ed16409ba84031cfbaa47fe3a5a378608839013173661b4475e7ad932",
-      "agentSha256": "40aff9fe2ce0bb767231c028ec761126e9b81023f912cb5ad25444dbc5e3bd8a"
+      "skillSha256": "28302867ee1bf02f2527857e2c5901fa4bdda14e73cba2ab0bd7ff594598038e",
+      "agentSha256": "ccf263b48835c8d16d1cbae31ad26af9a8dba9737a1f4ce161a0e43c9e3b2c54"
     },
     "debug": {
       "skill": "debug/SKILL.md",
       "agent": "agents/principal-debug.md",
-      "skillSha256": "30574b2bebf02fea357f687f016d80378ef08756d976ab8b6fa1fd628d7ab163",
-      "agentSha256": "829300fa4190ff397b541786565278a92737da9bbcf6f590c1f845bcf091874f"
+      "skillSha256": "aa104b6212775a8e2ff0bf8275b88ee8c2caa8326742fb254f742887e994ca69",
+      "agentSha256": "2642b929450153cc7721c667a2dc4d3f97ef9b0ecc94815a1bf2a0da68d46b81"
     },
     "build": {
       "skill": "build/SKILL.md",
       "agent": "agents/principal-build.md",
-      "skillSha256": "f3d1758147c4b5ba9501274c3161d15bd5bb3d14a45dd9cb154c47e31501cc5b",
-      "agentSha256": "3eae0759d9252e24400719722833e9dffc85a0b913dc56fc3f3c8f4cc95a715c"
+      "skillSha256": "7c911e7a9720988bc59e418cf96594cc17a5be5439f894a903fe243b0d774d05",
+      "agentSha256": "bf4c7fc08a0648f7f89dbc7cb39144da1fd1eb443036345a89d1ea885a58c5fe"
     },
     "investigate": {
       "skill": "investigate/SKILL.md",
       "agent": "agents/principal-investigate.md",
-      "skillSha256": "7b3f0bdc92e36d9d996f6ed274793514a0508280ab4c768d8a1800d23781e514",
-      "agentSha256": "86af51feb3b729b65fa45ae9e91ab7d1e14c76fac6e62fa29d7d15ec5c9b9637"
+      "skillSha256": "7cc5841b1c5966addcde2b09bda17b89dcd27c988691ae37bb9bcd9c9093bd2e",
+      "agentSha256": "a1f7ef0af902cc2ddbe2d5b0ec147dca7e6bdab7c43d55e2dab971cc55ac9f68"
     }
   }
 }

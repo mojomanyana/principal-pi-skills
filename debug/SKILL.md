@@ -1,5 +1,7 @@
 ---
 name: debug
+metadata:
+  principal-package: principal-pi-skills
 description: >
   Use when the user wants the cause of a code, test, lint, runtime, or CI failure — including
   one that began after a Git operation. The output is a diagnosis. Not for a Git command

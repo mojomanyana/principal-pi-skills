@@ -1,5 +1,7 @@
 ---
 name: principal-plan
+metadata:
+  principal-package: principal-pi-skills
 description: >
   Delegate to this agent to turn a decision, feature, or multi-step task into an
   executable plan — "break this down", "how should I implement this", "where do I

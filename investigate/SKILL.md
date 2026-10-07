@@ -1,5 +1,7 @@
 ---
 name: investigate
+metadata:
+  principal-package: principal-pi-skills
 description: >
   Use when the user wants to know what is — how code, data, runtime, or history currently
   behaves or is laid out: "how does", "where is", "which", "map", "inventory", "what changed

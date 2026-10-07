@@ -1,5 +1,7 @@
 ---
 name: plan
+metadata:
+  principal-package: principal-pi-skills
 description: >
   Use when the user needs an ordered sequence of implementation work — "break this down",
   "where do I start", "what's the order of work", "scope this refactor", or "plan the fix".

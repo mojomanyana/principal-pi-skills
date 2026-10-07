@@ -1,5 +1,7 @@
 ---
 name: build
+metadata:
+  principal-package: principal-pi-skills
 description: >
   Use when writing code — implement a feature or spec, fix a bug with a known cause,
   refactor — "fix this", "write the function", "implement the spec", "make the test pass",
