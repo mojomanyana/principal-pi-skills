@@ -6,7 +6,7 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
-## [Unreleased]
+## [4.8.0-rc.2] — 2026-10-07
 
 **Fixed — installer compatibility without ownership bypass.** Symlinked directory ancestors
 resolve to canonical anchors before ownership checks; agent/manifest leaf links still refuse.
@@ -18,7 +18,7 @@ silently adopts; deprecated `--force` now explains that it cannot bypass ownersh
 all Principal routing off. Native workflows name `build`/`review`/other phases with captured
 `definitionId` values and dispatch independent batches through `delegate_all`, with isolated
 writer worktrees and serial integration. Compatibility is qualified for exactly Pi 1.0.4
-and the companion pi-daddy 0.44.0-rc.1 candidate, not unknown runtime versions.
+and the companion pi-daddy 0.44.0-rc.2 candidate, not unknown runtime versions.
 
 ## [4.8.0-rc.1] — 2026-10-07
 

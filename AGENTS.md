@@ -164,10 +164,10 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Setup (pi)
 
 1. Once the prerelease tag exists,
-   `pi install git:github.com/mojomanyana/principal-pi-skills@v4.8.0-rc.1` installs the eight
+   `pi install git:github.com/mojomanyana/principal-pi-skills@v4.8.0-rc.2` installs the eight
    skills, the four `/principal-*` commands, and the bootstrap extension, which loads
    automatically with the package. This candidate targets stable 4.8.0. Native delegation
-   requires companion pi-daddy 0.44.0-rc.1 and exactly the qualified Pi 1.0.4 setup; generated
+   requires companion pi-daddy 0.44.0-rc.2 and exactly the qualified Pi 1.0.4 setup; generated
    skill/agent bindings and captured definition IDs must match the selected package.
 2. Legacy subagents (optional): native delegation does not need this separate installation.
    A configured legacy runner is available only when native tools are genuinely absent;
@@ -176,11 +176,11 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    (`install`, then `check`), locating its actual path rather than assuming a universal Pi
    install directory. Alternatively follow the concrete verified-tag disposable checkout
    recipe in [README Install](README.md#install-pi). After npm publication, pin both:
-   `npx -p principal-pi-skills@4.8.0-rc.1 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.8.0-rc.1 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.8.0-rc.2 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.8.0-rc.2 principal-pi-agents check`.
    The five definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files
    are refused. These files serve a configured legacy runner; they do not override native selection.
-   Version 4.8.0-rc.1 adds native bindings, request-local routing, workflow and installer
+   Version 4.8.0-rc.2 adds native bindings, request-local routing, workflow and installer
    safety changes, and manual progress records. Behavioral measurement remains in
    `principal-pi-skills-evals` while routing checks remain here. Before the new tag exists,
    validate the actual candidate's skills and installer
