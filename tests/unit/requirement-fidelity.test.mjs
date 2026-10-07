@@ -332,3 +332,19 @@ test("optional progress is helper-written and checked without manufacturing comp
     assert.match(text, /No automatic execution/);
   }
 });
+
+
+test("full-workflow completion and native public evidence remain mechanical coordinator checks", () => {
+  for (const kind of ["feature", "bugfix", "refactor"]) {
+    const text = read(`prompts/principal-${kind}.md`).replace(/\s+/g, " ");
+    assert.match(text, /PI_DADDY_PUBLIC_EVIDENCE_DIR/);
+    assert.match(text, /exact public response\/source artifact references directly/);
+    assert.match(text, /excludes raw details\/private sessions and later Pi hook formatting/);
+    assert.match(text, /Do not enable collection implicitly/);
+    assert.match(text, /check-completion <run> <full-final-commit> <required-step>/);
+    assert.match(text, /complete explicit step set/);
+    assert.match(text, /omitted findings and accepted\/duplicate labels do not close gates/);
+    assert.match(text, /never approval or task acceptance/);
+    assert.match(text, /never invent completed phases to pass/);
+  }
+});
