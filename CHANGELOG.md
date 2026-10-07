@@ -6,6 +6,42 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.8.0-rc.1] — 2026-10-07
+
+**Added — native phase identity and request-local routing.** Generated
+`principal-agents.json` binds all five delegated phases to their skill and agent hashes.
+The bootstrap keeps Principal package identity, uses the selected native definition ID,
+and refreshes routing after resource discovery, reloads and compaction. It deduplicates
+its own request-local messages without treating quoted markers as routing state, and
+retains read failures rather than silently selecting a different contract.
+
+**Changed — concrete workflow contracts.** Planning records interfaces and checks where
+needed; Decide and Architect avoid invented options or patterns. Build preserves behavior
+and coverage during refactors, Review supports scoped review and repair, and diagnosis
+hands implementation and verification back to Build. Eligible small changes can stay inline.
+
+**Added — manual progress and complete reports.** `principal-pi-progress` stores ignored,
+candidate-bound full reports and a strict evidence index. Exact metadata validation prevents
+report redirection. Stale or incomplete records remain explicit; the helper neither grants
+approval nor resumes work automatically.
+
+**Fixed — installer ownership and recovery.** The installer validates the entire ownership
+manifest before mutation and refuses malformed, foreign, edited or symlink targets, including
+with `--force`. Git recovery instructions preserve staged, unstaged, untracked and ignored
+content rather than assuming a patch alone captures the working state.
+
+**Compatibility.** This prerelease targets stable 4.8.0. Native delegation requires the
+companion pi-daddy 0.44.0-rc.1 candidate's `delegate_describe`/`definitionId` protocol and the
+qualified Pi 1.0.4 setup. A configured legacy runner is available only when native tools are
+genuinely absent; native failure cannot silently fall back. Existing installs require explicit
+activation. Tag creation and npm publication are separate; this entry does not assert either.
+
+**Validation.** `npm test` covers 168 unit and 33 install tests, generated outputs, word
+budgets, package contents and skill lint. Companion runtime qualification exercises the
+actual Pi 1.0.4 SDK/bootstrap and all five native phases with a local scripted provider.
+These checks establish behavior and wiring, not model quality; behavioral measurement
+remains in `principal-pi-skills-evals`.
+
 ## [4.7.3] — 2026-10-06
 
 **Changed — current release and measurement documentation.** Installation examples and

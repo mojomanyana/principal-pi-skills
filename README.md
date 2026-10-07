@@ -140,13 +140,14 @@ CHANGELOG.md                          release history
 
 ## Install (pi)
 
-1. **Skills + prompts** — install an immutable tag, not a branch:
+1. **Skills + prompts** — this prerelease targets stable 4.8.0. Once the immutable tag
+   exists, install it rather than a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.3
+   pi install git:github.com/mojomanyana/principal-pi-skills@v4.8.0-rc.1
    ```
 
-   The v4.7.3 `pi` manifest registers the eight skills, the four `/principal-*` commands,
+   The v4.8.0-rc.1 `pi` manifest registers the eight skills, the four `/principal-*` commands,
    and the bootstrap extension — it loads automatically with
    the package; there is no separate extension-install step. Unpinned `main` moves under
    you, so install a tag if you want a fixed, nameable behavior.
@@ -155,19 +156,26 @@ CHANGELOG.md                          release history
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
-2. **Subagents (optional).** Use the **same source** as the installed skills. Before npm
-   publication, npm latest is 4.7.2; unpinned `npx` would install/check older definitions,
-   and npm `@4.7.3` is not yet available. Either locate the actual installed tagged package
-   (its path varies by Pi configuration) and run its `scripts/install-agents.mjs` with Node,
-   or use this concrete matching-tag disposable checkout recipe:
+   Native delegation requires the companion pi-daddy 0.44.0-rc.1 candidate and the
+   qualified Pi 1.0.4 setup. The selected package's generated `principal-agents.json`
+   binds each delegated phase to its skill and agent bytes. Native routing uses
+   `delegate_describe` and a captured `definitionId`; a native refusal or failure does
+   not fall back to a legacy runner or inline execution.
+
+2. **Legacy subagents (optional).** A configured legacy runner can use the five agent
+   definitions when native tools are genuinely absent. Native delegation does not need
+   this separate agent installation. Use the **same source** as the installed skills:
+   locate the actual installed tagged package (its path varies by Pi configuration) and
+   run its `scripts/install-agents.mjs` with Node, or use this matching-tag disposable
+   checkout recipe after the tag exists. This prerelease does not imply npm publication.
 
    ```sh
    (
      set -eu
      source_dir=$(mktemp -d)
      trap 'rm -rf -- "$source_dir"' EXIT
-     git clone --depth 1 --branch v4.7.3 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
-     test "$(git -C "$source_dir/package" rev-parse HEAD)" = "$(git -C "$source_dir/package" rev-parse 'v4.7.3^{commit}')"
+     git clone --depth 1 --branch v4.8.0-rc.1 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
+     test "$(git -C "$source_dir/package" rev-parse HEAD)" = "$(git -C "$source_dir/package" rev-parse 'v4.8.0-rc.1^{commit}')"
      git -C "$source_dir/package" rev-parse HEAD  # retain the resolved source identity
      node "$source_dir/package/scripts/install-agents.mjs" install
      node "$source_dir/package/scripts/install-agents.mjs" check
@@ -177,15 +185,15 @@ CHANGELOG.md                          release history
    After npm publication, and only once the matching package is available, pin both commands:
 
    ```sh
-   npx -p principal-pi-skills@4.7.3 principal-pi-agents install
-   npx -p principal-pi-skills@4.7.3 principal-pi-agents check
+   npx -p principal-pi-skills@4.8.0-rc.1 principal-pi-agents install
+   npx -p principal-pi-skills@4.8.0-rc.1 principal-pi-agents check
    ```
 
-   Version 4.7.3 refreshes release and measurement documentation without changing skill,
-   agent, prompt, or bootstrap behavior. Behavioral measurement remains in the separate
-   `principal-pi-skills-evals` repository, while routing checks remain here. Use the commands
-   above after the v4.7.3 tag exists; npm publication is separate. The checkout check verifies
-   tag/HEAD consistency, not independent tag trust;
+   Version 4.8.0-rc.1 adds native phase bindings, request-local bootstrap routing, stricter
+   workflow contracts, manual progress records, and installer ownership checks. Behavioral
+   measurement remains in the separate `principal-pi-skills-evals` repository, while routing
+   checks remain here. Tag creation and npm publication are separate. The checkout check
+   verifies tag/HEAD consistency, not independent tag trust;
    compare the recorded SHA with the release identity when provenance matters. Before tagging,
    validate the actual candidate's skills and installer in an isolated `PI_CODING_AGENT_DIR`.
    Known behavioral qualification limits remain documented; combining the release does not waive them.
@@ -200,20 +208,17 @@ CHANGELOG.md                          release history
    `plan` is read-only except for its plan and creation of an absent `.principal/.gitignore`; `build`, `review`, and `debug` add
    `bash` to run tests (and, for `build`, to write and edit).
 
-   One trap worth knowing if you run subagents on a non-default provider: a delegated agent
-   runs on the pi config's `defaultProvider`/`defaultModel`, **not** the
-   `--provider`/`--model` you gave the parent session — the extension forwards `--model`
-   only when an agent's frontmatter names one, and these deliberately do not. If
-   delegations fail to authenticate while the parent session is fine, that mismatch is the
-   reason.
+   Legacy runners differ in model forwarding. If a runner does not forward the parent's
+   provider/model, check that runner's defaults and agent-frontmatter rules when a child
+   cannot authenticate. Native delegation uses the matching pi-daddy runtime's resolved
+   model and effort policy.
 
-3. **Without the subagent step, everything still runs completely inline** via the skills;
-   the How column in [The set](#the-set) simply collapses to "inline". The routing table
-   still reaches the session because the bootstrap extension injects it — installing the
-   package is enough for that part; only delegation itself needs step 2.
+3. **Inline execution remains available when the workflow selects it.** The bootstrap
+   supplies routing with the installed skills. Skipping the legacy agent installation does
+   not disable native delegation, and a failed native handoff cannot silently become inline.
 
-4. **Under pi-daddy (0.33.0+), each skill declares how much of the caller's session it may
-   receive.** A child gets only the `context:` mode its own `allowed-tools` names (or a
+4. **With the matching pi-daddy candidate, each skill declares how much of the caller's
+   session it may receive.** A child gets only the `context:` mode its own `allowed-tools` names (or a
    weaker one: `none < files < pruned < summary < fork`). Asking for more is refused, not
    downgraded. The ceilings are decisions, and each one is explained in its frontmatter:
 
@@ -229,13 +234,11 @@ CHANGELOG.md                          release history
    Nothing declares `context:fork`. Write the prefix in lowercase: `Context:summary` turns
    into `tool:context:summary`, which grants no context mode.
 
-   **Egress: know what `summary` enables.** `context:summary` also permits `pruned`. That
-   mode carries the operator's own session turns (the last 20 by default, up to 32 KiB),
-   not just the task. With a pi-daddy advisor enabled (`PI_DADDY_ADVISOR` plus
-   `PI_DADDY_ADVISOR_KEY`), a `pruned` handoff sends those turns to that third party so it
-   can choose which ones to keep. For `architect`, `decide` and `plan`, that is what you
-   switch on by delegating with `pruned` while an advisor is on. Raising any other skill's
-   ceiling extends that exposure to it.
+   **Egress: know what `summary` enables.** `context:summary` also permits `pruned`,
+   which can carry selected turns from the active parent branch to the delegated child's
+   provider. The matching pi-daddy candidate no longer uses an external advisor to choose
+   those turns. Forwarded context still reaches the child and its provider; raising another
+   skill's ceiling extends that exposure to it.
 
 ## Reports and manual progress
 

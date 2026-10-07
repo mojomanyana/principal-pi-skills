@@ -155,24 +155,29 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 
 ## Setup (pi)
 
-1. `pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.3` installs the eight
-   skills, the four `/principal-*` commands, and the bootstrap
-   extension, which loads automatically with the package. Install a tag, not a branch.
-2. Subagents (optional): before npm publication, latest is 4.7.2 and npm @4.7.3 is not
-   yet available. Use the installed tagged package's `scripts/install-agents.mjs` with Node
+1. Once the prerelease tag exists,
+   `pi install git:github.com/mojomanyana/principal-pi-skills@v4.8.0-rc.1` installs the eight
+   skills, the four `/principal-*` commands, and the bootstrap extension, which loads
+   automatically with the package. This candidate targets stable 4.8.0. Native delegation
+   requires companion pi-daddy 0.44.0-rc.1 and the qualified Pi 1.0.4 setup; generated
+   skill/agent bindings and captured definition IDs must match the selected package.
+2. Legacy subagents (optional): native delegation does not need this separate installation.
+   A configured legacy runner is available only when native tools are genuinely absent;
+   native refusal or failure cannot fall back to it. Npm publication is separate from this
+   prerelease. Use the installed tagged package's `scripts/install-agents.mjs` with Node
    (`install`, then `check`), locating its actual path rather than assuming a universal Pi
    install directory. Alternatively follow the concrete verified-tag disposable checkout
    recipe in [README Install](README.md#install-pi). After npm publication, pin both:
-   `npx -p principal-pi-skills@4.7.3 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.7.3 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.8.0-rc.1 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.8.0-rc.1 principal-pi-agents check`.
    The five definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files
    are refused. These files serve a configured legacy runner; they do not override native selection.
-   Version 4.7.3 refreshes release and external-measurement documentation without changing
-   runtime contracts; behavioral measurement remains in `principal-pi-skills-evals` while routing
-   checks remain here. Tag creation and npm publication are separate: before the new tag exists,
+   Version 4.8.0-rc.1 adds native bindings, request-local routing, workflow and installer
+   safety changes, and manual progress records. Behavioral measurement remains in
+   `principal-pi-skills-evals` while routing checks remain here. Before the new tag exists,
    validate the actual candidate's skills and installer
    in isolation. Recorded model/evidence limitations remain; a release tag does not erase them.
-3. Context handoff (pi-daddy 0.33.0+): each skill's `allowed-tools` sets how much of this
+3. Context handoff (matching pi-daddy candidate): each skill's `allowed-tools` sets how much of this
    session a delegated child may receive. `architect`, `decide` and `plan` allow
    `context:summary`. `build`, `debug`, `review` and `investigate` allow `context:files`: review
    stays low so it judges cold; investigate receives named evidence, not reasoning.
