@@ -152,10 +152,10 @@ CHANGELOG.md                          release history
    exists, install it rather than a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.8.0-rc.2
+   pi install git:github.com/mojomanyana/principal-pi-skills@v4.8.0
    ```
 
-   The v4.8.0-rc.2 `pi` manifest registers the eight skills, the four `/principal-*` commands,
+   The v4.8.0 `pi` manifest registers the eight skills, the four `/principal-*` commands,
    and the bootstrap extension — it loads automatically with
    the package; there is no separate extension-install step. Unpinned `main` moves under
    you, so install a tag if you want a fixed, nameable behavior.
@@ -164,7 +164,7 @@ CHANGELOG.md                          release history
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
-   Native delegation requires the companion pi-daddy 0.44.0-rc.2 candidate and **exactly
+   Native delegation requires the companion pi-daddy 0.44.0 release and **exactly
    Pi 1.0.4**, the qualified version. This is not a claim of compatibility with every Pi 1.x
    release; other or unknown versions require separate qualification before use. The selected package's generated `principal-agents.json`
    binds each delegated phase to its skill and agent bytes. Native routing uses
@@ -183,25 +183,25 @@ CHANGELOG.md                          release history
      set -eu
      source_dir=$(mktemp -d)
      trap 'rm -rf -- "$source_dir"' EXIT
-     git clone --depth 1 --branch v4.8.0-rc.2 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
-     test "$(git -C "$source_dir/package" rev-parse HEAD)" = "$(git -C "$source_dir/package" rev-parse 'v4.8.0-rc.2^{commit}')"
+     git clone --depth 1 --branch v4.8.0 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
+     test "$(git -C "$source_dir/package" rev-parse HEAD)" = "$(git -C "$source_dir/package" rev-parse 'v4.8.0^{commit}')"
      git -C "$source_dir/package" rev-parse HEAD  # retain the resolved source identity
      node "$source_dir/package/scripts/install-agents.mjs" install
      node "$source_dir/package/scripts/install-agents.mjs" check
    )
    ```
 
-   After npm publication, and only once the matching package is available, pin both commands:
+   Pin both npm commands:
 
    ```sh
-   npx -p principal-pi-skills@4.8.0-rc.2 principal-pi-agents install
-   npx -p principal-pi-skills@4.8.0-rc.2 principal-pi-agents check
+   npx -p principal-pi-skills@4.8.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.8.0 principal-pi-agents check
    ```
 
-   Version 4.8.0-rc.2 adds native phase bindings, request-local bootstrap routing, stricter
+   Version 4.8.0 adds native phase bindings, request-local bootstrap routing, stricter
    workflow contracts, manual progress records, and installer ownership checks. Behavioral
    measurement remains in the separate `principal-pi-skills-evals` repository, while routing
-   checks remain here. Tag creation and npm publication are separate. The checkout check
+   checks remain here. The checkout check
    verifies tag/HEAD consistency, not independent tag trust;
    compare the recorded SHA with the release identity when provenance matters. Before tagging,
    validate the actual candidate's skills and installer in an isolated `PI_CODING_AGENT_DIR`.
