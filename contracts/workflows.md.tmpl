@@ -26,17 +26,36 @@ Execute this workflow for: refactor $@ without changing behavior.
 <!-- shared:start -->
 ## How this chain runs
 
-You are the orchestrator. Each phase is a skill or a `principal-*` agent; you route on the
-`Next:` line it returns and never let a phase invoke another. When a step names an agent,
-try it once; if the subagent tool is missing or reports an unknown agent, run that phase's
-skill inline and say so in the Digest. Any other agent failure stops the chain.
+You are the orchestrator. Each phase is an enabled skill or a bound delegated contract;
+route on its `Next:` and never let a phase invoke another. Before native delegation, call
+`delegate_describe({agent:"phase"})`; require `binding.package: principal-pi-skills`, the
+exact `binding.phase`, and a captured `definitionId`. Native agent names are `plan`, `build`,
+`review`, `debug`, `investigate`. Pass the corresponding ID to each `delegate` call, each
+`delegate_all` child and each `delegate_chain` step; the runtime checks selected source and generated
+skill/agent bytes. Missing/wrong/disabled bindings, stale reload, unqualified backend,
+permission/context refusal, timeout, report gap or uncertain cleanup stops dependent work.
+No alternate runner or inline substitution after failure. Only when native tools are genuinely
+absent may an explicitly configured legacy `principal-*` runner be used. Inline is an explicit
+workflow choice. Follow authored model/effort policy, not phase-based tier overrides.
 
 **Scope.** Before starting or resuming, an evidence-only follow-up calls for existing checks or a disposable probe,
 not starting/restarting implementation or adding durable tests/infrastructure merely to prove completion.
 
-**Resume.** Before the first phase, list `.principal/plans/`. If exactly one file's `## Plan:` line
-describes this request's task, read it and `git log` first: a step whose commit exists is
-done. If several could match, name them and ask the user which one; if none does, start the chain at step 1. Resume at the first step without one. Never re-plan a plan the user already approved.
+**Resume.** Locate the actual prior plan, reports and progress index; list `.principal/plans/`
+only to find candidates. If several could match, ask which one. A matching title, commit,
+message role or self-written approval flag is not approval. Check actual user authority and
+current work/evidence before choosing what remains; never re-plan an unchanged approved plan
+or repeat an evidenced completed step merely because the conversation stopped. A commit may
+establish implementation, never review, integration or verification. Missing, stale or
+ambiguous references stay unresolved. This is manual reconciliation, not automatic resume.
+
+**Small direct requests.** Clearly specified, reversible, localized low-risk work may use
+Build inline with meaningful checks and a concise result; no mandatory plan/delegate/review
+bundle. Honor explicit reviews, plans and inherited gates. Small authorization, security,
+public API, schema, failure-semantics or normative changes are consequential. Unknown impact
+uses the normal path. An explicitly invoked spine keeps its approval stop; a direct eligible
+inline completion may omit `Next:` and ends without authorizing Git operations or installation.
+Delegated protocols are unchanged.
 
 **Artifacts.** Before any artifact write, create if absent `.principal/.gitignore` containing `*`;
 never overwrite an existing ignore file. This orchestrator step covers authority, optional
@@ -57,7 +76,23 @@ base/head range or saved tracked diff plus relevant untracked content/hashes) in
 Authority/Candidate fields. Keep full original finding definitions, gates and evidence files
 accessible through every repair/re-review; REV IDs are scoped to that original report.
 Recompute candidate identity after Build; use the new candidate directory for Review while
-passing earlier report paths unchanged.
+passing earlier report paths unchanged. The optional coordinator helper `principal-pi-progress`
+allocates private ignored runs and writes complete reports exclusively; its README usage
+also defines the compact progress record. Do not install or fetch it merely to write a report.
+
+**Progress.** The coordinator may append `progress.jsonl` inside the existing candidate run,
+after saving complete evidence. Version 1 records plan file/hash or explicit none, step,
+caller-established candidate, independent planned/implemented/reviewed/integrated/verified
+facts (`unknown`, `incomplete`, `complete`), exact evidence references, finding/comment
+identities/statuses and next-action text. A completed review fact records its verdict, even
+CHANGES-REQUESTED; it is not approval. Preserve full sources/reports, original baseline,
+unresolved findings and caveats; the index only points to them. Reconcile all step records,
+not just the final line. Evidence hashing proves bytes, not their meaning or broad candidate
+equality. A missing index or failed append leaves progress incomplete while the full report
+survives. Readers ignore/report an incomplete final line and invalid records; preserve those
+bytes and use a new run rather than truncating history. Changed candidate/plan/report refs
+invalidate applicable facts. Inspect actual current work and user authority before acting;
+no saved fact, role, title or boolean reconstructs approval. No automatic execution.
 
 **Authority.** Carry authoritative source/definition paths and relevant map rows/global gates
 through Plan → Build → Review. If exact user authority exists only in dialogue and needs
@@ -74,9 +109,9 @@ build until the user says go. Presenting the artifact and starting to build in t
 is the failure. The artifact scales — three lines for a config change, full slices for a
 feature — the stop does not. A re-plan needs a new approval.
 
-**Build.** One writer at a time, on a branch the user can see. Inline when there is no
-multi-step plan file (a three-line plan, or a bugfix) or the subagent tool is absent.
-Otherwise dispatch one fresh `principal-build` per step — a batched step is one dispatch —
+**Build.** One writer per working tree, on branches the user can see. Inline when there is no
+multi-step plan file (a three-line plan, or a bugfix) and inline work is the chosen workflow.
+Otherwise dispatch native `build` with its captured `definitionId` per step — a batched step is one child —
 with the complete plan file path, step ID, source/definition paths, applicable rows/global gates,
 and unused report path `<artifact-dir>/<step>-build-<attempt>.md`. Without a plan pass the approved exact
 task and authority. It returns five status lines; read every successful report too:
@@ -85,26 +120,43 @@ caveats into the Digest's existing labels; success or a commit is not measured c
 Inline Build returns chat: the orchestrator must persist its complete implementation report
 to `<artifact-dir>/<step>-build-<attempt>.md` before delegated Review, with the same evidence and caveats as the
 agent report, not a summary. If persistence fails, stop and report the handoff gap.
-Never paste report prose into a later dispatch; pass accessible files. Choose the cheapest
-capable model under the same standards; neither lower cost nor a word budget permits dropping
-requirements, gates or safety. Escalate an inadequate model rather than weaken the task.
+Never paste report prose into a later dispatch; pass accessible files. Authored model/effort
+policy governs under the same standards; neither cost nor a word budget permits dropping
+requirements, gates or safety. Surface an inadequate policy rather than silently replacing it.
 
-**Review.** Always delegate to `principal-review` when the tool exists — a cold read beats
-self-review. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
+**Parallel work.** For an approved independent batch, use one `delegate_all({children:[...]})`
+call, with `agent:"build"` and the captured build `definitionId` on every build child. Do not
+launch concurrent single `delegate` calls: each conservatively reserves the available subtree
+capacity, so overlapping calls can be refused. Precreate separate registered Git worktrees
+at the declared base for writers; record each workspace, write scope, dependencies, shared
+resources and unused full-report path before dispatch. Shared interfaces/resources may require
+serial work despite different files. Read every outcome and full report, preserve completed
+siblings when another fails, review each candidate, then integrate serially and verify the
+merged whole. A capacity or other refusal stops dependent work; never retry through another
+runner. Independent diagnostic/review batches also use `delegate_all` with each child's exact
+phase name and described `definitionId`, under their applicable workspace/tool constraints.
+
+**Review.** Select `task`, `integrated` or `scoped-repair` scope. Consequential interfaces
+and parallel candidates receive task review before another step consumes them; retain final
+integrated review of the assembled whole change and all global gates. A task verdict permits
+only its scoped handoff, not Git-Ops finish. Scoped repair keeps the original full-change
+obligations. Optional focused reviewers need a concrete independent concern, not default fan-out.
+Use native `delegate({agent:"review",definitionId,...})` when available — a cold read beats
+self-review. The ID must be the described review definition; legacy names follow only the absent-native rule above. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
 for the whole change to `<artifact-dir>/review-diff-<round>.txt` and pass that path plus the build
 report paths, governing source/definition paths, full plan/map if present, and candidate
 identity. Dirty candidates need the complete tracked diff and relevant untracked content,
 not just a committed range. Review validates reused evidence and checks named doubts.
-Use the strongest available model. Persist the complete review result to
+Persist the complete review result to
 `<artifact-dir>/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
 accepted; repair with their IDs, full report path/definitions, authority refs, affected map
 rows and acceptance conditions — resume the builder when possible, otherwise dispatch fresh.
 Then scoped re-review gets those files, original whole-change baseline/gates and fix diff,
-on a capable mid-tier model; judge each ID and new breakage, without losing original gaps. At most two repair rounds; a third means
+under the same authored policy; judge each ID and new breakage, without losing original gaps. At most two repair rounds; a third means
 the plan or diagnosis was wrong. `UNVERIFIED` is not approval: fix whatever blocked
 verification, then review again; it counts as a repair round. Read Verdict before Next:
 UNVERIFIED's `Next: build` requests evidence/handoff repair, not automatic code changes. `APPROVE` or `APPROVE-WITH-NITS`
-→ git-ops.
+→ git-ops only for the final integrated scope; a task verdict returns to the coordinator.
 
 **Blocked.** A phase returning `BLOCKED` stops the chain: surface its one question and
 wait. Do not answer it yourself.
@@ -123,23 +175,24 @@ No transcript narration after it.
 1. Use only needed outputs: Decide for a choice/rationale ("Postgres or DynamoDB"),
    Architect for structure/components/data ("design X"), Plan for executable sequence.
    Get any resulting decision/design approved; no mandatory preliminary chain.
-2. Invoke `principal-plan` (or Plan inline). Any `[ONE-WAY]` step must carry its rollback
+2. Invoke native `plan` with its captured `definitionId` (or Plan inline). Any `[ONE-WAY]` step must carry its rollback
    note; the approval stop covers it.
 3. Approval stop. Then Build, step by step, as above.
-4. Review. Repair loop as above. `Next: debug` → `principal-debug` (or Debug inline);
+4. Review. Repair loop as above. `Next: debug` → native `debug` with its captured `definitionId` (or Debug inline);
    `Next: blocked` → stop.
 5. Git-Ops finish mode and the Digest.
 {{/feature}}
 {{#bugfix}}
 ## Bugfix path
 
-1. Invoke `principal-debug` (or Debug inline). Several independent failures → one debug
-   agent each, dispatched in the same turn. `NOT REPRODUCED`, `BLOCKED`, or `Next: plan`
+1. Invoke native `debug` with its captured `definitionId` (or Debug inline). Several independent
+   failures → one `delegate_all` batch of `debug` children, each carrying that ID and isolated workspace. `NOT REPRODUCED`, `BLOCKED`, or `Next: plan`
    (a design flaw) stops here and surfaces. `Next: done` means no implementation remains;
    surface the note, do not manufacture a build. A sandbox proof is not an applied fix.
 2. Approval stop: present the debugging note (root cause, proposed fix, regression test).
-3. Build: recreate the regression test in the user's checkout, watch it fail, implement
-   the fix once, watch it pass, run the suite.
+3. Build: carry useful diagnostic patches/tests forward, reproduce the regression in the
+   authorized candidate, apply the fix once and verify that actual candidate. Debug's trial
+   implementation/full suite are optional; diagnosis must be evidenced, with unrun proof explicit.
 4. Review confirms the regression test fails without the fix and passes with it. Repair
    loop as above.
 5. Git-Ops finish mode and the Digest, which here gains one extra label first:
@@ -150,14 +203,14 @@ No transcript narration after it.
 
 The request is a refactor of `$@`: structure changes, behavior does not.
 
-1. Invoke `principal-plan` (or Plan inline) with this frame: every step keeps the existing
-   tests passing unchanged — a test needing new assertions means behavior changed, so it is
-   a finding, not a step. Behavior the refactor touches that has no test gets a
+1. Invoke native `plan` with its captured `definitionId` (or Plan inline) with this frame: every step preserves observable
+   behavior and coverage. Test structure/assertions may evolve to preserve the same contract;
+   weakened coverage or concealed behavior changes are findings. Untested touched behavior gets a
    characterization test pinning it first, as its own step. A `[ONE-WAY]` step (public API,
    schema, data) must carry its rollback note.
 2. Approval stop. Then Build, step by step, as above.
 3. Review, with one extra question: does the diff change any observable behavior? If yes,
    that is a `[BLOCKER]` finding regardless of quality. Repair loop as above. `Next: debug`
-   → `principal-debug` (or Debug inline); `Next: blocked` → stop.
+   → native `debug` with its captured `definitionId` (or Debug inline); `Next: blocked` → stop.
 4. Git-Ops finish mode and the Digest.
 {{/refactor}}

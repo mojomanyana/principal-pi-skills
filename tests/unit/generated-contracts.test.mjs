@@ -11,11 +11,12 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { readFileSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { render, renderWorkflow, MODES, WORKFLOW_MODES } from "../../scripts/generate-contracts.mjs";
+import { render, renderWorkflow, renderAgentManifest, MODES, WORKFLOW_MODES } from "../../scripts/generate-contracts.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
@@ -103,3 +104,29 @@ for (const contract of ["plan", "build", "review", "debug", "investigate"]) {
     assert.notEqual(render(template, "skill", "t", vars), render(template, "agent", "t", vars));
   });
 }
+
+test("delegated manifest binds exact five inline and delegated full-file bytes from one generation", () => {
+  const phases = ["plan", "build", "review", "debug", "investigate"];
+  const outputs = phases.flatMap(phase => Object.values(MODES).map(mode => ({
+    path: mode.path(phase), rendered: render(read(`contracts/${phase}.md.tmpl`), mode.block, phase, { name: mode.name(phase) }),
+  })));
+  const expected = JSON.parse(renderAgentManifest(outputs));
+  assert.deepEqual(JSON.parse(read("principal-agents.json")), expected);
+  assert.equal(expected.version, 1);
+  assert.equal(expected.package, "principal-pi-skills");
+  assert.deepEqual(Object.keys(expected.bindings).sort(), [...phases].sort());
+  for (const phase of phases) {
+    const binding = expected.bindings[phase];
+    assert.equal(binding.skill, `${phase}/SKILL.md`);
+    assert.equal(binding.agent, `agents/principal-${phase}.md`);
+    for (const kind of ["skill", "agent"]) {
+      const independentlyReadBytes = readFileSync(join(ROOT, binding[kind]));
+      assert.equal(binding[`${kind}Sha256`], createHash("sha256").update(independentlyReadBytes).digest("hex"));
+    }
+  }
+  const changed = structuredClone(outputs);
+  changed.find(output => output.path === "agents/principal-build.md").rendered += "\nChanged delegated obligation\n";
+  assert.notEqual(JSON.parse(renderAgentManifest(changed)).bindings.build.agentSha256, expected.bindings.build.agentSha256);
+  assert.throws(() => renderAgentManifest(outputs.filter(output => output.path !== "plan/SKILL.md")), /missing/i);
+  assert.throws(() => renderAgentManifest([...outputs, outputs[0]]), /duplicate/i);
+});

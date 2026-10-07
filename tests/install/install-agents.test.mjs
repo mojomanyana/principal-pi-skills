@@ -9,14 +9,17 @@
  * Run with `node --test tests/install/*.test.mjs`.
  */
 
-import test from "node:test";
+import test, { mock } from "node:test";
+import fs from "node:fs";
+import { createHash } from "node:crypto";
+import { execFileSync, spawnSync } from "node:child_process";
 import assert from "node:assert/strict";
 import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, readdirSync, existsSync, symlinkSync, rmSync, lstatSync } from "node:fs";
 import { tmpdir, homedir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
-import { run, agentsDir, sources } from "../../scripts/install-agents.mjs";
+import { run, agentsDir, sources, plan } from "../../scripts/install-agents.mjs";
 
 const ROOT_AGENTS = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "agents");
 
@@ -86,12 +89,13 @@ test("refuses to overwrite a file it does not own, and writes nothing at all", (
   assert.deepEqual(ls(dir), ["principal-plan.md"], "no other agent should have been written");
 });
 
-test("--force overwrites a foreign file, but only when asked", () => {
+test("--force cannot overwrite a foreign file", () => {
   const { env, dir } = fresh();
   mkdirSync(dir, { recursive: true });
   writeFileSync(join(dir, "principal-plan.md"), "someone else's agent\n");
-  assert.equal(quiet(() => run(["install", "--force"], env)), 0);
-  assert.match(readFileSync(join(dir, "principal-plan.md"), "utf8"), /^name: principal-plan$/m);
+  assert.equal(quiet(() => run(["install", "--force"], env)), 1);
+  assert.equal(readFileSync(join(dir, "principal-plan.md"), "utf8"), "someone else's agent\n");
+  assert.deepEqual(ls(dir), ["principal-plan.md"]);
 });
 
 test("refuses to write through a symlink", () => {
@@ -105,23 +109,20 @@ test("refuses to write through a symlink", () => {
   assert.equal(readFileSync(victim, "utf8"), "untouched\n", "must not write through the link");
 });
 
-test("--force replaces the link, never writes through it", () => {
-  // The refusal path guarded this; the force path did not, and wrote the agent contract
-  // straight into whatever the symlink pointed at — corrupting an unrelated file and then
-  // recording it in the manifest, so a later uninstall would delete the link and leave the
-  // damage behind.
-  const { env, dir, base } = fresh();
-  mkdirSync(dir, { recursive: true });
-  const victim = join(base, "important.txt");
-  writeFileSync(victim, "IMPORTANT USER FILE\n");
-  symlinkSync(victim, join(dir, "principal-plan.md"));
-
-  assert.equal(quiet(() => run(["install", "--force"], env)), 0);
-  assert.equal(readFileSync(victim, "utf8"), "IMPORTANT USER FILE\n", "the link target must be untouched");
-  assert.ok(!lstatSync(join(dir, "principal-plan.md")).isSymbolicLink(), "the link is replaced by a real file");
-  assert.match(readFileSync(join(dir, "principal-plan.md"), "utf8"), /^name: principal-plan$/m);
+test("--force cannot replace a symlink or dangling symlink", () => {
+  for (const dangling of [false, true]) {
+    const { env, dir, base } = fresh();
+    mkdirSync(dir, { recursive: true });
+    const victim = join(base, "important.txt");
+    if (!dangling) writeFileSync(victim, "IMPORTANT USER FILE\n");
+    symlinkSync(victim, join(dir, "principal-plan.md"));
+    assert.equal(quiet(() => run(["install", "--force"], env)), 1);
+    assert.ok(lstatSync(join(dir, "principal-plan.md")).isSymbolicLink());
+    assert.deepEqual(ls(dir), ["principal-plan.md"]);
+    if (!dangling) assert.equal(readFileSync(victim, "utf8"), "IMPORTANT USER FILE\n");
+    else assert.ok(!existsSync(victim));
+  }
 });
-
 test("check reports missing, stale, and satisfied states distinctly", () => {
   const { env, dir } = fresh();
   assert.equal(quiet(() => run(["check"], env)), 1, "missing directory is not satisfied");
@@ -154,23 +155,17 @@ test("uninstall keeps files the user edited, and forgets the ones it removed", (
   assert.deepEqual(ls(dir), ["principal-plan.md"]);
 });
 
-test("an already-current file is still recorded as owned", () => {
-  // Ownership is what uninstall removes by. Files that matched byte-for-byte were skipped
-  // without being recorded, so a re-install — or a user who copied the agents in by hand —
-  // left uninstall a permanent no-op.
-  const { env, dir } = fresh();
-  mkdirSync(dir, { recursive: true });
-  for (const f of sources()) {
-    writeFileSync(join(dir, f), readFileSync(join(ROOT_AGENTS, f), "utf8"));
+test("install refuses identical unowned files without implicit adoption or later uninstall", () => {
+  for (const force of [[], ["--force"]]) {
+    const { env, dir } = fresh();
+    mkdirSync(dir, { recursive: true });
+    for (const f of sources()) writeFileSync(join(dir, f), readFileSync(join(ROOT_AGENTS, f)));
+    assert.equal(quiet(() => run(["install", ...force], env)), 1);
+    assert.ok(!existsSync(join(dir, ".principal-pi-skills.json")));
+    assert.equal(quiet(() => run(["uninstall"], env)), 0);
+    assert.deepEqual(ls(dir), sources());
   }
-  quiet(() => run(["install"], env));
-  const manifest = JSON.parse(readFileSync(join(dir, ".principal-pi-skills.json"), "utf8"));
-  assert.equal(Object.keys(manifest.files).length, 5, "already-current files must be recorded");
-
-  quiet(() => run(["uninstall"], env));
-  assert.deepEqual(ls(dir), [], "and uninstall must then remove them");
 });
-
 test("uninstall never touches an unrelated agent", () => {
   const { env, dir } = fresh();
   quiet(() => run(["install"], env));
@@ -205,4 +200,265 @@ globalThis.__realAgentsBefore = (() => {
 
 test.after(() => {
   for (const d of created) rmSync(d, { recursive: true, force: true });
+});
+
+const MANIFEST = ".principal-pi-skills.json";
+const hash = (value) => createHash("sha256").update(value).digest("hex");
+const ownedManifest = (files) => JSON.stringify({ package: "principal-pi-skills", files });
+const image = (dir) => Object.fromEntries(readdirSync(dir).sort().map((name) => {
+  const path = join(dir, name);
+  const st = lstatSync(path);
+  return [name, { type: st.mode, mtime: st.mtimeMs, bytes: st.isFile() ? readFileSync(path).toString("hex") : null }];
+}));
+
+// Ownership metadata is authority: every row must be valid before the first mutation.
+test("invalid and duplicate manifest metadata refuses every command without writes", () => {
+  const h = hash("owned\n");
+  const invalid = [
+    "{", "null", "[]", "{}",
+    JSON.stringify({ package: "foreign", files: { "principal-plan.md": h } }),
+    JSON.stringify({ package: "principal-pi-skills", files: [], extra: true }),
+    JSON.stringify({ package: "principal-pi-skills", files: {}, extra: true }),
+    ownedManifest({ "principal-plan.md": 1 }),
+    ownedManifest({ "principal-plan.md": "not-a-sha256" }),
+    ownedManifest({ "principal-plan.md": h, "../outside.md": h }),
+    ownedManifest({ "principal-plan.md": h, "/absolute.md": h }),
+    ownedManifest({ "principal-plan.md": h, "C:\\outside.md": h }),
+    ownedManifest({ "principal-plan.md": h, "sub\\principal-plan.md": h }),
+    ownedManifest({ "principal-plan.md": h, "foreign.md": h }),
+    `{"package":"principal-pi-skills","package":"principal-pi-skills","files":{}}`,
+    `{"package":"principal-pi-skills","files":{"principal-plan.md":"${h}","principal-pl\\u0061n.md":"${h}"}}`,
+    `{"package":"principal-pi-skills","files":{}}${" ".repeat(65536)}`,
+  ];
+  for (const metadata of invalid) for (const command of [["install"], ["install", "--force"], ["adopt"], ["check"], ["uninstall"]]) {
+    const { env, dir, base } = fresh();
+    mkdirSync(dir, { recursive: true });
+    writeFileSync(join(dir, "principal-plan.md"), "owned\n");
+    writeFileSync(join(base, "outside.md"), "owned\n");
+    writeFileSync(join(dir, MANIFEST), metadata);
+    const before = image(dir);
+    assert.equal(quiet(() => run(command, env)), 1, `${command}: ${metadata.slice(0, 150)}`);
+    assert.deepEqual(image(dir), before, "late invalid metadata must not follow earlier writes/removals");
+    assert.equal(readFileSync(join(base, "outside.md"), "utf8"), "owned\n");
+  }
+});
+
+test("ordinary owned files update, but edits remain protected even with --force", () => {
+  const { env, dir } = fresh();
+  quiet(() => run(["install"], env));
+  const file = "principal-plan.md";
+  writeFileSync(join(dir, file), "old installed version\n");
+  const manifest = JSON.parse(readFileSync(join(dir, MANIFEST), "utf8"));
+  manifest.files[file] = hash("old installed version\n");
+  writeFileSync(join(dir, MANIFEST), JSON.stringify(manifest));
+  assert.equal(quiet(() => run(["install"], env)), 0);
+  assert.equal(readFileSync(join(dir, file), "utf8"), readFileSync(join(ROOT_AGENTS, file), "utf8"));
+  writeFileSync(join(dir, file), "user edits\n");
+  const before = image(dir);
+  assert.equal(quiet(() => run(["install", "--force"], env)), 1);
+  assert.deepEqual(image(dir), before);
+});
+
+test("all owned target types and manifest type are validated before uninstall", () => {
+  for (const location of ["principal-review.md", MANIFEST]) for (const kind of ["symlink", "directory", "fifo"]) {
+    const { env, dir, base } = fresh();
+    quiet(() => run(["install"], env));
+    const target = join(dir, location);
+    const saved = readFileSync(target);
+    rmSync(target);
+    if (kind === "symlink") {
+      const outside = join(base, "outside");
+      writeFileSync(outside, saved);
+      symlinkSync(outside, target);
+    } else if (kind === "directory") mkdirSync(target);
+    else execFileSync("mkfifo", [target]);
+    const before = image(dir);
+    // Execute out-of-process: reading a FIFO must refuse, never hang the test runner.
+    for (const cmd of ["install", "adopt", "check", "uninstall"]) {
+      const result = spawnSync(process.execPath, [join(ROOT_AGENTS, "..", "scripts", "install-agents.mjs"), cmd], {
+        env: { ...process.env, ...env }, encoding: "utf8", timeout: 3000,
+      });
+      assert.equal(result.error, undefined, `${cmd} ${location} ${kind} must not block`);
+      assert.equal(result.status, 1);
+      assert.deepEqual(image(dir), before);
+    }
+  }
+});
+
+test("symlinked destination ancestors resolve to a canonical owned installation", () => {
+  const { env, base } = fresh();
+  const outside = join(base, "outside");
+  mkdirSync(outside);
+  symlinkSync(outside, env.PI_CODING_AGENT_DIR);
+  assert.equal(quiet(() => run(["install"], env)), 0);
+  assert.deepEqual(ls(join(outside, "agents")), sources());
+  assert.equal(quiet(() => run(["check"], env)), 0);
+  assert.equal(quiet(() => run(["uninstall"], env)), 0);
+  assert.deepEqual(readdirSync(join(outside, "agents")), []);
+});
+
+test("source and requested-name validation precede target directory creation", () => {
+  const { env, dir, base } = fresh();
+  const root = join(base, "package");
+  mkdirSync(join(root, "agents"), { recursive: true });
+  writeFileSync(join(root, "package.json"), JSON.stringify({ name: "principal-pi-skills" }));
+  for (const file of sources()) writeFileSync(join(root, "agents", file), readFileSync(join(ROOT_AGENTS, file)));
+  for (const wanted of [["principal-plan.md", "../outside.md"], ["principal-plan.md", "principal-plan.md"]]) {
+    assert.throws(() => plan(dir, wanted, root));
+    assert.ok(!existsSync(dir));
+  }
+  rmSync(join(root, "agents", "principal-review.md"));
+  symlinkSync(join(ROOT_AGENTS, "principal-review.md"), join(root, "agents", "principal-review.md"));
+  assert.equal(quiet(() => run(["install"], env, { root })), 1);
+  assert.ok(!existsSync(env.PI_CODING_AGENT_DIR));
+});
+
+test("a filesystem write failure reports partial effects and does not claim rollback", () => {
+  const { env, dir } = fresh();
+  const original = fs.writeFileSync;
+  const errors = [];
+  const writeMock = mock.method(fs, "writeFileSync", (path, value, ...args) => {
+    if (String(value).includes("name: principal-debug\n")) throw Object.assign(new Error("injected write failure"), { code: "EIO" });
+    return original(path, value, ...args);
+  });
+  const errorMock = mock.method(console, "error", (...args) => errors.push(args.join(" ")));
+  const logMock = mock.method(console, "log", () => {});
+  try {
+    assert.equal(run(["install"], env), 1);
+    assert.ok(existsSync(join(dir, "principal-build.md")));
+    assert.ok(!existsSync(join(dir, MANIFEST)));
+    assert.match(errors.join("\n"), /partial/i);
+    assert.match(errors.join("\n"), /principal-build\.md/);
+    assert.doesNotMatch(errors.join("\n"), /nothing was written/i);
+  } finally {
+    writeMock.mock.restore(); errorMock.mock.restore(); logMock.mock.restore();
+  }
+});
+test("legacy aliases with valid ownership remain readable and uninstallable", () => {
+  const { env, dir } = fresh();
+  quiet(() => run(["install"], env));
+  const manifest = JSON.parse(readFileSync(join(dir, MANIFEST), "utf8"));
+  for (const name of ["debug.md", "plan.md", "review.md"]) {
+    writeFileSync(join(dir, name), `legacy ${name}\n`);
+    manifest.files[name] = hash(`legacy ${name}\n`);
+  }
+  writeFileSync(join(dir, MANIFEST), JSON.stringify(manifest));
+  assert.equal(quiet(() => run(["install"], env)), 0, "upgrade preserves supported historical ownership");
+  assert.equal(quiet(() => run(["check"], env)), 1, "retired aliases cannot produce a misleading current result");
+  assert.equal(quiet(() => run(["uninstall"], env)), 0);
+  assert.deepEqual(readdirSync(dir), []);
+});
+
+test("unreadable metadata is a refusal, not an absent installation", () => {
+  const { env, dir } = fresh();
+  quiet(() => run(["install"], env));
+  const before = image(dir);
+  const open = fs.openSync;
+  const stub = mock.method(fs, "openSync", (path, ...args) => {
+    if (path === join(dir, MANIFEST)) throw Object.assign(new Error("permission denied"), { code: "EACCES" });
+    return open(path, ...args);
+  });
+  try {
+    for (const cmd of ["install", "adopt", "check", "uninstall"]) assert.equal(quiet(() => run([cmd], env)), 1);
+  } finally { stub.mock.restore(); }
+  assert.deepEqual(image(dir), before);
+});
+
+test("a partial uninstall reports completed removals and retains metadata for inspection", () => {
+  const { env, dir } = fresh();
+  quiet(() => run(["install"], env));
+  const unlink = fs.unlinkSync;
+  const errors = [];
+  const stub = mock.method(fs, "unlinkSync", (path) => {
+    if (path === join(dir, "principal-debug.md")) throw Object.assign(new Error("injected unlink failure"), { code: "EIO" });
+    return unlink(path);
+  });
+  const errorStub = mock.method(console, "error", (...args) => errors.push(args.join(" ")));
+  try {
+    assert.equal(run(["uninstall"], env), 1);
+    assert.ok(!existsSync(join(dir, "principal-build.md")));
+    assert.ok(existsSync(join(dir, "principal-debug.md")));
+    assert.ok(existsSync(join(dir, MANIFEST)));
+    assert.match(errors.join("\n"), /Partial effects.*principal-build\.md/s);
+    assert.doesNotMatch(errors.join("\n"), /nothing was written/i);
+  } finally { stub.mock.restore(); errorStub.mock.restore(); }
+  assert.equal(quiet(() => run(["uninstall"], env)), 0, "missing already-removed owned files permit a deliberate retry");
+});
+
+test("retargeting the user directory alias cannot redirect an anchored install", () => {
+  const { env, base } = fresh();
+  const first = join(base, "first"), second = join(base, "second");
+  mkdirSync(first); mkdirSync(second);
+  symlinkSync(first, env.PI_CODING_AGENT_DIR);
+  const mkdir = fs.mkdirSync;
+  const stub = mock.method(fs, "mkdirSync", (path, ...args) => {
+    fs.unlinkSync(env.PI_CODING_AGENT_DIR);
+    symlinkSync(second, env.PI_CODING_AGENT_DIR);
+    return mkdir(path, ...args);
+  });
+  try { assert.equal(quiet(() => run(["install"], env)), 0); }
+  finally { stub.mock.restore(); }
+  assert.deepEqual(ls(join(first, "agents")), sources());
+  assert.deepEqual(readdirSync(second), [], "writes stay at the original canonical directory");
+});
+
+test("symlinked source ancestors work but dangling destination anchors refuse", () => {
+  const { env, base } = fresh();
+  const alias = join(base, "source-alias");
+  symlinkSync(join(ROOT_AGENTS, ".."), alias);
+  assert.equal(quiet(() => run(["install"], env, { root: alias })), 0);
+  const dangling = join(base, "dangling");
+  symlinkSync(join(base, "missing"), dangling);
+  assert.equal(quiet(() => run(["install"], { PI_CODING_AGENT_DIR: dangling })), 1);
+  assert.ok(!existsSync(join(base, "missing")));
+});
+
+test("installed and repaired agent modes are 0644 while ownership metadata stays 0600", () => {
+  const { env, dir } = fresh();
+  const mask = process.umask(0o077);
+  try {
+    assert.equal(quiet(() => run(["install"], env)), 0);
+    for (const file of sources()) assert.equal(lstatSync(join(dir, file)).mode & 0o777, 0o644);
+    assert.equal(lstatSync(join(dir, MANIFEST)).mode & 0o777, 0o600);
+    fs.chmodSync(join(dir, "principal-plan.md"), 0o600);
+    assert.equal(quiet(() => run(["check"], env)), 1);
+    assert.equal(quiet(() => run(["install"], env)), 0);
+    assert.equal(lstatSync(join(dir, "principal-plan.md")).mode & 0o777, 0o644);
+  } finally { process.umask(mask); }
+});
+
+test("explicit adopt recovers only a complete current installation with absent manifest", () => {
+  const { env, dir } = fresh();
+  quiet(() => run(["install"], env));
+  rmSync(join(dir, MANIFEST));
+  for (const file of sources()) fs.chmodSync(join(dir, file), 0o600);
+  writeFileSync(join(dir, "unrelated.md"), "not Principal");
+  const before = image(dir);
+  assert.equal(quiet(() => run(["install"], env)), 1, "install never silently adopts");
+  assert.equal(quiet(() => run(["adopt"], env)), 0);
+  const after = image(dir); delete after[MANIFEST];
+  assert.deepEqual(after, before, "adoption changes only absent metadata, not agent bytes or modes");
+  assert.equal(quiet(() => run(["check"], env)), 1, "adopt preserves earlier 0600 modes");
+  assert.equal(quiet(() => run(["install"], env)), 0, "owned current files can now repair their modes");
+  assert.equal(quiet(() => run(["check"], env)), 0);
+  assert.equal(quiet(() => run(["uninstall"], env)), 0);
+  assert.deepEqual(readdirSync(dir), ["unrelated.md"]);
+});
+
+test("adopt refuses recorded, modified, partial and linked installations without writes", () => {
+  for (const kind of ["recorded", "modified", "partial", "linked"]) {
+    const { env, dir, base } = fresh();
+    quiet(() => run(["install"], env));
+    if (kind !== "recorded") rmSync(join(dir, MANIFEST));
+    const target = join(dir, "principal-plan.md");
+    if (kind === "modified") writeFileSync(target, "user changes");
+    if (kind === "partial") rmSync(target);
+    if (kind === "linked") {
+      const outside = join(base, "outside.md");
+      writeFileSync(outside, readFileSync(target)); rmSync(target); symlinkSync(outside, target);
+    }
+    const before = image(dir);
+    assert.equal(quiet(() => run(["adopt"], env)), 1, kind);
+    assert.deepEqual(image(dir), before);
+  }
 });

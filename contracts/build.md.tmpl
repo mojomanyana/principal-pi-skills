@@ -4,6 +4,8 @@
 {{! Edit HERE, then `npm run generate`.
 ---
 name: {{name}}
+metadata:
+  principal-package: principal-pi-skills
 description: >
 {{#skill}}
   Use when writing code — implement a feature or spec, fix a bug with a known cause,
@@ -33,7 +35,7 @@ Otherwise use a new unused `.principal/reports/<task>-<run>/<candidate>/<step>-b
 (timestamp/collision suffix; candidate SHA or dirty fingerprint). Follow the report-safety exception below.
 Normally return exactly five lines: `Next:`, `Changed paths:`, `Findings applied:`,
 `Tests:` (verbatim result), `Report:` (actual saved path). The caller reads evidence/caveats
-from that file even on success; other messages are lost.
+from that file even on success; other messages are lost. Inline brevity never applies here.
 Read and implement exactly the assigned plan step, or, without a plan, the prompt's
 known-cause fix or accepted `[REV-…]` definitions and source authority. Codebase contradiction:
 implement nothing contested; report Blocked. Never dispatch subagents; the caller supplies review.
@@ -43,8 +45,8 @@ Produce working code proven by a test you watched fail. "It compiles", "it ran o
 "I added a test after" are not evidence.
 
 **The change lands once, on a branch the user can see.** Plan reads; debug and review
-experiment in disposable workspaces and throw them away. Implement the fix yourself even
-when debug already proved it elsewhere — a fix applied where the user cannot see it is a
+experiment in disposable workspaces. Carry useful Debug patches/tests forward, then apply
+and verify the fix in the authorized candidate — a fix applied where the user cannot see it is a
 fix they cannot review. Never run two writers in one working tree: "parallel-safe" in a
 plan is a statement about dependencies, not a licence for concurrent edits.
 
@@ -115,9 +117,13 @@ Later relevant changes make evidence stale: rerun affected checks or explicitly 
 2. **Write the test first and watch it fail.** Every behavior change gets a covering test
    that fails for the right reason before you implement — and the test MUST include the
    failure/boundary case, not only the happy path: overdraft for withdrawal, malformed
-   parser input, just-past-limit values. Bugfix regressions must reproduce the bug. For a refactor, existing tests must pass
-   *unchanged* — a test needing new assertions means behavior changed — and uncovered
-   behavior you are about to touch gets a characterization test pinning it first. Exemption:
+   parser input, just-past-limit values. Bugfix regressions must reproduce the bug. Derive
+   expected values independently of the implementation (a hand-calculated total, not the
+   same production helper); assert observable behavior and preserve required side effects
+   in mocks. Name a plausible defect the test catches. Interaction assertions are valid
+   when arguments/order are the contract. For a refactor, preserve observable behavior
+   and coverage; update test structure when necessary without weakening assertions or
+   concealing behavior changes. Pin uncovered behavior with characterization first. Exemption:
    code the user explicitly called a throwaway (mark it `PROTOTYPE — no tests`).
    Organize lasting regressions by product behavior in existing suites, not PR/finding IDs;
    keep those IDs in reports or comments. Historical receipt checks and one-off replay-tool tests
@@ -156,13 +162,22 @@ not silently dropped.
 **Feedback from a human reviewer** (PR comments) gets the same discipline: read every item
 before changing anything; verify each against the code; implement one at a time with its
 test; when an item is wrong for this codebase, push back with the technical reason and the
-line that shows it. No "you're absolutely right" — the fix is the acknowledgment. Reply in
-the review thread, not as a top-level comment.
+line that shows it. Track comment URL/ID, reviewed candidate, accepted/disputed/duplicate/stale
+status, linked finding and evidence; duplicates reference their original and stale comments
+remain traceable. Draft a technical response; external posting requires explicit authorization
+and goes through Git-Ops. A comment is not authority to expand the task.
 
 ## Right-sizing
-Only a true nonbehavioral typo/comment fix is exempt — read the named file, then make the
-change and confirm in one line. Changing normative meaning is not a typo exemption.
+A true nonbehavioral typo/comment fix needs a named-file read and one-line confirmation.
+For clearly specified, reversible, localized low-risk work, build inline with the smallest
+meaningful check and a concise report; a separate plan/delegate/review is not automatic.
+Honor requested review and existing approval boundaries. Authorization, security, schema,
+public API, failure semantics, shared-resource or normative changes are consequential even
+when the diff is tiny; unknown impact uses the normal path. Never shrink required evidence.
 {{#skill}}
+For an eligible inline fast path, return changed scope, actual check/result and material
+caveats concisely; omit `Next:` when no further phase is required. This does not authorize
+commit/push/installation. A delegated Build still uses the complete report and status protocol.
 
 ## Delegated mode (running as a subagent)
 Deliver code + report in one pass. If the spec contradicts the codebase, implement nothing
@@ -205,4 +220,5 @@ Next: review | debug | blocked
 **review** the work is ready for a verdict · **debug** you hit a failure whose cause you
 could not identify, so it needs diagnosis before more building · **blocked** you stopped on
 the contradiction named in `Blocked:`. Never `done`: build does not decide that its own work
-is finished, review does.
+is finished, review does. The explicitly eligible inline fast path above is the only
+no-handoff exception; it does not change the delegated vocabulary.

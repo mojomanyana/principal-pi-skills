@@ -218,3 +218,38 @@ test("the spines hand artifacts to agents as files under .principal/reports", ()
   assert.doesNotMatch(read("review/SKILL.md"), /## Scoped re-review/, "scoped re-review is agent-only");
   assert.match(read("agents/principal-build.md"), /Report:/);
 });
+
+test("native handoffs bind an exact described definition and never fallback after failure", () => {
+  for (const path of ["AGENTS.md", "bootstrap/BOOTSTRAP.md", "contracts/workflows.md.tmpl", "prompts/principal-review-branch.md"]) {
+    const text = read(path);
+    assert.match(text, /delegate_describe/);
+    assert.match(text, /definitionId/);
+    assert.match(text, /principal-pi-skills/);
+    assert.match(text, /genuinely\s+absent/);
+    assert.match(text, /explicitly configured/);
+    assert.match(text, /report\s+gap/);
+    assert.doesNotMatch(text, /unknown agent.*run.*inline/s);
+    assert.doesNotMatch(text, /Choose the cheapest|Use the strongest|capable mid-tier/);
+  }
+});
+
+test("native workflows use phase identities and batch independent parallel children", () => {
+  for (const path of ["AGENTS.md", "bootstrap/BOOTSTRAP.md", "README.md", ...WORKFLOWS]) {
+    const text = read(path);
+    assert.match(text, /delegate_all/);
+    assert.match(text, /definitionId/);
+    assert.match(text, /(?:never overlapping|Do not overlap|Do not\s+launch concurrent|overlapping single)/);
+    assert.match(text, /(?:separate|distinct)[\s\S]*?worktrees/);
+    assert.doesNotMatch(text, /(?:Always delegate to|dispatch one fresh|Invoke|→) `principal-(?:build|review|plan|debug)`/);
+  }
+  for (const path of [...WORKFLOWS, "prompts/principal-review-branch.md"]) {
+    assert.match(read(path), /delegate\(\{agent:"review",definitionId,/);
+  }
+  for (const path of WORKFLOWS) {
+    const text = read(path);
+    assert.match(text, /delegate_all\(\{children:\[\.\.\.\]\}\)/);
+    assert.match(text, /agent:"build".*captured build `definitionId`/);
+    assert.match(text, /integrate serially/);
+    assert.match(text, /preserve completed\s+siblings/);
+  }
+});

@@ -1,5 +1,7 @@
 ---
 name: review
+metadata:
+  principal-package: principal-pi-skills
 description: >
   Use to review code before it lands — "review this", "is this ready to merge", "check
   this diff", "simplify this", "is this over-engineered", or after any non-trivial
@@ -91,6 +93,17 @@ ships is a failed review.
    (show smaller code for simplifications). Order by severity; Top concern is the highest.
    Clean code gets “verified, no blockers” — never manufacture findings.
 
+## Review scope
+State `task`, `integrated` or `scoped-repair` scope and its baseline. Task review checks the
+assigned candidate/interfaces before consumption; approval covers only that task. Integrated
+review checks the assembled whole change, interactions, original obligations and global gates.
+Scoped repair judges accepted findings and new breakage in the fix while retaining the
+original whole-change baseline/evidence gaps; it cannot erase a missing full-change gate.
+A task verdict returns to the coordinator, regardless of `Next: git-ops`; only a final
+integrated verdict can support finish. Record comment URL/ID, candidate and finding linkage;
+accepted/disputed/duplicate/stale items remain traceable. Draft replies only; external posting
+requires explicit authorization through Git-Ops.
+
 For repairs, read the full original review report and finding definitions, source/definition
 references, acceptance conditions and fix diff; bare IDs cannot identify an accepted fix.
 Record original review path and reviewed candidate in Authority/Candidate; retain files,
@@ -112,6 +125,7 @@ why under Verified.
 ```
 ## Review: <change, one line>
 Verdict: APPROVE | APPROVE-WITH-NITS | CHANGES-REQUESTED | UNVERIFIED
+Scope: task | integrated | scoped-repair — <baseline and covered boundary>
 Authority: <source/definition references; exact task and plan/map if present>
 Candidate: <reviewed identity; whether reused evidence matches>
 Requirement reconciliation: <source ID → map/implementation/evidence; omissions and gate results>

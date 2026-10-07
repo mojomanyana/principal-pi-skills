@@ -12,6 +12,8 @@
 {{! template comments and reach neither output.
 ---
 name: {{name}}
+metadata:
+  principal-package: principal-pi-skills
 description: >
 {{#skill}}
   Use when the user wants the cause of a code, test, lint, runtime, or CI failure — including
@@ -65,7 +67,9 @@ unknown one; the harder the bug, the stricter the loop.
    missing (environment, input, steps).
 {{/agent}}
 2. **Isolate.** Shrink to the smallest input that triggers it — binary-search the input;
-   `git bisect` the history if it used to work.
+   `git bisect` the history if it used to work. Compare a working path when available.
+   Follow sanitized input/output/config evidence to the first divergent component boundary;
+   never dump credentials, raw payloads or environment values to make the comparison.
 3. **Hypothesize testably.** First read the error message word by word — it usually names
    the file, line, and cause. Then write 2–3 hypotheses in the form "the bug is at
    file:line because <observed evidence> implies <cause>"; test the cheapest first.
@@ -75,12 +79,14 @@ unknown one; the harder the bug, the stricter the loop.
    prints a throwaway worktree holding their exact working state (minus anything git
    ignores). Work there, then `remove` it. That keeps "probes are temporary" structurally,
    which nobody manages by hand under a failing build.
-5. **Prove the fix at the root cause — still in the workspace.** The stack trace points at
-   the symptom; trace the wrong value upstream and fix there. The regression test fails
-   before the fix and passes after; re-run the full suite and the original reproduction.
-   Intermittent bug → loop the test (e.g. 100×) before declaring victory. For async or
-   eventually-consistent behavior, wait on the observable condition with a deadline; a fixed
-   sleep is not condition-based evidence and only moves the race.
+5. **Hand off when the diagnosis is sufficient.** Distinguish a confirmed cause from a
+   hypothesis using actual observations. A complete trial fix and full suite are optional;
+   stop probing when they add no deciding evidence. Propose the minimal fix and regression
+   check, marking unrun proof explicitly. If a disposable trial is needed to distinguish
+   causes, record its actual red/green and relevant checks; do not repeat that implementation
+   merely to produce a Debug deliverable. Intermittent evidence needs enough observations
+   for the stated claim, not an arbitrary repetition count. For async behavior, wait on an
+   observable condition with a deadline; a fixed sleep is not condition-based evidence.
    Debug proves only in the disposable workspace, never mutates the caller checkout and
    never dispatches Build. A direct "diagnose and fix" request authorizes the orchestrator
    to switch to Build when diagnosis is sufficient; inline, announce that switch before

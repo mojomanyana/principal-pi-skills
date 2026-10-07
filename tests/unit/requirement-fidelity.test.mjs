@@ -139,14 +139,15 @@ for (const mode of ["skill", "agent"]) {
     assert.match(text, /transient review\/release status/);
     assert.match(text, /preserve actual behavior guards.*categories separately/s);
   });
-  test(`build ${mode}: compression preserves evidence fields and only nonbehavioral typos are exempt`, () => {
+  test(`build ${mode}: compression preserves evidence fields and the inline exception remains guarded`, () => {
     const text = contract("build", mode);
     const output = text.split("## Output — implementation report")[1];
     assert.match(output, /Even compressed.*Authority, Candidate, Requirements, Gates, Evidence gaps/s);
     assert.match(output, /all applicable report fields/);
     assert.match(output, /Assumptions.*Blocked/s);
     assert.match(output, /none.*N\/A/);
-    assert.match(text, /Only a true nonbehavioral typo\/comment fix/);
+    assert.match(text, /A true nonbehavioral typo\/comment fix/);
+    assert.match(text, /unknown impact uses the normal path/);
     assert.doesNotMatch(text, /A typo or comment fix needs none of this/);
   });
   test(`review ${mode}: source omissions and stale evidence cannot become approval`, () => {
@@ -235,4 +236,67 @@ test("tool and context ceilings remain unchanged in both renderings", () => {
       if (mode === "agent") assert.equal(text.match(/^tools: (.*)$/m)[1], list);
     }
   }
+});
+
+test("connected plan interfaces retain exact contract checks and shared-resource independence", () => {
+  for (const mode of ["skill", "agent"]) {
+    const text = contract("plan", mode);
+    assert.match(text, /Consumes.*Produces.*interfaces.*Verification/s);
+    assert.match(text, /names, types, units and error semantics/);
+    assert.match(text, /mismatches.*global-constraint conflicts/s);
+    assert.match(text, /migrations, lockfiles, databases and ports/);
+    assert.match(text, /audience or success only when missing/);
+  }
+});
+
+test("proportionate decision and neutral architecture contracts preserve material uncertainty", () => {
+  const decide = read("decide/SKILL.md"), architect = read("architect/SKILL.md");
+  assert.match(decide, /Classification labels are optional/);
+  assert.match(decide, /Two meaningful alternatives are enough/);
+  assert.match(decide, /material uncertainty/);
+  assert.doesNotMatch(decide, /Begin every response with|Three or more|suppressed third/);
+  assert.match(architect, /No pattern\s+wins by default/);
+  assert.match(architect, /bounded cutover, incremental migration, replacement/);
+  assert.match(architect, /ambiguities, contradictions/);
+  assert.doesNotMatch(architect, /never big-bang|simpler\s+option wins|wrong regardless/);
+});
+
+test("Build preserves meaningful test behavior and narrowly scopes the inline exception", () => {
+  for (const mode of ["skill", "agent"]) {
+    const text = contract("build", mode);
+    assert.match(text, /expected values independently/);
+    assert.match(text, /preserve required side effects/);
+    assert.match(text, /plausible defect/);
+    assert.match(text, /update test structure.*without weakening assertions/s);
+    assert.match(text, /Honor requested review and existing approval boundaries/);
+    assert.match(text, /Authorization, security, schema/);
+  }
+  assert.match(contract("build", "skill"), /eligible inline fast path.*omit `Next:`/s);
+  assert.doesNotMatch(contract("build", "agent"), /return changed scope.*omit `Next:`/s);
+});
+
+test("Debug diagnoses before optional trial implementation and protects boundary evidence", () => {
+  for (const mode of ["skill", "agent"]) {
+    const text = contract("debug", mode);
+    assert.match(text, /confirmed cause from a\s+hypothesis/);
+    assert.match(text, /complete trial fix and full suite are optional/);
+    assert.match(text, /working.*failing/s);
+    assert.match(text, /sanitized/);
+    assert.match(text, /Build/);
+  }
+});
+
+test("review scopes preserve whole-change gates and explicit external-posting authority", () => {
+  for (const mode of ["skill", "agent"]) {
+    const text = contract("review", mode);
+    assert.match(text, /Scope: task \| integrated \| scoped-repair/);
+    assert.match(text, /cannot erase a missing full-change gate/);
+    assert.match(text, /only a final\s+integrated verdict can support finish/);
+    assert.match(text, /external posting\s+requires explicit authorization/);
+  }
+  const workflow = read("contracts/workflows.md.tmpl");
+  assert.match(workflow, /task review before another step consumes/);
+  assert.match(workflow, /final\s+integrated review/);
+  assert.match(workflow, /manual reconciliation, not automatic resume/);
+  assert.doesNotMatch(workflow, /a step whose commit exists is\s+done/);
 });

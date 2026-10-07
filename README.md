@@ -30,7 +30,7 @@ around.
    plain-text tags (`[ONE-WAY]`, `[BLOCKER]`) instead of an emoji schema, no aphorisms
    doing load-bearing work, no personas, no required reading in reference files.
 3. **Token economics.** Budgets stated as decisions rather than aspirations: **skills
-   ≤ 1400 words**, **agents ≤ 1500**, and **`git-ops` an accepted exception at ≤ 2150** —
+   ≤ 1400 words**, **agents ≤ 1500**, and **`git-ops` an accepted exception at ≤ 2550** (including operation-specific preservation and verified restoration) —
    the safety-critical operator carries the most arming, and validated behavior outweighs
    a budget. Ceilings move only to buy a fix rather than more prose: an absolute is cheap to write and wrong in real cases, and a rule plus the cases
    it must not eat costs more words than the absolute it replaced. **When a fix and the
@@ -38,46 +38,62 @@ around.
    `wc -w`. Nothing loads anything else — a subagent reads one file and has the whole
    contract.
 
-Individual fidelity exceptions (skill/agent words): Plan 1900/1950 buys complete source
-reads, blocking exceptions, stable mapping, persisted completeness and explicit no-shell
-fallback/tiny-file reads. Build 1850/2000 preserves pre-mutation authority classification,
-the complete authorized-amendment positive case, immutable report/repair provenance and
-compressed evidence/caveats; Review 1700/1750 buys candidate-bound obligation/gate evidence
-and repair definitions. Both distinguish lasting behavior-named regressions from historical
-receipt/replay verification, without freezing transient review/release status. The 100-word
-ceiling increases retain evidence-only scope safeguards and useful authorized regressions
-without removing existing guards;
-Debug's agent ceiling is 1550 for honest sandbox/applied states. Common ceilings and Git-Ops
-stay unchanged. These budgets preserve safeguards for lower-cost models, not a claim of
-measured robustness on those models.
+Individual contract exceptions (skill/agent words): Plan 2000/2050 preserves complete
+source/requirement maps and adds exact connected interfaces and shared-resource checks.
+Build 2000/2000 retains authority, full evidence and immutable repair provenance while adding
+meaningful test maintenance and a guarded inline path. Review 1800/1850 retains candidate-bound
+gates and distinguishes task, integrated and repair scope. Debug 1450/1600 preserves honest
+disposable/applied states while making diagnosis sufficient for handoff and protecting
+boundary evidence. These narrow increases retain the existing safeguards; they are not
+claims of measured model compliance. Common ceilings remain unchanged.
 
 ## The set
 
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
-| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 1134 |
-| `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1211 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 1938) or inline | 1877 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1845) or inline | 1801 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1724) or inline | 1660 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1533) or inline | 1397 |
-| `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 491) or inline | 492 |
-| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2145 |
+| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
+| `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
+| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 2024) or inline | 1963 |
+| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 1970) or inline | 1960 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1841) or inline | 1777 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1587) or inline | 1451 |
+| `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 494) or inline | 495 |
+| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2507 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is the
 long-form routing reference, and the bootstrap extension below injects its routing table
-automatically at session start, so nothing needs to point pi at it by hand.
+into applicable requests, so nothing needs to point pi at it by hand.
 
 ## Bootstrap and workflows
 
-A pi extension (`extensions/bootstrap.ts`) injects `bootstrap/BOOTSTRAP.md` — under 300
-words — as a leading message at session start and again after compaction, so the routing
-context survives a context reset instead of depending on someone re-reading a file. It
-carries the routing table compressed to input shape → skill → inline/subagent, the closed
-`Next:` vocabulary the phases hand off with, and model tiering: the cheapest model for a
-build agent working a complete step spec, the session default for plan and debug, the
-strongest available for review and architect.
+The extension (`extensions/bootstrap.ts`) discovers this package's enabled selected skills
+through public `pi.getCommands()` at `before_agent_start`, after resource discovery. It
+adds the under-300-word `bootstrap/BOOTSTRAP.md` once to each converted request, preserving
+leading compaction/system/tool state and durable history. Tool iterations and later ordinary
+requests receive routing too. Only extension-owned inserted objects are replaced; a quoted
+marker cannot suppress injection. Disabled or shadowed package resources stay inactive.
+Principal read/discovery failure is visible and latched until deliberate `/reload` reinstantiates the
+extension; stale foreign command paths are ignored independently without disabling valid Principal skills; each registration owns its content cache and selected-resource state.
+
+Native handoffs use `delegate_describe({agent:"phase"})`, require binding package
+`principal-pi-skills` and exact phase. Native names are `plan`, `build`, `review`, `debug`,
+`investigate`; pass the corresponding captured `definitionId` to every `delegate` call,
+`delegate_all` child and `delegate_chain` step. The root `principal-agents.json` manifest binds exactly five phases to generated
+inline/delegated paths and full-file SHA-256 hashes from the same generation pass. The
+runtime must verify enabled selected source, package identity and both hashes. Missing,
+wrong or disabled bindings and operational failures stop dependent work; they never trigger
+legacy/foreign/inline substitution. Only genuinely absent native tools permit an explicitly
+configured legacy principal-* runner. Inline is a workflow choice. Authored model/effort
+policy governs; phase labels do not silently override it. This contract alone does not qualify
+live native execution; the actual installed runtime/candidate still needs integration evidence.
+
+Use one `delegate_all({children:[...]})` call for an approved independent parallel batch,
+with the exact native phase name and captured `definitionId` on each child. Single `delegate`
+calls conservatively reserve the available subtree capacity; overlapping single calls can
+be refused. Writers need distinct precreated registered Git worktrees and declared scopes,
+dependencies, shared resources and full-report destinations. Read every outcome, preserve
+completed siblings after failure, review candidates, integrate serially and check the merged whole.
 
 The three spines (`/principal-feature <task>`, `/principal-bugfix <symptom>`,
 `/principal-refactor <scope>`) stop for your approval after the planning phase or the debug
@@ -86,7 +102,7 @@ before building — presenting the artifact and starting to build in the same tu
 failure the rule exists to catch. The artifact scales with the change (three lines for a
 config tweak, full slices for a feature); the stop does not.
 
-Delegated phases hand artifacts to each other as files, not pasted text. A `principal-build`
+Delegated phases hand artifacts to each other as files, not pasted text. A native `build` child
 writes its full report to an unused task/run/candidate-scoped path under `.principal/reports/`
 (or a valid unused caller-chosen path) and returns five status lines;
 review receives governing source/definition references, the complete plan/map when present,
@@ -107,10 +123,10 @@ alongside it only if absent, never overwritten. The complete executable artifact
 stay in the file; chat gives a short summary and approval cue. Without persistence, the full
 artifact is returned in chat, explicitly not saved. Tiny normative changes retain source/ID,
 step and test without full machinery. Delegated
-`principal-build` agents read their assigned step from that file, and a fresh or compacted
-session that finds a matching plan resumes from it: read the file and `git log`, mark done
-whatever already has a commit, continue at the first undone step, and never re-plan without
-being asked.
+`build` children read their assigned step from that file, and a fresh or compacted
+session locates matching plans, then reconciles actual approval, current work and candidate-bound
+reports. A commit does not establish review, integration or verification. Resume manually at
+what the evidence shows remains; do not repeat completed work or infer approval from a title.
 
 ## Layout
 
@@ -122,7 +138,7 @@ contracts/workflows.md.tmpl           source for the three namespaced spines
 prompts/principal-{feature,bugfix,refactor}.md generated workflows
 prompts/principal-review-branch.md    handwritten planless/buildless review entry
 bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary + model tiering, injected by the extension
-extensions/bootstrap.ts               pi extension: injects BOOTSTRAP.md at session start and after compaction
+extensions/bootstrap.ts               pi extension: request-local routing after selected-resource discovery
 scripts/                              generator, installers, and checks behind `npm test`
 tests/{unit,install}/                 current product/contract + clean-home install tests (node:test)
 evals/{triggers.json,adversarial-triggers.json,baseline/}  routing checks and baselines
@@ -132,13 +148,14 @@ CHANGELOG.md                          release history
 
 ## Install (pi)
 
-1. **Skills + prompts** — install an immutable tag, not a branch:
+1. **Skills + prompts** — this prerelease targets stable 4.8.0. Once the immutable tag
+   exists, install it rather than a branch:
 
    ```
-   pi install git:github.com/mojomanyana/principal-pi-skills@v4.7.3
+   pi install git:github.com/mojomanyana/principal-pi-skills@v4.8.0-rc.2
    ```
 
-   The v4.7.3 `pi` manifest registers the eight skills, the four `/principal-*` commands,
+   The v4.8.0-rc.2 `pi` manifest registers the eight skills, the four `/principal-*` commands,
    and the bootstrap extension — it loads automatically with
    the package; there is no separate extension-install step. Unpinned `main` moves under
    you, so install a tag if you want a fixed, nameable behavior.
@@ -147,19 +164,27 @@ CHANGELOG.md                          release history
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
-2. **Subagents (optional).** Use the **same source** as the installed skills. Before npm
-   publication, npm latest is 4.7.2; unpinned `npx` would install/check older definitions,
-   and npm `@4.7.3` is not yet available. Either locate the actual installed tagged package
-   (its path varies by Pi configuration) and run its `scripts/install-agents.mjs` with Node,
-   or use this concrete matching-tag disposable checkout recipe:
+   Native delegation requires the companion pi-daddy 0.44.0-rc.2 candidate and **exactly
+   Pi 1.0.4**, the qualified version. This is not a claim of compatibility with every Pi 1.x
+   release; other or unknown versions require separate qualification before use. The selected package's generated `principal-agents.json`
+   binds each delegated phase to its skill and agent bytes. Native routing uses
+   `delegate_describe` and a captured `definitionId`; a native refusal or failure does
+   not fall back to a legacy runner or inline execution.
+
+2. **Legacy subagents (optional).** A configured legacy runner can use the five agent
+   definitions when native tools are genuinely absent. Native delegation does not need
+   this separate agent installation. Use the **same source** as the installed skills:
+   locate the actual installed tagged package (its path varies by Pi configuration) and
+   run its `scripts/install-agents.mjs` with Node, or use this matching-tag disposable
+   checkout recipe after the tag exists. This prerelease does not imply npm publication.
 
    ```sh
    (
      set -eu
      source_dir=$(mktemp -d)
      trap 'rm -rf -- "$source_dir"' EXIT
-     git clone --depth 1 --branch v4.7.3 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
-     test "$(git -C "$source_dir/package" rev-parse HEAD)" = "$(git -C "$source_dir/package" rev-parse 'v4.7.3^{commit}')"
+     git clone --depth 1 --branch v4.8.0-rc.2 https://github.com/mojomanyana/principal-pi-skills.git "$source_dir/package"
+     test "$(git -C "$source_dir/package" rev-parse HEAD)" = "$(git -C "$source_dir/package" rev-parse 'v4.8.0-rc.2^{commit}')"
      git -C "$source_dir/package" rev-parse HEAD  # retain the resolved source identity
      node "$source_dir/package/scripts/install-agents.mjs" install
      node "$source_dir/package/scripts/install-agents.mjs" check
@@ -169,15 +194,15 @@ CHANGELOG.md                          release history
    After npm publication, and only once the matching package is available, pin both commands:
 
    ```sh
-   npx -p principal-pi-skills@4.7.3 principal-pi-agents install
-   npx -p principal-pi-skills@4.7.3 principal-pi-agents check
+   npx -p principal-pi-skills@4.8.0-rc.2 principal-pi-agents install
+   npx -p principal-pi-skills@4.8.0-rc.2 principal-pi-agents check
    ```
 
-   Version 4.7.3 refreshes release and measurement documentation without changing skill,
-   agent, prompt, or bootstrap behavior. Behavioral measurement remains in the separate
-   `principal-pi-skills-evals` repository, while routing checks remain here. Use the commands
-   above after the v4.7.3 tag exists; npm publication is separate. The checkout check verifies
-   tag/HEAD consistency, not independent tag trust;
+   Version 4.8.0-rc.2 adds native phase bindings, request-local bootstrap routing, stricter
+   workflow contracts, manual progress records, and installer ownership checks. Behavioral
+   measurement remains in the separate `principal-pi-skills-evals` repository, while routing
+   checks remain here. Tag creation and npm publication are separate. The checkout check
+   verifies tag/HEAD consistency, not independent tag trust;
    compare the recorded SHA with the release identity when provenance matters. Before tagging,
    validate the actual candidate's skills and installer in an isolated `PI_CODING_AGENT_DIR`.
    Known behavioral qualification limits remain documented; combining the release does not waive them.
@@ -186,26 +211,36 @@ CHANGELOG.md                          release history
    and `principal-investigate` as **real files, not symlinks** — a symlink into a checkout breaks the
    moment that directory moves, and breaks silently, since pi just reports an unknown
    agent. It refuses to overwrite anything it did not install, and `uninstall` removes only
-   its own unmodified files.
+   its own unmodified files. Symlinked home/config ancestors resolve once to a canonical
+   directory; agent and manifest leaf symlinks (including dangling links) still refuse.
+   Installed agent files are `0644`; the ownership manifest is `0600`. Re-running `install`
+   repairs the earlier `0600` agent mode only for unchanged owned files.
+
+   **Ownership migration/recovery:** `install` no longer silently adopts byte-identical
+   unowned files, and deprecated `--force` never bypasses validation or ownership. If only
+   the manifest was lost and all five agents exactly match this package version, explicitly
+   run `node <installed-package>/scripts/install-agents.mjs adopt`, then `install` (to repair
+   unchanged owned file modes), then `check`. `adopt`
+   creates only the absent manifest and leaves agent bytes/modes untouched; it refuses an
+   existing manifest, partial sets, modified/older content and leaf symlinks. Unrelated files
+   remain unclaimed. Keep any edited or older files and restore known-good metadata from
+   your own backup; do not delete them merely to make installation pass.
 
    Tool restriction is structural, in the agents' frontmatter: `investigate` is read-only;
    `plan` is read-only except for its plan and creation of an absent `.principal/.gitignore`; `build`, `review`, and `debug` add
    `bash` to run tests (and, for `build`, to write and edit).
 
-   One trap worth knowing if you run subagents on a non-default provider: a delegated agent
-   runs on the pi config's `defaultProvider`/`defaultModel`, **not** the
-   `--provider`/`--model` you gave the parent session — the extension forwards `--model`
-   only when an agent's frontmatter names one, and these deliberately do not. If
-   delegations fail to authenticate while the parent session is fine, that mismatch is the
-   reason.
+   Legacy runners differ in model forwarding. If a runner does not forward the parent's
+   provider/model, check that runner's defaults and agent-frontmatter rules when a child
+   cannot authenticate. Native delegation uses the matching pi-daddy runtime's resolved
+   model and effort policy.
 
-3. **Without the subagent step, everything still runs completely inline** via the skills;
-   the How column in [The set](#the-set) simply collapses to "inline". The routing table
-   still reaches the session because the bootstrap extension injects it — installing the
-   package is enough for that part; only delegation itself needs step 2.
+3. **Inline execution remains available when the workflow selects it.** The bootstrap
+   supplies routing with the installed skills. Skipping the legacy agent installation does
+   not disable native delegation, and a failed native handoff cannot silently become inline.
 
-4. **Under pi-daddy (0.33.0+), each skill declares how much of the caller's session it may
-   receive.** A child gets only the `context:` mode its own `allowed-tools` names (or a
+4. **With the matching pi-daddy candidate, each skill declares how much of the caller's
+   session it may receive.** A child gets only the `context:` mode its own `allowed-tools` names (or a
    weaker one: `none < files < pruned < summary < fork`). Asking for more is refused, not
    downgraded. The ceilings are decisions, and each one is explained in its frontmatter:
 
@@ -221,13 +256,69 @@ CHANGELOG.md                          release history
    Nothing declares `context:fork`. Write the prefix in lowercase: `Context:summary` turns
    into `tool:context:summary`, which grants no context mode.
 
-   **Egress: know what `summary` enables.** `context:summary` also permits `pruned`. That
-   mode carries the operator's own session turns (the last 20 by default, up to 32 KiB),
-   not just the task. With a pi-daddy advisor enabled (`PI_DADDY_ADVISOR` plus
-   `PI_DADDY_ADVISOR_KEY`), a `pruned` handoff sends those turns to that third party so it
-   can choose which ones to keep. For `architect`, `decide` and `plan`, that is what you
-   switch on by delegating with `pruned` while an advisor is on. Raising any other skill's
-   ceiling extends that exposure to it.
+   **Egress: know what `summary` enables.** `context:summary` also permits `pruned`,
+   which can carry selected turns from the active parent branch to the delegated child's
+   provider. The matching pi-daddy candidate no longer uses an external advisor to choose
+   those turns. Forwarded context still reaches the child and its provider; raising another
+   skill's ceiling extends that exposure to it.
+
+## Reports and manual progress
+
+Use the installed `principal-pi-progress` helper when a coordinator needs repeated report
+allocation/persistence. It creates private unused candidate directories beneath ignored
+`.principal/reports/`, writes complete `.md` reports exclusively, and appends a small
+`progress.jsonl` index. It preserves an existing ignore policy and refuses an exposed path.
+The helper is optional; Plan's write ceiling and Investigate's read-only ceiling do not grow.
+Do not fetch/install it solely to write a report.
+
+```sh
+principal-pi-progress create /path/to/repo task-name '<actual candidate identity>'
+# Set RUN to the decoded returned path; use the same caller-established identity below.
+principal-pi-progress report "$RUN" step-1-build.md < complete-report.md
+principal-pi-progress reference /absolute/path/to/plan.md
+principal-pi-progress append "$RUN" < record.json
+principal-pi-progress read "$RUN" '<actual current candidate identity>'
+```
+
+`report` and `reference` return `{ "path": "/absolute/path", "sha256": "<64 hex>" }`.
+A version 1 record has exactly these fields (replace `REPORT_REF` with that returned object):
+
+```json
+{
+  "version": 1,
+  "plan": null,
+  "step": "impl:S1",
+  "candidate": "<actual candidate identity>",
+  "facts": {
+    "planned": { "state": "unknown", "evidence": [], "note": "No separate plan" },
+    "implemented": { "state": "complete", "evidence": ["REPORT_REF"], "note": "Implementation saved; review pending" },
+    "reviewed": { "state": "unknown", "evidence": [], "note": "Not reviewed" },
+    "integrated": { "state": "unknown", "evidence": [], "note": "Not integrated" },
+    "verified": { "state": "unknown", "evidence": [], "note": "Qualification not run" }
+  },
+  "findings": [],
+  "nextAction": "Request task review"
+}
+```
+
+`plan` is null or a file reference. Every fact has `unknown`, `incomplete` or `complete`
+state, evidence references and an honest note; complete needs evidence. A completed review
+means the review occurred, and its note must retain the verdict, including CHANGES-REQUESTED.
+Each finding has `id`, `source` reference and `status` (`open`, `addressed`, `verified`,
+`accepted`, `disputed`, `duplicate`, `stale`); a duplicate also names `duplicateOf`. Preserve original
+review baseline/definitions and PR comment URLs/IDs in the referenced complete reports.
+
+The coordinator is the single writer. Save the report before appending progress; an append
+failure preserves that report and leaves progress incomplete. Never force-clear a writer
+lock. Reads return the original records plus independently assessed facts/issues: changed or
+missing files, changed/unconfirmed candidates and malformed/incomplete records remain
+unresolved. An incomplete final JSONL line is ignored/reported, never promoted to complete;
+preserve its bytes and start a new run if needed. Reconcile records by step, not just the
+last line. No helper claim proves its evidence's meaning, model judgment, approval or broad
+candidate equivalence. It neither computes candidate identity nor resumes/runs tasks. Check
+actual user authority/current work before choosing the next action; a title, role, commit or
+self-authored boolean cannot grant approval. This is a trusted-coordinator filesystem helper,
+not hostile-process containment or an atomic multi-file transaction.
 
 ## Validation
 
@@ -276,9 +367,9 @@ Decisions taken for 4.0, all closed:
 | Target harness | pi only |
 | Assurance ledger and profiles | removed; per-skill right-sizing is the mechanism; the tool lives on the `v3.2.0` tag for porting to pi-daddy |
 | Human approval | always, after plan (feature) or after the debug note (bugfix); the artifact scales, the stop does not |
-| Routing delivery | a pi extension injects `bootstrap/BOOTSTRAP.md` at session start and after compaction |
-| Build delegation | `principal-build` agent; inline when there is no multi-step plan file or no subagent tool |
-| Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; no date prefix because plan has no clock, and resume matches on the `## Plan:` line |
+| Routing delivery | request-local bootstrap after selected-resource discovery; quoted markers do not suppress it |
+| Build delegation | bound native phase, or explicitly configured legacy runner when native tools are absent; inline is a workflow choice |
+| Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; titles locate candidates, while manual resume checks actual authority, current work and evidence |
 | Decide vs architect | both kept; decide answers "should we / which", architect answers "how is it structured" |
 | Measurement | behavioural measurement lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks stay here |
 
@@ -317,3 +408,5 @@ Why the files look the way they do. Each of these was learned by measuring the a
 ## License
 
 MIT © 2026 Nemanja Alavanja. See [LICENSE](./LICENSE).
+
+The Debug inline budget includes three generated frontmatter words that mark Principal package identity; missing or replaced package metadata must refuse native binding rather than downgrade to inline instructions.
