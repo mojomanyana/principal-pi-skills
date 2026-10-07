@@ -10,8 +10,9 @@ Execute this workflow for: $@
 You are the orchestrator. Each phase is an enabled skill or a bound delegated contract;
 route on its `Next:` and never let a phase invoke another. Before native delegation, call
 `delegate_describe({agent:"phase"})`; require `binding.package: principal-pi-skills`, the
-exact `binding.phase`, and a captured `definitionId`. Pass that ID to each native `delegate`
-dispatch, including children/chain steps; the runtime checks selected source and generated
+exact `binding.phase`, and a captured `definitionId`. Native agent names are `plan`, `build`,
+`review`, `debug`, `investigate`. Pass the corresponding ID to each `delegate` call, each
+`delegate_all` child and each `delegate_chain` step; the runtime checks selected source and generated
 skill/agent bytes. Missing/wrong/disabled bindings, stale reload, unqualified backend,
 permission/context refusal, timeout, report gap or uncertain cleanup stops dependent work.
 No alternate runner or inline substitution after failure. Only when native tools are genuinely
@@ -89,9 +90,9 @@ build until the user says go. Presenting the artifact and starting to build in t
 is the failure. The artifact scales — three lines for a config change, full slices for a
 feature — the stop does not. A re-plan needs a new approval.
 
-**Build.** One writer at a time, on a branch the user can see. Inline when there is no
+**Build.** One writer per working tree, on branches the user can see. Inline when there is no
 multi-step plan file (a three-line plan, or a bugfix) and inline work is the chosen workflow.
-Otherwise dispatch one fresh `principal-build` per step — a batched step is one dispatch —
+Otherwise dispatch native `build` with its captured `definitionId` per step — a batched step is one child —
 with the complete plan file path, step ID, source/definition paths, applicable rows/global gates,
 and unused report path `<artifact-dir>/<step>-build-<attempt>.md`. Without a plan pass the approved exact
 task and authority. It returns five status lines; read every successful report too:
@@ -104,13 +105,25 @@ Never paste report prose into a later dispatch; pass accessible files. Authored 
 policy governs under the same standards; neither cost nor a word budget permits dropping
 requirements, gates or safety. Surface an inadequate policy rather than silently replacing it.
 
+**Parallel work.** For an approved independent batch, use one `delegate_all({children:[...]})`
+call, with `agent:"build"` and the captured build `definitionId` on every build child. Do not
+launch concurrent single `delegate` calls: each conservatively reserves the available subtree
+capacity, so overlapping calls can be refused. Precreate separate registered Git worktrees
+at the declared base for writers; record each workspace, write scope, dependencies, shared
+resources and unused full-report path before dispatch. Shared interfaces/resources may require
+serial work despite different files. Read every outcome and full report, preserve completed
+siblings when another fails, review each candidate, then integrate serially and verify the
+merged whole. A capacity or other refusal stops dependent work; never retry through another
+runner. Independent diagnostic/review batches also use `delegate_all` with each child's exact
+phase name and described `definitionId`, under their applicable workspace/tool constraints.
+
 **Review.** Select `task`, `integrated` or `scoped-repair` scope. Consequential interfaces
 and parallel candidates receive task review before another step consumes them; retain final
 integrated review of the assembled whole change and all global gates. A task verdict permits
 only its scoped handoff, not Git-Ops finish. Scoped repair keeps the original full-change
 obligations. Optional focused reviewers need a concrete independent concern, not default fan-out.
-Always delegate to `principal-review` when the tool exists — a cold read beats
-self-review. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
+Use native `delegate({agent:"review",definitionId,...})` when available — a cold read beats
+self-review. The ID must be the described review definition; legacy names follow only the absent-native rule above. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
 for the whole change to `<artifact-dir>/review-diff-<round>.txt` and pass that path plus the build
 report paths, governing source/definition paths, full plan/map if present, and candidate
 identity. Dirty candidates need the complete tracked diff and relevant untracked content,
@@ -139,8 +152,8 @@ No transcript narration after it.
 
 ## Bugfix path
 
-1. Invoke `principal-debug` (or Debug inline). Several independent failures → one debug
-   agent each, dispatched in the same turn. `NOT REPRODUCED`, `BLOCKED`, or `Next: plan`
+1. Invoke native `debug` with its captured `definitionId` (or Debug inline). Several independent
+   failures → one `delegate_all` batch of `debug` children, each carrying that ID and isolated workspace. `NOT REPRODUCED`, `BLOCKED`, or `Next: plan`
    (a design flaw) stops here and surfaces. `Next: done` means no implementation remains;
    surface the note, do not manufacture a build. A sandbox proof is not an applied fix.
 2. Approval stop: present the debugging note (root cause, proposed fix, regression test).

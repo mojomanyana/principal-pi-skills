@@ -13,7 +13,7 @@ orchestrator (you), and each other file is self-contained: no required reading b
 ## Two forms, one rule
 
 A **skill** runs inline in this session: it shares your context, can dialogue with the
-user, and its work stays in your window. A **subagent** (via the subagent tool) runs in
+user, and its work stays in your window. A **subagent** (via native delegation or the configured legacy runner) runs in
 its own context with its own tools, cannot ask questions, and returns only its output
 template. The rule: dialogue and session state stay inline; heavy reading, cold judgment,
 and noisy loops get delegated.
@@ -27,12 +27,20 @@ The set:
   explicitly configured runner when native tools are genuinely absent.
 
 For native delegation, call `delegate_describe({agent:"phase"})`, require binding package
-`principal-pi-skills` and exact phase, and pass its captured `definitionId` to every `delegate`
-dispatch, including children/chain steps. The runtime verifies enabled selected source and
+`principal-pi-skills` and exact phase. Native names are `plan`, `build`, `review`, `debug`,
+`investigate`. Pass the corresponding captured `definitionId` to every `delegate` call,
+`delegate_all` child and `delegate_chain` step. The runtime verifies enabled selected source and
 both generated file hashes. Missing/wrong/disabled bindings, stale reload, unqualified backend,
 permission/context refusal, timeout, report gap or uncertain cleanup stops dependent work;
 never substitute legacy, foreign or inline execution after failure. Follow authored model/effort
 policy without phase-tier overrides. Inline is a workflow choice, not a fallback.
+
+For approved independent batches, use one `delegate_all({children:[...]})` call; every child
+carries its native phase name and described `definitionId`. Do not overlap single `delegate`
+calls: each conservatively reserves available subtree capacity. Writers need distinct
+precreated registered Git worktrees, declared scopes/dependencies and unused full-report paths.
+Read every result, retain completed siblings after failures, review candidates and integrate
+serially with merged checks. A refusal stops dependent work, never triggers a runner switch.
 
 ## Routing — pick by what the input looks like
 
@@ -41,7 +49,7 @@ policy without phase-tier overrides. Inline is a workflow choice, not a fallback
 | Choice and rationale ("should I…", "Postgres or DynamoDB", "what are my options") | `decide` | inline — the dialogue is the value |
 | System structure, components, boundaries or data ("design X", "review our architecture") | `architect` | inline — drivers come from asking |
 | A task needing order of work and code-level specs ("plan this", "break this down") | `plan` | **subagent** — it opens every file it names; keep that out of this context |
-| Code to write ("implement", "fix this known bug", "make the test pass") | `build` | inline, or `principal-build` per approved plan step when the subagent tool exists — never fan parallel writers into one working tree |
+| Code to write ("implement", "fix this known bug", "make the test pass") | `build` | inline, or native `build` with its captured `definitionId` per approved plan step — never fan parallel writers into one working tree |
 | A change to judge before landing ("review this", "ready to merge?") | `review` | **subagent, always when available** — a fresh context judging the diff cold beats self-review; inline review of code you just wrote is anchored on its own reasoning |
 | An unknown failure to diagnose ("why is this failing", "find the bug") | `debug` | **subagent** when reproduction is noisy (flaky loops, bisects); inline when the user is driving |
 | Facts about current code, data, runtime, or history ("how does", "where is", "map", "what changed between") | `investigate` | **subagent** for heavy reading; inline when dialogue is needed |
@@ -92,7 +100,7 @@ Typical spines (available as prompt templates):
 - Refactor (`/principal-refactor <scope>`): the feature spine with a no-behavior-change
   frame — behavior and coverage stay equivalent; test maintenance is allowed, and uncovered
   behavior gets a characterization test first.
-- Review a branch (`/principal-review-branch [base]`): cold `principal-review` of
+- Review a branch (`/principal-review-branch [base]`): cold native `review` with its captured `definitionId` of
   `merge-base <base> HEAD..HEAD`, then git-ops finish mode on APPROVE; findings stop for the
   user otherwise. No plan, no build.
 - Every spine uses the bound native or explicitly configured legacy interface above.
@@ -159,7 +167,7 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    `pi install git:github.com/mojomanyana/principal-pi-skills@v4.8.0-rc.1` installs the eight
    skills, the four `/principal-*` commands, and the bootstrap extension, which loads
    automatically with the package. This candidate targets stable 4.8.0. Native delegation
-   requires companion pi-daddy 0.44.0-rc.1 and the qualified Pi 1.0.4 setup; generated
+   requires companion pi-daddy 0.44.0-rc.1 and exactly the qualified Pi 1.0.4 setup; generated
    skill/agent bindings and captured definition IDs must match the selected package.
 2. Legacy subagents (optional): native delegation does not need this separate installation.
    A configured legacy runner is available only when native tools are genuinely absent;

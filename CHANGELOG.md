@@ -6,6 +6,20 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [Unreleased]
+
+**Fixed — installer compatibility without ownership bypass.** Symlinked directory ancestors
+resolve to canonical anchors before ownership checks; agent/manifest leaf links still refuse.
+Installed agents use `0644` and ownership metadata uses `0600`. Explicit `adopt` recovers a
+missing manifest only for a complete byte-identical current agent set. `install` never
+silently adopts; deprecated `--force` now explains that it cannot bypass ownership.
+
+**Fixed — selected routing and parallel dispatch.** A stale foreign skill path cannot latch
+all Principal routing off. Native workflows name `build`/`review`/other phases with captured
+`definitionId` values and dispatch independent batches through `delegate_all`, with isolated
+writer worktrees and serial integration. Compatibility is qualified for exactly Pi 1.0.4
+and the companion pi-daddy 0.44.0-rc.1 candidate, not unknown runtime versions.
+
 ## [4.8.0-rc.1] — 2026-10-07
 
 **Added — native phase identity and request-local routing.** Generated

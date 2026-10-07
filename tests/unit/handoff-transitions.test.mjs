@@ -232,3 +232,24 @@ test("native handoffs bind an exact described definition and never fallback afte
     assert.doesNotMatch(text, /Choose the cheapest|Use the strongest|capable mid-tier/);
   }
 });
+
+test("native workflows use phase identities and batch independent parallel children", () => {
+  for (const path of ["AGENTS.md", "bootstrap/BOOTSTRAP.md", "README.md", ...WORKFLOWS]) {
+    const text = read(path);
+    assert.match(text, /delegate_all/);
+    assert.match(text, /definitionId/);
+    assert.match(text, /(?:never overlapping|Do not overlap|Do not\s+launch concurrent|overlapping single)/);
+    assert.match(text, /(?:separate|distinct)[\s\S]*?worktrees/);
+    assert.doesNotMatch(text, /(?:Always delegate to|dispatch one fresh|Invoke|→) `principal-(?:build|review|plan|debug)`/);
+  }
+  for (const path of [...WORKFLOWS, "prompts/principal-review-branch.md"]) {
+    assert.match(read(path), /delegate\(\{agent:"review",definitionId,/);
+  }
+  for (const path of WORKFLOWS) {
+    const text = read(path);
+    assert.match(text, /delegate_all\(\{children:\[\.\.\.\]\}\)/);
+    assert.match(text, /agent:"build".*captured build `definitionId`/);
+    assert.match(text, /integrate serially/);
+    assert.match(text, /preserve completed\s+siblings/);
+  }
+});

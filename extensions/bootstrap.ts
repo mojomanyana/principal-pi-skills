@@ -33,10 +33,17 @@ export default function bootstrapExtension(pi) {
       for (const command of commands) {
         const name = typeof command.name === "string" && command.name.startsWith("skill:") ? command.name.slice(6) : null;
         if (command.source !== "skill" || !names.has(name)) continue;
-        if (typeof command.sourceInfo?.path !== "string") throw new Error(`selected ${name} lacks source identity`);
+        if (typeof command.sourceInfo?.path !== "string") continue; // Missing identity cannot establish Principal ownership.
         const expected = resolve(root, name, "SKILL.md");
         // Foreign/shadowing selections stay inactive; canonical aliases of our own path work.
-        if (realpathSync(command.sourceInfo.path) !== realpathSync(expected)) continue;
+        try {
+          if (realpathSync(command.sourceInfo.path) !== realpathSync(expected)) continue;
+        } catch (error) {
+          // A stale foreign command is not a failure of every Principal resource.
+          // An exact selected Principal path that disappeared remains a visible failure.
+          if (resolve(command.sourceInfo.path) === expected) throw error;
+          continue;
+        }
         selected.add(name);
       }
       if (!selected.size) return;

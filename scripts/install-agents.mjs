@@ -21,6 +21,7 @@
  *
  * Commands:
  *   principal-pi-agents install [--force]
+ *   principal-pi-agents adopt
  *   principal-pi-agents check
  *   principal-pi-agents uninstall
  *
@@ -29,7 +30,7 @@
 
 import fs from "node:fs";
 import { createHash, randomUUID } from "node:crypto";
-import { join, dirname, resolve, parse } from "node:path";
+import { join, dirname, basename, resolve, parse } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 
@@ -55,8 +56,23 @@ function statOrAbsent(path) {
   catch (error) { if (error.code === "ENOENT") return null; throw error; }
 }
 
-// Inspect every existing ancestor, including dangling links, before opening a file or
-// creating a directory. This is a trusted-local-filesystem tool, not an adversarial
+// Resolve an existing directory anchor once, retaining any absent suffix. Symlinked
+// homes/config roots (and macOS /tmp) work, while all subsequent reads and mutations
+// use the canonical anchor, never a retargetable alias. Dangling links still refuse.
+function canonicalDirectory(path) {
+  let at = resolve(path);
+  const suffix = [];
+  while (!statOrAbsent(at)) {
+    suffix.unshift(basename(at));
+    at = dirname(at);
+  }
+  const anchor = fs.realpathSync(at);
+  if (!fs.statSync(anchor).isDirectory()) fail(`${at}: expected a directory anchor`);
+  return join(anchor, ...suffix);
+}
+
+// Inspect canonical ancestors before opening a file or creating a directory.
+// This is a trusted-local-filesystem tool, not an adversarial
 // dirfd sandbox; an observed concurrent replacement refuses instead of guessing ownership.
 function directories(path) {
   const absolute = resolve(path);
@@ -147,6 +163,7 @@ function readManifest(dir) {
 
 /** Exactly the shipped names; inventory, identity and source types are preflight inputs. */
 export function sources(root = ROOT) {
+  root = canonicalDirectory(root);
   directories(join(root, "agents"));
   const pkg = parseMetadata(readOrdinary(join(root, "package.json"), METADATA_LIMIT).content, join(root, "package.json"));
   if (!ordinaryObject(pkg) || pkg.name !== PKG) fail(`${root}: unexpected package identity`);
@@ -169,6 +186,8 @@ export function plan(dir, wanted, root = ROOT) {
   if (!Array.isArray(wanted) || new Set(wanted).size !== wanted.length || wanted.some((name) => !SOURCE_NAMES.includes(name))) {
     fail("requested agents must be unique supported package basenames");
   }
+  root = canonicalDirectory(root);
+  dir = canonicalDirectory(dir);
   sources(root);
   const state = ownership(dir);
   const actions = [];
@@ -180,7 +199,7 @@ export function plan(dir, wanted, root = ROOT) {
     if (!current) actions.push({ file, content, kind: "install" });
     else if (!owned) actions.push({ file, kind: "refuse", why: `exists and was not installed by ${PKG}, even if byte-identical` });
     else if (state.manifest.files[file] !== current.hash) actions.push({ file, kind: "refuse", why: "edited since install; preserve your changes and restore known-good ownership explicitly" });
-    else actions.push({ file, content, kind: current.content.equals(content) ? "current" : "update" });
+    else actions.push({ file, content, kind: current.content.equals(content) && (current.stat.mode & 0o777) === 0o644 ? "current" : "update" });
   }
   return { ...state, actions };
 }
@@ -197,7 +216,7 @@ function guardFile(path, expected, limit) {
   }
 }
 
-function writeAtomic(path, content, expected, limit, context) {
+function writeAtomic(path, content, expected, limit, context, mode = 0o600) {
   guardDirectories(context.dir, context.ancestors);
   guardFile(path, expected, limit);
   const temporary = join(context.dir, `.principal-pi-skills-${randomUUID()}.tmp`);
@@ -205,6 +224,7 @@ function writeAtomic(path, content, expected, limit, context) {
   try {
     fd = fs.openSync(temporary, "wx", 0o600);
     fs.writeFileSync(fd, content);
+    fs.fchmodSync(fd, mode);
     fs.fsyncSync(fd);
     fs.closeSync(fd);
     fd = undefined;
@@ -254,13 +274,34 @@ function install({ dir, wanted, root }) {
     let wrote = 0;
     for (const a of state.actions) {
       if (a.kind === "current") continue;
-      writeAtomic(join(dir, a.file), a.content, state.targets.get(a.file), AGENT_LIMIT, context);
+      writeAtomic(join(dir, a.file), a.content, state.targets.get(a.file), AGENT_LIMIT, context, 0o644);
       state.manifest.files[a.file] = sha(a.content);
       wrote++;
     }
     const metadata = Buffer.from(`${JSON.stringify(state.manifest, null, 2)}\n`);
     if (!state.snapshot || !state.snapshot.content.equals(metadata)) writeAtomic(join(dir, MANIFEST), metadata, state.snapshot, METADATA_LIMIT, context);
     console.log(`✓ ${wrote} installed/updated, ${state.actions.length - wrote} already current → ${dir}`);
+    return 0;
+  });
+}
+
+// Explicit recovery for a lost manifest, not an overwrite escape hatch. Require the
+// entire current shipped set; old, partial, edited, linked or foreign bytes refuse.
+function adopt({ dir, wanted, root }) {
+  const state = ownership(dir);
+  if (state.snapshot) fail("adopt requires an absent ownership manifest; use install/check for a recorded installation");
+  for (const file of wanted) {
+    const current = readOrdinary(join(dir, file), AGENT_LIMIT);
+    const source = readOrdinary(join(root, "agents", file), AGENT_LIMIT);
+    if (!current.content.equals(source.content)) fail(`${file}: adopt requires byte-identical current package content`);
+    state.targets.set(file, current);
+    state.manifest.files[file] = current.hash;
+  }
+  return mutate(dir, state, context => {
+    for (const [file, current] of state.targets) guardFile(join(dir, file), current, AGENT_LIMIT);
+    const metadata = Buffer.from(`${JSON.stringify(state.manifest, null, 2)}\n`);
+    writeAtomic(join(dir, MANIFEST), metadata, null, METADATA_LIMIT, context);
+    console.log(`✓ explicitly adopted ${wanted.length} identical agents in ${dir}; agent bytes and modes unchanged`);
     return 0;
   });
 }
@@ -305,15 +346,18 @@ function uninstall({ dir }) {
 
 export function run(argv, env = process.env, { root = ROOT } = {}) {
   const [cmd, ...flags] = argv;
-  if (!["install", "check", "uninstall"].includes(cmd) || flags.some((flag) => flag !== "--force") || new Set(flags).size !== flags.length) {
-    console.error("usage: principal-pi-agents <install|check|uninstall> [--force]");
+  if (!["install", "adopt", "check", "uninstall"].includes(cmd) || flags.some((flag) => flag !== "--force") || new Set(flags).size !== flags.length) {
+    console.error("usage: principal-pi-agents <install|adopt|check|uninstall> [--force]");
     console.error("--force is accepted for compatibility only; validation and ownership always apply.");
     return 2;
   }
-  const dir = agentsDir(env);
+  if (flags.includes("--force")) console.error("--force is deprecated and cannot bypass ownership; use adopt only to recover an absent manifest for a complete byte-identical current installation.");
   try {
+    const dir = canonicalDirectory(agentsDir(env));
+    root = canonicalDirectory(root);
     const wanted = sources(root);
     if (cmd === "install") return install({ dir, wanted, root });
+    if (cmd === "adopt") return adopt({ dir, wanted, root });
     if (cmd === "check") return check({ dir, wanted, root });
     return uninstall({ dir });
   } catch (error) {

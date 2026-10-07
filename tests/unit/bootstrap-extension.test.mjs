@@ -32,7 +32,7 @@ async function load(t, { enabled = true, readable = true } = {}) {
     assert.equal(listeners.length, 1, `one ${event} handler`);
     return listeners[0](payload, ctx);
   };
-  return { fire, handlers, ctx, errors, path, body, pi, activate: () => fire("before_agent_start"), setSelected: value => { selected = value; }, calls: () => calls, mod };
+  return { fire, handlers, ctx, errors, path, skill, body, pi, activate: () => fire("before_agent_start"), setSelected: value => { selected = value; }, calls: () => calls, mod };
 }
 const user = text => ({ role: "user", content: [{ type: "text", text }], timestamp: 1 });
 const bootstrap = message => message?.role === "user" && JSON.stringify(message.content).includes("<IMPORTANT>");
@@ -126,4 +126,32 @@ test("compact bootstrap states exact native binding policy and bounded inline ro
   assert.match(text, /definitionId/);
   assert.match(text, /genuinely absent/);
   assert.doesNotMatch(text, /cheapest model|strongest available/);
+});
+
+test("missing foreign selected paths cannot latch unrelated Principal routing off", async t => {
+  const h = await load(t);
+  h.setSelected([
+    { name: "skill:build", source: "skill", sourceInfo: { path: join(dirname(h.skill), "foreign-missing/SKILL.md") } },
+    { name: "skill:debug", source: "skill" },
+    { name: "skill:plan", source: "skill", sourceInfo: { path: h.skill } },
+  ]);
+  await h.activate();
+  const result = await h.fire("context", { messages: [user("valid selected plan")] });
+  assert.equal(count(result.messages), 1);
+  assert.match(result.messages[0].content[0].text, /Enabled Principal skills: plan\./);
+  assert.equal(h.errors.length, 0);
+  h.setSelected([{ name: "skill:plan", source: "skill", sourceInfo: { path: h.skill } }]);
+  await h.activate();
+  assert.equal(count((await h.fire("context", { messages: [user("next request")] })).messages), 1);
+});
+
+test("a disappeared exact Principal selection still latches a visible failure", async t => {
+  const h = await load(t);
+  rmSync(h.skill);
+  await h.activate();
+  assert.equal(h.errors.length, 1);
+  assert.equal(await h.fire("context", { messages: [user("missing selected Principal source")] }), undefined);
+  writeFileSync(h.skill, "restored");
+  await h.activate();
+  assert.equal(await h.fire("context", { messages: [user("explicit reload still required")] }), undefined);
 });

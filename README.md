@@ -73,12 +73,13 @@ adds the under-300-word `bootstrap/BOOTSTRAP.md` once to each converted request,
 leading compaction/system/tool state and durable history. Tool iterations and later ordinary
 requests receive routing too. Only extension-owned inserted objects are replaced; a quoted
 marker cannot suppress injection. Disabled or shadowed package resources stay inactive.
-Read/discovery failure is visible and latched until deliberate `/reload` reinstantiates the
-extension; each registration owns its content cache and selected-resource state.
+Principal read/discovery failure is visible and latched until deliberate `/reload` reinstantiates the
+extension; stale foreign command paths are ignored independently without disabling valid Principal skills; each registration owns its content cache and selected-resource state.
 
 Native handoffs use `delegate_describe({agent:"phase"})`, require binding package
-`principal-pi-skills` and exact phase, and pass its captured `definitionId` to each `delegate`
-dispatch. The root `principal-agents.json` manifest binds exactly five phases to generated
+`principal-pi-skills` and exact phase. Native names are `plan`, `build`, `review`, `debug`,
+`investigate`; pass the corresponding captured `definitionId` to every `delegate` call,
+`delegate_all` child and `delegate_chain` step. The root `principal-agents.json` manifest binds exactly five phases to generated
 inline/delegated paths and full-file SHA-256 hashes from the same generation pass. The
 runtime must verify enabled selected source, package identity and both hashes. Missing,
 wrong or disabled bindings and operational failures stop dependent work; they never trigger
@@ -87,6 +88,13 @@ configured legacy principal-* runner. Inline is a workflow choice. Authored mode
 policy governs; phase labels do not silently override it. This contract alone does not qualify
 live native execution; the actual installed runtime/candidate still needs integration evidence.
 
+Use one `delegate_all({children:[...]})` call for an approved independent parallel batch,
+with the exact native phase name and captured `definitionId` on each child. Single `delegate`
+calls conservatively reserve the available subtree capacity; overlapping single calls can
+be refused. Writers need distinct precreated registered Git worktrees and declared scopes,
+dependencies, shared resources and full-report destinations. Read every outcome, preserve
+completed siblings after failure, review candidates, integrate serially and check the merged whole.
+
 The three spines (`/principal-feature <task>`, `/principal-bugfix <symptom>`,
 `/principal-refactor <scope>`) stop for your approval after the planning phase or the debug
 note and wait for an explicit go
@@ -94,7 +102,7 @@ before building — presenting the artifact and starting to build in the same tu
 failure the rule exists to catch. The artifact scales with the change (three lines for a
 config tweak, full slices for a feature); the stop does not.
 
-Delegated phases hand artifacts to each other as files, not pasted text. A `principal-build`
+Delegated phases hand artifacts to each other as files, not pasted text. A native `build` child
 writes its full report to an unused task/run/candidate-scoped path under `.principal/reports/`
 (or a valid unused caller-chosen path) and returns five status lines;
 review receives governing source/definition references, the complete plan/map when present,
@@ -115,7 +123,7 @@ alongside it only if absent, never overwritten. The complete executable artifact
 stay in the file; chat gives a short summary and approval cue. Without persistence, the full
 artifact is returned in chat, explicitly not saved. Tiny normative changes retain source/ID,
 step and test without full machinery. Delegated
-`principal-build` agents read their assigned step from that file, and a fresh or compacted
+`build` children read their assigned step from that file, and a fresh or compacted
 session locates matching plans, then reconciles actual approval, current work and candidate-bound
 reports. A commit does not establish review, integration or verification. Resume manually at
 what the evidence shows remains; do not repeat completed work or infer approval from a title.
@@ -156,8 +164,9 @@ CHANGELOG.md                          release history
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
-   Native delegation requires the companion pi-daddy 0.44.0-rc.1 candidate and the
-   qualified Pi 1.0.4 setup. The selected package's generated `principal-agents.json`
+   Native delegation requires the companion pi-daddy 0.44.0-rc.1 candidate and **exactly
+   Pi 1.0.4**, the qualified version. This is not a claim of compatibility with every Pi 1.x
+   release; other or unknown versions require separate qualification before use. The selected package's generated `principal-agents.json`
    binds each delegated phase to its skill and agent bytes. Native routing uses
    `delegate_describe` and a captured `definitionId`; a native refusal or failure does
    not fall back to a legacy runner or inline execution.
@@ -202,7 +211,20 @@ CHANGELOG.md                          release history
    and `principal-investigate` as **real files, not symlinks** — a symlink into a checkout breaks the
    moment that directory moves, and breaks silently, since pi just reports an unknown
    agent. It refuses to overwrite anything it did not install, and `uninstall` removes only
-   its own unmodified files.
+   its own unmodified files. Symlinked home/config ancestors resolve once to a canonical
+   directory; agent and manifest leaf symlinks (including dangling links) still refuse.
+   Installed agent files are `0644`; the ownership manifest is `0600`. Re-running `install`
+   repairs the earlier `0600` agent mode only for unchanged owned files.
+
+   **Ownership migration/recovery:** `install` no longer silently adopts byte-identical
+   unowned files, and deprecated `--force` never bypasses validation or ownership. If only
+   the manifest was lost and all five agents exactly match this package version, explicitly
+   run `node <installed-package>/scripts/install-agents.mjs adopt`, then `install` (to repair
+   unchanged owned file modes), then `check`. `adopt`
+   creates only the absent manifest and leaves agent bytes/modes untouched; it refuses an
+   existing manifest, partial sets, modified/older content and leaf symlinks. Unrelated files
+   remain unclaimed. Keep any edited or older files and restore known-good metadata from
+   your own backup; do not delete them merely to make installation pass.
 
    Tool restriction is structural, in the agents' frontmatter: `investigate` is read-only;
    `plan` is read-only except for its plan and creation of an absent `.principal/.gitignore`; `build`, `review`, and `debug` add
