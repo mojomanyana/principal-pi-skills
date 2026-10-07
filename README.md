@@ -63,17 +63,29 @@ claims of measured model compliance. Common ceilings remain unchanged.
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is the
 long-form routing reference, and the bootstrap extension below injects its routing table
-automatically at session start, so nothing needs to point pi at it by hand.
+into applicable requests, so nothing needs to point pi at it by hand.
 
 ## Bootstrap and workflows
 
-A pi extension (`extensions/bootstrap.ts`) injects `bootstrap/BOOTSTRAP.md` — under 300
-words — as a leading message at session start and again after compaction, so the routing
-context survives a context reset instead of depending on someone re-reading a file. It
-carries the routing table compressed to input shape → skill → inline/subagent, the closed
-`Next:` vocabulary the phases hand off with, and model tiering: the cheapest model for a
-build agent working a complete step spec, the session default for plan and debug, the
-strongest available for review and architect.
+The extension (`extensions/bootstrap.ts`) discovers this package's enabled selected skills
+through public `pi.getCommands()` at `before_agent_start`, after resource discovery. It
+adds the under-300-word `bootstrap/BOOTSTRAP.md` once to each converted request, preserving
+leading compaction/system/tool state and durable history. Tool iterations and later ordinary
+requests receive routing too. Only extension-owned inserted objects are replaced; a quoted
+marker cannot suppress injection. Disabled or shadowed package resources stay inactive.
+Read/discovery failure is visible and latched until deliberate `/reload` reinstantiates the
+extension; each registration owns its content cache and selected-resource state.
+
+Native handoffs use `delegate_describe({agent:"phase"})`, require binding package
+`principal-pi-skills` and exact phase, and pass its captured `definitionId` to each `delegate`
+dispatch. The root `principal-agents.json` manifest binds exactly five phases to generated
+inline/delegated paths and full-file SHA-256 hashes from the same generation pass. The
+runtime must verify enabled selected source, package identity and both hashes. Missing,
+wrong or disabled bindings and operational failures stop dependent work; they never trigger
+legacy/foreign/inline substitution. Only genuinely absent native tools permit an explicitly
+configured legacy principal-* runner. Inline is a workflow choice. Authored model/effort
+policy governs; phase labels do not silently override it. This contract alone does not qualify
+live native execution; the actual installed runtime/candidate still needs integration evidence.
 
 The three spines (`/principal-feature <task>`, `/principal-bugfix <symptom>`,
 `/principal-refactor <scope>`) stop for your approval after the planning phase or the debug
@@ -104,9 +116,9 @@ stay in the file; chat gives a short summary and approval cue. Without persisten
 artifact is returned in chat, explicitly not saved. Tiny normative changes retain source/ID,
 step and test without full machinery. Delegated
 `principal-build` agents read their assigned step from that file, and a fresh or compacted
-session that finds a matching plan resumes from it: read the file and `git log`, mark done
-whatever already has a commit, continue at the first undone step, and never re-plan without
-being asked.
+session locates matching plans, then reconciles actual approval, current work and candidate-bound
+reports. A commit does not establish review, integration or verification. Resume manually at
+what the evidence shows remains; do not repeat completed work or infer approval from a title.
 
 ## Layout
 
@@ -118,7 +130,7 @@ contracts/workflows.md.tmpl           source for the three namespaced spines
 prompts/principal-{feature,bugfix,refactor}.md generated workflows
 prompts/principal-review-branch.md    handwritten planless/buildless review entry
 bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary + model tiering, injected by the extension
-extensions/bootstrap.ts               pi extension: injects BOOTSTRAP.md at session start and after compaction
+extensions/bootstrap.ts               pi extension: request-local routing after selected-resource discovery
 scripts/                              generator, installers, and checks behind `npm test`
 tests/{unit,install}/                 current product/contract + clean-home install tests (node:test)
 evals/{triggers.json,adversarial-triggers.json,baseline/}  routing checks and baselines
@@ -330,8 +342,8 @@ Decisions taken for 4.0, all closed:
 | Target harness | pi only |
 | Assurance ledger and profiles | removed; per-skill right-sizing is the mechanism; the tool lives on the `v3.2.0` tag for porting to pi-daddy |
 | Human approval | always, after plan (feature) or after the debug note (bugfix); the artifact scales, the stop does not |
-| Routing delivery | a pi extension injects `bootstrap/BOOTSTRAP.md` at session start and after compaction |
-| Build delegation | `principal-build` agent; inline when there is no multi-step plan file or no subagent tool |
+| Routing delivery | request-local bootstrap after selected-resource discovery; quoted markers do not suppress it |
+| Build delegation | bound native phase, or explicitly configured legacy runner when native tools are absent; inline is a workflow choice |
 | Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; titles locate candidates, while manual resume checks actual authority, current work and evidence |
 | Decide vs architect | both kept; decide answers "should we / which", architect answers "how is it structured" |
 | Measurement | behavioural measurement lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks stay here |

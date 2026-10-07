@@ -1,30 +1,33 @@
 # principal-pi-skills bootstrap
 
-Eight skills are installed. Route by requested output: choice → decide, structure → architect,
-sequence → plan. Use only needed phases; everyday Q&A needs none.
+Route only enabled selected resources by requested output. Everyday Q&A needs no skill.
 
 | Input shape | Route to | How |
 |---|---|---|
-| "should I…", "Postgres or DynamoDB", "what are my options" | `decide` | inline |
-| "design X", "review our architecture" | `architect` | inline |
-| "plan this", "break this down" | `plan` | `principal-plan` agent when available |
-| "implement", "fix this known bug", "make the test pass" | `build` | inline, or `principal-build` per approved plan step |
-| "review this", "ready to merge?" | `review` | `principal-review` agent, always when available |
-| "why is this failing", "find the bug" | `debug` | `principal-debug` agent when reproduction is noisy |
-| "how does", "where is", "map", "what changed between" | `investigate` | `principal-investigate` agent for heavy reading |
-| "commit", "push", "open a PR", "I leaked a secret" | `git-ops` | inline, never delegated |
+| "should I", "Postgres or DynamoDB", options | `decide` | inline |
+| structure, components, architecture | `architect` | inline |
+| implementation sequence | `plan` | delegate |
+| code, known-cause fix | `build` | inline or delegated step |
+| judge a change | `review` | cold delegate |
+| unknown failure | `debug` | delegate noisy diagnosis |
+| locate sources/behavior | `investigate` | delegate heavy reading |
+| commit, push, PR, secrets | `git-ops` | inline only |
 
-Dialogue and session state stay inline; heavy reading delegates.
-Subagents never invoke agents; you route. Read Review Verdict before Next:
+Native handoff: call `delegate_describe({agent:"phase"})`, require binding package
+`principal-pi-skills` and the exact phase, then pass its captured `definitionId` to each
+`delegate` dispatch. The runtime verifies the enabled source and generated delegated bytes.
+Missing/wrong/disabled bindings, stale reload, permission/context refusal, timeout, report
+gaps or uncertain cleanup stop dependent work; no substitution. Only when native tools are
+genuinely absent may an explicitly configured legacy `principal-*` runner be used. Inline
+is a deliberate workflow choice, never failure fallback. Follow authored model/effort policy.
+
+Subagents do not dispatch agents. Read Review Verdict before Next:
 UNVERIFIED → evidence/access repair or caller question, not automatic implementation.
-Otherwise route on `Next:`:
-plan → `build`; debug → `build` `plan` `done` `blocked`; build → `review` `debug` `blocked`;
-review → `build` `git-ops`. `decide`, `architect`, `investigate`, `git-ops` end without a `Next:`.
+Route `Next:`: plan → `build`; debug → `build` `plan` `done` `blocked`;
+build → `review` `debug` `blocked`; review → `build` `git-ops`.
+Task review approval covers its scope; final integrated review supports finish.
+`decide`, `architect`, `investigate`, `git-ops` have no `Next:`.
 
-Workflows: `/principal-feature <task>`, `/principal-bugfix <symptom>`, `/principal-refactor <scope>`;
-`/principal-review-branch [base]` cold-reviews a branch. Spines stop for approval after
-planning/diagnosis; resume from `.principal/plans/`. Optional Investigate locates sources,
-never replaces Review. Carry source references and evidence gaps through handoffs.
-
-Model choice when you dispatch: cheapest model for a build agent working from a complete
-step spec; session default for plan, debug, and investigate; strongest available for review and architect.
+Feature/bugfix/refactor spines stop after planning/diagnosis for actual approval.
+Preserve full reports, source references and caveats; progress facts never reconstruct approval.
+An eligible small direct request may finish inline with actual checks and caveats.

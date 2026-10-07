@@ -218,3 +218,17 @@ test("the spines hand artifacts to agents as files under .principal/reports", ()
   assert.doesNotMatch(read("review/SKILL.md"), /## Scoped re-review/, "scoped re-review is agent-only");
   assert.match(read("agents/principal-build.md"), /Report:/);
 });
+
+test("native handoffs bind an exact described definition and never fallback after failure", () => {
+  for (const path of ["AGENTS.md", "bootstrap/BOOTSTRAP.md", "contracts/workflows.md.tmpl", "prompts/principal-review-branch.md"]) {
+    const text = read(path);
+    assert.match(text, /delegate_describe/);
+    assert.match(text, /definitionId/);
+    assert.match(text, /principal-pi-skills/);
+    assert.match(text, /genuinely\s+absent/);
+    assert.match(text, /explicitly configured/);
+    assert.match(text, /report\s+gap/);
+    assert.doesNotMatch(text, /unknown agent.*run.*inline/s);
+    assert.doesNotMatch(text, /Choose the cheapest|Use the strongest|capable mid-tier/);
+  }
+});

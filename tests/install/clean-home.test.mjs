@@ -17,6 +17,7 @@
 
 import test from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, writeFileSync, readdirSync, existsSync, rmSync, readFileSync } from "node:fs";
 import { tmpdir, homedir } from "node:os";
@@ -106,6 +107,13 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
     JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8")).version, "clean install must use the source pack");
   assert.ok(existsSync(join(installed, "git-ops", "SKILL.md")), "skills must survive the install");
   assert.ok(existsSync(join(installed, "prompts", "principal-feature.md")));
+  const bindings = JSON.parse(readFileSync(join(installed, "principal-agents.json"), "utf8"));
+  assert.equal(bindings.package, "principal-pi-skills");
+  assert.deepEqual(Object.keys(bindings.bindings).sort(), ["build", "debug", "investigate", "plan", "review"]);
+  for (const binding of Object.values(bindings.bindings)) for (const kind of ["skill", "agent"]) {
+    const digest = createHash("sha256").update(readFileSync(join(installed, binding[kind]))).digest("hex");
+    assert.equal(digest, binding[`${kind}Sha256`], "packed inline/delegated bytes must match their generated identities");
+  }
 
   // Run the shipped installer exactly as a user would, against the throwaway home.
   execFileSync(process.execPath, [join(installed, "scripts", "install-agents.mjs"), "install"], {

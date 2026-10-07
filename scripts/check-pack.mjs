@@ -32,6 +32,7 @@ const REQUIRED = [
   "LICENSE",
   "CHANGELOG.md",
   "AGENTS.md",
+  "principal-agents.json",
   ...SKILLS.map((s) => `${s}/SKILL.md`),
   ...["principal-feature", "principal-bugfix", "principal-refactor", "principal-review-branch"].map((p) => `prompts/${p}.md`),
   ...["principal-plan", "principal-review", "principal-debug", "principal-build", "principal-investigate"].map((a) => `agents/${a}.md`),

@@ -1,0 +1,36 @@
+{
+  "version": 1,
+  "package": "principal-pi-skills",
+  "bindings": {
+    "plan": {
+      "skill": "plan/SKILL.md",
+      "agent": "agents/principal-plan.md",
+      "skillSha256": "22fd0338345bce04336b5f687924e0d231f313792e4f90aa2a8bdf308003afab",
+      "agentSha256": "7475a4a539c6517a56292c878812d721a11d13ac6e2b9f4238e412e02a7d0dbd"
+    },
+    "review": {
+      "skill": "review/SKILL.md",
+      "agent": "agents/principal-review.md",
+      "skillSha256": "fcd1839ed16409ba84031cfbaa47fe3a5a378608839013173661b4475e7ad932",
+      "agentSha256": "40aff9fe2ce0bb767231c028ec761126e9b81023f912cb5ad25444dbc5e3bd8a"
+    },
+    "debug": {
+      "skill": "debug/SKILL.md",
+      "agent": "agents/principal-debug.md",
+      "skillSha256": "30574b2bebf02fea357f687f016d80378ef08756d976ab8b6fa1fd628d7ab163",
+      "agentSha256": "829300fa4190ff397b541786565278a92737da9bbcf6f590c1f845bcf091874f"
+    },
+    "build": {
+      "skill": "build/SKILL.md",
+      "agent": "agents/principal-build.md",
+      "skillSha256": "f3d1758147c4b5ba9501274c3161d15bd5bb3d14a45dd9cb154c47e31501cc5b",
+      "agentSha256": "3eae0759d9252e24400719722833e9dffc85a0b913dc56fc3f3c8f4cc95a715c"
+    },
+    "investigate": {
+      "skill": "investigate/SKILL.md",
+      "agent": "agents/principal-investigate.md",
+      "skillSha256": "7b3f0bdc92e36d9d996f6ed274793514a0508280ab4c768d8a1800d23781e514",
+      "agentSha256": "86af51feb3b729b65fa45ae9e91ab7d1e14c76fac6e62fa29d7d15ec5c9b9637"
+    }
+  }
+}

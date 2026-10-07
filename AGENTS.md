@@ -4,7 +4,7 @@ Instructions for the [pi coding agent](https://github.com/badlogic/pi-mono) oper
 with this set installed. Read this once at session start.
 
 The bootstrap extension (`extensions/bootstrap.ts`) injects this file's routing table,
-compressed, from `bootstrap/BOOTSTRAP.md` at session start and after compaction — you do
+compressed, from `bootstrap/BOOTSTRAP.md` into each applicable converted request — you do
 not need to read this file for the framework to route. This file is the long-form
 **routing layer**: full rationale per row, the complete `Next:` set, and the maintenance
 rule. The framework deliberately has no routing skill — routing belongs to the
@@ -21,10 +21,18 @@ and noisy loops get delegated.
 The set:
 
 - Skills (inline only): `decide`, `architect`, `git-ops`.
-- Agents (delegate when the subagent tool is available): `principal-plan`,
-  `principal-build`, `principal-review`, `principal-debug`, `principal-investigate` — defined in `agents/`. Each
-  contract also has a SKILL.md for interactive use when delegation is unavailable or the
-  user wants to work through it conversationally.
+- Delegated phases: `plan`, `build`, `review`, `debug`, `investigate`, bound to their
+  generated `agents/principal-*.md` contract through `principal-agents.json`. Each also has
+  a SKILL.md for deliberately chosen inline work. Legacy principal-* names are only for an
+  explicitly configured runner when native tools are genuinely absent.
+
+For native delegation, call `delegate_describe({agent:"phase"})`, require binding package
+`principal-pi-skills` and exact phase, and pass its captured `definitionId` to every `delegate`
+dispatch, including children/chain steps. The runtime verifies enabled selected source and
+both generated file hashes. Missing/wrong/disabled bindings, stale reload, unqualified backend,
+permission/context refusal, timeout, report gap or uncertain cleanup stops dependent work;
+never substitute legacy, foreign or inline execution after failure. Follow authored model/effort
+policy without phase-tier overrides. Inline is a workflow choice, not a fallback.
 
 ## Routing — pick by what the input looks like
 
@@ -87,10 +95,9 @@ Typical spines (available as prompt templates):
 - Review a branch (`/principal-review-branch [base]`): cold `principal-review` of
   `merge-base <base> HEAD..HEAD`, then git-ops finish mode on APPROVE; findings stop for the
   user otherwise. No plan, no build.
-- Any spine, when the subagent tool is missing or reports an unknown agent: run that
-  phase's skill inline instead and say so in the digest. Fall back on *absence* only —
-  any other agent failure stops the workflow. Build↔review repair loops stop after two
-  rounds; a third means the plan or the diagnosis was wrong, not the code.
+- Every spine uses the bound native or explicitly configured legacy interface above.
+  Build↔review repair loops stop after two rounds; a third means the plan or diagnosis was
+  wrong. A missing full report blocks dependent review; preserve independent completed work.
 - Multi-step plans are written to `.principal/plans/<slug>.md` (git-ignored) so a delegated
   build reads its step from the file and a compacted or fresh session resumes from it.
 - Tiny change: build → git-ops only when finish is requested. Clear, reversible, localized
@@ -130,7 +137,9 @@ where they used to drift.
 
 Both are generated from `contracts/<name>.md.tmpl`. The three spine workflows are
 likewise generated from `contracts/workflows.md.tmpl` — five contracts plus one workflows
-template produce five agents, five dual-use `SKILL.md` files and three prompts (13 outputs).
+template produce five agents, five dual-use `SKILL.md` files and three prompts, plus the
+root `principal-agents.json` binding manifest (14 outputs). The manifest hashes full generated
+UTF-8 skill/agent bytes in the same pass; never hand-edit its identities.
 `prompts/principal-review-branch.md` is handwritten. Change shared behavior ONCE, there, then `npm run generate`. Editing a
 generated file directly is reverted by the next run and fails `npm run generate:check` in
 CI.
@@ -157,7 +166,7 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    `npx -p principal-pi-skills@4.7.3 principal-pi-agents install` and
    `npx -p principal-pi-skills@4.7.3 principal-pi-agents check`.
    The five definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files
-   are refused. Without them, the routing table still runs inline.
+   are refused. These files serve a configured legacy runner; they do not override native selection.
    Version 4.7.3 refreshes release and external-measurement documentation without changing
    runtime contracts; behavioral measurement remains in `principal-pi-skills-evals` while routing
    checks remain here. Tag creation and npm publication are separate: before the new tag exists,

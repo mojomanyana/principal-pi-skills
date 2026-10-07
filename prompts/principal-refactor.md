@@ -7,10 +7,16 @@ Execute this workflow for: refactor $@ without changing behavior.
 <!-- shared:start -->
 ## How this chain runs
 
-You are the orchestrator. Each phase is a skill or a `principal-*` agent; you route on the
-`Next:` line it returns and never let a phase invoke another. When a step names an agent,
-try it once; if the subagent tool is missing or reports an unknown agent, run that phase's
-skill inline and say so in the Digest. Any other agent failure stops the chain.
+You are the orchestrator. Each phase is an enabled skill or a bound delegated contract;
+route on its `Next:` and never let a phase invoke another. Before native delegation, call
+`delegate_describe({agent:"phase"})`; require `binding.package: principal-pi-skills`, the
+exact `binding.phase`, and a captured `definitionId`. Pass that ID to each native `delegate`
+dispatch, including children/chain steps; the runtime checks selected source and generated
+skill/agent bytes. Missing/wrong/disabled bindings, stale reload, unqualified backend,
+permission/context refusal, timeout, report gap or uncertain cleanup stops dependent work.
+No alternate runner or inline substitution after failure. Only when native tools are genuinely
+absent may an explicitly configured legacy `principal-*` runner be used. Inline is an explicit
+workflow choice. Follow authored model/effort policy, not phase-based tier overrides.
 
 **Scope.** Before starting or resuming, an evidence-only follow-up calls for existing checks or a disposable probe,
 not starting/restarting implementation or adding durable tests/infrastructure merely to prove completion.
@@ -84,7 +90,7 @@ is the failure. The artifact scales — three lines for a config change, full sl
 feature — the stop does not. A re-plan needs a new approval.
 
 **Build.** One writer at a time, on a branch the user can see. Inline when there is no
-multi-step plan file (a three-line plan, or a bugfix) or the subagent tool is absent.
+multi-step plan file (a three-line plan, or a bugfix) and inline work is the chosen workflow.
 Otherwise dispatch one fresh `principal-build` per step — a batched step is one dispatch —
 with the complete plan file path, step ID, source/definition paths, applicable rows/global gates,
 and unused report path `<artifact-dir>/<step>-build-<attempt>.md`. Without a plan pass the approved exact
@@ -94,9 +100,9 @@ caveats into the Digest's existing labels; success or a commit is not measured c
 Inline Build returns chat: the orchestrator must persist its complete implementation report
 to `<artifact-dir>/<step>-build-<attempt>.md` before delegated Review, with the same evidence and caveats as the
 agent report, not a summary. If persistence fails, stop and report the handoff gap.
-Never paste report prose into a later dispatch; pass accessible files. Choose the cheapest
-capable model under the same standards; neither lower cost nor a word budget permits dropping
-requirements, gates or safety. Escalate an inadequate model rather than weaken the task.
+Never paste report prose into a later dispatch; pass accessible files. Authored model/effort
+policy governs under the same standards; neither cost nor a word budget permits dropping
+requirements, gates or safety. Surface an inadequate policy rather than silently replacing it.
 
 **Review.** Select `task`, `integrated` or `scoped-repair` scope. Consequential interfaces
 and parallel candidates receive task review before another step consumes them; retain final
@@ -109,12 +115,12 @@ for the whole change to `<artifact-dir>/review-diff-<round>.txt` and pass that p
 report paths, governing source/definition paths, full plan/map if present, and candidate
 identity. Dirty candidates need the complete tracked diff and relevant untracked content,
 not just a committed range. Review validates reused evidence and checks named doubts.
-Use the strongest available model. Persist the complete review result to
+Persist the complete review result to
 `<artifact-dir>/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
 accepted; repair with their IDs, full report path/definitions, authority refs, affected map
 rows and acceptance conditions — resume the builder when possible, otherwise dispatch fresh.
 Then scoped re-review gets those files, original whole-change baseline/gates and fix diff,
-on a capable mid-tier model; judge each ID and new breakage, without losing original gaps. At most two repair rounds; a third means
+under the same authored policy; judge each ID and new breakage, without losing original gaps. At most two repair rounds; a third means
 the plan or diagnosis was wrong. `UNVERIFIED` is not approval: fix whatever blocked
 verification, then review again; it counts as a repair round. Read Verdict before Next:
 UNVERIFIED's `Next: build` requests evidence/handoff repair, not automatic code changes. `APPROVE` or `APPROVE-WITH-NITS`

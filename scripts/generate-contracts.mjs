@@ -39,6 +39,7 @@
  */
 
 import { readFileSync, writeFileSync, realpathSync } from "node:fs";
+import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -116,6 +117,25 @@ export function renderWorkflow(template, spec, source = "contracts/workflows.md.
   return render(template, spec.block, source);
 }
 
+/** Runtime binding identity comes from the same rendered bytes, never a separate copy. */
+export function renderAgentManifest(outputs) {
+  const byPath = new Map();
+  for (const output of outputs) {
+    if (byPath.has(output.path)) throw new Error(`duplicate generated path: ${output.path}`);
+    byPath.set(output.path, output.rendered);
+  }
+  const digest = path => {
+    const bytes = byPath.get(path);
+    if (typeof bytes !== "string") throw new Error(`missing generated binding: ${path}`);
+    return createHash("sha256").update(bytes, "utf8").digest("hex");
+  };
+  const bindings = {};
+  for (const phase of CONTRACTS) {
+    const skill = MODES.skill.path(phase), agent = MODES.agent.path(phase);
+    bindings[phase] = { skill, agent, skillSha256: digest(skill), agentSha256: digest(agent) };
+  }
+  return `${JSON.stringify({ version: 1, package: "principal-pi-skills", bindings }, null, 2)}\n`;
+}
 // Importing this file (the unit tests do) must not run the CLI — otherwise `node --test`
 // would rewrite generated contracts as a side effect of loading the module under test.
 const invokedDirectly = process.argv[1] && fileURLToPath(import.meta.url) === realpathSync(process.argv[1]);
@@ -150,6 +170,8 @@ for (const mode of Object.values(WORKFLOW_MODES)) {
     rendered: renderWorkflow(workflowTemplate, mode, workflowSource),
   });
 }
+
+outputs.push({ source: "the generated skill/agent pairs", path: "principal-agents.json", rendered: renderAgentManifest(outputs) });
 
 for (const { source, path, rendered } of outputs) {
   if (check) {
