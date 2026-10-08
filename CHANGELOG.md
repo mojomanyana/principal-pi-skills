@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.11.2 — 2026-10-09
+
+- Report the loaded Principal package version through Pi's native event bus for the ecosystem dashboard. Keep it distinct from package files updated on disk and detach the reporter when the extension shuts down. No package installation or workflow execution is triggered by version queries.
+
 ## 4.11.1 — 2026-10-08
 
 - Let a small coherent feature run as one complete build, including tests and documentation, followed by independent integrated review. Split work at real dependencies and risks rather than imposing a minimum task count.
