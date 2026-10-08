@@ -73,12 +73,13 @@ unknown one; the harder the bug, the stricter the loop.
 3. **Hypothesize testably.** First read the error message word by word — it usually names
    the file, line, and cause. Then write 2–3 hypotheses in the form "the bug is at
    file:line because <observed evidence> implies <cause>"; test the cheapest first.
-4. **Probe — in a workspace you own.** One smallest experiment per hypothesis: a log line,
-   an assertion, a narrowed test. One change at a time. Probing edits code, so do it in a
-   disposable copy, never the caller's checkout: `npx -p principal-pi-skills principal-pi-workspace create`
-   prints a throwaway worktree holding their exact working state (minus anything git
-   ignores). Work there, then `remove` it. That keeps "probes are temporary" structurally,
-   which nobody manages by hand under a failing build.
+4. **Probe — in a workspace you own.** One smallest experiment per hypothesis; one change
+   at a time. Resolve `scripts/snapshot-workspace.mjs` from the actual selected Principal package
+   using selected source metadata, never a guessed path or download. Run
+   `node <resolved-helper> create --repo <caller-repo>` for a disposable working-state copy
+   (ignored files excluded). Probe only there, never the caller's checkout; then run
+   `node <resolved-helper> remove <path> --repo <caller-repo>`.
+   Missing helper or creation failure → read-only diagnosis.
 5. **Hand off when the diagnosis is sufficient.** Distinguish a confirmed cause from a
    hypothesis using actual observations. A complete trial fix and full suite are optional;
    stop probing when they add no deciding evidence. Propose the minimal fix and regression

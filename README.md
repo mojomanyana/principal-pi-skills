@@ -55,8 +55,8 @@ claims of measured model compliance. Common ceilings remain unchanged.
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
 | `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 2081) or inline | 2020 |
 | `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 2070) or inline | 2060 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1934) or inline | 1870 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1587) or inline | 1451 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1922) or inline | 1858 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1582) or inline | 1446 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 494) or inline | 495 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2507 |
 
@@ -151,9 +151,9 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.10.1
+   pi install npm:principal-pi-skills@4.11.0
    pi install npm:pi-daddy@0.46.0
-   pi install npm:skill-harness@0.25.1
+   pi install npm:skill-harness@0.26.0
    ```
 
    Restart Pi after package changes. The `pi` manifest registers eight skills, four
@@ -189,8 +189,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.10.1 principal-pi-agents install
-   npx -p principal-pi-skills@4.10.1 principal-pi-agents check
+   npx -p principal-pi-skills@4.11.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.11.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -301,12 +301,48 @@ tool result but does not establish the missing evidence; stop any dependent work
 Capture is not authority, receipt validation, review approval or task acceptance. Keep full
 semantic reports and explicit coordinator decisions separate. No setting is enabled by this package.
 
+### Installed disposable-workspace helper
+
+Resolve the selected Principal package from Pi's selected skill/agent source metadata (or its
+original source path in the coordinator handoff), verify that package's `package.json`, and
+invoke its `scripts/snapshot-workspace.mjs` with Node. A captured copy's directory and
+`delegate_describe` alone do not identify the selected installation. Do not guess another
+npm prefix, use unpinned `npx`, or install a package to obtain this helper.
+
+```sh
+node /actual/selected/principal-pi-skills/scripts/snapshot-workspace.mjs create --repo /absolute/caller-repo
+node /actual/selected/principal-pi-skills/scripts/snapshot-workspace.mjs remove /returned/worktree-path --repo /absolute/caller-repo
+```
+
+Use the same resolved helper for creation and cleanup. This selects the installed version
+reliably; it does not diagnose an unknown failed npm invocation. The detached worktree holds
+HEAD, staged/unstaged tracked changes and nonignored untracked files, including symlinks.
+It flattens staged and unstaged changes, excludes ignored files such as dependencies/secrets,
+and is not a full recovery backup. Missing helper or failed creation keeps Debug/Review
+read-only. Removal refuses paths the helper does not own; a failure is not permission to
+substitute recursive deletion. `node --check /actual/selected/principal-pi-skills/scripts/snapshot-workspace.mjs`
+is a read-only syntax check. The current helper's `--help` prints usage with exit status 2.
+
 ## Reports and manual progress
 
 Use the installed `principal-pi-progress` helper when a coordinator needs repeated report
 allocation/persistence. It creates private unused candidate directories beneath ignored
 `.principal/reports/`, writes complete `.md` reports exclusively, and appends a small
 `progress.jsonl` index. It preserves an existing ignore policy and refuses an exposed path.
+Before dispatch, the coordinator allocates the primary report in the actual child workspace and
+passes an absolute unused path plus report-write scope. For example, a builder running in a
+worktree writes its report under that worktree's ignored `.principal/reports/`, even when the
+operator also requested a separate evidence directory. The coordinator creates an absent ignore
+file and checks the actual destination before dispatch; routine safe allocation within the task's
+authority needs no extra approval. Existing exposed ignore policy, permission failures, or an
+explicit prohibition on local artifacts still stop dispatch.
+
+External evidence directories are coordinator archives. After native settlement, copy complete
+report bytes exclusively to the authorized private archive, verify the original and copy hashes,
+and record original path, SHA-256 and copy path. Refuse symlink redirects; retain originals through
+review, repair and resume. An archive failure preserves the primary report and blocks only work
+that requires that copy. Keep native public-capture manifests and their source refs unchanged.
+
 Progress tracking is optional; when used, all index writes must go through the installed helper.
 Never hand-write its `run.json` or `progress.jsonl`. Plan's write ceiling and Investigate's
 read-only ceiling do not grow. If the binary is not on PATH, invoke
@@ -406,20 +442,32 @@ actual user authority/current work before choosing the next action; a title, rol
 self-authored boolean cannot grant approval. This is a trusted-coordinator filesystem helper,
 not hostile-process containment or an atomic multi-file transaction.
 
-## Future JEV and LoRA integration
+## Optional JEV workflow advice and later LoRA
 
-The useful initial decisions are whether to stay inline, which approved independent steps to
-group, and whether a handoff has its required inputs. An optional JEV evaluator can later consume
-explicit task context, eligible actions, gate owner/due-stage maps and referenced observations
-in an offline or shadow experiment. Candidate/step IDs and source hashes let it join suggestions
-to actual correctness, review, completion, latency and cleanup outcomes without inventing labels.
-The existing version 1 progress contract remains unchanged; version any advisory record separately.
+With a matching skill-harness release exposing `jev_advice`, an operator can choose
+`/skill-harness jev enable workflow`. This confirms metered JEV calls for the current session
+and asks a fresh, separate LoRA-storage choice. Ordinary `jev enable` remains manual mode;
+it does not authorize model-tool evaluation. Enabling advice never authorizes training.
 
-Advisory output never grants permission, changes a required gate, replaces deterministic evidence
-validation or triggers a fallback. Keep missing evidence, failures and incomplete workflows in the
-evaluation. Later LoRA training requires reviewed, eligible examples and separate held-out evaluation;
-private reasoning and credentials are excluded. No JEV service, training job, automatic collection
-or OpenAI Decisions integration is activated by this patch.
+A short `/principal-feature <task>` uses the same coordinator defaults: it checks
+`jev_advice({action:"status"})`, then considers advice only for a useful uncertain
+acceptance-evidence handoff after deterministic authority, candidate and evidence checks.
+In enabled workflow mode it may call
+`jev_advice({action:"evaluate",candidate,requirements,evidence})` with a bounded selected
+decision-time packet for the actual candidate, excluding reviewer verdicts and prior JEV outcomes.
+There is no mandatory call per feature or review quota.
+Disabled/manual mode, tool absence or an advisory error leaves ordinary work able to continue
+when its required gates pass; no CLI fallback bypasses the tool's permission check.
+
+The coordinator keeps JEV's prediction out of every independent review until its own verdict
+(task, integrated or scoped repair), while retaining full underlying authority and evidence.
+It then tests any useful suggestion against code and evidence. Advice cannot approve,
+waive a gate, replace review or establish a defect. Use known accessible requirement/evidence
+fragments without private transcripts, credentials, full-file collection or invented source
+references. Selected text is not verified public-capture provenance. Preserve tool-returned
+refs and usage as unlabeled advice under the current storage choice, separately from native
+capture and progress v1. Later LoRA use requires reviewed eligible examples, independent labels,
+separate training permission and held-out evaluation. OpenAI Decisions remains excluded.
 
 ## Validation
 
