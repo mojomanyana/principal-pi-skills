@@ -10,18 +10,42 @@ review scope: prior task approval does not cover assembled interactions or globa
 Any scoped repair keeps the original full branch baseline and unresolved source obligations;
 comment URL/ID, candidate and accepted/disputed/duplicate/stale statuses remain traceable.
 
+**Optional JEV advice.** If `jev_advice` is available, the coordinator checks
+`jev_advice({action:"status"})`. Only enabled workflow mode permits evaluation. After
+deterministic authority, candidate and evidence checks, select an uncertain acceptance-evidence
+handoff only when advice could help; skip obvious decisions, with no review quota. Freeze a
+bounded selected decision-time requirement/evidence packet for the actual candidate.
+Exclude reviewer verdicts and prior JEV outcomes. Then call
+`jev_advice({action:"evaluate",candidate,requirements,evidence})`. Use known accessible sources:
+no private transcripts, credentials, full file scans or invented references. Selected input
+is not verified public capture. Keep the prediction out of every independent review's
+handoff until its own verdict (task, integrated or scoped repair); preserve the full underlying
+authority and evidence. Afterwards reconcile suggestions against code/tests. Advice is never
+approval and cannot waive a gate, replace review or establish a defect. Preserve returned
+refs/usage as unlabeled advice under current storage consent; training permission is separate.
+Disabled/manual mode, unavailable tools or errors leave the ordinary workflow proceeding when
+required gates are met; no CLI fallback may bypass refusal. Never enable JEV implicitly.
+
 1. Find the range: `git merge-base ${1:-main} HEAD` is the base; `HEAD` is the head. If
    the working tree is dirty, say so and stop — review judges committed work.
-2. Before any artifact write, create if absent `.principal/.gitignore` containing `*`;
-   never overwrite an existing ignore file. This orchestrator initialization covers authority,
-   optional Investigate and review reports. Verify repository artifact destinations are ignored;
-   if an existing policy exposes them, stop and ask rather than dirtying the checkout.
-   Investigate remains read-only; its caller persists the report.
-   Scope artifacts by task, run and candidate: create a new unused directory
-   `.principal/reports/<task>-<run>/<candidate>/` (timestamp plus collision suffix for run;
-   full head SHA for candidate). This is `<artifact-dir>`. Even repeat reviews of the same HEAD get new runs;
-   never overwrite prior files. Preserve a caller-chosen report path if unused; if occupied
-   or referenced by prior work, choose an unused sibling and return its actual path.
+2. Before dispatch requiring a report, resolve the actual child workspace and allocate its primary report under
+   `.principal/reports/<task>-<run>/<candidate>/`; inline artifacts use the coordinator's workspace.
+   Before any artifact write, create if absent `.principal/.gitignore` containing `*`;
+   never overwrite an existing ignore file. Verify destinations with `git check-ignore`;
+   if an existing ignore policy exposes them, stop for caller policy repair. Permission failure
+   or an explicit prohibition on local artifacts also stops dispatch. Routine safe allocation
+   within existing task authority needs no separate user approval. Investigate remains read-only;
+   the coordinator persists its report.
+   Create a new unused directory (timestamp/collision suffix for run; full head SHA for candidate)
+   as `<artifact-dir>`. Pass the absolute unused report path and report-write scope to the child.
+   Repeat reviews get new runs; never overwrite prior files. Preserve a caller-chosen primary report path only if workspace-local, ignored and unused; otherwise select the safe default.
+   A requested external evidence directory is a coordinator archive destination, not the child's
+   primary report path. After return (and native settlement for delegated work), copy the complete
+   report bytes to an authorized private archive; never overwrite archive files or follow symlink redirects. Record original
+   path + SHA-256 + copy path, verify matching hashes, and retain the original through review,
+   repair and resume. Copying within existing authority needs no extra permission; an archive
+   failure leaves the primary report intact: report the gap and stop only work requiring that
+   copy. Do not recreate a native capture manifest or replace its original response/source refs.
    On resume, read the named original review path and reviewed candidate; ask if ambiguous.
    Retain the original whole-change baseline (base/head SHAs, commit list and complete diff),
    original finding definitions, authority and evidence files through any later repair request.

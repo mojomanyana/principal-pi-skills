@@ -83,12 +83,14 @@ ships is a failed review.
    In a historical receipt audit, identify and compare the captured candidate; receipt
    integrity is not current qualification. Do not relabel stale success or add permanent
    product/tests/infrastructure merely to supply audit evidence.
-   Do not gratuitously repeat matching evidence; run a targeted test for a named doubt. If CI ran for the same commit, compare the build's
-   reported total with CI's test count; a mismatch is a finding. Destructive probes (revert
-   the fix, break an input) and any run against a dirty tree belong in a disposable copy, never the caller checkout:
-   `npx -p principal-pi-skills principal-pi-workspace create` prints a throwaway worktree
-   holding the exact working state. Work there, then `remove` it. If creation fails, only
-   read or run a read-only check and return UNVERIFIED; never mutate the caller checkout.
+   Do not repeat matching evidence; target a named doubt. For same-commit CI, compare reported
+   totals; a mismatch is a finding. Destructive probes and dirty-tree runs require a disposable
+   copy. Resolve `scripts/snapshot-workspace.mjs` from the actual selected Principal package
+   using selected source metadata, never a guessed path or download. Run
+   `node <resolved-helper> create --repo <caller-repo>`; work there, then
+   `node <resolved-helper> remove <path> --repo <caller-repo>`. It preserves working state except
+   ignored files. Missing helper or creation failure → read-only checks and UNVERIFIED;
+   never mutate the caller checkout.
 5. **Rank and be concrete.** Give each finding a stable ID, `file:line`, defect, and fix
    (show smaller code for simplifications). Order by severity; Top concern is the highest.
    Clean code gets “verified, no blockers” — never manufacture findings.

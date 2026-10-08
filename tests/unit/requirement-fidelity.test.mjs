@@ -348,3 +348,66 @@ test("full-workflow completion and native public evidence remain mechanical coor
     assert.match(text, /never invent completed phases to pass/);
   }
 });
+
+
+test("workflow report destinations are verified in the child workspace before dispatch", () => {
+  for (const kind of ["feature", "bugfix", "refactor", "review-branch"]) {
+    const text = read(`prompts/principal-${kind}.md`).replace(/\s+/g, " ");
+    assert.match(text, /Before dispatch.*actual child workspace.*primary report.*`\.principal\/reports\//);
+    assert.match(text, /absolute.*report path.*report-write scope/);
+    assert.match(text, /routine.*allocation.*needs no separate.*approval/i);
+    assert.match(text, /existing.*ignore.*exposes.*stop/s);
+    assert.match(text, /permission.*failure.*stop|stop.*permission.*failure/s);
+    assert.match(text, /explicit.*prohibition.*stop|stop.*explicit.*prohibition/s);
+  }
+});
+
+test("external report archives preserve complete primary evidence without expanding child writes", () => {
+  for (const kind of ["feature", "bugfix", "refactor", "review-branch"]) {
+    const text = read(`prompts/principal-${kind}.md`).replace(/\s+/g, " ");
+    assert.match(text, /external.*evidence.*coordinator.*archive/i);
+    assert.match(text, /after.*settlement.*copy.*complete.*bytes/i);
+    assert.match(text, /never overwrite.*archive|archive.*never overwrite/i);
+    assert.match(text, /original path.*SHA-256.*copy path/);
+    assert.match(text, /verify.*matching.*hash/i);
+    assert.match(text, /retain.*original.*review.*repair.*resume/i);
+    assert.match(text, /archive.*failure.*report.*gap/i);
+    assert.match(text, /not.*native.*capture.*manifest/i);
+  }
+});
+
+
+test("optional JEV uses current session permission and cannot anchor independent review", () => {
+  for (const kind of ["feature", "bugfix", "refactor", "review-branch"]) {
+    const text = read(`prompts/principal-${kind}.md`).replace(/\s+/g, " ");
+    assert.match(text, /jev_advice.*action:\s*"status"/);
+    assert.match(text, /enabled.*workflow.*mode/);
+    assert.match(text, /deterministic.*checks.*uncertain.*handoff/);
+    assert.match(text, /jev_advice.*action:\s*"evaluate".*candidate.*requirements.*evidence/);
+    assert.match(text, /bounded.*selected.*packet/);
+    assert.match(text, /Exclude reviewer verdicts and prior JEV outcomes/);
+    assert.match(text, /prediction.*out of every independent review.*until its own verdict/);
+    assert.match(text, /task, integrated or scoped repair.*preserve the full underlying authority and evidence/);
+    assert.match(text, /no.*review quota/);
+    assert.match(text, /unavailable.*error.*ordinary workflow.*required gates/s);
+    assert.match(text, /no.*CLI.*bypass/i);
+    assert.match(text, /never.*approval.*waive.*gate/i);
+    assert.match(text, /unlabeled.*storage.*consent.*training.*separate/i);
+    assert.match(text, /no.*private transcripts.*credentials.*full file scans/i);
+  }
+});
+
+
+test("disposable workflows use the selected installed helper without npm resolution", () => {
+  for (const name of ["debug", "review"]) for (const mode of ["skill", "agent"]) {
+    const text = contract(name, mode).replace(/\s+/g, " ");
+    assert.match(text, /snapshot-workspace\.mjs.*actual selected Principal package.*selected source metadata/);
+    assert.match(text, /never a guessed path or download/);
+    assert.match(text, /node <resolved-helper> create --repo <caller-repo>/);
+    assert.match(text, /node <resolved-helper> remove <path> --repo <caller-repo>/);
+    assert.match(text, /ignored files.*excluded|except ignored files/);
+    assert.match(text, /Missing helper or creation failure.*read-only/);
+    assert.match(text, /never.*caller.*checkout/);
+    assert.doesNotMatch(text, /npx[^`\n]*principal-pi-workspace/);
+  }
+});

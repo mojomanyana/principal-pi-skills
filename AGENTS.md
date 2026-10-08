@@ -162,8 +162,15 @@ Before any orchestrator artifact write (including planless Review, inline Build 
 Investigate persistence), create an absent `.principal/.gitignore` containing `*`, never
 overwrite an existing ignore file, and verify repository report destinations are ignored;
 otherwise stop for caller policy repair. Plan retains its restricted writes; Investigate
-remains read-only. Scope reports by task/run/candidate in new unused directories, preserving
-prior files and original review path/candidate/baseline through repairs and resume.
+remains read-only. Before dispatch requiring a report, allocate its primary path in the actual child's workspace
+under ignored `.principal/reports/<task>-<run>/<candidate>/`, pass its absolute unused path and
+report-write scope, and preserve prior files/baselines. Routine safe allocation within existing
+task authority needs no additional permission. A requested external evidence directory is the
+coordinator's archive, not a child write target: after settlement copy complete bytes exclusively,
+verify matching hashes and record original path/hash/copy path. Use only authorized private
+locations, refuse symlink redirects, and retain originals through review/repair/resume. Exposed
+ignore policy, permissions failure or an explicit local-artifact prohibition still stops dispatch;
+archive failure leaves primary evidence intact and blocks only work requiring that copy.
 
 Handoffs carry accessible source/definition references, applicable map rows/global gates,
 and full report paths, not summaries or bare finding IDs. Collect caveats even on success;
@@ -209,24 +216,31 @@ reconciliation and consume-before-enqueue semantics. The new
 read-only completion check requires all named steps and phases, verified finding dispositions,
 exact committed identity and a clean checkout; it never turns recorded claims into approval.
 Retained failures and incomplete runs remain evidence for later JEV/LoRA evaluation, not automatic
-training labels. Completion checks run before semantic advisory experiments.
+training labels. Completion checks remain required for completion claims; advisory evaluation
+never promotes their result.
 
-## Future advisory optimization
+## Optional session advisory
 
-Consider JEV and later LoRA for optional recommendations about inline/delegated routing,
-step grouping and handoff readiness. Keep stable gate IDs, owners, due stages, candidate/step
-identities and observed outcomes available through the existing reports/progress references.
-Version advisory experiment records separately; never add model judgments to authority or
-silently widen the progress schema. Start with offline/shadow evaluation against independently
-checked outcomes. Only reviewed, eligible examples may enter a future training dataset; private
-reasoning and credential material are excluded. These are extension points, not an enabled
-service, new model calls, automatic labels or trained model. OpenAI Decisions remains excluded.
+The coordinator may use the matching skill-harness `jev_advice` tool after checking current
+`{action:"status"}`. Only explicitly enabled workflow mode authorizes its selected metered
+calls. After deterministic gates, choose a useful uncertain acceptance-evidence handoff and
+freeze a bounded selected decision-time requirement/evidence packet for the actual candidate.
+Exclude reviewer verdicts and prior JEV outcomes. Evaluate with
+`{action:"evaluate",candidate,requirements,evidence}`; skip obvious decisions and review quotas.
+Keep the prediction out of every independent review until its own verdict, preserving the full
+underlying authority/evidence; then reconcile advice against code/tests. Advice cannot supply authority, approve, waive gates or establish
+defects. Disabled/manual/unavailable/error states do not block otherwise permitted work; never
+bypass them through CLI or implicit activation. Do not read private transcripts, credentials
+or whole files for collection. Selected text is not verified public capture. Keep returned refs
+and usage as unlabeled advice only under current storage consent; training needs separate
+permission and independent labels. Progress v1 and native capture remain unchanged. OpenAI
+Decisions remains excluded.
 
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.10.1`,
-   `pi install npm:pi-daddy@0.46.0` and `pi install npm:skill-harness@0.25.1`.
+   `pi install npm:principal-pi-skills@4.11.0`,
+   `pi install npm:pi-daddy@0.46.0` and `pi install npm:skill-harness@0.26.0`.
    Native delegation uses exactly Pi 1.0.4 and the qualified captured setup
    (`PI_DADDY_HERDR=0`). Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -237,8 +251,8 @@ service, new model calls, automatic labels or trained model. OpenAI Decisions re
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.10.1 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.10.1 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.11.0 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.11.0 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase

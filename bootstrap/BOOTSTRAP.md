@@ -1,36 +1,40 @@
 # principal-pi-skills bootstrap
 
-Route only enabled selected resources by requested output. Everyday Q&A needs no skill.
+Route enabled selected resources by requested output; everyday Q&A needs no skill.
 
-| Input shape | Route to | How |
+| Input shape | Route | How |
 |---|---|---|
-| "should I", "Postgres or DynamoDB", options | `decide` | inline |
-| structure, components, architecture | `architect` | inline |
+| "Postgres or DynamoDB", options | `decide` | inline |
+| structure | `architect` | inline |
 | implementation sequence | `plan` | delegate |
-| code, known-cause fix | `build` | inline or delegated step |
-| judge a change | `review` | cold delegate |
+| known-cause implementation | `build` | inline or delegated |
+| judge changes | `review` | cold delegate |
 | unknown failure | `debug` | delegate noisy diagnosis |
-| locate sources/behavior | `investigate` | delegate heavy reading |
-| commit, push, PR, secrets | `git-ops` | inline only |
+| locate facts | `investigate` | delegate reading |
+| Git/GitHub | `git-ops` | inline only |
 
-Native phase names: `plan`, `build`, `review`, `debug`, `investigate`. Call
-`delegate_describe({agent:"phase"})`; require binding package `principal-pi-skills` and exact
-phase. Pass its captured `definitionId` to every `delegate` call, `delegate_all` child and
-`delegate_chain` step. Use `delegate_all` for independent parallel work, never overlapping
-single calls; writers require separate worktrees. The runtime verifies selected source and bytes.
-Missing/wrong/disabled bindings, stale reload, permission/context refusal, timeout, report
-gaps or uncertain cleanup stop dependent work; no substitution. Only when native tools are
-genuinely absent may an explicitly configured legacy `principal-*` runner be used. Inline
-is a deliberate workflow choice, never failure fallback. Follow authored model/effort policy.
+Native phases: `plan`, `build`, `review`, `debug`, `investigate`. Call `delegate_describe`;
+require binding package `principal-pi-skills`, exact phase and captured `definitionId` on each
+`delegate`, `delegate_all` child or `delegate_chain` step. Runtime checks bytes.
+Batches use `delegate_all`, never overlapping single calls; writers need separate worktrees.
+Missing/wrong/disabled/stale bindings,
+permission/context refusal, timeout, report gaps or uncertain cleanup stop dependent work;
+no substitution. Legacy runners must be explicitly configured and require genuinely absent native tools.
+Inline is deliberate,
+never failure fallback. Follow authored model/effort policy.
 
-Coordinator supplies evidence; progress uses `principal-pi-progress check`.
-Subagents never dispatch. Read Review Verdict before Next:
+Coordinator checks evidence/settlement. Before dispatch allocate unused Git-ignored
+primary reports in each child workspace; external archives get verified exact copies. Preserve
+ignore policy, permissions, original paths/hashes; routine allocation needs no extra approval.
+Progress uses `principal-pi-progress check`. Subagents never dispatch. Read Review Verdict before Next:
 UNVERIFIED → evidence/access repair or caller question, not automatic implementation.
-Route `Next:`: plan → `build`; debug → `build` `plan` `done` `blocked`;
-build → `review` `debug` `blocked`; review → `build` `git-ops`.
-Task review approval covers its scope; final integrated review supports finish.
-`decide`, `architect`, `investigate`, `git-ops` have no `Next:`.
+Route `Next:`: plan → build; debug → build/plan/done/blocked; build → review/debug/blocked;
+review → build/git-ops. Only integrated approval supports finish.
+`decide`/`architect`/`investigate`/`git-ops`: no `Next:`.
 
-Feature/bugfix/refactor spines stop after planning/diagnosis for actual approval.
-Preserve full reports, sources and caveats; progress never reconstructs approval.
-Small direct work may finish inline with checks. `/principal-resume` requires explicit operator authorization.
+If available, check `jev_advice({action:"status"})`; only workflow mode may advise uncertain
+handoffs after deterministic gates. Keep predictions from reviewers until verdict. Disabled/error
+leaves ordinary permitted work; no activation/CLI bypass. Storage/training stay separate.
+
+Spines retain planning/diagnosis approval stops. Preserve reports/caveats. Small direct
+work may finish inline with checks; `/principal-resume` needs explicit operator authorization.

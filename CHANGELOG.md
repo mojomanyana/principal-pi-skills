@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.11.0 — 2026-10-08
+
+- Allocate delegated reports in the actual child workspace's ignored report directory. Archive verified copies through the coordinator without asking the user to resolve ordinary report placement.
+- Let the coordinator discover session-enabled JEV workflow advice through `jev_advice`, select useful acceptance-evidence questions, and keep predictions outside independent review until its verdict. Advice remains optional and cannot approve integration or create training labels.
+- Resolve the workspace helper from the selected installed Principal package instead of relying on an npm download or shell PATH lookup.
+
 ## 4.10.1 — 2026-10-08
 
 - Hash each unique progress-evidence file once per reconciliation, while checking every expected digest and rejecting files changed or replaced during the pass.

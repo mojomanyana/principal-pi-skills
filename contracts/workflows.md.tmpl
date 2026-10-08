@@ -92,20 +92,31 @@ uses the normal path. An explicitly invoked spine keeps its approval stop; a dir
 inline completion may omit `Next:` and ends without authorizing Git operations or installation.
 Delegated protocols are unchanged.
 
-**Artifacts.** Before any artifact write, create if absent `.principal/.gitignore` containing `*`;
-never overwrite an existing ignore file. This orchestrator step covers authority, optional
-Investigate, inline Build, delegated report destinations and review, even without Plan.
-Verify repository artifact destinations are ignored; if an existing policy exposes them,
-stop and ask rather than dirtying the checkout or changing that policy. Plan itself still
-writes only its plan and an absent ignore file; Investigate remains read-only.
-Scope files by task, run and candidate: create a new unused directory
-`.principal/reports/<task>-<run>/<candidate>/` (timestamp plus collision suffix for run;
-SHA or dirty-tree fingerprint for candidate). Independent requests, including repeat reviews
-of the same candidate, get new runs. Use this `<artifact-dir>` for authority, Investigate, Build,
-diff and review files; number attempts within it, never overwrite prior files. Preserve a
-caller-chosen report path if unused; if occupied or a referenced prior artifact, choose an
-unused sibling and return its actual path. On resume, read the explicitly identified prior
-reports; if ambiguous, ask. Continue in a new candidate/attempt location, not over old bytes.
+**Artifacts.** Before dispatch requiring a report, resolve the actual child workspace and
+allocate its primary report under `.principal/reports/<task>-<run>/<candidate>/`; inline Build
+and other inline artifacts use the coordinator's workspace. Before any artifact write, create
+if absent `.principal/.gitignore` containing `*`;
+never overwrite an existing ignore file. Verify repository destinations are ignored with
+`git check-ignore`; if an existing ignore policy exposes them, stop for caller policy repair.
+Permission failure or an explicit prohibition on local artifacts also stops dispatch. Routine
+safe allocation within existing task authority needs no separate user approval. Plan still
+writes only its plan and an absent ignore file; Investigate remains read-only. The coordinator
+persists any additional Plan/Investigate report without widening either leaf's write scope.
+Create a new unused directory (timestamp plus collision suffix for run; SHA or dirty-tree
+fingerprint for candidate). This `<artifact-dir>` holds authority, Investigate, Build, diff
+and review files. Pass the absolute unused report path and report-write scope to the child.
+Independent requests and repeat reviews get new runs; number attempts, never overwrite prior
+files. Preserve a caller-chosen primary report path only if workspace-local, ignored and unused;
+otherwise allocate the safe default and report its actual path. Read explicitly identified
+prior reports on resume; ask if ambiguous. Continue in a new candidate/attempt location.
+
+A requested external evidence directory is a coordinator archive destination, not the child's
+primary report path. After return (and native settlement for delegated work), copy the complete
+report bytes to an authorized private archive; never overwrite archive files or follow symlink redirects. Record original
+path + SHA-256 + copy path, verify matching hashes, and retain the original through review,
+repair and resume. Copying within existing authority needs no extra permission; an archive
+failure leaves the primary report intact: report the gap and stop only work requiring that
+copy. Do not recreate a native capture manifest or replace its original response/source refs.
 Record original review path + reviewed candidate and original whole-change baseline (full
 base/head range or saved tracked diff plus relevant untracked content/hashes) in existing
 Authority/Candidate fields. Keep full original finding definitions, gates and evidence files
@@ -191,6 +202,22 @@ siblings when another fails, review each candidate, then integrate serially and 
 merged whole. A capacity or other refusal stops dependent work; never retry through another
 runner. Independent diagnostic/review batches also use `delegate_all` with each child's exact
 phase name and described `definitionId`, under their applicable workspace/tool constraints.
+
+**Optional JEV advice.** If `jev_advice` is available, the coordinator checks
+`jev_advice({action:"status"})`. Only enabled workflow mode permits evaluation. After
+deterministic authority, candidate and evidence checks, select an uncertain acceptance-evidence
+handoff only when advice could help; skip obvious decisions, with no review quota. Freeze a
+bounded selected decision-time requirement/evidence packet for the actual candidate.
+Exclude reviewer verdicts and prior JEV outcomes. Then call
+`jev_advice({action:"evaluate",candidate,requirements,evidence})`. Use known accessible sources:
+no private transcripts, credentials, full file scans or invented references. Selected input
+is not verified public capture. Keep the prediction out of every independent review's
+handoff until its own verdict (task, integrated or scoped repair); preserve the full underlying
+authority and evidence. Afterwards reconcile suggestions against code/tests. Advice is never
+approval and cannot waive a gate, replace review or establish a defect. Preserve returned
+refs/usage as unlabeled advice under current storage consent; training permission is separate.
+Disabled/manual mode, unavailable tools or errors leave the ordinary workflow proceeding when
+required gates are met; no CLI fallback may bypass refusal. Never enable JEV implicitly.
 
 **Review.** Select `task`, `integrated` or `scoped-repair` scope. Consequential interfaces
 and parallel candidates receive task review before another step consumes them; retain final
