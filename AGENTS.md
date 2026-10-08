@@ -41,6 +41,10 @@ and due stage fixed by source authority. Leaf agents check current assigned obli
 retain later coordinator terminal/cleanup/review gates as pending. The coordinator checks full
 native results and settlement after return, including the reviewer, before dependent work.
 Missing prerequisites still block; ownership never waives or delays a required gate.
+When the operator opts into pi-daddy 0.45.0 public capture, use its exact response/source
+artifact references directly; do not reconstruct describe responses or receipt text. Capture
+excludes raw details/private sessions and later Pi hook formatting; validate used references
+and preserve actual approval ownership. No automatic capture setting or JEV collection is enabled.
 Native process cleanup needs a settled identity-bound receipt even when no disposable workspace
 exists. Missing emitted runtime evidence blocks dependent work and task completion.
 
@@ -130,6 +134,10 @@ Typical spines (available as prompt templates):
   If used, all progress writes go through the installed `principal-pi-progress` helper; never
   hand-write its run manifest or JSONL. Run `check <run> <actual-current-candidate>` after append
   and before relying on resumed progress. Zero issues means index integrity, not completion or approval.
+  Full committed workflows can use `check-completion <run> <full-commit> <required-step>...`
+  for all five latest phase claims per required step, historical evidence/findings, exact HEAD
+  and clean tracked/untracked state; masked index entries and indexed submodules refuse.
+  It never infers approval or runs/commits work.
 
 Before any orchestrator artifact write (including planless Review, inline Build or optional
 Investigate persistence), create an absent `.principal/.gitignore` containing `*`, never
@@ -173,6 +181,15 @@ When maintaining this package, put lasting regressions in existing behavior/doma
 not PR-named files. `npm test` checks current contracts and product behavior.
 Behavioural measurement—including the fidelity corpus and skill-harness evidence—lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks live here.
 
+## Decision — 2026-10-08
+
+Exact public evidence persistence belongs to the native producer; Principal consumes its file
+references and keeps semantic gate decisions explicit. Progress v1 remains unchanged. The new
+read-only completion check requires all named steps and phases, verified finding dispositions,
+exact committed identity and a clean checkout; it never turns recorded claims into approval.
+Retained failures and incomplete runs remain evidence for later JEV/LoRA evaluation, not automatic
+training labels. Completion checks run before semantic advisory experiments.
+
 ## Future advisory optimization
 
 Consider JEV and later LoRA for optional recommendations about inline/delegated routing,
@@ -187,8 +204,8 @@ service, new model calls, automatic labels or trained model. OpenAI Decisions re
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.8.1`,
-   `pi install npm:pi-daddy@0.44.4` and `pi install npm:skill-harness@0.24.3`.
+   `pi install npm:principal-pi-skills@4.9.0`,
+   `pi install npm:pi-daddy@0.45.0` and `pi install npm:skill-harness@0.24.3`.
    Native delegation uses exactly Pi 1.0.4 and the qualified captured setup
    (`PI_DADDY_HERDR=0`). Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -199,8 +216,8 @@ service, new model calls, automatic labels or trained model. OpenAI Decisions re
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.8.1 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.8.1 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.9.0 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.9.0 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase

@@ -6,6 +6,23 @@ Where review revealed a prior claim or design decision didn't hold up under clos
 
 ---
 
+## [4.9.0] — 2026-10-08
+
+**Added — deterministic committed-workflow checks.** `check-completion` now checks every explicitly
+required step's latest five phase claims, full evidence history, outstanding finding identities,
+exact full HEAD and clean tracked/untracked/submodule state. Masked index entries are refused
+without clearing flags; any indexed submodule is explicitly unsupported rather than assuming
+its nested working state is visible. Previously `check` established only
+index integrity; that command and the version 1 schema keep their existing semantics. Omitted
+findings cannot disappear; accepted/duplicate dispositions still need explicit verification.
+No checker runs tests, commits, grants approval or declares semantic task acceptance.
+
+**Documented — exact native evidence references.** Companion pi-daddy 0.45.0 offers operator-enabled
+public response/source capture. Workflows now consume those returned file references directly;
+previously coordinators had to preserve tool outputs themselves and could transcribe them.
+The capture boundary excludes raw details, private sessions and later Pi hook formatting.
+Capture remains opt-in; no JEV service, automatic collection or LoRA training is activated.
+
 ## [4.8.1] — 2026-10-07
 
 **Fixed — coordinator and leaf evidence ownership.** Preserve describe/source handoffs and assign

@@ -4,7 +4,7 @@ import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, rmSync, symlinkSyn
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
-import { createRun, saveReport, reference, appendProgress, readProgress, checkProgress } from "../../scripts/progress-artifacts.mjs";
+import { createRun, saveReport, reference, appendProgress, readProgress, checkProgress, checkCompletion } from "../../scripts/progress-artifacts.mjs";
 
 function fixture(t) {
   const repo = mkdtempSync(join(tmpdir(), "principal-progress-test-"));
@@ -329,3 +329,190 @@ test("CLI check exposes integrity failure through exit status while read remains
   assert.equal(JSON.parse(changed.stdout).integrityValid, false);
   assert.equal(call("read", run, "candidate-A").status, 0);
 });
+
+
+function committedFixture(t) {
+  const repo = fixture(t);
+  const git = (...args) => execFileSync("git", args, { cwd: repo, encoding: "utf8" }).trim();
+  git("config", "user.name", "Completion Test"); git("config", "user.email", "completion@example.invalid");
+  writeFileSync(join(repo, "source.txt"), "committed source\n");
+  git("add", "source.txt"); git("commit", "-qm", "seed completion fixture");
+  return { repo, git, head: git("rev-parse", "HEAD") };
+}
+function completeEntry(report, candidate, step = "step-1") {
+  return entry(report, { candidate, step, nextAction: "independent semantic checks still required",
+    facts: Object.fromEntries(["planned", "implemented", "reviewed", "integrated", "verified"].map(phase =>
+      [phase, { state: "complete", evidence: [report], note: "recorded claim; not an approval check" }])) });
+}
+
+test("completion checks every required step's latest snapshot without granting approval or changing files", t => {
+  const { repo, git, head } = committedFixture(t), run = createRun(repo, "task", head);
+  const report = saveReport(run, "review.md", "CHANGES-REQUESTED; report semantics must be checked by the coordinator\n");
+  const first = completeEntry(report, head), second = completeEntry(report, head, "step-2");
+  first.facts.reviewed.note = "CHANGES-REQUESTED";
+  appendProgress(run, first); appendProgress(run, second);
+  const index = readFileSync(join(run, "progress.jsonl")), manifest = readFileSync(join(run, "run.json"));
+  const result = checkCompletion(run, head, ["step-2", "step-1"]);
+  assert.equal(result.completionChecksPassed, true);
+  assert.equal(result.integrityValid, true);
+  assert.deepEqual(result.requiredSteps, ["step-2", "step-1"]);
+  assert.deepEqual(result.steps.map(step => [step.step, step.recordNumber]), [["step-2", 2], ["step-1", 1]]);
+  assert.equal(result.approval, "not-assessed"); assert.equal(result.taskAcceptance, "not-assessed");
+  assert.deepEqual(readFileSync(join(run, "progress.jsonl")), index);
+  assert.deepEqual(readFileSync(join(run, "run.json")), manifest);
+  assert.equal(git("status", "--porcelain=v1"), "");
+  assert.equal(git("rev-parse", "HEAD"), head);
+});
+
+test("completion refuses a partial latest step even after earlier completion and a later complete other step", t => {
+  const { repo, head } = committedFixture(t), run = createRun(repo, "task", head), report = saveReport(run, "phase.md", "phase evidence");
+  appendProgress(run, completeEntry(report, head));
+  const partial = completeEntry(report, head); partial.facts.verified = { state: "incomplete", evidence: [report], note: "finish pending" };
+  partial.facts.reviewed = { state: "unknown", evidence: [], note: "candidate needs fresh review" };
+  appendProgress(run, partial); appendProgress(run, completeEntry(report, head, "step-2"));
+  const checked = checkCompletion(run, head, ["step-1", "step-2"]);
+  assert.equal(checked.integrityValid, true); assert.equal(checked.completionChecksPassed, false);
+  assert.equal(checked.phaseClaimsComplete, false);
+  assert.deepEqual(checked.steps[0].phases, { planned: "complete", implemented: "complete", reviewed: "unknown", integrated: "complete", verified: "incomplete" });
+  assert.match(checked.issues.join(" "), /step-1: verified is incomplete/);
+});
+
+test("completion requires the exact nonempty unique step set, including missing and unexpected steps", t => {
+  const { repo, head } = committedFixture(t), run = createRun(repo, "task", head), report = saveReport(run, "phase.md", "phase evidence");
+  appendProgress(run, completeEntry(report, head)); appendProgress(run, completeEntry(report, head, "step-2"));
+  for (const steps of [undefined, null, "step-1", [], [""], ["  "], ["step-1", "step-1"], [1]]) {
+    assert.throws(() => checkCompletion(run, head, steps), /required step/);
+  }
+  const checked = checkCompletion(run, head, ["step-1", "step-3"]);
+  assert.equal(checked.completionChecksPassed, false);
+  assert.deepEqual(checked.missingSteps, ["step-3"]); assert.deepEqual(checked.unexpectedSteps, ["step-2"]);
+});
+
+test("completion retains unresolved finding identities across omitted snapshots and refuses inferred dispositions", t => {
+  const { repo, head } = committedFixture(t), run = createRun(repo, "task", head), report = saveReport(run, "review.md", "original findings");
+  const original = completeEntry(report, head);
+  original.findings = ["open", "accepted", "addressed", "disputed", "stale", "duplicate"].map((status, index) =>
+    ({ id: `REV-${index}`, source: report, status, ...(status === "duplicate" ? { duplicateOf: "REV-0" } : {}) }));
+  appendProgress(run, original); appendProgress(run, completeEntry(report, head));
+  let checked = checkCompletion(run, head, ["step-1"]);
+  assert.equal(checked.integrityValid, true); assert.equal(checked.completionChecksPassed, false);
+  assert.equal(checked.unresolvedFindings.length, 6);
+  const changedSource = saveReport(run, "different-review.md", "different report reuses REV-0");
+  const wrong = completeEntry(report, head); wrong.findings = [{ id: "REV-0", source: changedSource, status: "verified" }];
+  appendProgress(run, wrong);
+  assert.equal(checkCompletion(run, head, ["step-1"]).unresolvedFindings.length, 6);
+  const verified = completeEntry(report, head); verified.findings = original.findings.map(({ duplicateOf, ...finding }) => ({ ...finding, status: "verified" }));
+  appendProgress(run, verified);
+  checked = checkCompletion(run, head, ["step-1"]);
+  assert.equal(checked.completionChecksPassed, true); assert.deepEqual(checked.unresolvedFindings, []);
+  assert.equal(readProgress(run, head).records[0].record.findings[0].status, "open");
+});
+
+test("completion preserves stale earlier evidence and damaged history instead of trusting the final record", t => {
+  const { repo, head } = committedFixture(t), run = createRun(repo, "task", head), old = saveReport(run, "old.md", "old evidence");
+  appendProgress(run, completeEntry(old, head));
+  writeFileSync(old.path, "changed evidence");
+  const current = saveReport(run, "current.md", "current evidence"); appendProgress(run, completeEntry(current, head));
+  const index = join(run, "progress.jsonl"), original = readFileSync(index, "utf8");
+  assert.equal(checkCompletion(run, head, ["step-1"]).integrityValid, false);
+  assert.equal(checkCompletion(run, head, ["step-1"]).completionChecksPassed, false);
+  writeFileSync(index, original + '{"version":1');
+  const damaged = readFileSync(index, "utf8"), result = checkCompletion(run, head, ["step-1"]);
+  assert.equal(result.completionChecksPassed, false); assert.match(result.issues.join(" "), /incomplete final/);
+  assert.equal(readFileSync(index, "utf8"), damaged);
+});
+
+test("completion requires a full exact current commit and refuses dirty tracked, staged and untracked state", t => {
+  const { repo, git, head } = committedFixture(t), run = createRun(repo, "task", head), report = saveReport(run, "phase.md", "phase evidence");
+  appendProgress(run, completeEntry(report, head));
+  for (const candidate of [head.slice(0, 12), "HEAD", head.toUpperCase(), "dirty:" + head, undefined]) {
+    assert.throws(() => checkCompletion(run, candidate, ["step-1"]), /full lowercase Git object ID/);
+  }
+  const wrong = "0".repeat(head.length), mismatch = checkCompletion(run, wrong, ["step-1"]);
+  assert.equal(mismatch.completionChecksPassed, false); assert.equal(mismatch.candidate.exactHead, false);
+  assert.match(mismatch.issues.join(" "), /run candidate differs/);
+  writeFileSync(join(repo, "source.txt"), "dirty source\n");
+  assert.equal(checkCompletion(run, head, ["step-1"]).candidate.workingTreeClean, false);
+  git("add", "source.txt");
+  assert.equal(checkCompletion(run, head, ["step-1"]).completionChecksPassed, false);
+  git("commit", "-qm", "new candidate");
+  assert.equal(checkCompletion(run, head, ["step-1"]).candidate.exactHead, false);
+  const nextHead = git("rev-parse", "HEAD"), nextRun = createRun(repo, "next", nextHead);
+  appendProgress(nextRun, completeEntry(report, nextHead));
+  writeFileSync(join(repo, "untracked.txt"), "untracked work\n");
+  assert.equal(checkCompletion(nextRun, nextHead, ["step-1"]).candidate.workingTreeClean, false);
+  rmSync(join(repo, "untracked.txt"));
+  assert.equal(checkCompletion(nextRun, nextHead, ["step-1"]).completionChecksPassed, true);
+});
+
+test("completion refuses clean submodules and nested masking without changing submodule flags", t => {
+  const { repo, git } = committedFixture(t), child = committedFixture(t);
+  git("-c", "protocol.file.allow=always", "submodule", "add", "-q", child.repo, "nested");
+  git("commit", "-qm", "record submodule"); git("config", "submodule.nested.ignore", "all");
+  const head = git("rev-parse", "HEAD"), run = createRun(repo, "task", head), report = saveReport(run, "phase.md", "phase evidence");
+  appendProgress(run, completeEntry(report, head));
+  let checked = checkCompletion(run, head, ["step-1"]);
+  assert.equal(checked.integrityValid, true); assert.equal(checked.completionChecksPassed, false);
+  assert.equal(checked.candidate.submodulesSupported, false);
+  assert.match(checked.issues.join(" "), /indexed gitlinks\/submodules are unsupported/);
+  for (const flag of ["--assume-unchanged", "--skip-worktree"]) {
+    git("-C", "nested", "update-index", flag, "source.txt");
+    writeFileSync(join(repo, "nested", "source.txt"), "hidden nested dirty bytes\n");
+    assert.equal(git("status", "--porcelain=v1", "--ignore-submodules=none"), "");
+    const flags = git("-C", "nested", "ls-files", "-v", "source.txt");
+    checked = checkCompletion(run, head, ["step-1"]);
+    assert.equal(checked.completionChecksPassed, false); assert.equal(checked.candidate.submodulesSupported, false);
+    assert.equal(git("-C", "nested", "ls-files", "-v", "source.txt"), flags);
+    assert.equal(readFileSync(join(repo, "nested", "source.txt"), "utf8"), "hidden nested dirty bytes\n");
+  }
+  writeFileSync(join(repo, "nested", "untracked.txt"), "nested untracked work\n");
+  assert.equal(checkCompletion(run, head, ["step-1"]).completionChecksPassed, false);
+});
+
+test("completion refuses an uninitialized indexed gitlink without inspecting its contents", t => {
+  const { repo, git } = committedFixture(t), child = committedFixture(t);
+  git("update-index", "--add", "--cacheinfo", `160000,${child.head},uninitialized`);
+  git("commit", "-qm", "record uninitialized gitlink");
+  const head = git("rev-parse", "HEAD"), run = createRun(repo, "task", head), report = saveReport(run, "phase.md", "phase evidence");
+  appendProgress(run, completeEntry(report, head));
+  assert.equal(existsSync(join(repo, "uninitialized")), false);
+  const result = checkCompletion(run, head, ["step-1"]);
+  assert.equal(result.completionChecksPassed, false); assert.equal(result.candidate.submodulesSupported, false);
+  assert.equal(existsSync(join(repo, "uninitialized")), false);
+});
+
+test("CLI completion has a distinct mechanical exit status while integrity check retains its semantics", t => {
+  const { repo, head } = committedFixture(t), run = createRun(repo, "task", head), report = saveReport(run, "phase.md", "phase evidence");
+  const cli = new URL("../../scripts/progress-artifacts.mjs", import.meta.url).pathname;
+  const call = (...args) => spawnSync(process.execPath, [cli, ...args], { encoding: "utf8" });
+  appendProgress(run, entry(report, { candidate: head }));
+  assert.equal(call("check", run, head).status, 0);
+  const partial = call("check-completion", run, head, "step-1");
+  assert.equal(partial.status, 1); assert.equal(JSON.parse(partial.stdout).integrityValid, true);
+  appendProgress(run, completeEntry(report, head));
+  const complete = call("check-completion", run, head, "step-1");
+  assert.equal(complete.status, 0); assert.equal(JSON.parse(complete.stdout).taskAcceptance, "not-assessed");
+  assert.equal(call("check-completion", run, head).status, 1);
+  assert.equal(call("check-completion", run, head.slice(0, 8), "step-1").status, 1);
+  assert.equal(call("check-completion", run, head, "step-1", "step-1").status, 1);
+});
+
+
+for (const flag of ["--assume-unchanged", "--skip-worktree"]) {
+  test(`completion refuses ${flag} rather than treating hidden changed bytes as a clean candidate`, t => {
+    const { repo, git, head } = committedFixture(t), run = createRun(repo, "task", head), report = saveReport(run, "phase.md", "phase evidence");
+    appendProgress(run, completeEntry(report, head));
+    git("update-index", flag, "source.txt");
+    writeFileSync(join(repo, "source.txt"), "different bytes hidden from git status\n");
+    assert.equal(git("status", "--porcelain=v1"), "");
+    const flags = git("ls-files", "-v", "source.txt"), before = readFileSync(join(repo, ".git", "index"));
+    const result = checkCompletion(run, head, ["step-1"]);
+    assert.equal(result.integrityValid, true); assert.equal(result.phaseClaimsComplete, true);
+    assert.equal(result.completionChecksPassed, false); assert.equal(result.candidate.workingTreeClean, false);
+    assert.equal(result.candidate.indexVisibilitySupported, false);
+    assert.match(result.issues.join(" "), /assume-unchanged or skip-worktree/);
+    assert.equal(git("ls-files", "-v", "source.txt"), flags);
+    assert.deepEqual(readFileSync(join(repo, ".git", "index")), before);
+    assert.equal(readFileSync(join(repo, "source.txt"), "utf8"), "different bytes hidden from git status\n");
+  });
+}

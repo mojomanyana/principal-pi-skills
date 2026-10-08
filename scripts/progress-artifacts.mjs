@@ -190,6 +190,69 @@ export function checkProgress(run, expectedCandidate) {
   return { integrityValid: result.issues.length === 0 && result.records.every(record => record.issues.length === 0), ...result };
 }
 
+
+/** Read-only full-workflow checks. Recorded claims never establish semantic approval or acceptance. */
+export function checkCompletion(run, expectedCommit, requiredSteps) {
+  if (typeof expectedCommit !== "string" || !/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(expectedCommit)) fail("expected commit must be a full lowercase Git object ID");
+  if (!Array.isArray(requiredSteps) || !requiredSteps.length) fail("required steps must be a nonempty explicit array");
+  for (const step of requiredSteps) text(step, "required step");
+  if (new Set(requiredSteps).size !== requiredSteps.length) fail("required steps must not contain duplicates");
+  const info = runInfo(run);
+  const repositoryState = () => ({
+    head: git(info.root, ["rev-parse", "--verify", "HEAD"]),
+    status: git(info.root, ["--no-optional-locks", "status", "--porcelain=v1", "-z", "--untracked-files=all", "--ignore-submodules=none"]),
+    maskedIndex: git(info.root, ["ls-files", "-v", "-z"]).split("\0").filter(entry => /^[a-zS] /.test(entry)),
+    gitlinks: git(info.root, ["ls-files", "--stage", "-z"]).split("\0").filter(entry => /^160000 /.test(entry)),
+  });
+  // Compare observations around the evidence read. This is not a lock or atomic filesystem snapshot.
+  const before = repositoryState();
+  const checked = checkProgress(run, expectedCommit), latest = new Map(), findings = new Map();
+  checked.records.forEach((entry, index) => {
+    latest.set(entry.record.step, { entry, recordNumber: index + 1 });
+    for (const finding of entry.record.findings) {
+      // An omitted unresolved finding stays unresolved; reusing its ID with another report cannot erase it.
+      const identity = JSON.stringify([entry.record.step, finding.source.path, finding.source.sha256, finding.id]);
+      findings.set(identity, { step: entry.record.step, ...finding });
+    }
+  });
+  const after = repositoryState();
+  const repositoryStateUnchanged = before.head === after.head && before.status === after.status && JSON.stringify(before.maskedIndex) === JSON.stringify(after.maskedIndex) && JSON.stringify(before.gitlinks) === JSON.stringify(after.gitlinks);
+  const exactHead = expectedCommit === before.head && expectedCommit === after.head;
+  const indexVisibilitySupported = before.maskedIndex.length === 0 && after.maskedIndex.length === 0;
+  const submodulesSupported = before.gitlinks.length === 0 && after.gitlinks.length === 0;
+  const workingTreeClean = before.status === "" && after.status === "" && indexVisibilitySupported && submodulesSupported;
+  const missingSteps = requiredSteps.filter(step => !latest.has(step));
+  const unexpectedSteps = [...latest.keys()].filter(step => !requiredSteps.includes(step));
+  const steps = requiredSteps.filter(step => latest.has(step)).map(step => {
+    const { entry, recordNumber } = latest.get(step);
+    return { step, recordNumber, phases: Object.fromEntries(phases.map(phase => [phase, entry.facts[phase].state])) };
+  });
+  const phaseClaimsComplete = missingSteps.length === 0 && steps.every(step => phases.every(phase => step.phases[phase] === "complete"));
+  // v1 carries no machine-readable acceptance/duplicate disposition. Only explicit verification closes this check.
+  const unresolvedFindings = [...findings.values()].filter(finding => finding.status !== "verified");
+  const issues = [
+    ...checked.issues,
+    ...checked.records.flatMap((entry, index) => entry.issues.map(issue => `record ${index + 1}: ${issue}`)),
+    ...(info.candidate === expectedCommit ? [] : ["run candidate differs from expected full commit"]),
+    ...(exactHead ? [] : ["expected commit differs from current HEAD"]),
+    ...(indexVisibilitySupported ? [] : ["tracked paths use assume-unchanged or skip-worktree flags; clean candidate cannot be established"]),
+    ...(submodulesSupported ? [] : ["indexed gitlinks/submodules are unsupported by completion checking; nested clean state cannot be established"]),
+    ...(before.status === "" && after.status === "" ? [] : ["working tree or index has tracked, untracked or submodule changes"]),
+    ...(repositoryStateUnchanged ? [] : ["repository state changed during completion check"]),
+    ...missingSteps.map(step => `missing required step: ${step}`),
+    ...unexpectedSteps.map(step => `unexpected step: ${step}`),
+    ...steps.flatMap(step => phases.filter(phase => step.phases[phase] !== "complete").map(phase => `${step.step}: ${phase} is ${step.phases[phase]}`)),
+    ...unresolvedFindings.map(finding => `${finding.step}: finding ${finding.id} is ${finding.status}; explicit verified disposition required`),
+  ];
+  return {
+    completionChecksPassed: checked.integrityValid && issues.length === 0,
+    integrityValid: checked.integrityValid,
+    candidate: { expected: expectedCommit, head: after.head, exactHead, workingTreeClean, indexVisibilitySupported, submodulesSupported, repositoryStateUnchanged },
+    requiredSteps: [...requiredSteps], missingSteps, unexpectedSteps, steps, phaseClaimsComplete,
+    unresolvedFindings, issues, approval: "not-assessed", taskAcceptance: "not-assessed",
+  };
+}
+
 function main(args) {
   const [command, ...rest] = args;
   if (command === "create" && rest.length === 3) return createRun(...rest);
@@ -197,12 +260,17 @@ function main(args) {
   if (command === "reference" && rest.length === 1) return reference(rest[0]);
   if (command === "append" && rest.length === 1) { appendProgress(rest[0], JSON.parse(readFileSync(0, "utf8"))); return { appended: true }; }
   if (command === "read" && rest.length >= 1 && rest.length <= 2) return readProgress(...rest);
+  if (command === "check-completion" && rest.length >= 3) {
+    const result = checkCompletion(rest[0], rest[1], rest.slice(2));
+    if (!result.completionChecksPassed) process.exitCode = 1;
+    return result;
+  }
   if (command === "check" && rest.length === 2) {
     const result = checkProgress(...rest);
     if (!result.integrityValid) process.exitCode = 1;
     return result;
   }
-  fail("usage: principal-pi-progress create <repo> <task> <candidate> | report <run> <name.md> < full-report | reference <file> | append <run> < record.json | read <run> [candidate] | check <run> <candidate>");
+  fail("usage: principal-pi-progress create <repo> <task> <candidate> | report <run> <name.md> < full-report | reference <file> | append <run> < record.json | read <run> [candidate] | check <run> <candidate> | check-completion <run> <full-commit> <required-step>...");
 }
 if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try { console.log(JSON.stringify(main(process.argv.slice(2)), null, 2)); }

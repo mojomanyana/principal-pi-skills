@@ -28,6 +28,12 @@ response alone supplies no source path. Verify full source bytes against the des
 never guess an installation path or substitute a different same-name definition. When copies
 are needed, retain exact bytes, original paths/hashes and capture provenance. Pass accessible
 handoff/source files, the assigned step and each gate's owner/due stage to the child.
+When the operator enables pi-daddy's `PI_DADDY_PUBLIC_EVIDENCE_DIR`, read the returned
+`Public evidence capture:` manifest reference and pass its exact public response/source artifact
+references directly; use the progress helper's `reference` for needed files without retranscribing
+them or creating another manifest. Verify each referenced source/response used in the handoff.
+The capture excludes raw details/private sessions and later Pi hook formatting; it is not approval.
+If required capture failed, stop dependent work. Do not enable collection implicitly.
 Missing evidence due before the assigned work stops dispatch; metadata is not new authority.
 
 The leaf verifies its assigned, due-now obligations and reports later coordinator gates as
@@ -104,6 +110,16 @@ survives. Readers ignore/report an incomplete final line and invalid records; pr
 bytes and use a new run rather than truncating history. Changed candidate/plan/report refs
 invalidate applicable facts. Inspect actual current work and user authority before acting;
 no saved fact, role, title or boolean reconstructs approval. No automatic execution.
+For a full committed workflow requiring all five phases, additionally run
+`check-completion <run> <full-final-commit> <required-step>...` with the complete explicit step set.
+Create that run and every record with the same full commit string; a changed candidate needs a
+new run. The command checks latest-per-step phase claims, all historical evidence, missing/extra
+steps, exact HEAD and clean tracked/untracked state; masked index entries and any indexed
+submodules refuse because hidden nested changes cannot be established. Earlier unresolved findings remain
+until explicitly verified; omitted findings and accepted/duplicate labels do not close gates.
+Zero exit is mechanical completion checks only, never approval or task acceptance. Actual verdict,
+source-required gates and user authority remain coordinator judgments. Partial/planless workflows
+retain `check` plus explicit phase reconciliation; never invent completed phases to pass.
 
 **Authority.** Carry authoritative source/definition paths and relevant map rows/global gates
 through Plan → Build → Review. If exact user authority exists only in dialogue and needs

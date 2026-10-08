@@ -151,8 +151,8 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.8.1
-   pi install npm:pi-daddy@0.44.4
+   pi install npm:principal-pi-skills@4.9.0
+   pi install npm:pi-daddy@0.45.0
    pi install npm:skill-harness@0.24.3
    ```
 
@@ -189,8 +189,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.8.1 principal-pi-agents install
-   npx -p principal-pi-skills@4.8.1 principal-pi-agents check
+   npx -p principal-pi-skills@4.9.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.9.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -281,6 +281,26 @@ pending and does not certify its future exit or call tools it lacks. Missing evi
 for current work still blocks. Every dependent step waits for the coordinator's actual return
 checks. Final integrated review preserves global obligations; a task verdict covers only its scope.
 
+### Exact public evidence capture
+
+With companion pi-daddy 0.45.0, an operator can opt in before starting Pi by setting
+`PI_DADDY_PUBLIC_EVIDENCE_DIR` to an existing private owned directory. This option is off
+by default and is not forwarded to children. It captures the native tool's exact public
+`{isError,content}` response before its capture-reference block, plus selected definition/source
+artifacts and existing runtime evidence. It excludes raw `details`, private native sessions,
+and later Pi hook formatting. This is local evidence persistence, not automatic JEV collection.
+
+The appended `Public evidence capture:` block returns `status: "captured"` and a manifest
+`ref` with absolute `path` and SHA-256. Read that manifest and use its response/source references
+directly in child handoffs and `principal-pi-progress reference`; do not transcribe the response
+or produce a second capture manifest. Pass the unmodified response file and accessible selected
+sources or exact captured copies with original identities. Verify the described binding and
+source hashes as before. A manifest hash does not prove its referenced bytes or their meaning;
+check each reference used by the current handoff. A `status: "failed"` capture retains the original
+tool result but does not establish the missing evidence; stop any dependent work that needs it.
+Capture is not authority, receipt validation, review approval or task acceptance. Keep full
+semantic reports and explicit coordinator decisions separate. No setting is enabled by this package.
+
 ## Reports and manual progress
 
 Use the installed `principal-pi-progress` helper when a coordinator needs repeated report
@@ -339,6 +359,40 @@ A valid index can honestly contain unknown/incomplete facts and a completed CHAN
 review. Success means schema/reference consistency only; inspect every relevant step's required
 phases, actual verdict and current authority separately before claiming completion or integration.
 
+For a full committed workflow with all five phases required for every named step, also run:
+
+```sh
+FINAL_COMMIT="$(git rev-parse HEAD)"
+principal-pi-progress check-completion "$FINAL_RUN" "$FINAL_COMMIT" impl:S1 impl:S2
+```
+
+Use the exact full commit string for that run's `create`, appended records and checks. A new
+candidate needs a new run; abbreviated/full IDs are not interchangeable. Supply the complete
+nonempty, unique step list from the approved scope. Missing and unexpected steps fail the check.
+For each step, only its latest full snapshot determines phase claims: all five must be `complete`;
+earlier phase values are never inherited. Every earlier finding remains tracked by step, original
+source path/hash and ID until an explicit later `verified` disposition. Omission or reuse of an ID
+against another source cannot erase it. `accepted`, `addressed`, `disputed`, `duplicate`, `stale`
+and `open` remain unresolved for this command; it never promotes their status automatically.
+A duplicate's target or accepted-risk disposition needs semantic verification and preserved evidence.
+
+`check-completion` reuses the entire history/reference integrity check and requires the supplied
+full Git object ID to equal current HEAD, with no tracked, staged, nonignored untracked or submodule
+changes. It conservatively refuses any `assume-unchanged` or `skip-worktree` index entries,
+including sparse-checkout exclusions, because those can hide changed bytes from Git status.
+Any indexed gitlink/submodule is also unsupported, whether initialized or not: nested index
+flags can conceal dirty bytes, and this command does not recursively qualify submodules.
+It returns `indexVisibilitySupported` and `submodulesSupported` explicitly; either false fails.
+It does not clear flags, recurse into submodules or modify the index. It compares repository observations before and after reading evidence, without locking
+or taking an atomic snapshot. Stop concurrent writers. Its JSON separates `integrityValid`,
+`phaseClaimsComplete`, per-step states, candidate checks and `unresolvedFindings`; exit zero means
+`completionChecksPassed`, mechanical conditions only. `approval` and `taskAcceptance` always remain
+`not-assessed`. A completed CHANGES-REQUESTED review can still be a structurally complete claim;
+the coordinator must read the verdict, reconcile gate evidence and actual authority separately.
+The command never runs tests, commits, marks a phase complete or grants permission. It is not for
+planless/partial workflows that do not require all five phases; use `check` and explicit phase
+reconciliation there. Existing `check` behavior and progress version 1 are unchanged.
+
 The coordinator is the single writer. Save the report before appending progress; an append
 failure preserves that report and leaves progress incomplete. Never force-clear a writer
 lock. Reads return the original records plus independently assessed facts/issues: changed or
@@ -346,7 +400,8 @@ missing files, changed/unconfirmed candidates and malformed/incomplete records r
 unresolved. An incomplete final JSONL line is ignored/reported, never promoted to complete;
 preserve its bytes and start a new run if needed. Reconcile records by step, not just the
 last line. No helper claim proves its evidence's meaning, model judgment, approval or broad
-candidate equivalence. It neither computes candidate identity nor resumes/runs tasks. Check
+candidate equivalence. The helper does not assign candidate identity or resume/run tasks;
+completion checking only compares an explicitly supplied full commit with observed HEAD. Check
 actual user authority/current work before choosing the next action; a title, role, commit or
 self-authored boolean cannot grant approval. This is a trusted-coordinator filesystem helper,
 not hostile-process containment or an atomic multi-file transaction.
