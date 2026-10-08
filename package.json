@@ -1,6 +1,6 @@
 {
     "name": "principal-pi-skills",
-    "version": "4.9.0",
+    "version": "4.10.0",
     "description": "Skill framework for principal-level software engineering: eight skills (decide, architect, plan, build, review, debug, investigate, git-ops), a pi bootstrap, and two approval-gated workflows.",
     "license": "MIT",
     "author": "Nemanja Alavanja",
@@ -46,13 +46,15 @@
             "./prompts"
         ],
         "extensions": [
-            "./extensions/bootstrap.ts"
+            "./extensions/bootstrap.ts",
+            "./extensions/resume.ts"
         ]
     },
     "bin": {
         "principal-pi-agents": "./scripts/install-agents.mjs",
         "principal-pi-workspace": "./scripts/snapshot-workspace.mjs",
-        "principal-pi-progress": "./scripts/progress-artifacts.mjs"
+        "principal-pi-progress": "./scripts/progress-artifacts.mjs",
+        "principal-pi-resume": "./scripts/resume-checkpoint.mjs"
     },
     "files": [
         "AGENTS.md",
@@ -72,7 +74,9 @@
         "scripts/snapshot-workspace.mjs",
         "scripts/progress-artifacts.mjs",
         "extensions/bootstrap.ts",
-        "bootstrap/BOOTSTRAP.md"
+        "bootstrap/BOOTSTRAP.md",
+        "scripts/resume-checkpoint.mjs",
+        "extensions/resume.ts"
     ],
     "devDependencies": {}
 }

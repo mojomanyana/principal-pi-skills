@@ -139,6 +139,25 @@ Typical spines (available as prompt templates):
   and clean tracked/untracked state; masked index entries and indexed submodules refuse.
   It never infers approval or runs/commits work.
 
+## Opt-in quiescent resume
+
+`principal-pi-resume prepare` and `inspect` are offline evidence helpers. Only the interactive
+`/principal-resume arm <checkpoint>` command, with explicit operator confirmation, authorizes
+one next phase at an idle workflow boundary. It binds the exact saved plan, source scope,
+worktree/candidate, reports, optional progress, selected package, model, session leaf and
+pi-daddy owned-execution settlement. The next startup/resume/reload of that same session
+rechecks every binding, consumes the checkpoint durably, then queues one fixed coordinator
+continuation. It does not execute a free-form `nextAction`, bypass native permissions, promote
+progress facts, invent approval, grant push/publish, or automatically re-arm.
+
+Dirty source candidates are supported through separate staged/unstaged and nonignored untracked
+fingerprints. Masked index entries, submodules, unmerged state, ambiguous or active children,
+changed evidence/model/session and uncertain prior dispatch refuse. Ignored dependencies and
+secrets are not fingerprinted. This Linux x64 facility is quiescent boundary recovery, not arbitrary
+mid-execution crash recovery or a filesystem sandbox. The operator still judges semantic gates
+and full report coverage. `/principal-resume disarm` preserves history; `status` explains state.
+See README for setup and the explicit checkpoint request. No JEV or retention consent is implied.
+
 Before any orchestrator artifact write (including planless Review, inline Build or optional
 Investigate persistence), create an absent `.principal/.gitignore` containing `*`, never
 overwrite an existing ignore file, and verify repository report destinations are ignored;
@@ -184,7 +203,9 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Decision — 2026-10-08
 
 Exact public evidence persistence belongs to the native producer; Principal consumes its file
-references and keeps semantic gate decisions explicit. Progress v1 remains unchanged. The new
+references and keeps semantic gate decisions explicit. Progress v1 remains unchanged. Quiescent resume uses a separate versioned checkpoint and
+interactive operator authorization tied to the exact session leaf, with native runtime
+reconciliation and consume-before-enqueue semantics. The new
 read-only completion check requires all named steps and phases, verified finding dispositions,
 exact committed identity and a clean checkout; it never turns recorded claims into approval.
 Retained failures and incomplete runs remain evidence for later JEV/LoRA evaluation, not automatic
@@ -204,8 +225,8 @@ service, new model calls, automatic labels or trained model. OpenAI Decisions re
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.9.0`,
-   `pi install npm:pi-daddy@0.45.0` and `pi install npm:skill-harness@0.24.3`.
+   `pi install npm:principal-pi-skills@4.10.0`,
+   `pi install npm:pi-daddy@0.46.0` and `pi install npm:skill-harness@0.25.0`.
    Native delegation uses exactly Pi 1.0.4 and the qualified captured setup
    (`PI_DADDY_HERDR=0`). Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -216,8 +237,8 @@ service, new model calls, automatic labels or trained model. OpenAI Decisions re
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.9.0 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.9.0 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.10.0 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.10.0 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase

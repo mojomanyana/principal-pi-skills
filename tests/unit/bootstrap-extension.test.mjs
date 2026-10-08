@@ -40,7 +40,7 @@ const count = messages => messages.filter(bootstrap).length;
 
 test("package registers the extension, bootstrap and delegated identity manifest", () => {
   const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-  assert.deepEqual(pkg.pi.extensions, ["./extensions/bootstrap.ts"]);
+  assert.deepEqual(pkg.pi.extensions, ["./extensions/bootstrap.ts", "./extensions/resume.ts"]);
   for (const file of ["extensions/bootstrap.ts", "bootstrap/BOOTSTRAP.md", "principal-agents.json"]) assert.ok(pkg.files.includes(file));
 });
 

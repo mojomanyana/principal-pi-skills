@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.10.0 — 2026-10-08
+
+Add explicit operator-authorized one-shot continuation at a quiescent workflow checkpoint. Bind the exact source bytes, plan, reports, selected package, session leaf, model, repair budget and reconciled pi-daddy settlement history. Consume the checkpoint before enqueue; changed state, unknown children or interrupted delivery refuse automatic replay. Ship `principal-pi-resume` and `/principal-resume` through npm.
+
 All notable changes to this framework are documented here. Format follows [Keep a Changelog](https://keepachangelog.com/).
 
 Where review revealed a prior claim or design decision didn't hold up under closer inspection, this changelog says so explicitly. The history of the framework's own thinking is part of the framework.

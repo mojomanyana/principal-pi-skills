@@ -151,9 +151,9 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.9.0
-   pi install npm:pi-daddy@0.45.0
-   pi install npm:skill-harness@0.24.3
+   pi install npm:principal-pi-skills@4.10.0
+   pi install npm:pi-daddy@0.46.0
+   pi install npm:skill-harness@0.25.0
    ```
 
    Restart Pi after package changes. The `pi` manifest registers eight skills, four
@@ -189,8 +189,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.9.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.9.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.10.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.10.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -511,3 +511,83 @@ Why the files look the way they do. Each of these was learned by measuring the a
 MIT © 2026 Nemanja Alavanja. See [LICENSE](./LICENSE).
 
 The Debug inline budget includes three generated frontmatter words that mark Principal package identity; missing or replaced package metadata must refuse native binding rather than downgrade to inline instructions.
+
+
+## Quiescent automatic resume
+
+Install this package through npm as usual. `principal-pi-resume` is included; inside Pi,
+`/principal-resume` provides `arm`, `disarm` and `status`. The facility is opt-in and currently
+Linux x64 only with the current native settlement bridge. It requires a pi-daddy release exposing `pi-daddy:runtime-snapshot:v1`, a qualified
+selected backend, and a persisted Pi session. An absent, busy, unknown or unqualified runtime
+refuses; there is no runner fallback. Existing progress v1 and `check-completion` remain
+read-only evidence checks and cannot authorize continuation.
+
+Use this at a **quiescent workflow boundary**: the complete plan and relevant reports exist,
+the operator has inspected them and the current candidate, all previously owned children have
+identity-bound native settlement, and the next phase is known. It can preserve an uncommitted
+candidate, but cannot recover an interrupted writer, uncertain launch, missing report, or
+unknown cleanup. It never repeats an implementation merely because a conversation ended.
+
+1. Save a request JSON file with the following exact fields. `scope` contains explicit relative
+   source paths, or directories ending in `/`. `phase` is `build`, `review` or `git-ops`.
+   Review/finish requests require original full report paths. `repairsRemaining` is 0–2.
+
+   ```json
+   {
+     "version": 1,
+     "task": "Implement the approved interval repair",
+     "plan": "/absolute/repo/.principal/plans/interval-repair.md",
+     "scope": ["src/intervals.js", "test/intervals.test.js"],
+     "phase": "build",
+     "step": "impl:S1",
+     "repairsRemaining": 2,
+     "reports": [],
+     "progressRun": null
+   }
+   ```
+
+2. Run `principal-pi-resume prepare /absolute/repo /absolute/request.json`. It allocates an
+   unused ignored `.principal/resume/<id>/checkpoint.json`; preparation grants no authority.
+   It creates an absent `.principal/.gitignore` with `*`, preserves existing ignore policy,
+   and refuses exposed destinations. `principal-pi-resume candidate /absolute/repo` prints
+   the candidate identity. If supplying `progressRun`, its run/records must already bind that
+   exact identity and pass the shipped integrity check. Existing arbitrary dirty-candidate
+   labels are not automatically converted or equated.
+3. In the **same idle Pi session**, run `/principal-resume arm <checkpoint-directory>`.
+   Inspect the displayed task, plan hash, candidate, phase, scope, report paths, repair budget
+   and model, then explicitly confirm. The operator is confirming the exact next phase and
+   its due semantic gates, including integrated review before a Git-Ops phase. Headless mode
+   cannot approve. The command records a session-owned authorization entry; model-written
+   approval flags, report claims or copied user-role messages are insufficient.
+4. Resume/reload that same session, or restart Pi with that exact persisted session. After
+   runtime initialization, Principal reconciles package and artifact hashes, worktree/candidate,
+   session leaf/model and native owned-execution receipts. It durably consumes the checkpoint
+   **before** queueing one fixed continuation, with prompt-template expansion disabled.
+   Intervening turns, a new/forked session, changed plan/model/source/reports or runtime history
+   refuse. The continuation reads original evidence and stops at the next workflow boundary;
+   it cannot re-arm itself. Push, merge, publication and destructive Git actions are not granted.
+
+`/principal-resume status [checkpoint-directory]` and
+`principal-pi-resume inspect <checkpoint-directory>` report prepared/armed/enqueued/disarmed
+or consumed-uncertain state. Enqueued means the Pi enqueue API returned, not that a model turn
+or its work completed; inspect the actual session for later delivery/execution errors.
+`/principal-resume disarm <checkpoint-directory>` preserves the
+checkpoint and its history. Failure between consumption and successful enqueue remains
+**consumed-uncertain** and never triggers an automatic retry. Inspect actual session/work/runtime
+state before preparing and explicitly authorizing a new checkpoint.
+
+Candidate checks bind canonical Git worktree/common-directory identity, full HEAD/branch,
+index entries, staged and unstaged binary diffs, and nonignored untracked file bytes/modes.
+Masked entries, indexed submodules, conflicts and untracked symlinks/special files refuse.
+Checks observe stability; they are not an atomic filesystem lock. Ignored dependencies,
+credentials and caches are excluded and their environment compatibility remains an operator
+obligation. Individual evidence/untracked files are limited to 16 MiB, untracked content to
+64 MiB/256 files, source scope to 128 paths and checkpoints to 256 per repository. Evidence
+hashes establish bytes, not report truth or approval. Same-user hostile file/session tampering
+and OS containment are outside this local extension's guarantees.
+
+Model-free tests exercise authorization, exact-session restart/reload, dirty candidates,
+changed evidence, missing/busy runtime, duplicate consumption and failed enqueue. Those tests
+qualify these mechanisms, not general autonomous success or automatic semantic approval.
+
+Resume candidate checks hash raw ordinary tracked worktree bytes in addition to Git index and staged/unstaged diffs, so newline normalization or clean filters cannot hide changed bytes. Tracked symlinks, non-UTF-8 Git output and newline-containing repository metadata paths are unsupported. The bounded snapshot permits at most 16,384 tracked files and 256 MiB of tracked content, with a 16 MiB per-file limit; untracked limits remain 256 files and 64 MiB. A raw byte or executable-mode difference from the index is treated as a candidate change even when Git reports a clean normalized diff. Every shipped runtime helper is included in the package binding.
