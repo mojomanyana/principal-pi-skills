@@ -39,6 +39,8 @@ const REQUIRED = [
   "scripts/install-agents.mjs",
   "scripts/snapshot-workspace.mjs",
   "scripts/progress-artifacts.mjs",
+  "scripts/resume-checkpoint.mjs",
+  "extensions/resume.ts",
   "extensions/bootstrap.ts",
   "bootstrap/BOOTSTRAP.md",
 ];
@@ -50,7 +52,7 @@ const FORBIDDEN = [
   [/tests\//, "scenarios, fixtures and committed results"],
   [/^contracts\//, "contract templates — build-time source, not runtime"],
   [/^\.github\//, "CI configuration"],
-  [/^scripts\/(?!install-agents\.mjs$|snapshot-workspace\.mjs$|progress-artifacts\.mjs$)/, "dev-only scripts"],
+  [/^scripts\/(?!install-agents\.mjs$|snapshot-workspace\.mjs$|progress-artifacts\.mjs$|resume-checkpoint\.mjs$)/, "dev-only scripts"],
   [/(^|\/)\.claude\//, "local editor/agent settings"],
   [/(^|\/)\.pi\//, "local pi settings"],
   [/package-lock\.json$/, "lockfile — not consumed by installers of this package"],

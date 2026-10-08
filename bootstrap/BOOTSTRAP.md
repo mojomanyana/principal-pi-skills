@@ -33,4 +33,4 @@ Task review approval covers its scope; final integrated review supports finish.
 
 Feature/bugfix/refactor spines stop after planning/diagnosis for actual approval.
 Preserve full reports, sources and caveats; progress never reconstructs approval.
-An eligible small direct request may finish inline with actual checks and caveats.
+Small direct work may finish inline with checks. `/principal-resume` requires explicit operator authorization.

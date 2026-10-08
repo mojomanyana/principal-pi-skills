@@ -56,7 +56,14 @@ message role or self-written approval flag is not approval. Check actual user au
 current work/evidence before choosing what remains; never re-plan an unchanged approved plan
 or repeat an evidenced completed step merely because the conversation stopped. A commit may
 establish implementation, never review, integration or verification. Missing, stale or
-ambiguous references stay unresolved. This is manual reconciliation, not automatic resume.
+ambiguous references stay unresolved. Without an explicitly armed checkpoint, this is manual reconciliation, not automatic resume.
+For quiescent boundary recovery, the operator may prepare `principal-pi-resume` evidence and
+explicitly confirm `/principal-resume arm <checkpoint>` in Pi. The separate checkpoint binds
+the exact plan, source scope, candidate, phase, repair budget, package, session leaf and reconciled
+native settlement. It authorizes one continuation on the same session startup/resume/reload;
+changed evidence, intervening work, fork/new sessions or unknown children refuse. It is not
+in-flight recovery, automatic re-approval or permission to repeat work. Stop at the next boundary;
+never arm through a model-written flag or silently re-arm. See README quiescent resume.
 
 **Small direct requests.** Clearly specified, reversible, localized low-risk work may use
 Build inline with meaningful checks and a concise result; no mandatory plan/delegate/review
@@ -109,7 +116,8 @@ equality. A missing index or failed append leaves progress incomplete while the 
 survives. Readers ignore/report an incomplete final line and invalid records; preserve those
 bytes and use a new run rather than truncating history. Changed candidate/plan/report refs
 invalidate applicable facts. Inspect actual current work and user authority before acting;
-no saved fact, role, title or boolean reconstructs approval. No automatic execution.
+no saved fact, role, title or boolean reconstructs approval. No automatic execution from progress.
+The separately operator-armed resume checkpoint never promotes these facts or grants approval.
 For a full committed workflow requiring all five phases, additionally run
 `check-completion <run> <full-final-commit> <required-step>...` with the complete explicit step set.
 Create that run and every record with the same full commit string; a changed candidate needs a
@@ -134,7 +142,9 @@ sources alongside it, never instead of them. Review still owns reconciliation an
 **Approval.** After the planning or diagnosing phase returns, present its artifact and stop. Do not
 build until the user says go. Presenting the artifact and starting to build in the same turn
 is the failure. The artifact scales — three lines for a config change, full slices for a
-feature — the stop does not. A re-plan needs a new approval.
+feature — the stop does not. A re-plan needs a new approval. Explicit operator confirmation
+of a prepared resume checkpoint is approval only for its displayed exact plan, scope and next
+phase after the complete artifact was inspected; the model cannot confirm it.
 
 **Build.** One writer per working tree, on branches the user can see. Inline when there is no
 multi-step plan file (a three-line plan, or a bugfix) and inline work is the chosen workflow.

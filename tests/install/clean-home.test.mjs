@@ -173,6 +173,24 @@ test("the installed bins actually run — not a silent exit 0", () => {
   assert.equal(readFileSync(report.path, "utf8"), "Complete report\nCaveat: runtime not tested\n");
   const progress = JSON.parse(execFileSync(progressBin, ["read", run, "candidate-A"], { env, encoding: "utf8" }));
   assert.match(progress.issues.join(" "), /progress incomplete/);
+  if (process.platform === "linux") {
+    const resumeBin = join(proj, "node_modules", ".bin", "principal-pi-resume");
+    assert.ok(existsSync(resumeBin), "the resume bin must be linked");
+    const resumeRepo = join(home, "resume-repo"); mkdirSync(resumeRepo);
+    execFileSync("git", ["init", "-q"], { cwd: resumeRepo });
+    execFileSync("git", ["-c", "user.email=t@l", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "seed"], { cwd: resumeRepo });
+    const planFile = join(home, "plan.md"), requestFile = join(home, "request.json");
+    writeFileSync(planFile, "Full fixture plan: add src/example.js and verify.\n");
+    writeFileSync(requestFile, JSON.stringify({ version: 1, task: "Fixture", plan: planFile, scope: ["src/"], phase: "build", step: "impl:S1", repairsRemaining: 0, reports: [], progressRun: null }));
+    const candidate = JSON.parse(execFileSync(resumeBin, ["candidate", resumeRepo], { env, encoding: "utf8" }));
+    const checkpoint = JSON.parse(execFileSync(resumeBin, ["prepare", resumeRepo, requestFile], { env, encoding: "utf8" }));
+    assert.equal(checkpoint.checkpoint.candidate.id, candidate.id);
+    const inspected = JSON.parse(execFileSync(resumeBin, ["inspect", checkpoint.path], { env, encoding: "utf8" }));
+    assert.equal(inspected.checksPassed, true); assert.equal(inspected.state, "prepared");
+    assert.equal(readFileSync(join(resumeRepo, ".principal/.gitignore"), "utf8"), "*\n");
+    assert.throws(() => execFileSync(resumeBin, ["arm", checkpoint.path], { env, stdio: "pipe" }), /Command failed/);
+  }
+
 });
 
 test("npm skill and agent install recipes use the package version and matching sources", () => {
@@ -226,7 +244,7 @@ test("the bin invocations the docs print are resolvable", () => {
   assert.ok(scanned.some((p) => p.startsWith("agents/")),
     "the sweep must cover agents/*.md — they are installed into the user's agent dir");
 
-  const bare = /npx\s+(principal-pi-(?:agents|workspace))/;
+  const bare = /npx\s+(principal-pi-(?:agents|workspace|progress|resume))/;
   for (const d of scanned) {
     const text = readFileSync(join(ROOT, d), "utf8");
     const m = text.match(bare);
