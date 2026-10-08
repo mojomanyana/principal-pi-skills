@@ -161,23 +161,64 @@ export function appendProgress(run, record) {
   } finally { unlinkSync(lock); }
 }
 
+// Reuse exact evidence bytes only inside this reconciliation. Every expected hash is
+// still checked, and final path/identity observations invalidate all affected claims.
+function reconcileReferences(records) {
+  const paths = new Map(), files = new Map();
+  const observe = path => {
+    const info = lstatSync(path, { bigint: true });
+    if (info.isSymbolicLink()) fail(`symlink refused: ${path}`);
+    if (!info.isFile()) fail(`not a regular file: ${path}`);
+    return { canonical: realpathSync(path), identity: [info.dev, info.ino, info.mode, info.size, info.mtimeNs, info.ctimeNs].map(String).join(":") };
+  };
+  const same = (left, right) => left.canonical === right.canonical && left.identity === right.identity;
+  const unavailable = (path, error) => `unavailable evidence: ${path} (${error.message})`;
+  for (const record of records) {
+    const refs = [...Object.values(record.facts).flatMap(fact => fact.evidence), ...record.findings.map(finding => finding.source), ...(record.plan ? [record.plan] : [])];
+    for (const ref of refs) {
+      if (paths.has(ref.path)) continue;
+      try {
+        const observed = observe(ref.path);
+        let file = files.get(observed.canonical);
+        if (!file) {
+          const digest = hash(readFileSync(observed.canonical));
+          if (!same(observed, observe(ref.path))) fail("evidence changed while reading");
+          file = { observed, digest };
+          files.set(observed.canonical, file);
+        } else if (!same(file.observed, observed)) fail("evidence changed during reconciliation");
+        paths.set(ref.path, { observed, file });
+      } catch (error) { paths.set(ref.path, { issue: unavailable(ref.path, error) }); }
+    }
+  }
+  for (const [path, value] of paths) {
+    if (value.issue) continue;
+    try { if (!same(value.observed, observe(path))) fail("evidence changed during reconciliation"); }
+    catch (error) { value.issue = unavailable(path, error); }
+  }
+  return ref => {
+    const value = paths.get(ref.path);
+    return value.issue ?? (value.file.digest === ref.sha256 ? null : `changed evidence: ${ref.path}`);
+  };
+}
+
 /** Reconcile evidence only. A supplied candidate is an assertion by the caller, not approval. */
 export function readProgress(run, expectedCandidate = null) {
   const info = runInfo(run), parsed = parseIndex(join(info.path, "progress.jsonl"));
+  const evidenceIssue = reconcileReferences(parsed.records);
   return {
     issues: [...parsed.issues, ...(parsed.records.length ? [] : ["no complete progress record; progress incomplete"])],
     records: parsed.records.map(record => {
       const issues = [], facts = {};
-      const planIssue = record.plan ? refIssue(record.plan) : null;
+      const planIssue = record.plan ? evidenceIssue(record.plan) : null;
       if (planIssue) issues.push(planIssue);
       for (const phase of phases) {
-        const fact = record.facts[phase], failures = fact.evidence.map(refIssue).filter(Boolean);
+        const fact = record.facts[phase], failures = fact.evidence.map(evidenceIssue).filter(Boolean);
         if (planIssue) failures.push("plan evidence changed or unavailable");
         if (phase !== "planned" && (record.candidate !== expectedCandidate || record.candidate !== info.candidate)) failures.push("candidate unconfirmed or changed");
         facts[phase] = { ...fact, state: failures.length ? "unknown" : fact.state };
         issues.push(...failures.map(issue => `${phase}: ${issue}`));
       }
-      for (const finding of record.findings) { const issue = refIssue(finding.source); if (issue) issues.push(`finding ${finding.id}: ${issue}`); }
+      for (const finding of record.findings) { const issue = evidenceIssue(finding.source); if (issue) issues.push(`finding ${finding.id}: ${issue}`); }
       return { record, facts, issues };
     }),
   };

@@ -151,9 +151,9 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.10.0
+   pi install npm:principal-pi-skills@4.10.1
    pi install npm:pi-daddy@0.46.0
-   pi install npm:skill-harness@0.25.0
+   pi install npm:skill-harness@0.25.1
    ```
 
    Restart Pi after package changes. The `pi` manifest registers eight skills, four
@@ -189,8 +189,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.10.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.10.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.10.1 principal-pi-agents install
+   npx -p principal-pi-skills@4.10.1 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -546,10 +546,22 @@ unknown cleanup. It never repeats an implementation merely because a conversatio
    }
    ```
 
-2. Run `principal-pi-resume prepare /absolute/repo /absolute/request.json`. It allocates an
+2. Resolve the helper from the **same selected npm package** that Pi loads. `pi install`
+   keeps package binaries inside its npm directory; it does not add them to your shell PATH.
+   For the default user installation:
+
+   ```sh
+   RESUME_HELPER="${PI_CODING_AGENT_DIR:-$HOME/.pi/agent}/npm/node_modules/principal-pi-skills/scripts/resume-checkpoint.mjs"
+   node "$RESUME_HELPER" prepare /absolute/repo /absolute/request.json
+   ```
+
+   If Pi selects a project-local or explicitly configured package, use that package's actual
+   `scripts/resume-checkpoint.mjs` path instead. A separate `npx` package copy has a different
+   bound installation path and cannot prepare checkpoints for the selected copy.
+   Preparation allocates an
    unused ignored `.principal/resume/<id>/checkpoint.json`; preparation grants no authority.
    It creates an absent `.principal/.gitignore` with `*`, preserves existing ignore policy,
-   and refuses exposed destinations. `principal-pi-resume candidate /absolute/repo` prints
+   and refuses exposed destinations. `node "$RESUME_HELPER" candidate /absolute/repo` prints
    the candidate identity. If supplying `progressRun`, its run/records must already bind that
    exact identity and pass the shipped integrity check. Existing arbitrary dirty-candidate
    labels are not automatically converted or equated.
@@ -568,7 +580,7 @@ unknown cleanup. It never repeats an implementation merely because a conversatio
    it cannot re-arm itself. Push, merge, publication and destructive Git actions are not granted.
 
 `/principal-resume status [checkpoint-directory]` and
-`principal-pi-resume inspect <checkpoint-directory>` report prepared/armed/enqueued/disarmed
+`node "$RESUME_HELPER" inspect <checkpoint-directory>` report prepared/armed/enqueued/disarmed
 or consumed-uncertain state. Enqueued means the Pi enqueue API returned, not that a model turn
 or its work completed; inspect the actual session for later delivery/execution errors.
 `/principal-resume disarm <checkpoint-directory>` preserves the
@@ -591,3 +603,23 @@ changed evidence, missing/busy runtime, duplicate consumption and failed enqueue
 qualify these mechanisms, not general autonomous success or automatic semantic approval.
 
 Resume candidate checks hash raw ordinary tracked worktree bytes in addition to Git index and staged/unstaged diffs, so newline normalization or clean filters cannot hide changed bytes. Tracked symlinks, non-UTF-8 Git output and newline-containing repository metadata paths are unsupported. The bounded snapshot permits at most 16,384 tracked files and 256 MiB of tracked content, with a 16 MiB per-file limit; untracked limits remain 256 files and 64 MiB. A raw byte or executable-mode difference from the index is treated as a candidate change even when Git reports a clean normalized diff. Every shipped runtime helper is included in the package binding.
+
+
+An armed startup uses a temporary inert `principal-resume-ready-<nonce>` prompt to prove that
+Pi finished the entire resource-discovery pass, including later asynchronous extensions.
+Its exact path must appear in Pi's finalized resource list before any checkpoint is consumed;
+selected phase and other evidence are then checked again. The marker contains no task, session
+or authorization data and grants no action when invoked. It is removed on clean session shutdown
+or reload. A hard process kill can leave this harmless temporary file. Missing readiness after
+30 seconds, changed resources or shutdown preserve the armed checkpoint and refuse automatic
+continuation; a fresh startup/reload can try the still-unconsumed checkpoint again.
+
+Maintainers can run the model-free actual-host discovery regressions with
+`PRINCIPAL_PI_SDK_ROOT=/absolute/path/to/@earendil-works/pi-coding-agent npm test`.
+That separately installed host must be exactly Pi 1.0.4. The ordinary suite also covers
+receipt identity, stale same-loader passes, selected-phase changes and shutdown without a host.
+
+Automatic startup checks the bounded checkpoint/control-file inventory first and fully
+reconciles only the sole armed candidate. Consumed and disarmed history does not trigger
+repeated full worktree reads. Malformed checkpoint/control records and multiple armed records
+still refuse; the final armed candidate is independently observed again before consumption.

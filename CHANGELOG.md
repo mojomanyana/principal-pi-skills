@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.10.1 — 2026-10-08
+
+- Hash each unique progress-evidence file once per reconciliation, while checking every expected digest and rejecting files changed or replaced during the pass.
+
+- Wait for the exact finalized Pi resource-discovery receipt before consuming an armed resume checkpoint. Later asynchronous resource handlers, stale discovery passes and shutdown cannot trigger premature continuation.
+- Inspect checkpoint state first so inactive history does not repeatedly hash the worktree; fully revalidate the one armed candidate before consumption.
+- Correct the npm resume walkthrough to invoke the helper from the selected installed package.
+
 ## 4.10.0 — 2026-10-08
 
 Add explicit operator-authorized one-shot continuation at a quiescent workflow checkpoint. Bind the exact source bytes, plan, reports, selected package, session leaf, model, repair budget and reconciled pi-daddy settlement history. Consume the checkpoint before enqueue; changed state, unknown children or interrupted delivery refuse automatic replay. Ship `principal-pi-resume` and `/principal-resume` through npm.
