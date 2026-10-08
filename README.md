@@ -172,9 +172,9 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.11.1
-   pi install npm:pi-daddy@0.46.1
-   pi install npm:skill-harness@0.26.1
+   pi install npm:principal-pi-skills@4.11.2
+   pi install npm:pi-daddy@0.47.0
+   pi install npm:skill-harness@0.26.2
    ```
 
    Restart Pi after package changes. The `pi` manifest registers eight skills, four
@@ -210,8 +210,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.11.1 principal-pi-agents install
-   npx -p principal-pi-skills@4.11.1 principal-pi-agents check
+   npx -p principal-pi-skills@4.11.2 principal-pi-agents install
+   npx -p principal-pi-skills@4.11.2 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm

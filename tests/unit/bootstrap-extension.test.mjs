@@ -155,3 +155,22 @@ test("a disappeared exact Principal selection still latches a visible failure", 
   await h.activate();
   assert.equal(await h.fire("context", { messages: [user("explicit reload still required")] }), undefined);
 });
+
+
+test("version report keeps the loaded generation through disk replacement and detaches at shutdown", async t => {
+  const dir = mkdtempSync(join(tmpdir(), "principal-version-"));
+  t.after(() => rmSync(dir, { recursive: true, force: true }));
+  mkdirSync(join(dir, "extensions"));
+  const manifest = join(dir, "package.json"), copy = join(dir, "extensions/bootstrap.mjs");
+  writeFileSync(manifest, JSON.stringify({ name: "principal-pi-skills", version: "4.11.2" }));
+  writeFileSync(copy, readFileSync(join(ROOT, "extensions/bootstrap.ts"), "utf8"));
+  const handlers = new Map(), listeners = new Map();
+  const pi = { on: (name, fn) => handlers.set(name, fn), events: { on: (name, fn) => { listeners.set(name, fn); return () => listeners.delete(name); } } };
+  (await import(pathToFileURL(copy).href)).default(pi);
+  writeFileSync(manifest, JSON.stringify({ name: "principal-pi-skills", version: "4.12.0" }));
+  const reports = [];
+  listeners.get("pi-daddy:ecosystem-versions:v1")({ report: value => reports.push(value) });
+  assert.deepEqual(reports, [{ id: "principal-pi-skills", version: "4.11.2", root: dir }]);
+  await handlers.get("session_shutdown")();
+  assert.equal(listeners.size, 0);
+});

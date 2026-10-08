@@ -8,6 +8,17 @@ const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 const names = new Set(["decide", "architect", "plan", "build", "review", "debug", "investigate", "git-ops"]);
 
 export default function bootstrapExtension(pi) {
+  // Capture at registration, so a later npm install cannot impersonate this loaded generation.
+  let loadedVersion;
+  try {
+    const manifest = JSON.parse(readFileSync(resolve(root, "package.json"), "utf8"));
+    if (manifest.name === "principal-pi-skills") loadedVersion = manifest.version;
+  } catch { /* Optional diagnostic only. */ }
+  const removeVersionReporter = pi.events?.on("pi-daddy:ecosystem-versions:v1", request => {
+    if (typeof request?.report === "function" && typeof loadedVersion === "string")
+      request.report({ id: "principal-pi-skills", version: loadedVersion, root });
+  });
+  pi.on("session_shutdown", () => { removeVersionReporter?.(); });
   // All state belongs to this registration. SDK reload installs a new generation; no
   // module-global content cache or text marker can keep old/disabled resources alive.
   const owned = new WeakSet();
