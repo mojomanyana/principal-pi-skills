@@ -1,7 +1,8 @@
 // One operator-authorized, quiescent continuation. Not a scheduler or in-flight retry engine.
 import { randomUUID } from "node:crypto";
-import { dirname, resolve } from "node:path";
-import { realpathSync, lstatSync } from "node:fs";
+import { dirname, join, resolve } from "node:path";
+import { tmpdir } from "node:os";
+import { realpathSync, lstatSync, mkdtempSync, writeFileSync, unlinkSync, rmdirSync } from "node:fs";
 import { fileURLToPath } from "node:url";
 import { inspectCheckpoint, listCheckpoints, authorizeCheckpoint, readAuthorization, disarmCheckpoint, consumeCheckpoint, markEnqueued, continuation } from "../scripts/resume-checkpoint.mjs";
 
@@ -48,6 +49,7 @@ export async function requestRuntime(pi, ctx, timeoutMs = 5000) {
 }
 export default function resumeExtension(pi) {
   let generation = 0, pending = null, disposed = false;
+  const discoveryReceipts = new Set();
   const notify = (ctx, message, level = "info") => { if (ctx.hasUI) ctx.ui.notify(`Principal resume: ${message}`, level); else console.error(`Principal resume: ${message}`); };
   const guard = (ctx, expectedGeneration) => { assert(!disposed && generation === expectedGeneration && ctx.isIdle(), "session changed or is no longer idle"); };
   pi.registerCommand("principal-resume", {
@@ -94,10 +96,10 @@ export default function resumeExtension(pi) {
   async function resume(ctx, token) {
     try {
       guard(ctx, token);
-      const candidates = listCheckpoints(ctx.cwd).map(entry => inspectCheckpoint(entry.path, root)).filter(entry => entry.state === "armed");
+      const candidates = listCheckpoints(ctx.cwd).filter(entry => entry.state === "armed");
       if (!candidates.length) return;
       assert(candidates.length === 1, "multiple armed checkpoints require explicit reconciliation");
-      const info = candidates[0];
+      const info = inspectCheckpoint(candidates[0].path, root);
       assert(info.checksPassed, info.issues.join("; "));
       const auth = readAuthorization(info.path), value = auth.value;
       assert(value.schema === ENTRY && value.source === "interactive-operator-confirmation" && value.checkpointSha256 === info.checkpointSha256, "authorization does not bind this checkpoint");
@@ -125,10 +127,45 @@ export default function resumeExtension(pi) {
     catch (error) { if (error.code === "ENOENT") return; notify(ctx, error.message, "error"); return; }
     pending = { ctx, token: generation };
   });
-  // Pi emits discovery after all session_start handlers. Defer until this discovery turn returns.
+  // Pi 1.0.4 installs returned resources synchronously only AFTER every discovery handler resolves.
+  // A zero-delay timer inside this event can run while a later async handler is still discovering.
+  // Observe this pass's exact, inert prompt path in the finalized public resource list instead.
   pi.on("resources_discover", async () => {
     const work = pending; pending = null;
-    if (work) setTimeout(() => { void resume(work.ctx, work.token); }, 0);
+    if (!work) return;
+    try {
+      guard(work.ctx, work.token);
+      if (!listCheckpoints(work.ctx.cwd).some(entry => entry.state === "armed")) return;
+      const directory = mkdtempSync(join(tmpdir(), "principal-resume-discovery-"));
+      const name = "principal-resume-ready-" + randomUUID(), path = join(directory, name + ".md");
+      try {
+        writeFileSync(path, "---\ndescription: Principal resume resource-readiness marker; no action or authority\n---\nThis is an inert Principal resume readiness marker. Do not perform work from it. Use /principal-resume status to inspect checkpoints.\n", { flag: "wx", mode: 0o600 });
+      } catch (error) { rmdirSync(directory); throw error; }
+      discoveryReceipts.add({ directory, path });
+      void (async () => {
+        try {
+          const deadline = Date.now() + 30000;
+          while (true) {
+            guard(work.ctx, work.token);
+            const found = pi.getCommands().filter(command => command.source === "prompt" && command.name === name && command.sourceInfo?.path === path);
+            if (found.length === 1) break;
+            assert(found.length === 0, "resource discovery receipt is ambiguous");
+            assert(Date.now() < deadline, "resource discovery did not finalize within 30 seconds; checkpoint remains armed");
+            await new Promise(resolve => setTimeout(resolve, 25));
+          }
+          await resume(work.ctx, work.token);
+        } catch (error) {
+          if (!disposed && generation === work.token) notify(work.ctx, error.message, "error");
+        }
+      })();
+      return { promptPaths: [path] };
+    } catch (error) { notify(work.ctx, error.message, "error"); }
   });
-  pi.on("session_shutdown", async () => { disposed = true; generation++; pending = null; });
+  pi.on("session_shutdown", async () => {
+    disposed = true; generation++; pending = null;
+    for (const receipt of discoveryReceipts) {
+      try { unlinkSync(receipt.path); rmdirSync(receipt.directory); discoveryReceipts.delete(receipt); }
+      catch (error) { console.error(`Principal resume: readiness marker cleanup failed: ${error.message}`); }
+    }
+  });
 }

@@ -225,8 +225,8 @@ service, new model calls, automatic labels or trained model. OpenAI Decisions re
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.10.0`,
-   `pi install npm:pi-daddy@0.46.0` and `pi install npm:skill-harness@0.25.0`.
+   `pi install npm:principal-pi-skills@4.10.1`,
+   `pi install npm:pi-daddy@0.46.0` and `pi install npm:skill-harness@0.25.1`.
    Native delegation uses exactly Pi 1.0.4 and the qualified captured setup
    (`PI_DADDY_HERDR=0`). Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -237,8 +237,8 @@ service, new model calls, automatic labels or trained model. OpenAI Decisions re
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.10.0 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.10.0 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.10.1 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.10.1 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase
@@ -251,3 +251,19 @@ service, new model calls, automatic labels or trained model. OpenAI Decisions re
    `git-ops` allows none, on purpose. Each reason is in the
    skill's frontmatter and the README install section, along with the egress note. Don't
    ask a child for more than its ceiling, and don't raise a ceiling to make a refusal go away.
+
+
+## Decision — 2026-10-08 independent lifecycle review
+
+Quiescent resume waits for an exact per-pass inert prompt resource in Pi's finalized public
+resource list. A timer firing during `resources_discover` is not completion: later asynchronous
+handlers may still alter selected resources. The receipt authorizes nothing; all original
+selected-phase, candidate, session, operator and native-settlement checks run after it. Missing
+readiness times out without consumption. The temporary marker contains no user data and is
+removed on clean shutdown. Offline helpers must run from the actual selected npm installation,
+because an identical package installed elsewhere has a different checkpoint identity.
+
+Automatic readiness uses a cheap validated control-state inventory before selecting the sole
+armed checkpoint. Historical checkpoints never require repeated full worktree hashing during
+startup; malformed state still refuses, and the selected candidate retains its full evidence
+checks and consume-time recheck. Explicit full inspection remains available.

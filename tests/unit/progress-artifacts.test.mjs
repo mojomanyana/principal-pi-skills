@@ -1,4 +1,6 @@
 import { test } from "node:test";
+import fs from "node:fs";
+import { syncBuiltinESMExports } from "node:module";
 import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, rmSync, symlinkSync, statSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
@@ -516,3 +518,79 @@ for (const flag of ["--assume-unchanged", "--skip-worktree"]) {
     assert.equal(readFileSync(join(repo, "source.txt"), "utf8"), "different bytes hidden from git status\n");
   });
 }
+
+
+// Instrument actual file reads rather than an implementation-specific cache seam.
+function observeEvidenceReads(body, onRead = () => {}) {
+  const original = fs.readFileSync, reads = new Map();
+  fs.readFileSync = function(path, ...args) {
+    const bytes = original.call(this, path, ...args);
+    reads.set(String(path), (reads.get(String(path)) ?? 0) + 1);
+    onRead(String(path));
+    return bytes;
+  };
+  syncBuiltinESMExports();
+  try { return body(reads); }
+  finally { fs.readFileSync = original; syncBuiltinESMExports(); }
+}
+
+test("progress reconciles repeated report bytes once per invocation and rereads on the next call", t => {
+  const run = createRun(fixture(t), "task", "candidate-A");
+  const report = saveReport(run, "shared.md", "shared full evidence\n" + "x".repeat(512 * 1024));
+  const record = entry(report);
+  for (const fact of Object.values(record.facts)) Object.assign(fact, { state: "complete", evidence: [report] });
+  record.plan = report;
+  record.findings = [{ id: "observed", source: report, status: "verified" }];
+  for (let index = 0; index < 10; index++) appendProgress(run, record);
+  observeEvidenceReads(reads => {
+    const checked = checkProgress(run, "candidate-A");
+    assert.equal(checked.integrityValid, true);
+    assert.equal(checked.records.length, 10);
+    assert.equal(reads.get(report.path), 1, "one physical read for all phase, plan and finding references");
+    writeFileSync(report.path, "changed after the completed call");
+    const next = checkProgress(run, "candidate-A");
+    assert.equal(next.integrityValid, false, "previous success is never cached across invocations");
+    assert.equal(reads.get(report.path), 2);
+    for (const row of next.records) assert.equal(row.facts.implemented.state, "unknown");
+  });
+});
+
+test("shared-file reconciliation checks each historical expected hash independently", t => {
+  const run = createRun(fixture(t), "task", "candidate-A"), original = saveReport(run, "shared.md", "original evidence");
+  appendProgress(run, entry(original));
+  writeFileSync(original.path, "later evidence");
+  const later = reference(original.path);
+  appendProgress(run, entry(later));
+  observeEvidenceReads(reads => {
+    const checked = checkProgress(run, "candidate-A");
+    assert.equal(checked.integrityValid, false);
+    assert.equal(checked.records[0].facts.implemented.state, "unknown");
+    assert.equal(checked.records[1].facts.implemented.state, "complete");
+    assert.match(checked.records[0].issues.join(" "), /changed evidence/);
+    assert.equal(reads.get(original.path), 1);
+  });
+});
+
+for (const change of ["contents", "identity"]) test(`progress refuses ${change} changes after an earlier cached evidence read`, t => {
+  const run = createRun(fixture(t), "task", "candidate-A"), first = saveReport(run, "first.md", "first evidence");
+  const last = saveReport(run, "last.md", "last evidence");
+  appendProgress(run, entry(first));
+  appendProgress(run, entry(last));
+  let changed = false;
+  observeEvidenceReads(() => {
+    const checked = checkProgress(run, "candidate-A");
+    assert.equal(changed, true);
+    assert.equal(checked.integrityValid, false);
+    assert.equal(checked.records[0].facts.implemented.state, "unknown");
+    assert.match(checked.records[0].issues.join(" "), /changed during reconciliation/);
+  }, path => {
+    if (path !== last.path || changed) return;
+    changed = true;
+    if (change === "contents") writeFileSync(first.path, "different evidence");
+    else {
+      const replacement = join(run, "replacement.md");
+      writeFileSync(replacement, "first evidence");
+      fs.renameSync(replacement, first.path);
+    }
+  });
+});

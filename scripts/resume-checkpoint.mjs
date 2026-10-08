@@ -176,6 +176,21 @@ function checkpointInfo(path) {
   requestSchema({ version: checkpoint.version, task: checkpoint.task, plan: checkpoint.plan.path, scope: checkpoint.scope, phase: checkpoint.phase, step: checkpoint.step, repairsRemaining: checkpoint.repairsRemaining, reports: checkpoint.reports.map(ref => ref.path), progressRun: checkpoint.progress?.run ?? null });
   return { path: absolute, checkpoint, checkpointSha256: hash(checkpointBytes) };
 }
+// State inventory verifies bounded checkpoint-bound control files without inspecting historical worktrees.
+function checkpointState(info) {
+  const records = {};
+  for (const name of ["authorization", "consumed", "enqueued", "disarmed"]) {
+    const path = join(info.path, name + ".json");
+    if (!present(path)) continue;
+    const value = parsed(path);
+    exact(value, name === "authorization" ? ["schema", "checkpointSha256", "source", "session", "runtime"] : ["schema", "checkpointSha256"], `${name} record`);
+    if (value.schema !== `principal-resume-${name}-v1` || value.checkpointSha256 !== info.checkpointSha256) fail(`invalid ${name} checkpoint binding`);
+    if (name === "authorization" && (value.source !== "interactive-operator-confirmation" || !value.session || typeof value.session !== "object" || Array.isArray(value.session) || !value.runtime || typeof value.runtime !== "object" || Array.isArray(value.runtime))) fail("invalid authorization record");
+    records[name] = value;
+  }
+  if (records.consumed && !records.authorization || records.enqueued && !records.consumed) fail("invalid resume state history");
+  return records.disarmed ? "disarmed" : records.consumed ? (records.enqueued ? "enqueued" : "consumed-uncertain") : records.authorization ? "armed" : "prepared";
+}
 export function inspectCheckpoint(path, packageRoot) {
   const info = checkpointInfo(path), c = info.checkpoint, issues = [];
   try {
@@ -184,7 +199,7 @@ export function inspectCheckpoint(path, packageRoot) {
     for (const ref of [c.plan, ...c.reports, ...(c.progress?.files ?? [])]) verifyRef(ref);
     if (c.progress && !checkProgress(c.progress.run, c.candidate.id).integrityValid) fail("progress evidence no longer reconciles");
   } catch (error) { issues.push(error.message); }
-  const state = present(join(info.path, "disarmed.json")) ? "disarmed" : present(join(info.path, "consumed.json")) ? (present(join(info.path, "enqueued.json")) ? "enqueued" : "consumed-uncertain") : present(join(info.path, "authorization.json")) ? "armed" : "prepared";
+  const state = checkpointState(info);
   return { ...info, state, checksPassed: issues.length === 0, issues, authority: "interactive operator confirmation required; progress is never authority" };
 }
 export function listCheckpoints(repo) {
@@ -193,13 +208,13 @@ export function listCheckpoints(repo) {
   try { parent = resumeRoot(root); } catch (error) { if (error.code === "ENOENT") return []; throw error; }
   const names = readdirSync(parent);
   if (names.length > 256 || names.some(name => !UUID.test(name))) fail("resume directory contains unsupported entries or exceeds 256 checkpoints");
-  return names.sort().map(name => checkpointInfo(join(parent, name)));
+  return names.sort().map(name => { const info = checkpointInfo(join(parent, name)); return { ...info, state: checkpointState(info) }; });
 }
 export function authorizeCheckpoint(path, packageRoot, session, runtime, expectedCheckpointSha256) {
   const inspected = inspectCheckpoint(path, packageRoot);
   if (!inspected.checksPassed || inspected.state !== "prepared") fail("checkpoint is not a fresh reconciled preparation");
   if (!HASH.test(expectedCheckpointSha256 ?? "") || inspected.checkpointSha256 !== expectedCheckpointSha256) fail("checkpoint changed since operator review");
-  if (listCheckpoints(inspected.checkpoint.candidate.root).some(other => present(join(other.path, "authorization.json")) && !present(join(other.path, "disarmed.json")) && !present(join(other.path, "consumed.json")))) fail("another checkpoint is already armed");
+  if (listCheckpoints(inspected.checkpoint.candidate.root).some(other => other.state === "armed")) fail("another checkpoint is already armed");
   writeNew(join(inspected.path, "authorization.json"), { schema: "principal-resume-authorization-v1", checkpointSha256: inspected.checkpointSha256, source: "interactive-operator-confirmation", session, runtime });
   return inspected;
 }

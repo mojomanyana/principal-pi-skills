@@ -5,7 +5,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, readFileSync, cpSync, rmSync, sy
 import { tmpdir } from "node:os";
 import { join, dirname } from "node:path";
 import { fileURLToPath, pathToFileURL } from "node:url";
-import { randomUUID } from "node:crypto";
+import { randomUUID, createHash } from "node:crypto";
 import fs from "node:fs";
 import { syncBuiltinESMExports } from "node:module";
 import { candidateSnapshot, prepareCheckpoint, inspectCheckpoint, consumeCheckpoint, authorizeCheckpoint, readAuthorization, disarmCheckpoint, listCheckpoints, main } from "../../scripts/resume-checkpoint.mjs";
@@ -94,7 +94,7 @@ test("quiescent helper retains consumption and never rearms or reconsumes", { sk
 });
 
 async function extensionFixture(t) {
-  const f = fixture(t), handlers = new Map(), commands = new Map(), notifications = [], queued = [];
+  const f = fixture(t), handlers = new Map(), commands = new Map(), notifications = [], queued = [], resourceCommands = [];
   const sessionFile = join(f.home, "session.jsonl"); writeFileSync(sessionFile, "fixture metadata only\n");
   let leaf = { id: "before", parentId: null, type: "message" }, confirm = true, state = "idle", digest = "a".repeat(64), ownerId = "first", currentSession = "session-1", idle = true, ui = true, enqueueError = false;
   const ctx = { cwd: f.repo, model: { provider: "openai-codex", id: "fixture-model", api: "fixture-api" },
@@ -102,7 +102,7 @@ async function extensionFixture(t) {
     sessionManager: { getSessionId: () => currentSession, getSessionFile: () => sessionFile, getLeafId: () => leaf.id, getLeafEntry: () => leaf },
     ui: { notify: (message, level) => notifications.push({ message, level }), confirm: async () => confirm } };
   const pi = { on: (name, fn) => handlers.set(name, fn), registerCommand: (name, fn) => commands.set(name, fn),
-    getCommands: () => [{ name: "skill:build", source: "skill", sourceInfo: { path: join(f.pkg, "build/SKILL.md") } }], getThinkingLevel: () => "medium",
+    getCommands: () => [...resourceCommands, { name: "skill:build", source: "skill", sourceInfo: { path: join(f.pkg, "build/SKILL.md") } }], getThinkingLevel: () => "medium",
     appendEntry: (customType, data) => { leaf = { id: randomUUID(), parentId: leaf.id, type: "custom", customType, data }; },
     sendUserMessage: (text, options) => { if (enqueueError) throw Error("fixture enqueue failure"); queued.push({ text, options }); },
     events: { emit: (channel, request) => {
@@ -111,10 +111,12 @@ async function extensionFixture(t) {
     } } };
   const modulePath = join(f.pkg, "extensions/resume.mjs"); writeFileSync(modulePath, readFileSync(join(f.pkg, "extensions/resume.ts")));
   const mod = await import(pathToFileURL(modulePath).href); mod.default(pi);
+  t.after(() => handlers.get("session_shutdown")());
   const item = f.prepare();
   const command = (args = `arm ${item.path}`) => commands.get("principal-resume").handler(args, ctx);
-  const start = async (reason = "resume") => { await handlers.get("session_start")({ reason }, ctx); await handlers.get("resources_discover")({}, ctx); await new Promise(resolve => setTimeout(resolve, 30)); };
-  return { ...f, item, ctx, pi, mod, queued, notifications, handlers, command, start,
+  const installResources = result => { for (const path of result?.promptPaths ?? []) resourceCommands.push({ name: path.split("/").at(-1).replace(/\.md$/, ""), source: "prompt", sourceInfo: { path } }); };
+  const start = async (reason = "resume") => { await handlers.get("session_start")({ reason }, ctx); const found = await handlers.get("resources_discover")({}, ctx); installResources(found); await new Promise(resolve => setTimeout(resolve, 60)); };
+  return { ...f, item, ctx, pi, mod, queued, notifications, handlers, command, start, installResources, resourceCommands,
     change: changes => { if ("confirm" in changes) confirm = changes.confirm; if (changes.state) state = changes.state; if (changes.digest) digest = changes.digest; if (changes.ownerId) ownerId = changes.ownerId; if (changes.session) currentSession = changes.session; if ("idle" in changes) idle = changes.idle; if ("ui" in changes) ui = changes.ui; if ("enqueueError" in changes) enqueueError = changes.enqueueError; if (changes.interveningTurn) leaf = { id: randomUUID(), parentId: leaf.id, type: "message" }; } };
 }
 test("interactive arm then same-session restart queues exactly one fixed continuation", { skip: !supported }, async t => {
@@ -171,7 +173,7 @@ test("operator confirmation rechecks modified plan and source package before arm
 test("altered model and disabled phase refuse the resumed authorization", { skip: !supported }, async t => {
   const h = await extensionFixture(t); await h.command(); h.ctx.model.id = "different-model";
   await h.start(); assert.equal(h.queued.length, 0);
-  h.ctx.model.id = "fixture-model"; h.pi.getCommands = () => [];
+  h.ctx.model.id = "fixture-model"; h.pi.getCommands = () => [...h.resourceCommands];
   await h.start(); assert.equal(h.queued.length, 0);
 });
 
@@ -223,8 +225,10 @@ for (const target of ["checkpoint.json", "authorization.json"]) test(`runtime aw
     else value.source = "changed after session-owned verification";
     writeFileSync(path, JSON.stringify(value) + "\n"); original(channel, request);
   };
-  await h.start(); assert.equal(h.queued.length, 0); assert.equal(inspectCheckpoint(h.item.path, h.pkg).state, "armed");
-  assert.match(h.notifications.at(-1).message, /changed since resume reconciliation/);
+  await h.start(); assert.equal(h.queued.length, 0);
+  assert.throws(() => inspectCheckpoint(h.item.path, h.pkg), /invalid authorization/);
+  assert.throws(() => readFileSync(join(h.item.path, "consumed.json")), /ENOENT/);
+  assert.match(h.notifications.at(-1).message, /invalid authorization/);
 });
 
 test("unsupported non-UTF8 Git filenames fail closed instead of losing tracked byte coverage", { skip: !supported }, t => {
@@ -254,4 +258,128 @@ test("the displayed checkpoint and its digest come from one bounded read", { ski
   assert.equal(inspectCheckpoint(h.item.path, h.pkg).state, "prepared");
   assert.match(h.notifications.at(-1).message, /checkpoint changed since operator review/);
   assert.equal(h.queued.length, 0);
+});
+
+
+test("resume waits for the exact discovery receipt before consuming, then rechecks the selected phase", { skip: !supported }, async t => {
+  const h = await extensionFixture(t); await h.command();
+  await h.handlers.get("session_start")({ reason: "reload" }, h.ctx);
+  const discovered = await h.handlers.get("resources_discover")({}, h.ctx);
+  assert.equal(discovered.promptPaths.length, 1);
+  await new Promise(resolve => setTimeout(resolve, 70));
+  assert.equal(h.queued.length, 0); assert.equal(inspectCheckpoint(h.item.path, h.pkg).state, "armed");
+  // A later asynchronous discovery handler changes final selected resources before installation.
+  h.pi.getCommands = () => [...h.resourceCommands];
+  h.installResources(discovered);
+  await new Promise(resolve => setTimeout(resolve, 70));
+  assert.equal(h.queued.length, 0); assert.equal(inspectCheckpoint(h.item.path, h.pkg).state, "armed");
+  assert.match(h.notifications.at(-1).message, /selected Principal phase/);
+});
+
+test("a prior same-loader discovery receipt cannot authorize a new pass", { skip: !supported }, async t => {
+  const h = await extensionFixture(t); await h.command();
+  await h.handlers.get("session_start")({ reason: "resume" }, h.ctx);
+  const old = await h.handlers.get("resources_discover")({}, h.ctx);
+  await h.handlers.get("session_start")({ reason: "resume" }, h.ctx);
+  const current = await h.handlers.get("resources_discover")({}, h.ctx);
+  assert.notEqual(old.promptPaths[0], current.promptPaths[0]);
+  h.installResources(old);
+  await new Promise(resolve => setTimeout(resolve, 70));
+  assert.equal(h.queued.length, 0); assert.equal(inspectCheckpoint(h.item.path, h.pkg).state, "armed");
+  h.installResources(current);
+  await new Promise(resolve => setTimeout(resolve, 70));
+  assert.equal(h.queued.length, 1); assert.equal(inspectCheckpoint(h.item.path, h.pkg).state, "enqueued");
+  await h.handlers.get("session_shutdown")();
+  for (const path of [...old.promptPaths, ...current.promptPaths]) assert.throws(() => readFileSync(path), /ENOENT/);
+});
+
+test("shutdown before discovery finishes preserves the unconsumed checkpoint", { skip: !supported }, async t => {
+  const h = await extensionFixture(t); await h.command();
+  await h.handlers.get("session_start")({ reason: "reload" }, h.ctx);
+  const discovered = await h.handlers.get("resources_discover")({}, h.ctx);
+  await h.handlers.get("session_shutdown")();
+  h.installResources(discovered);
+  await new Promise(resolve => setTimeout(resolve, 60));
+  assert.equal(h.queued.length, 0); assert.equal(inspectCheckpoint(h.item.path, h.pkg).state, "armed");
+});
+
+
+// This optional lane runs the exact supported host implementation, not a simulated dispatch loop.
+// PRINCIPAL_PI_SDK_ROOT must point to a separately installed Pi 1.0.4 package; no provider/auth is used.
+for (const scenario of ["unchanged", "late-removal", "same-loader-repeat"]) test(`actual Pi 1.0.4 discovery readiness: ${scenario}`, { skip: !supported || !process.env.PRINCIPAL_PI_SDK_ROOT }, async t => {
+  const sdk = process.env.PRINCIPAL_PI_SDK_ROOT;
+  assert.equal(JSON.parse(readFileSync(join(sdk, "package.json"), "utf8")).version, "1.0.4");
+  const { ExtensionRunner } = await import(pathToFileURL(join(sdk, "dist/core/extensions/runner.js")).href);
+  const { AgentSession } = await import(pathToFileURL(join(sdk, "dist/core/agent-session.js")).href);
+  const { DefaultResourceLoader, SettingsManager } = await import(pathToFileURL(join(sdk, "dist/index.js")).href);
+  const h = await extensionFixture(t), agentDir = join(h.home, "agent"); mkdirSync(agentDir);
+  let selected = true;
+  const loader = new DefaultResourceLoader({ cwd: h.repo, agentDir, settingsManager: SettingsManager.inMemory({ packages: [] }), noExtensions: true, noSkills: true, noPromptTemplates: true, noThemes: true, additionalSkillPaths: [join(h.pkg, "build")], skillsOverride: state => ({ ...state, skills: selected ? state.skills : [] }) });
+  await loader.reload();
+  h.pi.getCommands = () => [...loader.getSkills().skills.map(skill => ({ name: "skill:" + skill.name, source: "skill", sourceInfo: skill.sourceInfo })), ...loader.getPrompts().prompts.map(prompt => ({ name: prompt.name, source: "prompt", sourceInfo: prompt.sourceInfo }))];
+  for (let pass = 0; pass < (scenario === "same-loader-repeat" ? 2 : 1); pass++) {
+    const item = pass === 0 ? h.item : h.prepare();
+    await h.command(`arm ${item.path}`); assert.equal(inspectCheckpoint(item.path, h.pkg).state, "armed");
+    await h.handlers.get("session_start")({ reason: pass === 0 ? "reload" : "resume" }, h.ctx);
+    const before = h.queued.length;
+    const runner = {
+      extensions: [
+        { path: join(h.pkg, "extensions/resume.ts"), handlers: new Map([["resources_discover", [h.handlers.get("resources_discover")]]]) },
+        { path: "later-discovery-fixture", handlers: new Map([["resources_discover", [async () => {
+          await new Promise(resolve => setTimeout(resolve, 100));
+          assert.equal(h.queued.length, before, "continuation must wait for later discovery handlers");
+          if (scenario === "late-removal") selected = false;
+          return { skillPaths: [join(h.pkg, "build")] };
+        }]]]) },
+      ],
+      createContext: () => h.ctx, hasHandlers: () => true, emitError: error => { throw Error(JSON.stringify(error)); },
+    };
+    runner.emitResourcesDiscover = (...args) => ExtensionRunner.prototype.emitResourcesDiscover.call(runner, ...args);
+    const host = { _extensionRunner: runner, _resourceLoader: loader, _cwd: h.repo, getExtensionSourceLabel: AgentSession.prototype.getExtensionSourceLabel, buildExtensionResourcePaths: AgentSession.prototype.buildExtensionResourcePaths, getActiveToolNames: () => [], _rebuildSystemPrompt: () => {} };
+    await AgentSession.prototype.extendResourcesFromExtensions.call(host, "reload");
+    await new Promise(resolve => setTimeout(resolve, 70));
+    assert.equal(h.queued.length, scenario === "late-removal" ? before : before + 1);
+    assert.equal(inspectCheckpoint(item.path, h.pkg).state, scenario === "late-removal" ? "armed" : "enqueued");
+  }
+});
+
+
+function historicalCheckpoint(h, state) {
+  // Fixture-only old state; production control files are written exclusively by their shipped helpers.
+  const id = randomUUID(), path = join(h.repo, ".principal/resume", id), value = { ...h.item.checkpoint, id };
+  mkdirSync(path); const bytes = JSON.stringify(value) + "\n"; writeFileSync(join(path, "checkpoint.json"), bytes);
+  const checkpointSha256 = createHash("sha256").update(bytes).digest("hex");
+  if (state !== "disarmed") writeFileSync(join(path, "authorization.json"), JSON.stringify({ schema: "principal-resume-authorization-v1", checkpointSha256, source: "interactive-operator-confirmation", session: { fixture: true }, runtime: { fixture: true } }) + "\n");
+  if (state !== "armed") writeFileSync(join(path, state + ".json"), JSON.stringify({ schema: `principal-resume-${state}-v1`, checkpointSha256 }) + "\n");
+  return path;
+}
+async function countWorktreeReads(h, action) {
+  const original = fs.openSync, path = join(h.repo, "src/x.js"); let count = 0;
+  fs.openSync = (file, ...args) => { if (file === path) count++; return original(file, ...args); };
+  syncBuiltinESMExports();
+  try { await action(); } finally { fs.openSync = original; syncBuiltinESMExports(); }
+  return count;
+}
+test("historical checkpoint inventory avoids full worktree scans without skipping the armed candidate", { skip: !supported }, async t => {
+  const h = await extensionFixture(t);
+  for (let n = 0; n < 24; n++) historicalCheckpoint(h, n % 2 ? "consumed" : "disarmed");
+  const oldReads = await countWorktreeReads(h, () => listCheckpoints(h.repo).map(entry => inspectCheckpoint(entry.path, h.pkg)));
+  assert.equal(oldReads, 50, "the previous inspect-before-filter path reads this tracked file twice per checkpoint");
+  const inactiveReads = await countWorktreeReads(h, () => h.start());
+  assert.equal(inactiveReads, 0); assert.equal(h.queued.length, 0);
+  await h.command();
+  const activeReads = await countWorktreeReads(h, () => h.start());
+  assert.equal(activeReads, 4, "one full inspect plus the mandatory consume-time recheck, each with two observations");
+  assert.equal(h.queued.length, 1);
+});
+test("state inventory refuses malformed historical controls and duplicate armed checkpoints", { skip: !supported }, async t => {
+  const h = await extensionFixture(t), historical = historicalCheckpoint(h, "consumed"), statePath = join(historical, "consumed.json");
+  const before = readFileSync(statePath, "utf8");
+  writeFileSync(statePath, "{broken\n"); assert.throws(() => listCheckpoints(h.repo));
+  writeFileSync(statePath, JSON.stringify({ ...JSON.parse(before), checkpointSha256: "a".repeat(64) }));
+  assert.throws(() => listCheckpoints(h.repo), /checkpoint binding/);
+  writeFileSync(statePath, before);
+  await h.command(); historicalCheckpoint(h, "armed");
+  await h.start(); assert.equal(h.queued.length, 0); assert.match(h.notifications.at(-1).message, /multiple armed checkpoints/);
+  assert.equal(inspectCheckpoint(h.item.path, h.pkg).state, "armed");
 });
