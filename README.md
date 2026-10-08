@@ -53,12 +53,12 @@ claims of measured model compliance. Common ceilings remain unchanged.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
-| `plan` | A task turned into ordered steps and per-step specs a builder can execute without making load-bearing decisions. Writes no code | subagent (`agents/principal-plan.md`, 2081) or inline | 2020 |
-| `build` | Test-first implementation — code proven by a test you watched fail | subagent (`agents/principal-build.md`, 2070) or inline | 2060 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1922) or inline | 1858 |
+| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 2040) or inline | 1979 |
+| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 2100) or inline | 2088 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1938) or inline | 1897 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1582) or inline | 1446 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 494) or inline | 495 |
-| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2507 |
+| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2523 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is the
@@ -100,7 +100,28 @@ The three spines (`/principal-feature <task>`, `/principal-bugfix <symptom>`,
 note and wait for an explicit go
 before building — presenting the artifact and starting to build in the same turn is the
 failure the rule exists to catch. The artifact scales with the change (three lines for a
-config tweak, full slices for a feature); the stop does not.
+config tweak, one complete Build unit for a coherent feature); the stop does not.
+
+A routine feature keeps implementation, acceptance tests and documentation together, followed
+by one independent integrated Review. Split for a real dependency, risk boundary or useful
+parallel increment. A public API addition does not by itself require a skeleton phase, a
+separate test phase and intermediate review. Task review still protects consequential
+interfaces consumed across implementation boundaries and parallel candidate integration.
+
+Read the governing task sources and needed definitions directly; follow historical reports
+when they supply current authority, unresolved findings or evidence needed now. Generic
+coordinator gates stay addressable once, rather than becoming repeated requirement matrices.
+Exact source IDs, task clauses, approvals, binding, candidate identity and settlement remain
+required. A single declared full-suite run can also be green evidence. Reuse unchanged
+baseline/examples only after verifying relevant identities and environment; mutation probes
+are optional risk-based checks, not a requirement to fabricate red for already-correct behavior.
+Finish honors an explicit known preference, including leaving changes uncommitted on the
+actual branch, without asking again.
+
+Plan resolves essential outcome and interface tradeoffs; Build owns the simplest coherent,
+readable and maintainable implementation within that authority. Routine design choices need
+no repeated permission. Review judges design and test quality alongside correctness; neither
+green tests nor a coverage percentage substitutes for sound engineering judgment.
 
 Delegated phases hand artifacts to each other as files, not pasted text. A native `build` child
 writes its full report to an unused task/run/candidate-scoped path under `.principal/reports/`
@@ -151,9 +172,9 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.11.0
-   pi install npm:pi-daddy@0.46.0
-   pi install npm:skill-harness@0.26.0
+   pi install npm:principal-pi-skills@4.11.1
+   pi install npm:pi-daddy@0.46.1
+   pi install npm:skill-harness@0.26.1
    ```
 
    Restart Pi after package changes. The `pi` manifest registers eight skills, four
@@ -189,8 +210,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.11.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.11.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.11.1 principal-pi-agents install
+   npx -p principal-pi-skills@4.11.1 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -361,6 +382,14 @@ principal-pi-progress read "$RUN" '<actual current candidate identity>'
 ```
 
 `report` and `reference` return `{ "path": "/absolute/path", "sha256": "<64 hex>" }`.
+For an existing producer file, `copy <run> <name> <source> <expected-sha256>` preserves exact
+bytes at an unused private report path and returns `{source:{path,sha256},copy:{path,sha256}}`.
+Obtain the expected hash from producer evidence or `reference`; do not recreate native JSON
+or manually transcribe receipts. Copy checks byte integrity only, not approval or settlement.
+For supported full candidate observations, the selected package's
+`scripts/resume-checkpoint.mjs candidate <repo>` avoids ad hoc hashing; its Linux constraints
+still apply, and full-tree identity does not prove partial-scope evidence equivalence.
+
 A version 1 record has exactly these fields (replace `REPORT_REF` with that returned object):
 
 ```json

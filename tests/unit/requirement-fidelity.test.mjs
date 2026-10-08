@@ -266,7 +266,7 @@ test("Build preserves meaningful test behavior and narrowly scopes the inline ex
     const text = contract("build", mode);
     assert.match(text, /expected values independently/);
     assert.match(text, /preserve required side effects/);
-    assert.match(text, /plausible defect/);
+    assert.match(text, /distinct plausible observable failure/);
     assert.match(text, /update test structure.*without weakening assertions/s);
     assert.match(text, /Honor requested review and existing approval boundaries/);
     assert.match(text, /Authorization, security, schema/);
@@ -409,5 +409,68 @@ test("disposable workflows use the selected installed helper without npm resolut
     assert.match(text, /Missing helper or creation failure.*read-only/);
     assert.match(text, /never.*caller.*checkout/);
     assert.doesNotMatch(text, /npx[^`\n]*principal-pi-workspace/);
+  }
+});
+
+test("coherent features keep implementation, acceptance tests and documentation in one build unit", () => {
+  for (const mode of ["skill", "agent"]) {
+    const plan = contract("plan", mode).replace(/\s+/g, " ");
+    assert.match(plan, /one complete Build unit.*implementation, tests and documentation/);
+    assert.doesNotMatch(plan, /Step 1 is the walking skeleton|Small clear work gets two or three|Decompose anyway/);
+    assert.match(plan, /real dependency.*risk boundary|risk boundary.*real dependency/);
+  }
+  const workflow = read("contracts/workflows.md.tmpl").replace(/\s+/g, " ");
+  assert.match(workflow, /More tests or documentation.*do not.*intermediate review/);
+  assert.match(workflow, /final integrated review/);
+});
+test("source fidelity does not recursively turn reference history into current authority", () => {
+  for (const name of ["plan", "build", "review"]) for (const mode of ["skill", "agent"]) {
+    const text = contract(name, mode).replace(/\s+/g, " ");
+    assert.match(text, /needed definitions/);
+    assert.match(text, /Do not recursively read.*historical|Do not recursively.*history/);
+  }
+  const plan = contract("plan", "agent").replace(/\s+/g, " ");
+  assert.match(plan, /exact clause.*location/);
+  assert.match(plan, /generic coordinator.*not.*product requirements/);
+});
+test("Build can reuse verified unchanged evidence without manufacturing failed behavior", () => {
+  for (const mode of ["skill", "agent"]) {
+    const text = contract("build", mode).replace(/\s+/g, " ");
+    assert.match(text, /baseline.*examples?.*matching|matching.*baseline.*examples?/);
+    assert.match(text, /one run.*green.*full|green.*full.*one run/);
+    assert.match(text, /already-correct behavior.*do not.*fabricate.*red/i);
+    assert.match(text, /mutation.*optional.*risk|optional.*risk.*mutation/i);
+    assert.match(text, /Bugfix regressions must reproduce the bug/);
+  }
+});
+test("finish honors an explicit preference and labels uncommitted work honestly", () => {
+  for (const path of ["contracts/workflows.md.tmpl", "git-ops/SKILL.md"]) {
+    const text = read(path).replace(/\s+/g, " ");
+    assert.match(text, /explicit.*finish preference.*without asking again/);
+    assert.match(text, /uncommitted.*actual branch|actual branch.*uncommitted/);
+    assert.match(text, /fresh full suite|rerun the full suite/);
+  }
+});
+
+test("test quality protects observable flows without quotas or another review stage", () => {
+  for (const mode of ["skill", "agent"]) {
+    const build = contract("build", mode).replace(/\s+/g, " ");
+    const review = contract("review", mode).replace(/\s+/g, " ");
+    assert.match(build, /Parameterize useful cases.*remove redundant or implementation-mirroring tests/);
+    assert.match(review, /Test quality.*happy\/error\/boundary flows.*justified expected results.*deterministic timing/);
+    for (const text of [build, review]) assert.match(text, /No coverage or test-count quota/);
+    assert.match(review, /test findings in this verdict, not another stage/);
+  }
+});
+
+test("design ownership preserves authority without micromanaging routine implementation", () => {
+  for (const mode of ["skill", "agent"]) {
+    const plan = contract("plan", mode).replace(/\s+/g, " ");
+    const build = contract("build", mode).replace(/\s+/g, " ");
+    const review = contract("review", mode).replace(/\s+/g, " ");
+    assert.match(plan, /implementation detail only when authority or a real dependency needs it/);
+    assert.match(build, /routine choices within approved scope without asking again.*Escalate material scope\/API tradeoffs/);
+    assert.match(build, /Passing tests alone does not establish a maintainable solution/);
+    assert.match(review, /Design and maintainability hunt.*concrete simpler alternative/);
   }
 });

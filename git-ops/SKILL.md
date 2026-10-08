@@ -183,10 +183,11 @@ publishing.** Report the exact publish command the repository's own release flow
 next. If a package has a release guard, never bypass it with a raw `npm publish`.
 
 ## Finish mode
-On a reviewed branch, rerun the full suite on the integration tree and quote the result.
-Then offer exactly three choices and wait: **merge locally**, **push and open a PR**, or
-**keep the branch**. Discard only on explicit request after naming the branch,
-commits, and worktree.
+On the reviewed final tree, rerun the full suite and quote the result. Honor an explicit
+known finish preference without asking again. Otherwise offer applicable choices: **merge locally**,
+**push and open a PR**, or **keep current work**. Preserve requested uncommitted changes on the
+actual branch; never invent a branch or commit for the finish label. Discard requires explicit
+authorization naming affected work.
 
 When `PI_DADDY_EPISODE` is set, append these trailers. Missing companion variables use
 empty values; never fail the commit:

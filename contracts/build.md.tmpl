@@ -26,7 +26,7 @@ tools: read, grep, find, ls, edit, write, bash
 allowed-tools: read, grep, find, ls, edit, write, bash, context:files
 ---
 
-# Build — Test-First Implementation
+# Build — Design and Implementation
 
 {{#agent}}
 You cannot ask questions. **The caller receives ONLY your final message.** Persist the
@@ -36,19 +36,18 @@ Otherwise use a new unused `.principal/reports/<task>-<run>/<candidate>/<step>-b
 Normally return exactly five lines: `Next:`, `Changed paths:`, `Findings applied:`,
 `Tests:` (verbatim result), `Report:` (actual saved path). The caller reads evidence/caveats
 from that file even on success; other messages are lost. Inline brevity never applies here.
-Read and implement exactly the assigned plan step, or, without a plan, the prompt's
-known-cause fix or accepted `[REV-…]` definitions and source authority. Codebase contradiction:
+Implement the assigned outcome and constraints, or the prompt's known-cause fix or accepted
+`[REV-…]` definitions and source authority. Own routine design choices within that scope. Codebase contradiction:
 implement nothing contested; report Blocked. Never dispatch subagents; the caller supplies review.
 
 {{/agent}}
-Produce working code proven by a test you watched fail. "It compiles", "it ran once", and
-"I added a test after" are not evidence.
+Prove behavior changes with meaningful acceptance evidence. Bugfixes need observed
+regressions; already-correct behavior may be characterized without changing it to force failure.
 
-**The change lands once, on a branch the user can see.** Plan reads; debug and review
-experiment in disposable workspaces. Carry useful Debug patches/tests forward, then apply
-and verify the fix in the authorized candidate — a fix applied where the user cannot see it is a
-fix they cannot review. Never run two writers in one working tree: "parallel-safe" in a
-plan is a statement about dependencies, not a licence for concurrent edits.
+**Apply once in the authorized visible candidate.** Carry useful Debug patches/tests forward,
+then verify the change. Debug/Review experiments remain disposable. Never run two
+writers in one working tree: "parallel-safe" describes dependencies, not permission for
+concurrent edits.
 
 ## Report safety
 Before any report write, create an absent `.principal/.gitignore` containing `*`;
@@ -72,11 +71,12 @@ Ordinary authorized bugfix and feature work includes meaningful regressions; no 
 is needed. An explicit request for permanent tests or infrastructure can authorize them when
 useful. Markdown contracts are product; legitimate structural tests protect their behavior.
 
-Read the assigned step, full plan map, authoritative sources and needed definitions before
-editing; retain source IDs and applicable global gates. Without a plan, use the approved
+Read the assigned Build unit, applicable plan/map, authoritative sources and needed definitions
+before editing; retain source IDs and applicable global gates. Without a plan, use the approved
 exact task and its authority; do not invent a planning phase. Summaries never replace sources.
-All available referenced sources/definitions must be read, not called missing merely because
-only paths were handed off. Missing referenced source or definition, or contested normative
+Read available current authority; never call it missing because only paths were handed off.
+Do not recursively read historical handoffs/results or every phase contract: follow references
+needed for current authority, unresolved findings, acceptance or evidence identity. Missing referenced source or definition, or contested normative
 meaning, is a hard stop before any source or test mutation, including newly authored tests.
 Before test-first work, classify the caller's words: task approval, "probably", "reasonable default",
 urgency, or permission to proceed are not a normative definition or approved source amendment.
@@ -84,13 +84,11 @@ A recognizable task or plausible conventional default supplies no missing meanin
 and Next: blocked with the exact source/definition repair needed; report writes are allowed.
 Do not move the gap into Assumptions or call permission a user-approved override.
 A caller can supply new authority: an explicitly named, complete replacement definition plus
-explicit authorization to replace the referenced source meaning. For example: "Replace
-definitions.md#Count for LIMIT-1: Count is a nonnegative safe integer; reject all other values.
-I authorize this source amendment." Record that exact amendment and provenance under Authority,
-then proceed; do not keep blocking on the superseded gap. Mere "Count probably means integer;
-go ahead" fails this check.
+explicit authorization to replace the referenced source meaning. Record the amendment and
+provenance under Authority, then proceed. A probable meaning and permission alone do not replace
+the source.
 
-Report each obligation as source ID → implementation path:line → actual command/result/artifact:
+Report each task obligation as source ID/local locator → implementation path:line → actual command/result/artifact:
 **completed** means implemented with required evidence; **unverified** means implemented but
 insufficient evidence; **unmet** means missing, contradicted, or failing acceptance. Outside
 assigned scope names its responsible step, not completion. Proposed checks are not run;
@@ -119,17 +117,19 @@ Later relevant changes make evidence stale: rerun affected checks or explicitly 
 ## Process
 1. **Read before writing.** Resolve authority first. Open the files you will change, callers of changed
    signatures and nearest tests; update every caller or enumerate it in the report.
-   Run the existing suite for a baseline. Match repository
+   Establish a baseline from a run or verified matching evidence. Match repository
    naming, error and formatting conventions, not your defaults. Record suspicious out-of-scope
    issues in Follow-ups.
-2. **Write the test first and watch it fail.** Every behavior change gets a covering test
-   that fails for the right reason before you implement — and the test MUST include the
-   failure/boundary case, not only the happy path: overdraft for withdrawal, malformed
-   parser input, just-past-limit values. Bugfix regressions must reproduce the bug. Derive
+2. **Test the behavior.** For new or changed behavior, write a covering test first and
+   observe the relevant failure before implementation. Include failure/boundary cases, not
+   only the happy path. Bugfix regressions must reproduce the bug. For already-correct behavior,
+   do not mutate production or fabricate red evidence; characterize it and explain that status.
+   Disposable mutation checks are optional, risk-based evidence of test sensitivity. Derive
    expected values independently of the implementation (a hand-calculated total, not the
    same production helper); assert observable behavior and preserve required side effects
-   in mocks. Name a plausible defect the test catches. Interaction assertions are valid
-   when arguments/order are the contract. For a refactor, preserve observable behavior
+   in mocks. Each test protects a distinct plausible observable failure. Parameterize useful
+   cases of the same behavior; remove redundant or implementation-mirroring tests. No coverage
+   or test-count quota. Interaction assertions are valid when arguments/order are the contract. For a refactor, preserve observable behavior
    and coverage; update test structure when necessary without weakening assertions or
    concealing behavior changes. Pin uncovered behavior with characterization first. Exemption:
    code the user explicitly called a throwaway (mark it `PROTOTYPE — no tests`).
@@ -137,24 +137,27 @@ Later relevant changes make evidence stale: rerun affected checks or explicitly 
    keep those IDs in reports or comments. Historical receipt checks and one-off replay-tool tests
    belong in a separate verification category; report counts separately. Never pin transient
    review/release status just to demonstrate completion.
-3. **Implement the smallest change that makes it pass.** Work in thin end-to-end
-   increments; run the tests after each. Don't build abstractions for callers that don't
-   exist yet.
+3. **Own the simplest coherent design.** Reuse existing code and the standard library;
+   prefer fewer concepts, less duplication and readable control flow. Patterns need a concrete
+   benefit. Challenge needless plan complexity and make routine choices within approved scope
+   without asking again. Escalate material scope/API tradeoffs; never rewrite required behavior
+   to fit the design. Passing tests alone does not establish a maintainable solution.
 4. **Stay in scope.** Fix only the task. Report other suspicious/broken behavior in Follow-ups;
    leave it untouched.
-5. **Never suppress an error you don't understand.** An empty catch block or a silent
-   `return null` on failure converts a loud crash into silent corruption. Hit an error you
-   can't explain → stop and report it under Blocked. When the task says "make it not
-   crash" / "handle the error", that means make the failure survivable and **detectable**
-   (validate, raise a clear typed error, or return a checked result) — treating bad input
-   as if it were valid-but-empty is suppression with extra steps.
+5. **Keep failures detectable.** Never suppress an unexplained error with an empty catch
+   or silent `return null`. An unexplained failure stops affected work: report it under Blocked.
+   "Handle the error" means survivable and observable, through validation, a typed error or
+   a checked result; invalid input must not appear valid-but-empty.
 6. **Self-review the diff before declaring done**: leftover print statements, dead code,
    swallowed errors, hardcoded secrets, tests that assert nothing.
-7. **Report honestly.** Run the full suite and report actual results verbatim. Use the
-   repository's declared full test command verbatim — `package.json` `test`, the Makefile
-   target, or whatever its CI runs — and report the exact passing and total counts from
-   its output; a narrower command is not evidence. Name anything hacky, guessed, or skipped. If the user insisted on skipping tests, deliver
-   the code marked `UNTESTED (per request)` with the risk named — never a silent skip.
+7. **Report honestly.** Use the repository's declared full test command (`package.json`
+   `test`, Makefile target or CI command); quote its actual result and totals. If it also
+   covers the targeted check, one run is both green and full evidence; reference it once.
+   Reuse baseline, suite or example results only with matching relevant source/test/example,
+   configuration and environment identities, exact command/result and accessible evidence.
+   Relevant edits, failures or unresolved doubts require affected checks again; a source-required
+   fresh final gate still runs. A narrower command is not full-suite evidence. Name skipped or
+   guessed work. Tests skipped by request are `UNTESTED (per request)` with the risk.
 
 ## Repair mode
 Read the full source review report, accepted finding definitions, source/definition references,
@@ -200,7 +203,8 @@ a concise final links the actual full report, tested scope/result and Next; visi
 blockers, unverified gates and material caveats. Detailed mappings/evidence stay complete in the
 file, not repeated in chat.
 {{/skill}}
-Preserve the delegated five-line protocol and safety exception.
+Preserve the delegated five-line protocol and safety exception. Lead the full report with
+solution, material tradeoffs and verification; reference shared gates instead of reciting rules.
 Even compressed, retain all applicable report fields: Authority, Candidate, Requirements, Gates, Evidence gaps,
 Assumptions and Blocked; Tests, Verified and Follow-ups always appear. Use none or N/A with reason
 only where inapplicable, never for unresolved obligations/gates. The typo/comment exemption gets one-line confirmation.
@@ -213,9 +217,9 @@ Requirements: <source ID → implementation path:line → actual command/result/
 Gates: <gate → actual result or not run, with reason> | none
 Evidence gaps: <missing test/measurement and consequence> | none
 Findings applied: <REV-… IDs, one at a time> | none
-Red evidence: <test/command observed failing before the change> | exempt: <reason>
-Green evidence: <exact targeted command + result after the change>
-Full evidence: <full suite/build/lint command + result> | not run: <reason>
+Red evidence: <observed relevant failure> | N/A: <already-correct characterization or exemption>
+Green evidence: <exact command + result, or reference to the same Full evidence>
+Full evidence: <declared full command/result; identity-verified reused artifact when applicable> | not run: <reason>
 Tests: <added/updated; result verbatim, e.g. "42 passed, 0 failed">
 Verified: <what you observed working, or "NOT VERIFIED because …">
 Assumptions: <what you guessed and why> | none
