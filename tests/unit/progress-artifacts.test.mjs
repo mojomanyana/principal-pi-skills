@@ -6,7 +6,7 @@ import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, rmSync, symlinkSyn
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { execFileSync, spawnSync } from "node:child_process";
-import { createRun, saveReport, reference, appendProgress, readProgress, checkProgress, checkCompletion } from "../../scripts/progress-artifacts.mjs";
+import { createRun, saveReport, copyArtifact, reference, appendProgress, readProgress, checkProgress, checkCompletion } from "../../scripts/progress-artifacts.mjs";
 
 function fixture(t) {
   const repo = mkdtempSync(join(tmpdir(), "principal-progress-test-"));
@@ -34,6 +34,54 @@ test("private unused runs and reports preserve complete bytes without overwrite"
     assert.equal(statSync(first).mode & 0o777, 0o700);
     assert.equal(statSync(report.path).mode & 0o777, 0o600);
   }
+});
+
+
+test("copy preserves producer bytes with private exclusive storage and source provenance", t => {
+  const repo = fixture(t), run = createRun(repo, "task", "candidate-A"), source = join(repo, "native-receipt.json");
+  const bytes = Buffer.from('{"reason":"worker-exit","note":"\u00e9"}\r\n');
+  writeFileSync(source, bytes);
+  const expected = reference(source);
+  const cli = spawnSync(process.execPath, ["scripts/progress-artifacts.mjs", "copy", run, "receipt.json", source, expected.sha256], { encoding: "utf8" });
+  assert.equal(cli.status, 0, cli.stderr);
+  const result = JSON.parse(cli.stdout);
+  assert.deepEqual(result.source, expected);
+  assert.deepEqual(readFileSync(result.copy.path), bytes);
+  assert.equal(result.copy.sha256, expected.sha256);
+  assert.throws(() => copyArtifact(run, "receipt.json", source, expected.sha256), /exist/i);
+  assert.deepEqual(readFileSync(source), bytes);
+  if (process.platform !== "win32") assert.equal(statSync(result.copy.path).mode & 0o777, 0o600);
+});
+
+test("copy refuses stale identity, unsafe names, and linked sources before writing", t => {
+  const repo = fixture(t), run = createRun(repo, "task", "candidate-A"), source = join(repo, "receipt.json");
+  writeFileSync(source, "original");
+  const expected = reference(source).sha256;
+  writeFileSync(source, "changed");
+  assert.throws(() => copyArtifact(run, "copy.json", source, expected), /match expected/);
+  assert.equal(existsSync(join(run, "copy.json")), false);
+  for (const name of ["../escape.json", "run.json", "progress.jsonl"]) {
+    assert.throws(() => copyArtifact(run, name, source, expected), /filename/);
+  }
+  assert.throws(() => copyArtifact(run, "copy.json", source, ""), /SHA-256/);
+  symlinkSync(source, join(repo, "linked.json"));
+  assert.throws(() => copyArtifact(run, "copy.json", join(repo, "linked.json"), reference(source).sha256), /symlink/);
+  assert.equal(existsSync(join(run, "copy.json")), false);
+});
+
+test("copy rejects source mutation during the read instead of claiming a stable receipt", t => {
+  const repo = fixture(t), run = createRun(repo, "task", "candidate-A"), source = join(repo, "receipt.json");
+  writeFileSync(source, "original");
+  const expected = reference(source).sha256, originalRead = fs.readFileSync;
+  fs.readFileSync = function (path, ...args) {
+    const data = originalRead.call(this, path, ...args);
+    if (typeof path === "number") writeFileSync(source, "changed-size");
+    return data;
+  };
+  syncBuiltinESMExports();
+  try { assert.throws(() => copyArtifact(run, "copy.json", source, expected), /changed while copying/); }
+  finally { fs.readFileSync = originalRead; syncBuiltinESMExports(); }
+  assert.equal(existsSync(join(run, "copy.json")), false);
 });
 
 test("existing exposing ignore policy and symlink artifact roots are refused unchanged", t => {

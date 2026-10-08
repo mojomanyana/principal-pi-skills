@@ -1,5 +1,13 @@
 # Changelog
 
+## 4.11.1 — 2026-10-08
+
+- Let a small coherent feature run as one complete build, including tests and documentation, followed by independent integrated review. Split work at real dependencies and risks rather than imposing a minimum task count.
+- Make Build responsible for simple, readable, maintainable design within the approved outcome and constraints. Review engineering choices and test quality explicitly; neither coverage nor test-count quotas substitute for behavioral evidence.
+- Use compact current handoffs and direct authority references, retain unresolved findings, and reuse unchanged verification evidence. Avoid recursive historical reads, invented task budgets and repeated equivalent checks.
+- Copy original report and receipt bytes into private ignored evidence storage with expected-hash validation and no overwrite. Reuse the existing candidate snapshot helper; byte integrity does not grant approval or prove settlement.
+- Honor an already stated finish preference and describe an uncommitted working tree accurately.
+
 ## 4.11.0 — 2026-10-08
 
 - Allocate delegated reports in the actual child workspace's ignored report directory. Archive verified copies through the coordinator without asking the user to resolve ordinary report placement.

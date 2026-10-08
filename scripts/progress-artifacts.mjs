@@ -2,7 +2,7 @@
 // Coordinator-owned evidence files, not a scheduler, approval record or candidate-equivalence engine.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { closeSync, constants, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, realpathSync, unlinkSync, writeSync } from "node:fs";
+import { closeSync, constants, fstatSync, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, realpathSync, unlinkSync, writeSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -93,6 +93,34 @@ export function saveReport(run, name, contents) {
   durableWrite(destination, contents);
   return reference(destination);
 }
+
+/** Preserve original producer bytes. Matching bytes establish integrity, never approval or settlement. */
+export function copyArtifact(run, name, source, expectedSha256) {
+  const { path, root } = runInfo(run);
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9._-]*$/.test(name) || ["run.json", "progress.jsonl"].includes(name)) fail("artifact name must be a simple non-reserved filename");
+  if (typeof expectedSha256 !== "string" || !/^[a-f0-9]{64}$/.test(expectedSha256)) fail("expected SHA-256 is required");
+  const original = resolve(source);
+  plain(original, "file");
+  const canonical = realpathSync(original);
+  const identity = stat => [stat.dev, stat.ino, stat.mode, stat.size, stat.mtimeNs, stat.ctimeNs].join(":");
+  const fd = openSync(original, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0));
+  let bytes;
+  try {
+    const before = fstatSync(fd, { bigint: true });
+    if (!before.isFile()) fail("source must be a regular file");
+    bytes = readFileSync(fd);
+    const after = fstatSync(fd, { bigint: true }), named = lstatSync(original, { bigint: true });
+    if (BigInt(bytes.length) !== before.size || identity(before) !== identity(after) || identity(before) !== identity(named) || realpathSync(original) !== canonical) fail("source changed while copying");
+  } finally { closeSync(fd); }
+  if (hash(bytes) !== expectedSha256) fail("source does not match expected SHA-256");
+  const destination = join(path, name);
+  ignored(root, destination);
+  durableWrite(destination, bytes);
+  const copy = reference(destination);
+  if (copy.sha256 !== expectedSha256) fail("copied artifact failed integrity check; preserve it for diagnosis");
+  return { source: { path: canonical, sha256: expectedSha256 }, copy };
+}
+
 function refSchema(ref) {
   object(ref, ["path", "sha256"], "reference");
   if (typeof ref.path !== "string" || !isAbsolute(ref.path) || !/^[a-f0-9]{64}$/.test(ref.sha256)) fail("reference requires absolute path and SHA-256");
@@ -298,6 +326,7 @@ function main(args) {
   const [command, ...rest] = args;
   if (command === "create" && rest.length === 3) return createRun(...rest);
   if (command === "report" && rest.length === 2) return saveReport(...rest, readFileSync(0, "utf8"));
+  if (command === "copy" && rest.length === 4) return copyArtifact(...rest);
   if (command === "reference" && rest.length === 1) return reference(rest[0]);
   if (command === "append" && rest.length === 1) { appendProgress(rest[0], JSON.parse(readFileSync(0, "utf8"))); return { appended: true }; }
   if (command === "read" && rest.length >= 1 && rest.length <= 2) return readProgress(...rest);
@@ -311,7 +340,7 @@ function main(args) {
     if (!result.integrityValid) process.exitCode = 1;
     return result;
   }
-  fail("usage: principal-pi-progress create <repo> <task> <candidate> | report <run> <name.md> < full-report | reference <file> | append <run> < record.json | read <run> [candidate] | check <run> <candidate> | check-completion <run> <full-commit> <required-step>...");
+  fail("usage: principal-pi-progress create <repo> <task> <candidate> | report <run> <name.md> < full-report | copy <run> <name> <source> <expected-sha256> | reference <file> | append <run> < record.json | read <run> [candidate] | check <run> <candidate> | check-completion <run> <full-commit> <required-step>...");
 }
 if (process.argv[1] && realpathSync(process.argv[1]) === fileURLToPath(import.meta.url)) {
   try { console.log(JSON.stringify(main(process.argv.slice(2)), null, 2)); }

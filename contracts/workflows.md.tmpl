@@ -46,7 +46,11 @@ source references and package manifest. Resolve paths from selected Pi resources
 response alone supplies no source path. Verify full source bytes against the described binding;
 never guess an installation path or substitute a different same-name definition. When copies
 are needed, retain exact bytes, original paths/hashes and capture provenance. Pass accessible
-handoff/source files, the assigned step and each gate's owner/due stage to the child.
+handoff/source files, the assigned unit and each gate's owner/due stage to the child.
+Keep this gate block addressable by reference, rather than copying it into every product map
+and report. The leaf reads its current authority, needed definitions and evidence, not all
+historical handoffs/results or every phase skill merely because they are linked. Preserve full
+prior findings and unresolved gates; follow historical references when they are needed to resolve them.
 When the operator enables pi-daddy's `PI_DADDY_PUBLIC_EVIDENCE_DIR`, read the returned
 `Public evidence capture:` manifest reference and pass its exact public response/source artifact
 references directly; use the progress helper's `reference` for needed files without retranscribing
@@ -127,6 +131,12 @@ allocates private ignored runs and writes complete reports exclusively. Progress
 optional, but every index write must use this helper; never hand-write `run.json` or JSONL.
 Use the actual selected package's `scripts/progress-artifacts.mjs` with Node if its binary is
 not on PATH. Read its installed README example; do not install/fetch a helper or guess its schema.
+Use selected-package `scripts/resume-checkpoint.mjs candidate <repo>` for supported whole-candidate
+observations; it does not establish partial-scope equivalence. Use progress `reference <file>`
+and `copy <run> <name> <source> <expected-sha256>` to retain exact producer files privately.
+Copy verifies bytes, not approval or settlement. Prefer original receipt/public-capture files;
+otherwise preserve the actual native response through the available channel and state any
+persistence gap. Never retype a receipt or reconstruct native JSON from prose.
 
 **Progress.** If tracking progress, use helper `create` for the candidate run, `report` and
 `reference` for complete evidence, then `append` for each phase update. Version 1 requires a
@@ -160,7 +170,9 @@ source-required gates and user authority remain coordinator judgments. Partial/p
 retain `check` plus explicit phase reconciliation; never invent completed phases to pass.
 
 **Authority.** Carry authoritative source/definition paths and relevant map rows/global gates
-through Plan → Build → Review. If exact user authority exists only in dialogue and needs
+through Plan → Build → Review. Ordinary requirements can use a compact source-located checklist;
+preserve exact normative IDs and clauses without promoting generic workflow prose into repeated
+product-requirement matrices. If exact user authority exists only in dialogue and needs
 file handoff, persist it with provenance to `<artifact-dir>/authority.md`, not a
 summary. Ensure paths are accessible in each child/disposable workspace; ignored `.principal`
 files may need exact caller-persisted copies with original identity. A readable reference is
@@ -171,14 +183,16 @@ sources alongside it, never instead of them. Review still owns reconciliation an
 
 **Approval.** After the planning or diagnosing phase returns, present its artifact and stop. Do not
 build until the user says go. Presenting the artifact and starting to build in the same turn
-is the failure. The artifact scales — three lines for a config change, full slices for a
-feature — the stop does not. A re-plan needs a new approval. Explicit operator confirmation
+is the failure. The artifact scales — three lines for a config change, one complete unit for a
+coherent feature, necessary slices for larger work — the stop does not. A re-plan needs a new approval. Explicit operator confirmation
 of a prepared resume checkpoint is approval only for its displayed exact plan, scope and next
 phase after the complete artifact was inspected; the model cannot confirm it.
 
-**Build.** One writer per working tree, on branches the user can see. Inline when there is no
-multi-step plan file (a three-line plan, or a bugfix) and inline work is the chosen workflow.
-Otherwise dispatch native `build` with its captured `definitionId` per step — a batched step is one child —
+**Build.** One writer per working tree, in the authorized visible checkout. Keep a routine
+coherent feature's implementation, tests and documentation in one complete Build unit.
+Split for a real dependency, risk boundary or independently useful parallel increment, not
+a fixed slice count. Inline is a deliberate workflow choice; otherwise dispatch native `build`
+with its captured `definitionId` per approved unit — a batched unit is one child —
 with the complete plan file path, step ID, coordinator handoff report, source/definition paths, applicable rows/global gates,
 and unused report path `<artifact-dir>/<step>-build-<attempt>.md`. Without a plan pass the approved exact
 task and authority. It returns five status lines; read every successful report too:
@@ -219,9 +233,11 @@ refs/usage as unlabeled advice under current storage consent; training permissio
 Disabled/manual mode, unavailable tools or errors leave the ordinary workflow proceeding when
 required gates are met; no CLI fallback may bypass refusal. Never enable JEV implicitly.
 
-**Review.** Select `task`, `integrated` or `scoped-repair` scope. Consequential interfaces
-and parallel candidates receive task review before another step consumes them; retain final
-integrated review of the assembled whole change and all global gates. A task verdict permits
+**Review.** Select `task`, `integrated` or `scoped-repair` scope. Use task review before another step consumes
+a consequential interface across a real implementation dependency or risk boundary; parallel
+candidates also need task review before integration. More tests or documentation for the same
+coherent feature do not require intermediate review. Retain final integrated review of the
+assembled whole change and all global gates. A task verdict permits
 only its scoped handoff, not Git-Ops finish. Scoped repair keeps the original full-change
 obligations. Optional focused reviewers need a concrete independent concern, not default fan-out.
 Use native `delegate({agent:"review",definitionId,...})` when available — a cold read beats
@@ -244,10 +260,12 @@ UNVERIFIED's `Next: build` requests evidence/handoff repair, not automatic code 
 **Blocked.** A phase returning `BLOCKED` stops the chain: surface its one question and
 wait. Do not answer it yourself.
 
-**Finish.** Git-Ops runs inline in finish mode: fresh full suite on the final tree, then
-exactly merge locally / push and open a PR / keep the branch. Never auto-push, tag,
-force-push, or clean up. End with `Digest:` followed by one line per label, in this order:
-`Ref:` (full final commit SHA or branch), `Plan file:` (path or none), `Assumptions:`,
+**Finish.** Git-Ops runs inline: fresh full suite on the final tree, then honor an explicit
+known finish preference without asking again. If none is known, offer only applicable choices:
+merge locally / push and open a PR / keep the current work. Keep uncommitted changes on their
+actual branch when requested; do not create a branch or commit just to satisfy a finish label.
+Never auto-push, tag, force-push or clean up. End with `Digest:` followed by one line per label:
+`Ref:` (full final commit SHA, or actual branch + uncommitted status), `Plan file:` (path or none), `Assumptions:`,
 `Follow-ups:`, `Evidence gaps:`, `Execution contexts:` (inline / delegated per phase).
 No transcript narration after it.
 <!-- shared:end -->
@@ -289,7 +307,7 @@ The request is a refactor of `$@`: structure changes, behavior does not.
 1. Invoke native `plan` with its captured `definitionId` (or Plan inline) with this frame: every step preserves observable
    behavior and coverage. Test structure/assertions may evolve to preserve the same contract;
    weakened coverage or concealed behavior changes are findings. Untested touched behavior gets a
-   characterization test pinning it first, as its own step. A `[ONE-WAY]` step (public API,
+   characterization test pinning it first within the same Build unit unless a real boundary requires separation. A `[ONE-WAY]` step (public API,
    schema, data) must carry its rollback note.
 2. Approval stop. Then Build, step by step, as above.
 3. Review, with one extra question: does the diff change any observable behavior? If yes,

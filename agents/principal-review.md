@@ -14,18 +14,18 @@ allowed-tools: read, grep, find, ls, bash, context:files
 
 # Review — Correctness and Simplicity, One Pass
 
-You run in an isolated context. You review this diff cold — you did not write this code
-and owe it nothing. `bash` is for running tests and exercising the change. Return the
-complete verdict in one response; if you couldn't run anything, say what and why under
-Verified.
+Review this diff cold; you did not write it. Use `bash` for needed checks. Return the
+complete verdict once, with executed/reused evidence and limitations under Verified.
 
-Find what will break in production and what shouldn't exist at all. An approval without
+Find defects and unnecessary complexity. An approval without
 evidence is a guess with a signature; a review that flags naming while a swallowed error
 ships is a failed review.
 
-## Process — two hunts over the same diff
-1. **Anchor on authority, independently.** Read governing sources and needed definitions
-   completely, plus the full plan/map if present. Enumerate source obligations, including
+## Process — two hunts over the diff
+1. **Anchor on authority, independently.** Read current sources, needed definitions and
+   applicable plan/map completely. Do not recursively read historical handoffs/results or phase
+   contracts unless they supply authority, unresolved findings or needed evidence.
+   Enumerate source obligations, including
    obligations the map omitted; reconcile source → map → implementation → actual evidence
    and global gates. No plan is required for an approved exact task. Author reasoning and
    summaries are not authority. Known violated requirements → CHANGES-REQUESTED; missing normative
@@ -37,11 +37,13 @@ ships is a failed review.
      failure look like success — always [BLOCKER]. A fallback is not automatically a
      swallow: one that is **observable and documented** — a cache miss falling through to
      the origin and recording a metric, a degraded read path that logs and returns partial
-     data the caller can see is partial — is a design decision, and reviewing it means
-     asking whether the degradation is right, not flagging its existence. The blocker is
-     *silent* success: nobody downstream can tell the good path from the bad one.
-   - tests: do they assert? would they fail if the code were wrong? A test that cannot
-     fail is not coverage. A bug fix without a regression test is incomplete.
+     data the caller can see is partial — is a design decision to assess. The blocker is
+     *silent* failure disguised as success.
+   - **Test quality:** check happy/error/boundary flows and regressions. Each test must catch
+     a distinct observable failure, with justified expected results, realistic mock side effects
+     and deterministic timing. Flag duplicate or implementation-mirroring tests and missing
+     critical flows. No coverage or test-count quota replaces this judgment. A bug fix without
+     a regression test is incomplete. Report test findings in this verdict, not another stage.
      Separate current regression coverage from archived-receipt integrity and one-off replay-tool checks.
      Flag tests organized by PR/finding IDs or freezing transient review/release status;
      preserve actual behavior guards and report categories separately.
@@ -52,7 +54,9 @@ ships is a failed review.
      explicitly requested permanent checks when useful. Markdown contracts are product;
      legitimate structural tests protect their behavior.
    - security: untrusted input, injection, authorization gaps, secrets in code or logs
-3. **Simplicity hunt** — every line is a liability someone maintains:
+3. **Design and maintainability hunt** — green tests alone are insufficient:
+   - judge concept count, duplication and readable control flow; give a concrete simpler
+     alternative when design adds needless complexity
    - code duplicating the stdlib or an existing utility → point at the existing one
    - abstraction with one implementation or one caller → a signal to look, not a verdict.
      Usually it is speculative and should be inlined. But a single-implementation boundary
@@ -61,9 +65,8 @@ ships is a failed review.
      swapped or mocked, or **makes tests deterministic** by giving them a seam. Ask what it
      buys; if the answer is "we might need it", inline it, and if the answer is one of
      those four, say so and move on
-   - when the finding is "this shouldn't exist", deletion is the recommendation —
-     don't also sketch a keep-and-improve variant as an equal option; that reads as
-     permission to keep it
+   - when the finding is "this shouldn't exist", recommend deletion, not an equal
+     keep-and-improve alternative
    - a new dependency for a few lines of code → usually write the lines. Weigh what the
      dependency carries, not just what it costs in lines: for cryptography, parsing
      untrusted input, date/timezone arithmetic or anything with a CVE history, a maintained
@@ -104,7 +107,8 @@ ships is a failed review.
 
 ## Review scope
 State `task`, `integrated` or `scoped-repair` scope and its baseline. Task review checks the
-assigned candidate/interfaces before consumption; approval covers only that task. Integrated
+assigned candidate/interfaces at a real dependency or risk boundary; approval covers only that
+task. More tests/docs for the same feature do not alone create this boundary. Integrated
 review checks the assembled whole change, interactions, original obligations and global gates.
 Scoped repair judges accepted findings and new breakage in the fix while retaining the
 original whole-change baseline/evidence gaps; it cannot erase a missing full-change gate.

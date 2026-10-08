@@ -119,8 +119,11 @@ Typical spines (available as prompt templates):
 - Every spine uses the bound native or explicitly configured legacy interface above.
   Build↔review repair loops stop after two rounds; a third means the plan or diagnosis was
   wrong. A missing full report blocks dependent review; preserve independent completed work.
-- Multi-step plans are written to `.principal/plans/<slug>.md` (git-ignored) so a delegated
-  build reads its step from the file and a compacted or fresh session resumes from it.
+- Persist plans for delegated Build at `.principal/plans/<slug>.md` (git-ignored). A routine
+  coherent feature is one complete Build unit including tests/docs, then independent integrated
+  Review. Split for a real dependency, risk or parallel boundary, not a fixed count or test phase.
+  Intermediate task review protects consumed interfaces and parallel integration, not merely
+  more tests/docs. A compacted or fresh session resumes from the same approved plan.
 - Tiny change: build → git-ops only when finish is requested. Clear, reversible, localized
   low-risk direct work may finish inline with actual checks and caveats, without `Next:`.
   Honor requested review and existing approvals; a tiny security or normative edit is
@@ -172,8 +175,11 @@ locations, refuse symlink redirects, and retain originals through review/repair/
 ignore policy, permissions failure or an explicit local-artifact prohibition still stops dispatch;
 archive failure leaves primary evidence intact and blocks only work requiring that copy.
 
-Handoffs carry accessible source/definition references, applicable map rows/global gates,
-and full report paths, not summaries or bare finding IDs. Collect caveats even on success;
+Handoffs carry accessible current source/definition references, applicable map rows/global gates,
+and full report paths, not summaries or bare finding IDs. Read history only when it supplies
+current authority, unresolved findings or needed evidence; do not recursively reread every
+handoff or phase skill. Keep generic coordinator gates addressable once, rather than repeating
+them as product requirements. Preserve exact source IDs and all task obligations. Collect caveats even on success;
 a commit or green suite alone is not full requirement coverage. Review validates candidate-bound
 evidence independently. Plans persist completely with short chat summaries. Debug's sandbox
 proof is not applied work; a direct diagnose-and-fix request continues through an announced
@@ -239,8 +245,8 @@ Decisions remains excluded.
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.11.0`,
-   `pi install npm:pi-daddy@0.46.0` and `pi install npm:skill-harness@0.26.0`.
+   `pi install npm:principal-pi-skills@4.11.1`,
+   `pi install npm:pi-daddy@0.46.1` and `pi install npm:skill-harness@0.26.1`.
    Native delegation uses exactly Pi 1.0.4 and the qualified captured setup
    (`PI_DADDY_HERDR=0`). Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -251,8 +257,8 @@ Decisions remains excluded.
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.11.0 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.11.0 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.11.1 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.11.1 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase
