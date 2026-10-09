@@ -188,7 +188,7 @@ async function main() {
     model: routingModel(),
     runs: RUNS,
     threshold: THRESHOLD,
-    corpus: `${originalCases.length} original binary probes + ${adversarialQueries.length} adversarial queries across all eight skills`,
+    corpus: `${originalCases.length} original binary probes + ${adversarialQueries.length} adversarial queries across ${SKILLS.length} skills`,
     metrics,
     adversarial: adversarialVerdicts,
     perfectScoreFinding,

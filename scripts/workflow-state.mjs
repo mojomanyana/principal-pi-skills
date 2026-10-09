@@ -5,10 +5,10 @@ import { constants, closeSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openS
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { candidateSnapshot } from "./resume-checkpoint.mjs";
-import { createRun, privateRoot, reference } from "./progress-artifacts.mjs";
+import { createRun, privateRoot, reference, saveReport } from "./progress-artifacts.mjs";
 
 export const CANDIDATE_ALGORITHM = "principal-candidate-v1";
-const phases = ["plan", "build", "review", "debug", "investigate"];
+const phases = ["plan", "build", "review", "test-review", "debug", "investigate"];
 const hash = value => createHash("sha256").update(value).digest("hex");
 const canonical = value => JSON.stringify(value, (_key, item) => item && typeof item === "object" && !Array.isArray(item)
   ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
@@ -85,9 +85,37 @@ export function observeCandidate(repo) {
     indexSha256: c.indexSha256, stagedSha256: c.stagedSha256, unstagedSha256: c.unstagedSha256,
     changedPaths: c.changedPaths.slice(0, 100), changedPathCount: c.changedPaths.length };
 }
+/** Optional in-process advisory observation. The caller cannot select another workspace. */
+export function registerCandidateObserver(pi) {
+  let bound;
+  const bind = ctx => { bound = ctx; };
+  pi.on("session_start", (_event, ctx) => bind(ctx));
+  pi.on("session_switch", (_event, ctx) => bind(ctx));
+  const unsubscribe = pi.events.on("principal:candidate-observe", request => {
+    if (!request || typeof request.reply !== "function" || typeof request.requestId !== "string" ||
+        !request.requestId || request.requestId.length > 512 || typeof request.sessionId !== "string") return;
+    const envelope = { requestId: request.requestId, sessionId: request.sessionId };
+    let response;
+    try {
+      assert(bound && bound.sessionManager.getSessionId() === request.sessionId, "session observation mismatch");
+      const ctx = bound, cwd = realpathSync(ctx.cwd), candidate = observeCandidate(cwd);
+      assert(bound === ctx && ctx.sessionManager.getSessionId() === request.sessionId && realpathSync(ctx.cwd) === cwd,
+        "session changed during observation");
+      response = { ...envelope, candidate };
+    } catch { response = { ...envelope, error: "candidate-observation-failed" }; }
+    request.reply(response);
+  });
+  pi.on("session_shutdown", () => { bound = undefined; unsubscribe(); });
+  return bind;
+}
 function summary(record, state, extra = {}) {
+  ordinary(dirname(record.reportPath), true);
+  ordinary(record.artifactsPath, true);
   return { version: 1, state, operation_id: record.operationId, task: record.task, step: record.step, attempt: record.attempt,
     phase: record.phase, root: record.root, candidate: record.input, reportPath: record.reportPath,
+    handoff: { cwd: record.root, reportPath: record.reportPath, artifactsPath: record.artifactsPath,
+      directoriesExist: true, reportWriter: "coordinator", candidateObserver: "coordinator" },
+    storage: "private-files", administrativeWrites: false,
     inputs: record.inputs, owner: record.owner ?? null, approval: false, ...extra };
 }
 function load(repo, request) {
@@ -111,7 +139,14 @@ export function inspectOperation(repo, request) {
   assert(reference(record.reportPath).sha256 === completion.report.sha256, "completed report changed");
   const matches = same(current, completion.output);
   return summary(record, matches ? "complete" : "stale", { candidateMatches: matches, output: completion.output,
-    report: completion.report, evidence: completion.evidence, runtime: completion.runtime, disposition: completion.disposition });
+    report: completion.report, evidence: completion.evidence, runtime: completion.runtime, disposition: completion.disposition,
+    productChanged: !same(completion.output, record.input) });
+}
+/** Mutating/reusing completion belongs to its original live coordinator; status remains inspectable. */
+export function inspectOwnedOperation(repo, request, owner) {
+  const current = inspectOperation(repo, request);
+  assert(current.owner && same(current.owner, owner), "operation belongs to another coordinator session or workspace");
+  return current;
 }
 function prepare(repo, request) {
   const { task, step, phase, expectedCandidate, inputs = [], attempt = 1 } = request;
@@ -134,36 +169,74 @@ function prepare(repo, request) {
   // A crash after the exclusive claim leaves an incomplete operation, never a silent retry.
   const run = createRun(current.root, task, current.id);
   const record = { version: 1, operationId: where.operationId, root: current.root, task, step, attempt, phase,
-    input: current, inputs: checked, owner, previous: request.previous ?? null, reportPath: join(run, `${phase}.md`), implementation: implementation() };
+    input: current, inputs: checked, owner, previous: request.previous ?? null, reportPath: join(run, `${phase}.md`), artifactsPath: join(run, "artifacts"), implementation: implementation() };
   assert(same(observeCandidate(current.root), current), "candidate changed while preparing handoff; preserve incomplete claim");
   assertIgnored(current.root, record.reportPath);
+  assertIgnored(current.root, join(record.artifactsPath, "unused-probe"));
+  directory(record.artifactsPath);
   assertIgnored(current.root, join(where.path, "request.json"));
   writeNew(join(where.path, "request.json"), record);
-  return summary(record, "prepared", { candidateMatches: true, reused: false });
+  return summary(record, "prepared", { candidateMatches: true, reused: false, administrativeWrites: true });
 }
 export function prepareOperation(repo, request) {
   assert((request.attempt ?? 1) === 1, "use retry to create a later attempt after settlement");
   return prepare(repo, request);
 }
 
-/** Runtime comes from the extension's session-bound Daddy query, never a model-supplied boolean. */
+/** Runtime comes from the extension's session-bound Daddy query, never model-supplied prose. */
+function settledRuntime(runtime, operationId, root) {
+  assert(runtime?.operationId === operationId && runtime.state === "settled" && runtime.runtime?.cleanup?.state === "settled" && runtime.runtime.cleanup.executionId === runtime.executionId,
+    "exact operation settlement is unavailable; preserve prepared operation");
+  assert(typeof runtime.executionId === "string" && runtime.executionId, "native execution identity required");
+  assert(runtime.cwd === root, "native execution used a different workspace");
+  assert(!runtime.runtime.control && runtime.runtime.work === "succeeded" && runtime.runtime.final?.state === "complete", "native result is incomplete or failed");
+  const final = runtime.runtime.final;
+  assert(["sessionId", "messageId", "leafId"].every(key => typeof final[key] === "string" && final[key]) && /^[a-f0-9]{64}$/.test(final.sha256), "native final identity and SHA-256 required");
+  const { finalObservation: _text, ...identity } = runtime;
+  return identity;
+}
+function finalText(runtime) {
+  const expected = runtime.runtime.final, final = runtime.finalObservation;
+  assert(final?.state === "complete" && typeof final.text === "string" && final.text.trim() && Buffer.byteLength(final.text) <= 4 * 1024 * 1024,
+    `exact native final unavailable; retain the original result and reconcile: ${final?.reason ?? "runtime does not expose it"}`);
+  assert(["sessionId", "messageId", "leafId", "sha256"].every(key => final[key] === expected[key]) && hash(final.text) === expected.sha256,
+    "native final content or identity mismatch");
+  return final.text;
+}
+
+/** Observe an exact native result without creating Principal metadata or report files. */
+export function observeOperationResult(repo, request, runtime) {
+  const candidate = observeCandidate(repo), identity = settledRuntime(runtime, request.operationId, candidate.root);
+  if (request.expectedCandidate !== undefined) assert(candidate.id === request.expectedCandidate, "candidate changed since the caller's observation");
+  const text = finalText(runtime);
+  return { version: 1, state: "observed", approval: false, administrativeWrites: false, storage: "none",
+    candidate, runtime: identity, final: { ...identity.runtime.final, text } };
+}
+
 export function completeOperation(repo, request, runtime) {
   const { path, record } = load(repo, request);
   if (optionalRecord(join(path, "completion.json"))) return { ...inspectOperation(repo, request), reused: true };
-  assert(runtime?.operationId === record.operationId && runtime.state === "settled" && runtime.runtime?.cleanup?.state === "settled" && runtime.runtime.cleanup.executionId === runtime.executionId,
-    "exact operation settlement is unavailable; preserve prepared operation");
-  assert(typeof runtime.executionId === "string" && runtime.executionId, "native execution identity required");
-  assert(runtime.cwd === record.root, "native execution used a different workspace");
-  assert(!runtime.runtime.control && runtime.runtime.work === "succeeded" && runtime.runtime.final?.state === "complete", "native result is incomplete or failed");
+  const identity = settledRuntime(runtime, record.operationId, record.root);
   assert(["succeeded", "changes-requested", "unverified", "blocked"].includes(request.disposition), "explicit result disposition required");
   references(record.inputs);
-  const report = reference(record.reportPath), evidence = references(request.evidence ?? []), output = observeCandidate(repo);
+  const evidence = references(request.evidence ?? []), output = observeCandidate(repo);
   if (!["build", "debug"].includes(record.phase)) assert(same(output, record.input), "read-only workflow phase changed candidate");
   assertIgnored(record.root, record.reportPath);
   assertIgnored(record.root, join(path, "completion.json"));
+  let report;
+  try {
+    report = reference(record.reportPath);
+    assert(report.sha256 === identity.runtime.final.sha256, "existing report differs from the exact native final; preserve it and reconcile");
+  } catch (error) {
+    if (error.code !== "ENOENT") throw error;
+    // Exclusive write; no invented summary or model copying of a captured child result.
+    report = saveReport(dirname(record.reportPath), `${record.phase}.md`, finalText(runtime));
+  }
+  assert(report.sha256 === identity.runtime.final.sha256, "retained native report failed integrity verification");
+  assert(same(observeCandidate(repo), output), "candidate changed while retaining native result; preserve report and reconcile");
   writeNew(join(path, "completion.json"), { version: 1, operationId: record.operationId, output, report, evidence,
-    runtime, disposition: request.disposition });
-  return { ...inspectOperation(repo, request), reused: false };
+    runtime: identity, disposition: request.disposition });
+  return { ...inspectOperation(repo, request), reused: false, administrativeWrites: true };
 }
 
 /** Retry preserves the old attempt; uncertain executions never authorize another dispatch. */

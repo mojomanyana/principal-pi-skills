@@ -5,14 +5,20 @@
     "plan": {
       "skill": "plan/SKILL.md",
       "agent": "agents/principal-plan.md",
-      "skillSha256": "28cb2583982dec36500a61240476a0d1b1c8a3d7b65df56ee94423f4f2186f81",
-      "agentSha256": "77808d50516d55317593fc9bf9b488eed7ea19df433ff64809827c00bf3f7953"
+      "skillSha256": "adee52690d4a568c5fef5119b84858cb4fee47059d591c8825d325448c476450",
+      "agentSha256": "568be65d65e7946d51623d7ff7c0c67468e6fe3dca7bb874479a3829763c364c"
     },
     "review": {
       "skill": "review/SKILL.md",
       "agent": "agents/principal-review.md",
-      "skillSha256": "cdf183cd3a2a6ffa7a2da6dcf515729615c8f0ca7b08246bb48e1062f49bcfc9",
-      "agentSha256": "db2cd4e09a57bd5e78953d56431c96a5b928acf461096fda835cca1d6c61e60b"
+      "skillSha256": "cc23e4afcbdfb573ad6e7f04a6400ef46e91de7295c709d7541ecbff8b9d3cc9",
+      "agentSha256": "bab8d04f775dedc7615ed5edd59eb2905930e3c90f0dd94004d3215289a369e5"
+    },
+    "test-review": {
+      "skill": "test-review/SKILL.md",
+      "agent": "agents/principal-test-review.md",
+      "skillSha256": "bbcd5421f18dd407b3fb111542655e5f07a0dd90fad585181d3dd34592461111",
+      "agentSha256": "702aa6a965d50ed2b1a71f5ccdf48c09faf62871b940cd281ed67cdf64482884"
     },
     "debug": {
       "skill": "debug/SKILL.md",
@@ -23,14 +29,14 @@
     "build": {
       "skill": "build/SKILL.md",
       "agent": "agents/principal-build.md",
-      "skillSha256": "237cb881b90546d9b62b2ffb2d69f25f1a3f90dd97184dbe3c1d05c078def1e1",
-      "agentSha256": "852d880c4c0b7d30ca106c8ea6d18ef6e5d89f8165c961ba24f65639a6e5aaee"
+      "skillSha256": "e6ecf6a7209b4e9712b8b31333daf0bad9c304cc5ecca84f1523b788ea93cc21",
+      "agentSha256": "c780ac7957f0cf3bb2559a3fb284b74e25ef90445013e237f84e55aaca9f8905"
     },
     "investigate": {
       "skill": "investigate/SKILL.md",
       "agent": "agents/principal-investigate.md",
-      "skillSha256": "7cc5841b1c5966addcde2b09bda17b89dcd27c988691ae37bb9bcd9c9093bd2e",
-      "agentSha256": "a1f7ef0af902cc2ddbe2d5b0ec147dca7e6bdab7c43d55e2dab971cc55ac9f68"
+      "skillSha256": "f136460fa3c3bab35b04cf4018db931c1afec3ca625e895d84a3dbd9ced50638",
+      "agentSha256": "5e64dddb9852c58c216a0053d3ad883593350f2708e2de74c2fe55bd6cb72cb0"
     }
   }
 }

@@ -20,10 +20,12 @@ Challenge unnecessary complexity; escalate a material scope/API tradeoff or cont
 Passing tests does not establish a good design.
 
 You cannot ask questions or dispatch subagents. The caller receives ONLY your final message.
-Persist the complete report at the caller's unused path; never overwrite a referenced prior
-artifact or occupied path. Normally return exactly five lines: `Next:`, `Changed paths:`,
-`Findings applied:`, `Tests:` (actual result), `Report:` (actual saved path).
-The report-safety exception below applies when persistence fails.
+Return the complete implementation report once in that final message. For native work
+with an operation_id, the coordinator's complete operation retains the exact captured final;
+do not write a second report or check whether its already-prepared directory exists.
+Only an explicitly configured legacy caller without native operation bookkeeping may ask
+you to persist the report at an unused path; never overwrite a referenced prior artifact
+or occupied path. Its report-safety exception below applies when persistence fails.
 
 ## Establish the task
 Read the assigned Build unit and relevant plan sections, current authoritative sources,
@@ -89,19 +91,21 @@ Markdown contracts are product; useful structural tests can protect their behavi
 
 ## Evidence and report safety
 Use the coordinator-provided canonical candidate observation and operation/report paths.
-After relevant changes, request or produce a fresh observation with the selected Principal
-helper; never recreate its hash formula. A clean committed tree needs full SHA and relevant
+Native report allocation and retention belong to the coordinator; a prepared directory is
+expected to exist. Do not search for helpers, re-hash authority or rebuild manifests already
+provided as current references. After relevant changes, request or produce a fresh observation
+with the selected Principal helper; never recreate its hash formula. A clean committed tree needs full SHA and relevant
 environment; a dirty candidate needs retrievable complete staged/unstaged tracked diff
 (including binary content), base SHA and relevant untracked paths/content hashes. Exclude
 private reports; never stage or commit just to identify a candidate. Later relevant changes
 make evidence stale: rerun affected checks or mark it stale.
 
-Before any report write, create an absent `.principal/.gitignore` containing `*`; never
+For an explicit legacy report write, create an absent `.principal/.gitignore` containing `*`; never
 overwrite existing policy. Verify the actual repository destination is ignored with
 `git check-ignore`. Supporting candidate artifacts use the same safety checks: new
 collision-safe, verified-private paths, never an assumed shared `/tmp` location. If unsafe
 or persistence fails, stop for caller policy repair: no exposed report or invented saved
-path. The delegated exception is `Next: blocked`, `Report: not saved`, plus `Blocked:`
+path. The legacy persistence exception is `Next: blocked`, `Report: not saved`, plus `Blocked:`
 with the failure in the final message; retain the other status lines. Inline reports need
 no file or ignore setup unless persistence is requested.
 
@@ -137,30 +141,30 @@ unknown impact uses the normal path. An explicitly disposable prototype may stat
 
 ## Output — implementation report
 This template governs the complete artifact or full-in-chat report, not every saved-report summary.
-Preserve the delegated five-line protocol and safety exception. Lead the full report with
-solution, material tradeoffs and verification; reference shared gates instead of reciting rules.
-Even compressed, retain all applicable report fields: Authority, Candidate, Requirements, Gates, Evidence gaps,
-Assumptions and Blocked; Tests, Verified and Follow-ups always appear. Use none or N/A with reason
-only where inapplicable, never for unresolved obligations/gates. The typo/comment exemption gets one-line confirmation.
+Keep the report proportional: describe the solution, material design choices, actual checks
+and unresolved limitations. Do not paste tool transcripts, repeat generic governance, or
+manufacture a requirement matrix for ordinary prose. Reference the shared authority and
+candidate once. Exact source IDs require explicit reconciliation; ordinary tasks can map
+behavior to implementation and checks in concise prose. Relevant inherited caveats survive.
+Optional fields appear only when applicable; never hide an unresolved obligation by omission.
 ```
-## Implemented: <task, one line>
+## Implemented: <task>
 Changed paths: <paths>
-Authority: <source and definition references; assigned step/map or exact task>
-Candidate: <actual tested revision/tree/diff identity and relevant environment>
-Requirements: <source ID → implementation path:line → actual command/result/artifact → completed|unverified|unmet; outside scope → responsible step>
-Gates: <gate → actual result or not run, with reason> | none
-Evidence gaps: <missing test/measurement and consequence> | none
-Findings applied: <REV-… IDs, one at a time> | none
-Red evidence: <observed relevant failure> | N/A: <already-correct characterization or exemption>
-Green evidence: <exact command + result, or reference to the same Full evidence>
-Full evidence: <declared full command/result; identity-verified reused artifact when applicable> | not run: <reason>
-Tests: <added/updated; result verbatim, e.g. "42 passed, 0 failed">
-Verified: <what you observed working, or "NOT VERIFIED because …">
-Assumptions: <what you guessed and why> | none
-Follow-ups: <out-of-scope issues found, left untouched> | none
-Blocked: <contradictions or errors you stopped on> | none
+Authority: <exact task / assigned unit and source references>
+Candidate: <provided observation; note edits requiring a fresh coordinator observation>
+Solution: <behavior, design and material tradeoffs>
+Tests: <actual commands/results or verified reused evidence; regression red/green when relevant>
+Verified: <observed acceptance, distinct from implementation claims>
+Requirements: <source IDs and their result when required; otherwise concise behavior mapping>
+Gates: <only task-specific gates due or unresolved, with owner and stage>
+Evidence gaps: <actual missing proof and consequence, if any>
+Assumptions: <material assumptions, if any>
+Follow-ups: <out-of-scope observations, if any>
+Blocked: <actual blocker, if any>
 Next: review | debug | blocked
 ```
+For repairs, include each accepted finding and its disposition with evidence. A passing
+suite is not requirement coverage. A nonbehavioral typo/comment exemption remains one line.
 
 `Next:` is exactly one of those three words — the caller routes on it mechanically.
 **review** the work is ready for a verdict · **debug** you hit a failure whose cause you

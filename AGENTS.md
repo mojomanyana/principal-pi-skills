@@ -14,6 +14,7 @@ required chain of phase skills.
 | Executable implementation sequence | `plan` | delegate heavy reading; inline deliberately |
 | Known-cause implementation | `build` | inline or delegated; one writer per working tree |
 | Judge a change before landing | `review` | independent cold context when available |
+| Judge test assertions, behavioral gaps or redundancy | `test-review` | focused skill or independent child when useful |
 | Unknown failure | `debug` | delegate noisy diagnosis; inline when appropriate |
 | Facts about code, data, runtime or history | `investigate` | read-only; delegate heavy reading |
 | Git/GitHub operation | `git-ops` | inline only; needs current session authority |
@@ -26,7 +27,7 @@ cannot dialogue or dispatch more agents; their final output is the handoff.
 
 Call `delegate_describe({agent:"phase"})`; require binding package `principal-pi-skills`,
 exact phase and captured `definitionId` on every `delegate`, `delegate_all` child or
-`delegate_chain` step. The native phase names are plan/build/review/debug/investigate.
+`delegate_chain` step. The native phase names are plan/build/review/test-review/debug/investigate.
 Reuse a current selected binding; refresh after selected-resource/reload changes or runtime
 staleness. Preserve the unmodified response and accessible selected skill/agent sources.
 Runtime source/hash checks remain authoritative; never reconstruct receipts or guess paths.
@@ -40,7 +41,7 @@ policy without phase-tier overrides. Inline is a choice, not a fallback.
 
 Every gate has its source-defined owner and due stage. Leaves check current obligations;
 later coordinator terminal/cleanup/review gates remain pending. After return, the coordinator
-checks full native result, complete report and identity-bound `cleanup.state=settled`
+checks full native result and identity-bound `cleanup.state=settled`
 receipt before dependent work, including consuming Review's verdict. No disposable workspace
 does not establish process cleanup. Missing emitted runtime evidence blocks completion.
 
@@ -54,12 +55,17 @@ all results, review candidates and integrate serially with merged checks.
 Use `principal_workflow` snapshot/reference for canonical workspace/candidate and exact-file
 observations, including inline/evidence work; status revalidates a prior native operation.
 Prepare/complete/retry are native-delegation bookkeeping. Pass the returned `operation_id`
-unchanged to delegate alongside its `definitionId`; after actual native settlement and report
-retention, complete with the actual disposition. Failed or blocked results never approve work.
+unchanged to delegate alongside its `definitionId`; after actual native settlement,
+complete retains the exact captured child final report with the actual disposition. A failed
+completion remains visible and incomplete. Prepared directories already exist; consume
+provided helper locations and references rather than rediscovering them. Failed or blocked results never approve work.
 Inline work retains the existing private report mechanism; do not dispatch merely to close
 bookkeeping. Reuse returned references; do not recalculate fingerprints, rediscover unchanged
 bindings or launch fresh agents to compare duplicates. Tool state is not execution or approval.
 The coordinator still owns actual authority, native settlement and semantic decisions.
+For a strict no-files task, skip prepare/complete and use `result` with the unique dispatched
+operation_id to verify the settled native final without storage. Describe prepare/complete
+as administrative writes; do not call them under an all-files read-only instruction.
 
 Pass current authoritative source/definition paths, relevant plan sections/map rows,
 accepted finding definitions and due gates. Full originals remain accessible; read history
@@ -82,7 +88,7 @@ from a wrong checkout or ignored-file search.
 | debug | `build` · `plan` · `done` · `blocked` |
 | build | `review` · `debug` · `blocked` |
 | review | `build` · `evidence` · `git-ops` |
-| decide · architect · investigate · git-ops | *(none — terminate)* |
+| decide · architect · investigate · test-review · git-ops | *(none — terminate)* |
 
 Review scopes are task, integrated and scoped-repair. Task approval protects only its
 candidate/interfaces; only integrated approval with all due gates supports finish.
@@ -91,8 +97,9 @@ Continue authorized repairs that resolve distinct defects. Stop/reassess when th
 failure repeats without new evidence, authority/scope must change, or a required runtime
 gate fails; arbitrary repair-round quotas do not improve convergence.
 
-Feature/refactor spines plan, obtain any still-required approval, Build, Review and finish
-through Git-Ops. Bugfix diagnoses first. Existing explicit user approval for the actual scope
+Feature/refactor spines use a plan only when sequencing, risks or dependencies need one;
+a clear authorized task can go directly to Build, Review and Git-Ops finish. Obtain only
+still-required approval. Bugfix diagnoses an unknown cause first. Existing explicit user approval for the actual scope
 persists; urgency and a self-written flag do not create approval. A new material scope/design
 change still requires its applicable decision. Review-branch neither plans nor builds.
 Tiny change: build → git-ops only when finish is requested; ordinary low-risk inline work
@@ -103,7 +110,9 @@ Before any orchestrator artifact write create an absent `.principal/.gitignore` 
 absolute report path in the actual child's workspace under
 `.principal/reports/<task>-<run>/<candidate>/`; never overwrite a referenced prior artifact.
 Routine safe allocation within current authority needs no new approval. Plan writes only its
-plan/absent ignore; Investigate stays read-only; the coordinator persists additional reports.
+plan/absent ignore; Investigate stays read-only. Native children return complete final reports;
+complete retains them, without child report writes. Distinguish no product changes from
+ignored administrative writes; do not hide a report-completion failure.
 Inline Build needs a complete saved report before cold delegated Review.
 
 For an external private archive, optional progress index or opt-in quiescent resume, read
@@ -115,28 +124,34 @@ checks remain required; never invent completed phases to pass them.
 ## Optional advisory and test review
 
 Use `jev_advice` only when helpful and current status explicitly enables workflow mode.
-After deterministic gates select a bounded decision-time requirement/evidence packet; no
+After deterministic gates identify a useful unresolved judgment. Supply its stage, proposed
+nextAction and uncertainty with bounded current requirements/evidence; deterministic tools
+check file/hash completeness. Do not ask global readiness before mandatory review. No
 quota, automatic activation or CLI bypass. Keep predictions and prior outcomes out of cold
 review until its own verdict. Disabled/manual/unavailable/error states leave otherwise
 permitted work proceeding. Advice cannot approve, waive gates or establish defects.
 Storage choice and separate curation/training permission remain distinct; predictions are
 not labels. OpenAI Decisions is excluded. Do not collect private transcripts or secrets.
 
-Test-quality review is an optional focus within Review, not another mandatory phase.
-Use [the rubric](review/references/test-quality.md) when requested or material to the diff;
-judge observable failure coverage, mocks, determinism and redundancy without count quotas.
+The distinct [test-review skill](test-review/SKILL.md) judges behavioral oracles, realistic
+mocks, determinism and redundancy through focused plausible-wrong-behavior challenges.
+Use it when requested or material to test quality; no count/coverage/mutation quota. Review
+can use the skill and state a separate test judgment, or the coordinator can delegate a cold
+test-review child when useful. State which occurred: one reviewer using two skills is not
+two independent reviews. No mandatory extra agent, recursive whole review or integration
+approval from test-quality SOUND.
 
 ## Maintenance rule — the contracts are generated
 
-`plan`, `build`, `review`, `debug` and `investigate` exist twice: `<name>/SKILL.md` (interactive contract)
+`plan`, `build`, `review`, `test-review`, `debug` and `investigate` exist twice: `<name>/SKILL.md` (interactive contract)
 and `agents/principal-<name>.md` (the single-shot contract subagents get) — different
 artifacts, not copies, but most of each pair is identical, and that shared majority is
 where they used to drift.
 
 Both are generated from `contracts/<name>.md.tmpl`. The three spine workflows are
-likewise generated from `contracts/workflows.md.tmpl` — five contracts plus one workflows
-template produce five agents, five dual-use `SKILL.md` files and three prompts, plus the
-root `principal-agents.json` binding manifest (14 outputs). The manifest hashes full generated
+likewise generated from `contracts/workflows.md.tmpl` — six contracts plus one workflows
+template produce six agents, six dual-use `SKILL.md` files and three prompts, plus the
+root `principal-agents.json` binding manifest (16 outputs). The manifest hashes full generated
 UTF-8 skill/agent bytes in the same pass; never hand-edit its identities.
 `prompts/principal-review-branch.md` is handwritten. Change shared behavior ONCE, there, then `npm run generate`. Editing a
 generated file directly is reverted by the next run and fails `npm run generate:check` in
@@ -154,10 +169,10 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.12.0`,
-   `pi install npm:pi-daddy@0.48.0` and `pi install npm:skill-harness@0.27.0`.
-   Native delegation uses exactly Pi 1.0.4 and the qualified captured setup
-   (`PI_DADDY_HERDR=0`). Generated skill/agent bindings and captured definition IDs must
+   `pi install npm:principal-pi-skills@4.13.0`,
+   `pi install npm:pi-daddy@0.49.0` and `pi install npm:skill-harness@0.28.0`.
+   Native report-completion composition is checked on Pi 1.0.4 and 1.1.0. The
+   captured setup uses `PI_DADDY_HERDR=0`; Herdr additionally requires Daddy's live compatibility/ownership checks. Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
    Enable built-in discovery through Pi `settings.json` `defaultTools` containing
    `read`, `bash`, `edit`, `write`, `grep`, `find`, `ls`; preserve other settings and check
@@ -166,8 +181,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.12.0 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.12.0 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.13.0 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.13.0 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase
@@ -175,7 +190,7 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    `principal-pi-skills-evals`.
 3. Context handoff (matching pi-daddy candidate): each skill's `allowed-tools` sets how much of this
    session a delegated child may receive. `architect`, `decide` and `plan` allow
-   `context:summary`. `build`, `debug`, `review` and `investigate` allow `context:files`: review
+   `context:summary`. `build`, `debug`, `review`, `test-review` and `investigate` allow `context:files`: review
    stays low so it judges cold; investigate receives named evidence, not reasoning.
    `git-ops` allows none, on purpose. Each reason is in the
    skill's frontmatter and the README install section, along with the egress note. Don't

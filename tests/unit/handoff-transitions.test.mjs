@@ -4,7 +4,7 @@
  * `Next:` is the closed transition vocabulary (Review Verdict gates its use), so a
  * contract must not emit a value no workflow handles (the chain stops for no stated
  * reason), and a workflow must not branch on a value no contract can emit (a branch that
- * looks like coverage and can never run). Both failures are invisible in review — they
+ * looks like coverage and can never run). Both failures are invisible in review â€” they
  * read as complete prose on each side.
  *
  * The declared set below is the single source of truth, mirrored in AGENTS.md. Tests here
@@ -21,7 +21,7 @@ import { fileURLToPath } from "node:url";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const read = (p) => readFileSync(join(ROOT, p), "utf8");
 
-/** Phase → the exact values its `Next:` line may carry. */
+/** Phase â†’ the exact values its `Next:` line may carry. */
 const TRANSITIONS = {
   plan: ["build"],
   debug: ["build", "plan", "done", "blocked"],
@@ -30,7 +30,7 @@ const TRANSITIONS = {
 };
 
 /** Phases that deliberately carry no `Next:` at all. */
-const TERMINAL = ["decide", "architect", "investigate", "git-ops"];
+const TERMINAL = ["decide", "architect", "investigate", "test-review", "git-ops"];
 
 const SOURCES = {
   plan: "contracts/plan.md.tmpl",
@@ -62,7 +62,7 @@ test("artifact persistence initializes ignore without overwriting policy or wide
     assert.match(text, /if absent.*`\.principal\/\.gitignore` containing `\*`/s);
     assert.match(text, /never\s+overwrite an existing ignore file/);
     assert.match(text, /Investigate/);
-    if (p.startsWith("contracts/")) assert.match(text, /inline Build/);
+    if (p.startsWith("contracts/")) assert.match(text, /inline Build/i);
   }
   assert.match(read(SOURCES.plan), /No shell, implementation, reports, or other writes/);
 });
@@ -139,11 +139,11 @@ test("both workflows handle BLOCKED and the one-way pause explicitly", () => {
     const text = read(wf);
     assert.match(text, /BLOCKED|blocked/, `${wf} must say what happens on a blocked phase`);
     // Match the EXACT token review emits. The old alternation accepted either spelling, so
-    // the workflows branched on REQUEST-CHANGES while review returns CHANGES-REQUESTED —
+    // the workflows branched on REQUEST-CHANGES while review returns CHANGES-REQUESTED â€”
     // precisely the drift this test exists to catch, waved through by its own regex.
     assert.match(text, /CHANGES-REQUESTED/, `${wf} must branch on the verdict review actually emits`);
     assert.doesNotMatch(text, /REQUEST-CHANGES/, `${wf} uses a verdict token no contract emits`);
-    assert.match(text, /same failure repeats without new evidence/, `${wf} must stop unproductive loops`);
+    assert.match(text, /same failure\s+repeats without new evidence/, `${wf} must stop unproductive loops`);
     assert.doesNotMatch(text, /At most two repair rounds|it counts as a repair round/);
     assert.match(text, /UNVERIFIED/, `${wf} must say what an unverified review means`);
   }
@@ -167,7 +167,7 @@ test("terminal phases carry no Next: line", () => {
   for (const phase of TERMINAL) {
     const path = phase === "git-ops" ? "git-ops/SKILL.md" : `${phase}/SKILL.md`;
     const values = declaredValues(read(path));
-    assert.equal(values, null, `${path} still declares a \`Next:\` — ${phase} terminates, it does not hand off`);
+    assert.equal(values, null, `${path} still declares a \`Next:\` â€” ${phase} terminates, it does not hand off`);
   }
 });
 
@@ -204,20 +204,27 @@ test("the review-branch prompt reviews and finishes but never plans or builds", 
   assert.doesNotMatch(text, /(?:invoke|dispatch|delegate to)\s+`?principal-(?:plan|build)/i, "review-branch invokes neither phase");
   assert.match(text, /invokes neither Plan nor Build/);
   assert.match(text, /optional plan map/, "an existing map is evidence, not a required planning phase");
+  const flow = text.replace(/\s+/g, " ");
+  assert.match(flow, /If artifact writes are prohibited, skip prepare\/complete: dispatch with a unique operation_id/);
+  assert.match(flow, /`result` to verify and read the exact settled native final without retaining a file/);
+  assert.match(flow, /Apply this artifact retention step only when writes are allowed/);
+  assert.doesNotMatch(flow, /explicit artifact prohibition stops dispatch/);
   assert.match(text, /\$\{1:-main\}/, "base branch defaults to main via a template argument");
 });
 
-test("the spines hand artifacts to agents as files under .principal/reports", () => {
+test("native report retention is coordinator-owned and preserves private artifact boundaries", () => {
   for (const wf of WORKFLOWS) {
-    const text = read(wf);
-    assert.match(text, /\.principal\/reports\/<task>-<run>\/<candidate>\//, `${wf} must scope artifact identities`);
-    assert.match(text, /<artifact-dir>\/<step>-build-<attempt>\.md/, `${wf} must give build agents a report path`);
-    assert.match(text, /<artifact-dir>\/review-diff-<round>\.txt/, `${wf} must hand review a diff package`);
-    assert.match(text, /scoped re-review/, `${wf} must scope repair-round reviews`);
+    const text = read(wf).replace(/\s+/g, " ");
+    assert.match(text, /prepare.*operation_id, canonical workspace, reportPath and handoff metadata/);
+    assert.match(text, /complete.*retains the exact captured final automatically/);
+    assert.match(text, /task\/run\/candidate allocation belongs to prepare, not the child/);
+    assert.match(text, /suppl[yY].*complete diff once/i);
+    assert.match(text, /scoped re-review/);
   }
   assert.match(read("agents/principal-review.md"), /## Scoped re-review/);
-  assert.doesNotMatch(read("review/SKILL.md"), /## Scoped re-review/, "scoped re-review is agent-only");
-  assert.match(read("agents/principal-build.md"), /Report:/);
+  assert.doesNotMatch(read("review/SKILL.md"), /## Scoped re-review/);
+  assert.match(read("agents/principal-build.md"), /complete implementation report once/);
+  assert.doesNotMatch(read("agents/principal-build.md"), /exactly five lines/);
 });
 
 test("native handoffs bind an exact described definition and never fallback after failure", () => {
@@ -241,7 +248,7 @@ test("native workflows use phase identities and batch independent parallel child
     assert.match(text, /definitionId/);
     assert.match(text, /(?:never overlapping|Do not overlap|Do not\s+launch concurrent|overlapping single)/i);
     assert.match(text, /(?:separate|distinct)[\s\S]*?worktrees/);
-    assert.doesNotMatch(text, /(?:Always delegate to|dispatch one fresh|Invoke|→) `principal-(?:build|review|plan|debug)`/);
+    assert.doesNotMatch(text, /(?:Always delegate to|dispatch one fresh|Invoke|â†’) `principal-(?:build|review|plan|debug)`/);
   }
   for (const path of [...WORKFLOWS, "prompts/principal-review-branch.md"]) {
     assert.match(read(path), /delegate\(\{agent:"review",definitionId,/);
@@ -250,7 +257,7 @@ test("native workflows use phase identities and batch independent parallel child
     const text = read(path);
     assert.match(text, /delegate_all\(\{children:\[\.\.\.\]\}\)/);
     assert.match(text, /agent:"build"[\s\S]*?captured build `definitionId`/);
-    assert.match(text, /integrate serially/);
+    assert.match(text, /integrate\s+serially/);
     assert.match(text, /preserve\s+completed\s+siblings/i);
   }
 });

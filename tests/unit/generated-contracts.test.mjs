@@ -84,7 +84,7 @@ for (const [mode, spec] of Object.entries(WORKFLOW_MODES)) {
   });
 }
 
-for (const contract of ["plan", "build", "review", "debug", "investigate"]) {
+for (const contract of ["plan", "build", "review", "test-review", "debug", "investigate"]) {
   for (const [mode, spec] of Object.entries(MODES)) {
     test(`${contract}: ${spec.path(contract)} matches the template (${mode})`, () => {
       const template = read(`contracts/${contract}.md.tmpl`);
@@ -105,8 +105,8 @@ for (const contract of ["plan", "build", "review", "debug", "investigate"]) {
   });
 }
 
-test("delegated manifest binds exact five inline and delegated full-file bytes from one generation", () => {
-  const phases = ["plan", "build", "review", "debug", "investigate"];
+test("delegated manifest binds exact six inline and delegated full-file bytes from one generation", () => {
+  const phases = ["plan", "build", "review", "test-review", "debug", "investigate"];
   const outputs = phases.flatMap(phase => Object.values(MODES).map(mode => ({
     path: mode.path(phase), rendered: render(read(`contracts/${phase}.md.tmpl`), mode.block, phase, { name: mode.name(phase) }),
   })));

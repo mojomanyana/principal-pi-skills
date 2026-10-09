@@ -133,8 +133,8 @@ function resumeRoot(root, create = false) {
 }
 export function packageIdentity(root) {
   const names = ["package.json", "AGENTS.md", "principal-agents.json", "bootstrap/BOOTSTRAP.md", "extensions/bootstrap.ts", "extensions/resume.ts", "scripts/resume-checkpoint.mjs", "scripts/progress-artifacts.mjs", "scripts/snapshot-workspace.mjs", "scripts/install-agents.mjs"];
-  for (const phase of ["decide", "architect", "plan", "build", "review", "debug", "investigate", "git-ops"]) names.push(`${phase}/SKILL.md`);
-  for (const phase of ["plan", "build", "review", "debug", "investigate"]) names.push(`agents/principal-${phase}.md`);
+  for (const phase of ["decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops"]) names.push(`${phase}/SKILL.md`);
+  for (const phase of ["plan", "build", "review", "test-review", "debug", "investigate"]) names.push(`agents/principal-${phase}.md`);
   for (const name of ["feature", "bugfix", "refactor", "review-branch"]) names.push(`prompts/principal-${name}.md`);
   return { root: realpathSync(root), sha256: hash(json(names.map(name => [name, hash(bytes(join(root, name)))]))) };
 }

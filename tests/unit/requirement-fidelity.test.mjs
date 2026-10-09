@@ -52,12 +52,12 @@ for (const mode of ["skill", "agent"]) {
     clauses(text,[/canonical candidate observation/, /never recreate its hash formula/,
       /clean committed tree.*full SHA.*environment/, /dirty candidate.*retrievable complete staged\/unstaged tracked diff.*binary/,
       /base SHA.*untracked paths\/content hashes/, /never stage or commit just to identify/,
-      /Later relevant changes.*stale/, /Before any report write.*absent.*\.principal\/\.gitignore/,
+      /Later relevant changes.*stale/, /explicit legacy report write.*absent.*\.principal\/\.gitignore/,
       /never overwrite existing policy/, /git check-ignore/, /collision-safe, verified-private/,
       /If unsafe.*stop for caller policy repair/, /no exposed report or invented saved path/,
       /exception.*Next: blocked.*Report: not saved.*Blocked:.*final message/,
       /Inline reports need no file or ignore setup unless persistence is requested/]);
-    if(mode==='agent') clauses(text,[/ONLY your final message/, /exactly five lines/,
+    if(mode==='agent') clauses(text,[/ONLY your final message/, /complete implementation report once.*final message/, /coordinator.*retains the exact captured final/,
       /never overwrite a referenced prior artifact or occupied path/]);
   });
   test(`build ${mode}: obligations, caveats and future gates cannot disappear`, () => {
@@ -117,8 +117,8 @@ for (const mode of ["skill", "agent"]) {
   });
   test(`review ${mode}: evidence route and optional test focus do not add Build or another stage`, () => {
     clauses(contract("review",mode),[/`evidence` for UNVERIFIED/, /does not authorize code changes or automatic re-delegation/,
-      /focused rubric in `review\/references\/test-quality.md`/, /mode within this review/,
-      /not a mandatory extra delegation/, /Keep its findings in this verdict/,
+      /distinct `test-review` skill/, /one reviewer used two skills/,
+      /not a mandatory extra delegation/, /Keep actionable test findings in this verdict/,
       /error and boundary flows/, /duplicate tests.*mirror implementation/,
       /Preserve validation, error visibility, security controls, accessibility and meaningful tests/]);
   });
@@ -138,7 +138,7 @@ for (const mode of ["skill", "agent"]) {
 
 test('tool and context ceilings remain unchanged',()=>{
   const tools={plan:'read, grep, find, ls, write',build:'read, grep, find, ls, edit, write, bash',
-    review:'read, grep, find, ls, bash',debug:'read, grep, find, ls, bash',investigate:'read, grep, find, ls'};
+    review:'read, grep, find, ls, bash','test-review':'read, grep, find, ls, bash',debug:'read, grep, find, ls, bash',investigate:'read, grep, find, ls'};
   for(const [name,list] of Object.entries(tools))for(const mode of ['skill','agent']){
     const text=render(read(`contracts/${name}.md.tmpl`),mode,name,{name});
     assert.equal(text.match(/^allowed-tools: (.*)$/m)[1],`${list}, context:${name==='plan'?'summary':'files'}`);
@@ -150,10 +150,13 @@ test('conditional references are discoverable without making every mode mandator
   for(const path of ['references/workflow-mechanics.md','review/references/test-quality.md'])
     assert.ok(existsSync(new URL(`../../${path}`,import.meta.url)),path);
   clauses(normalized(read('contracts/workflows.md.tmpl')),[/read only the section for a feature actually used/]);
-  clauses(normalized(read('review/references/test-quality.md')),[/not add a separate agent/,
-    /Mock.*side effects|Mocks.*side effects/, /Determinism.*observable conditions/,
-    /independently.*correct|expected result is correct/, /not PR\/finding IDs/,
-    /regex presence alone does not demonstrate model compliance/, /No test-count.*quota/]);
+  clauses(normalized(read('test-review/SKILL.md')),[/not two independent reviewers/,
+    /mock side effects/, /bounded waits for observable conditions/,
+    /expected values independently/, /not PR IDs/, /mutation-score quota/,
+    /above one/, /exactly one/, /before.*repairs recency/,
+    /surviving mutant identifies a test weakness/, /Only integrated Review/]);
+  clauses(normalized(read('review/references/test-quality.md')),[/distinct.*test-review skill/,
+    /regex presence alone does not measure model compliance/]);
 });
 
 test('optional archival, progress and resume remain mechanical and consent bound',()=>{
@@ -216,9 +219,22 @@ test('choice/structure and discovery retain their routing boundaries',()=>{
 test('native bookkeeping does not force inline evidence work into delegation',()=>{
   const text=normalized(read('contracts/workflows.md.tmpl'));
   clauses(text,[/snapshot.*reference.*inline\/evidence work/,
-    /prepare.*complete.*retry.*native-delegation bookkeeping/,
-    /operation_id.*unchanged to `delegate`.*definitionId/,
-    /actual native settlement.*report retention.*complete.*actual disposition/,
-    /Inline work keeps the existing private report mechanism/,
-    /never dispatch an agent merely to close bookkeeping/]);
+    /prepare.*operation_id.*unchanged alongside definitionId/,
+    /complete.*retains the exact captured final automatically/,
+    /completion failure remains incomplete and visible/,
+    /Inline work needs no dummy delegation merely to close bookkeeping/]);
+});
+
+
+test('test-quality review is separately bound, optional, and cannot approve integration',()=>{
+  for(const mode of ['skill','agent']){
+    const text=contract('test-review',mode);
+    clauses(text,[/SOUND.*CHANGES-REQUESTED.*UNVERIFIED/, /not engineering or integration approval/,
+      /Do not recurse into Review/, /no mandatory mutation campaign/, /never mutate the caller checkout/,
+      /separately.*test-review.*child|separate cold `test-review` child/]);
+    assert.doesNotMatch(text, /Next: git-ops/);
+  }
+  const pkg=JSON.parse(read('package.json'));
+  assert.ok(pkg.pi.skills.includes('./test-review'));
+  assert.equal(JSON.parse(read('principal-agents.json')).bindings['test-review'].agent,'agents/principal-test-review.md');
 });

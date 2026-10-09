@@ -1,21 +1,21 @@
 # principal-pi-skills
 
-**Eight skills for principal-level software engineering with the
-[pi coding agent](https://github.com/badlogic/pi-mono) — three inline skills and five
+**Nine skills for principal-level software engineering with the
+[pi coding agent](https://github.com/badlogic/pi-mono) â€” three inline skills and six
 that double as subagents.** Dialogue and session state run inline (`decide`, `architect`,
 `git-ops`); heavy reading, cold judgment, and noisy loops delegate to isolated contexts
-(`plan`, `build`, `review`, `debug`, `investigate` — single-shot variants in `agents/`,
+(`plan`, `build`, `review`, `test-review`, `debug`, `investigate` â€” single-shot variants in `agents/`,
 generated from the same contract as the skill). The files follow the
 [Agent Skills](https://agentskills.io/specification) standard, so other harnesses can
 consume the skills, but pi is the supported target. This is **4.x**: a thin orchestration
-layer over the eight skills, with the risk-adaptive
+layer over the nine skills, with the risk-adaptive
 assurance controller and broad model qualification kept on a separate track (see
 [Validation](#validation)).
 
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
-**delegable trust** — an output carries the evidence needed to verify it without redoing
-the work — and **cheap iteration** — a defect found is a defect fixed, not documented
+**delegable trust** â€” an output carries the evidence needed to verify it without redoing
+the work â€” and **cheap iteration** â€” a defect found is a defect fixed, not documented
 around.
 
 ## Deterministic workflow tools
@@ -23,8 +23,10 @@ around.
 Principal 4.12 adds `principal_workflow` for candidate identity, exact file references and
 private report handoffs. `snapshot` and `reference` support any coordinator work. For native
 phases, `prepare` allocates one ignored report path and stable operation ID; pass that ID to
-Daddy delegation. After settlement, `complete` binds the retained report to the actual
-execution workspace. `status` checks current bytes before reuse. Explicit `retry` preserves
+Daddy delegation. After settlement, `complete` retains the exact captured native final at that report path
+and binds it to the execution workspace. A differing existing report is preserved and refused;
+an identical final may be reused. `result` verifies and returns a settled native final without
+storage for strict no-files tasks; skip prepare/complete in that mode. `status` checks current bytes before reuse. Explicit `retry` preserves
 the old attempt and needs native settled or never-started proof. A new coordinator session
 cannot silently redispatch an old prepared operation; inspect and reconcile it first. These records are evidence,
 not review approval. Native completion requires pi-daddy 0.48.0 in the same session.
@@ -43,22 +45,22 @@ operation-bridge checks passed with Pi 1.0.4 and 1.1.0; this is not paid model q
 
 ## Three constraints
 
-1. **Dual-use.** `plan`, `build`, `review`, `debug`, and `investigate` each serve as a loaded skill *and*
+1. **Dual-use.** `plan`, `build`, `review`, `test-review`, `debug`, and `investigate` each serve as a loaded skill *and*
    as a subagent system prompt. Both forms are rendered from one contract, so the shared
-   behavior cannot drift between them, and the differences — single-shot mechanics, the
-   BLOCKED form, no-dialogue rules — are marked rather than remembered. That constraint is
+   behavior cannot drift between them, and the differences â€” single-shot mechanics, the
+   BLOCKED form, no-dialogue rules â€” are marked rather than remembered. That constraint is
    what forces single-shot-safe behavior and a literal output template.
 2. **Model-agnostic.** Written for the weakest model that will run it (DeepSeek, GLM,
    Sonnet-class), not the strongest: imperative numbered steps, literal fill-in templates,
    plain-text tags (`[ONE-WAY]`, `[BLOCKER]`) instead of an emoji schema, no aphorisms
    doing load-bearing work, no personas, no required reading in reference files.
 3. **Token economics.** Budgets stated as decisions rather than aspirations: **skills
-   ≤ 1400 words**, **agents ≤ 1500**, and **`git-ops` an accepted exception at ≤ 2550** (including operation-specific preservation and verified restoration) —
+   â‰¤ 1400 words**, **agents â‰¤ 1500**, and **`git-ops` an accepted exception at â‰¤ 2550** (including operation-specific preservation and verified restoration) â€”
    the safety-critical operator carries the most arming, and validated behavior outweighs
    a budget. Ceilings move only to buy a fix rather than more prose: an absolute is cheap to write and wrong in real cases, and a rule plus the cases
    it must not eat costs more words than the absolute it replaced. **When a fix and the
    ceiling conflict, the ceiling moves.** Every count in the table below is checkable with
-   `wc -w`. Nothing loads anything else — a subagent reads one file and has the whole
+   `wc -w`. Nothing loads anything else â€” a subagent reads one file and has the whole
    contract.
 
 Individual contract exceptions (skill/agent words): Plan 2050/2100 preserves complete
@@ -74,16 +76,17 @@ claims of measured model compliance. Common ceilings remain unchanged.
 
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
-| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
+| `decide` | Options and stress-tests for a decision that isn't settled â€” "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
-| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1617) or inline | 1551 |
-| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1676) or inline | 1694 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1256) or inline | 1199 |
+| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1591) or inline | 1525 |
+| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1717) or inline | 1702 |
+| `review` | One pass, two axes â€” correctness and simplicity â€” ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1320) or inline | 1268 |
+| `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 780) or inline | 759 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1573) or inline | 1433 |
-| `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 494) or inline | 495 |
-| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2523 |
+| `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 538) or inline | 539 |
+| `git-ops` | Safe version-control operator â€” reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2523 |
 
-Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
+Routing between them belongs to the orchestrator, not to a skill â€” there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is the
 long-form routing reference, and the bootstrap extension below injects its routing table
 into applicable requests, so nothing needs to point pi at it by hand.
@@ -100,9 +103,9 @@ Principal read/discovery failure is visible and latched until deliberate `/reloa
 extension; stale foreign command paths are ignored independently without disabling valid Principal skills; each registration owns its content cache and selected-resource state.
 
 Native handoffs use `delegate_describe({agent:"phase"})`, require binding package
-`principal-pi-skills` and exact phase. Native names are `plan`, `build`, `review`, `debug`,
-`investigate`; pass the corresponding captured `definitionId` to every `delegate` call,
-`delegate_all` child and `delegate_chain` step. The root `principal-agents.json` manifest binds exactly five phases to generated
+`principal-pi-skills` and exact phase. Native names are `plan`, `build`, `review`, `test-review`,
+`debug`, `investigate`; pass the corresponding captured `definitionId` to every `delegate` call,
+`delegate_all` child and `delegate_chain` step. The root `principal-agents.json` manifest binds exactly six phases to generated
 inline/delegated paths and full-file SHA-256 hashes from the same generation pass. The
 runtime must verify enabled selected source, package identity and both hashes. Missing,
 wrong or disabled bindings and operational failures stop dependent work; they never trigger
@@ -125,6 +128,12 @@ for the actual scope persists and does not need to be requested again. Urgency, 
 a self-written flag cannot supply it. Material scope changes and one-way actions retain
 their applicable approval boundaries.
 
+A clear authorized feature can go directly to Build; use a persisted plan only when
+sequencing, material risks or dependencies need it. The named feature/refactor prompts
+follow the same proportional routing. Ordinary plans state behavior, affected files and
+acceptance; formal source IDs retain their required map. Empty metadata fields and repeated
+generic governance do not belong in every plan or report.
+
 A routine feature keeps implementation, acceptance tests and documentation together, followed
 by one independent integrated Review. Split for a real dependency, risk boundary or useful
 parallel increment. A public API addition does not by itself require a skeleton phase, a
@@ -144,14 +153,22 @@ actual branch, without asking again.
 Plan resolves essential outcome and interface tradeoffs; Build owns the simplest coherent,
 readable and maintainable implementation within that authority. Routine design choices need
 no repeated permission. Review judges design and test quality alongside correctness; neither
-green tests nor a coverage percentage substitutes for sound engineering judgment. The optional
-[focused test-review rubric](review/references/test-quality.md) stays in the same review and
-verdict; it does not require another delegation. [Workflow mechanics](references/workflow-mechanics.md)
+green tests nor a coverage percentage substitutes for sound engineering judgment. The distinct
+[test-review skill](test-review/SKILL.md) checks whether assertions detect plausible wrong
+implementations, including exact errors, configurable capacities and state changes that
+could mask a failure. A code reviewer may use it with a separate test-quality assessment;
+that is one reviewer using two skills. A separately delegated test-review child provides
+independent test judgment when requested or useful, without an always-required extra agent.
+Neither mode grants integration approval. No test-count, coverage or mutation-score quota
+replaces judgment. [Workflow mechanics](references/workflow-mechanics.md)
 contains conditional archive/progress/resume details, read only when that facility is used.
 
-Delegated phases hand artifacts to each other as files, not pasted text. A native `build` child
-writes its full report to an unused task/run/candidate-scoped path under `.principal/reports/`
-(or a valid unused caller-chosen path) and returns five status lines;
+Native children return their complete report once in the final message. After settlement,
+`principal_workflow complete` retains that exact captured final at its prepared private path;
+the child does not write another report. Plan still persists its actual executable plan.
+Failed completion stays incomplete and visible. This removes model-written report copies
+and repeated path checks. An explicitly configured legacy caller can request safe persistence.
+Delegated phases consume retained files;
 review receives governing source/definition references and relevant plan sections/map rows,
 and a candidate-identified diff package plus reports. Only matching candidate/scope evidence
 is reusable; a passing suite alone is not complete requirement coverage. Every successful
@@ -183,15 +200,15 @@ what the evidence shows remains; do not repeat completed work or infer approval 
 ## Layout
 
 ```
-<skill>/SKILL.md                      the interactive contract — nothing else is required reading
-agents/principal-{plan,build,review,debug,investigate}.md  subagent definitions available for delegation
-contracts/{plan,build,review,debug,investigate}.md.tmpl    source for dual-use contracts — edit here, run `npm run generate`
+<skill>/SKILL.md                      the interactive contract â€” nothing else is required reading
+agents/principal-{plan,build,review,test-review,debug,investigate}.md  subagent definitions available for delegation
+contracts/{plan,build,review,test-review,debug,investigate}.md.tmpl    source for dual-use contracts â€” edit here, run `npm run generate`
 contracts/workflows.md.tmpl           source for the three namespaced spines
 prompts/principal-{feature,bugfix,refactor}.md generated workflows
 prompts/principal-review-branch.md    handwritten planless/buildless review entry
 bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary, injected by the extension
 extensions/bootstrap.ts               pi extension: request-local routing after selected-resource discovery
-review/references/test-quality.md     optional focused test-review rubric
+test-review/SKILL.md                 separate test-quality judgment; optional independent child
 references/workflow-mechanics.md      optional archive/progress/resume mechanics
 scripts/                              generator, installers, and checks behind `npm test`
 tests/{unit,install}/                 current product/contract + clean-home install tests (node:test)
@@ -202,15 +219,15 @@ CHANGELOG.md                          release history
 
 ## Install (pi)
 
-1. **Skills + prompts** — install the exact npm release:
+1. **Skills + prompts** â€” install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.12.0
-   pi install npm:pi-daddy@0.48.0
-   pi install npm:skill-harness@0.27.0
+   pi install npm:principal-pi-skills@4.13.0
+   pi install npm:pi-daddy@0.49.0
+   pi install npm:skill-harness@0.28.0
    ```
 
-   Restart Pi after package changes. The `pi` manifest registers eight skills, four
+   Restart Pi after package changes. The `pi` manifest registers nine skills, four
    `/principal-*` commands and the bootstrap extension automatically. Exact npm pins keep
    the installed source version identifiable.
 
@@ -228,23 +245,24 @@ CHANGELOG.md                          release history
    coordinator-owned progress work; the coordinator runs the helper after that phase, within
    its own authority. Planning does not run the CLI or widen its write ceiling.
 
-   **Do not install `2.3.0`** — it is deprecated on npm for a destructive defect: its
+   **Do not install `2.3.0`** â€” it is deprecated on npm for a destructive defect: its
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
-   Native delegation uses the companion pi-daddy release with **exactly Pi 1.0.4** and
-   the qualified captured setup (`PI_DADDY_HERDR=0`). Other Pi versions/backends need separate
-   qualification. The selected package's generated `principal-agents.json` binds each phase
+   Native report-completion composition is checked with **Pi 1.0.4 and 1.1.0**.
+   Captured execution uses `PI_DADDY_HERDR=0`; Herdr (`PI_DADDY_HERDR=1`) additionally
+   requires pi-daddy's live compatibility and native ownership checks. This is runtime
+   qualification, not a model-quality claim for every provider. The selected package's generated `principal-agents.json` binds each phase
    to its skill and agent bytes. Native routing uses `delegate_describe` and the captured
    `definitionId`; refusal or failure cannot fall back to a legacy runner or inline execution.
 
-2. **Legacy subagents (optional).** A configured legacy runner can use the five definitions
+2. **Legacy subagents (optional).** A configured legacy runner can use the six definitions
    when native tools are genuinely absent. Native delegation needs no separate agent install.
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.12.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.12.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.13.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.13.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -252,8 +270,8 @@ CHANGELOG.md                          release history
    Source tags and npm publication are separate. Validate candidate installs in an isolated
    `PI_CODING_AGENT_DIR` before release; known behavioral qualification limits still apply.
 
-   It installs `principal-plan`, `principal-build`, `principal-review`, `principal-debug`,
-   and `principal-investigate` as **real files, not symlinks** — a symlink into a checkout breaks the
+   It installs `principal-plan`, `principal-build`, `principal-review`, `principal-test-review`, `principal-debug`,
+   and `principal-investigate` as **real files, not symlinks** â€” a symlink into a checkout breaks the
    moment that directory moves, and breaks silently, since pi just reports an unknown
    agent. It refuses to overwrite anything it did not install, and `uninstall` removes only
    its own unmodified files. Symlinked home/config ancestors resolve once to a canonical
@@ -263,7 +281,7 @@ CHANGELOG.md                          release history
 
    **Ownership migration/recovery:** `install` no longer silently adopts byte-identical
    unowned files, and deprecated `--force` never bypasses validation or ownership. If only
-   the manifest was lost and all five agents exactly match this package version, explicitly
+   the manifest was lost and all six agents exactly match this package version, explicitly
    run `node <installed-package>/scripts/install-agents.mjs adopt`, then `install` (to repair
    unchanged owned file modes), then `check`. `adopt`
    creates only the absent manifest and leaves agent bytes/modes untouched; it refuses an
@@ -272,7 +290,7 @@ CHANGELOG.md                          release history
    your own backup; do not delete them merely to make installation pass.
 
    Tool restriction is structural, in the agents' frontmatter: `investigate` is read-only;
-   `plan` is read-only except for its plan and creation of an absent `.principal/.gitignore`; `build`, `review`, and `debug` add
+   `plan` is read-only except for its plan and creation of an absent `.principal/.gitignore`; `build`, `review`, `test-review`, and `debug` add
    `bash` to run tests (and, for `build`, to write and edit).
 
    Legacy runners differ in model forwarding. If a runner does not forward the parent's
@@ -293,7 +311,7 @@ CHANGELOG.md                          release history
    |---|---|---|
    | `architect`, `decide` | `context:summary` | delegated, they cannot ask; the drivers and the rejected options live in the parent's dialogue |
    | `plan` | `context:summary` | a plan must honour what the user ruled out, which a task line flattens; no `bash` |
-   | `review` | `context:files` | **deliberately low.** Review is cold by design, and the author's reasoning is what it must not be anchored on; the diff package and build report are files |
+   | `review`, `test-review` | `context:files` | **deliberately low.** Review is cold by design, and the author's reasoning is what it must not be anchored on; the diff package and build report are files |
    | `build`, `debug` | `context:files` | they act on a stated target (a plan file or a symptom); logs travel verbatim as files; with `bash`, anything a child receives can leave the machine |
    | `investigate` | `context:files` | receives only named evidence and has no shell or write tools; the caller's reasoning is not evidence |
    | `git-ops` | none | acts on the working tree, not the conversation; consent to a destructive op must come from the user, not from forwarded turns |
@@ -537,7 +555,7 @@ separate training permission and held-out evaluation. OpenAI Decisions remains e
 installer and tarball behavior, `Next:` transition parity, and deterministic source-fidelity
 contract assertions. These check current product contracts, not model behavior or instruction delivery.
 
-Behavioural measurement—including the requirement-fidelity corpus and skill-harness evidence—lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks live here. Its [current frozen-rubric baseline](https://github.com/mojomanyana/principal-pi-skills-evals/blob/main/BASELINE.md) reports DeepSeek V4.1 Flash at 56/158 (35%) with 2 infrastructure-error scenarios and Nemotron Lightning at 28/158 (18%) with 12; infrastructure errors are retained as non-passes, and both subjects remain NOT READY across all eight skills. These observations include disclosed infrastructure gaps and do not change this package's runtime contracts.
+Behavioural measurementâ€”including the requirement-fidelity corpus and skill-harness evidenceâ€”lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks live here. Its [current frozen-rubric baseline](https://github.com/mojomanyana/principal-pi-skills-evals/blob/main/BASELINE.md) reports DeepSeek V4.1 Flash at 56/158 (35%) with 2 infrastructure-error scenarios and Nemotron Lightning at 28/158 (18%) with 12; infrastructure errors are retained as non-passes, and both subjects remain NOT READY across all eight skills. These observations include disclosed infrastructure gaps and do not change this package's runtime contracts.
 
 **Enforcement boundary:** Build/Review instructions ask the model to organize regressions
 by lasting behavior, not PR/finding IDs, and distinguish product coverage from historical
@@ -550,8 +568,8 @@ The package commands and CI mechanically select suites; pi-daddy's delegated too
 control available capabilities, not test names or correctness. Refresh installed skill/agent
 definitions when adopting a revision: editing this checkout does not update another installed copy.
 
-Two opt-in routing checks use only the eight authored frontmatter descriptions. Run
-`npm run check:routing-collisions` for all 56 directed description pairs and
+Two opt-in routing checks use only the nine authored frontmatter descriptions. Run
+`npm run check:routing-collisions` for all 72 directed description pairs and
 `npm run check:routing-triggers` for the three-run synthetic trigger suite. Both require
 `FIREWORKS_API_KEY`; `ROUTING_MODEL` and `ROUTING_API_URL` override the defaults. The suite
 starts with 12 positives and 8 near-miss negatives per skill, then
@@ -562,8 +580,8 @@ routing-description change.
 
 ## Why 4.0
 
-Version 3.x grew a risk-adaptive assurance controller — a hash-chained event ledger, task
-packets, digests, fail-closed gates — whose protocol leaked into the model-facing skill text
+Version 3.x grew a risk-adaptive assurance controller â€” a hash-chained event ledger, task
+packets, digests, fail-closed gates â€” whose protocol leaked into the model-facing skill text
 and whose init step ran before every workflow, including a typo fix. The routing layer in
 `AGENTS.md` was never loaded by pi, the feature spine had no human approval point outside
 critical mode, and every build ran inline so long features filled the steering context with
@@ -593,7 +611,7 @@ repair rounds), in which case the prompt's task is its whole spec.
 
 Why the files look the way they do. Each of these was learned by measuring the alternative.
 
-- **Description = triggers only.** Never a workflow summary — a description that summarizes
+- **Description = triggers only.** Never a workflow summary â€” a description that summarizes
   the process trains the model to follow the description and skip the body.
 - **Recipes, not prohibition tables.** Output-shape problems get a literal template to fill.
   Prohibitions are reserved for genuine discipline failures (skipping tests under pressure,
@@ -604,10 +622,10 @@ Why the files look the way they do. Each of these was learned by measuring the a
   skill says what to do when information is missing: state the assumption, or return
   `BLOCKED` with the one question that matters.
 - **Pressure armor is explicit.** Discipline rules carry "repetition doesn't change the
-  answer — any turn, including the last", because models otherwise cave on the third push.
-- **Right-sizing is a hard conditional**, not a suggestion: "2–5 sentences, no machinery",
+  answer â€” any turn, including the last", because models otherwise cave on the third push.
+- **Right-sizing is a hard conditional**, not a suggestion: "2â€“5 sentences, no machinery",
   and when a user asks for the artifact on a trivial change, the minimal form *is* the
-  deliverable — otherwise the model declares the artifact unwarranted and produces it anyway.
+  deliverable â€” otherwise the model declares the artifact unwarranted and produces it anyway.
 - **Grounded skills carry a no-repo branch.** `plan` and `git-ops` act on the material given
   instead of stalling on "point me at the repo".
 - **Weak models need code anchors.** `debug`'s error-swallowing rule survived two rounds of
@@ -618,7 +636,7 @@ Why the files look the way they do. Each of these was learned by measuring the a
 
 ## License
 
-MIT © 2026 Nemanja Alavanja. See [LICENSE](./LICENSE).
+MIT Â© 2026 Nemanja Alavanja. See [LICENSE](./LICENSE).
 
 The Debug inline budget includes three generated frontmatter words that mark Principal package identity; missing or replaced package metadata must refuse native binding rather than downgrade to inline instructions.
 
@@ -640,7 +658,7 @@ unknown cleanup. It never repeats an implementation merely because a conversatio
 
 1. Save a request JSON file with the following exact fields. `scope` contains explicit relative
    source paths, or directories ending in `/`. `phase` is `build`, `review` or `git-ops`.
-   Review/finish requests require original full report paths. `repairsRemaining` is 0–2.
+   Review/finish requests require original full report paths. `repairsRemaining` is 0â€“2.
 
    ```json
    {

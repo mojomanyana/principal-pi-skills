@@ -1,11 +1,12 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
+import { createHash } from "node:crypto";
 import { execFileSync, spawn } from "node:child_process";
 import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { observeCandidate, prepareOperation, inspectOperation, completeOperation, retryOperation } from "../../scripts/workflow-state.mjs";
+import { observeCandidate, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation } from "../../scripts/workflow-state.mjs";
 import { reference } from "../../scripts/progress-artifacts.mjs";
 
 function fixture(t) {
@@ -20,9 +21,10 @@ function fixture(t) {
     inputs: [reference(join(root, ".principal/plan.md"))] };
   return { root, request };
 }
-function settled(operationId, cwd) {
-  return { operationId, cwd, executionId: "exec:fixture", state: "settled", runtime: {
-    work: "succeeded", final: { state: "complete" }, cleanup: { state: "settled", executionId: "exec:fixture" },
+function settled(operationId, cwd, text = "Done.\n") {
+  const final = { state: "complete", sessionId: "child-session", messageId: "final-message", leafId: "final-leaf", sha256: createHash("sha256").update(text).digest("hex") };
+  return { operationId, cwd, executionId: "exec:fixture", state: "settled", finalObservation: { ...final, text }, runtime: {
+    work: "succeeded", final, cleanup: { state: "settled", executionId: "exec:fixture" },
   } };
 }
 
@@ -39,7 +41,7 @@ test("one handoff and report allocation are reused, with current code and exact 
 test("finished mutation is recognized from output snapshot without replay or approval", t => {
   const { root, request } = fixture(t), first = prepareOperation(root, request);
   writeFileSync(join(root, "product.txt"), "implemented\n"); writeFileSync(first.reportPath, "Implementation complete; review pending.\n");
-  const done = completeOperation(root, { ...request, disposition: "succeeded" }, settled(first.operation_id, root));
+  const done = completeOperation(root, { ...request, disposition: "succeeded" }, settled(first.operation_id, root, "Implementation complete; review pending.\n"));
   assert.equal(done.state, "complete"); assert.equal(done.approval, false);
   const reused = prepareOperation(root, { ...request, expectedCandidate: observeCandidate(root).id });
   assert.equal(reused.reused, true); assert.equal(reused.state, "complete");
@@ -58,7 +60,7 @@ test("completion needs exact settled native result and unchanged read-only candi
   writeFileSync(join(root, "product.txt"), "unexpected review edit\n");
   assert.throws(() => completeOperation(root, { ...review, disposition: "unverified" }, settled(first.operation_id, root)), /read-only/);
   writeFileSync(join(root, "product.txt"), "before\n");
-  completeOperation(root, { ...review, disposition: "unverified" }, settled(first.operation_id, root));
+  completeOperation(root, { ...review, disposition: "unverified" }, settled(first.operation_id, root, "Review Verdict: UNVERIFIED\nNext: evidence\n"));
   writeFileSync(first.reportPath, "rewritten verdict\n");
   assert.throws(() => inspectOperation(root, review), /report changed/);
 });
@@ -148,4 +150,107 @@ test("a restarted coordinator cannot silently re-dispatch an old prepared operat
   const retained = inspectOperation(root, request);
   assert.equal(retained.operation_id, first.operation_id); assert.equal(retained.owner.sessionId, "original");
   assert.equal(retained.state, "prepared");
+});
+
+
+test("Investigate completion retains the verified final once without child report writes", t => {
+  const { root, request } = fixture(t), investigate = { ...request, phase: "investigate" };
+  const first = prepareOperation(root, investigate), text = "Investigation: observed behavior\nNo product files changed.\n";
+  assert.equal(first.administrativeWrites, true);
+  assert.deepEqual(readdirSync(first.handoff.artifactsPath), []);
+  assert.equal(first.handoff.directoriesExist, true);
+  assert.equal(first.handoff.candidateObserver, "coordinator");
+  assert.equal(first.handoff.reportWriter, "coordinator");
+  assert.ok(!readdirSync(join(first.reportPath, "..")).includes("investigate.md"));
+  const done = completeOperation(root, { ...investigate, disposition: "succeeded" }, settled(first.operation_id, root, text));
+  assert.equal(readFileSync(done.report.path, "utf8"), text);
+  assert.equal(done.productChanged, false);
+  assert.equal(done.administrativeWrites, true);
+  assert.equal(done.runtime.finalObservation, undefined, "text is stored once in the report, not copied into metadata");
+  assert.equal(done.report.sha256, done.runtime.runtime.final.sha256);
+  const again = completeOperation(root, { ...investigate, disposition: "succeeded" }, {});
+  assert.equal(again.reused, true);
+  assert.equal(again.administrativeWrites, false);
+  assert.equal(readFileSync(join(root, "product.txt"), "utf8"), "before\n");
+});
+
+test("missing or altered native final refuses before a report is created; an old report is never overwritten", t => {
+  const { root, request } = fixture(t), first = prepareOperation(root, request);
+  const complete = { ...request, disposition: "succeeded" }, runtime = settled(first.operation_id, root);
+  delete runtime.finalObservation;
+  assert.throws(() => completeOperation(root, complete, runtime), /exact native final unavailable/);
+  runtime.finalObservation = { ...runtime.runtime.final, text: "invented report" };
+  assert.throws(() => completeOperation(root, complete, runtime), /content or identity mismatch/);
+  assert.ok(!readdirSync(join(first.reportPath, "..")).includes("build.md"));
+  writeFileSync(first.reportPath, "Original report preserved.\n");
+  assert.throws(() => completeOperation(root, complete, settled(first.operation_id, root)), /existing report differs/);
+  assert.equal(readFileSync(first.reportPath, "utf8"), "Original report preserved.\n");
+  assert.equal(inspectOperation(root, request).state, "prepared");
+});
+
+test("test-review is read-only and cannot complete against a changed product", t => {
+  const { root, request } = fixture(t), review = { ...request, phase: "test-review" };
+  const first = prepareOperation(root, review);
+  writeFileSync(join(root, "product.txt"), "mutated\n");
+  assert.throws(() => completeOperation(root, { ...review, disposition: "succeeded" }, settled(first.operation_id, root)), /read-only workflow phase changed/);
+  assert.ok(!readdirSync(join(first.reportPath, "..")).includes("test-review.md"));
+});
+
+test("result inspection verifies an exact native final without creating Principal files", t => {
+  const { root } = fixture(t);
+  rmSync(join(root, ".principal"), { recursive: true });
+  const candidate = observeCandidate(root), before = readdirSync(root).sort();
+  const request = { operationId: "investigate:no-files", expectedCandidate: candidate.id };
+  const runtime = settled(request.operationId, root, "Read-only findings.\n");
+  const result = observeOperationResult(root, request, runtime);
+  assert.equal(result.state, "observed"); assert.equal(result.storage, "none");
+  assert.equal(result.administrativeWrites, false); assert.equal(result.approval, false);
+  assert.equal(result.final.text, "Read-only findings.\n");
+  assert.deepEqual(readdirSync(root).sort(), before);
+  assert.throws(() => observeOperationResult(root, { ...request, operationId: "wrong" }, runtime), /settlement/);
+  assert.throws(() => observeOperationResult(root, { ...request, expectedCandidate: "wrong" }, runtime), /candidate changed/);
+});
+
+
+test("candidate observation is session-bound, path-independent and read-only", t => {
+  const { root } = fixture(t), handlers = new Map(), listeners = new Map();
+  const pi = { on: (name, fn) => handlers.set(name, fn), events: { on(name, fn) {
+    listeners.set(name, fn); return () => listeners.delete(name);
+  } } };
+  registerCandidateObserver(pi);
+  let sessionId = "actual";
+  const ctx = { cwd: root, sessionManager: { getSessionId: () => sessionId } };
+  handlers.get("session_start")({}, ctx);
+  const observe = (id = "actual", extra = {}) => {
+    let response;
+    listeners.get("principal:candidate-observe")?.({ requestId: "fresh-nonce", sessionId: id,
+      ...extra, reply: value => { assert.equal(response, undefined); response = value; } });
+    return response;
+  };
+  const before = readdirSync(join(root, ".principal")).sort();
+  const result = observe("actual", { root: "/foreign", cwd: "/foreign" });
+  assert.equal(result.requestId, "fresh-nonce"); assert.equal(result.sessionId, "actual");
+  assert.deepEqual(result.candidate, observeCandidate(root));
+  assert.deepEqual(readdirSync(join(root, ".principal")).sort(), before);
+  assert.equal(observe("foreign").error, "candidate-observation-failed");
+  sessionId = "next";
+  assert.equal(observe().error, "candidate-observation-failed");
+  handlers.get("session_switch")({}, ctx);
+  assert.equal(observe("next").candidate.root, root);
+  assert.equal(observe("next", { requestId: "" }), undefined);
+  handlers.get("session_shutdown")();
+  assert.equal(listeners.size, 0);
+});
+
+
+test("completed operation reuse keeps its coordinator owner and verifies allocated directories", t => {
+  const { root, request } = fixture(t), owner = { sessionId: "actual", cwd: root };
+  const first = prepareOperation(root, { ...request, owner });
+  completeOperation(root, { ...request, disposition: "succeeded" }, settled(first.operation_id, root));
+  assert.equal(inspectOwnedOperation(root, request, owner).state, "complete");
+  assert.throws(() => inspectOwnedOperation(root, request, { ...owner, sessionId: "foreign" }), /another coordinator/);
+  assert.throws(() => inspectOwnedOperation(root, request, { ...owner, cwd: "/foreign" }), /another coordinator/);
+  assert.equal(inspectOperation(root, request).state, "complete", "read-only status remains inspectable");
+  rmSync(first.handoff.artifactsPath, { recursive: true });
+  assert.throws(() => prepareOperation(root, { ...request, owner }), /ENOENT/);
 });

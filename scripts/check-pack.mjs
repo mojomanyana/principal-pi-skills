@@ -24,7 +24,7 @@ import { fileURLToPath } from "node:url";
 import { parsePackMetadata } from "./pack-meta.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILLS = ["decide", "architect", "plan", "build", "review", "debug", "investigate", "git-ops"];
+const SKILLS = ["decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops"];
 
 const REQUIRED = [
   "package.json",
@@ -35,7 +35,7 @@ const REQUIRED = [
   "principal-agents.json",
   ...SKILLS.map((s) => `${s}/SKILL.md`),
   ...["principal-feature", "principal-bugfix", "principal-refactor", "principal-review-branch"].map((p) => `prompts/${p}.md`),
-  ...["principal-plan", "principal-review", "principal-debug", "principal-build", "principal-investigate"].map((a) => `agents/${a}.md`),
+  ...["principal-plan", "principal-review", "principal-test-review", "principal-debug", "principal-build", "principal-investigate"].map((a) => `agents/${a}.md`),
   "scripts/install-agents.mjs",
   "scripts/snapshot-workspace.mjs",
   "scripts/progress-artifacts.mjs",
