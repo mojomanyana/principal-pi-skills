@@ -1,6 +1,6 @@
 {
     "name": "principal-pi-skills",
-    "version": "4.11.2",
+    "version": "4.12.0",
     "description": "Skill framework for principal-level software engineering: eight skills (decide, architect, plan, build, review, debug, investigate, git-ops), a pi bootstrap, and two approval-gated workflows.",
     "license": "MIT",
     "author": "Nemanja Alavanja",
@@ -47,7 +47,9 @@
         ],
         "extensions": [
             "./extensions/bootstrap.ts",
-            "./extensions/resume.ts"
+            "./extensions/resume.ts",
+            "./extensions/workflow.ts",
+            "./extensions/codemode.ts"
         ]
     },
     "bin": {
@@ -76,7 +78,24 @@
         "extensions/bootstrap.ts",
         "bootstrap/BOOTSTRAP.md",
         "scripts/resume-checkpoint.mjs",
-        "extensions/resume.ts"
+        "extensions/resume.ts",
+        "scripts/workflow-state.mjs",
+        "extensions/workflow.ts",
+        "extensions/codemode.ts",
+        "references/workflow-mechanics.md",
+        "review/references/test-quality.md"
     ],
-    "devDependencies": {}
+    "devDependencies": {},
+    "peerDependencies": {
+        "@earendil-works/pi-coding-agent": "*",
+        "typebox": "*"
+    },
+    "peerDependenciesMeta": {
+        "@earendil-works/pi-coding-agent": {
+            "optional": true
+        },
+        "typebox": {
+            "optional": true
+        }
+    }
 }

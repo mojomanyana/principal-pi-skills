@@ -127,58 +127,19 @@ Tool availability never widens this contract's ceiling.
    and a kill criterion.
 
 ## Right-sizing
-Tiny changes and ordinary typo plans still read the named existing file before stating
-file facts; brevity never waives reading. Do not change implementation during planning.
-Boundary tests state expected outcomes (accept the endpoint, reject just past it and malformed
-inputs), not only a list of values; retain every applicable gate.
-Tiny normative changes retain source/ID → step → test and applicable gates in three lines:
-`Change: [impl:S1] threshold [SPEC#LIMIT-1]`; `Test: LIMIT-1 → impl:S1 → boundary command: accept 0/3, reject -1/4 and malformed inputs; Gate QUAL-1`;
-`Done — planned, not executed`. Larger normative plans retain compact map rows too.
-A nonnormative one-file, clearly-specified change (a config value, a small flag): reply in three lines —
-the change, its test, done. Literally this shape, and nothing after it:
-```
-Change: config/app.yaml — timeout: 30s → 60s.
-Test: restart, hit the endpoint, confirm the new limit applies.
-Done — reversible one-liner; no plan machinery needed.
-```
-No skeleton, no risk register, no steps table, no dependency graph, no numbered steps for
-locating the file. If the plan would be longer than the diff, write less plan. This holds
-{{#skill}}
-when the user explicitly says "plan it": for a trivial reversible change, the three-line
-version IS the plan they asked for. Noting it's trivial and then producing the full
-machinery anyway is the failure, not the compliance.
+Tiny changes and typo plans still read the named existing file before stating file facts.
+Boundary tests state expected outcomes: accept the endpoint, reject just past it and malformed
+inputs. Tiny normative plans retain source/ID → step → test and applicable gates; brevity
+does not waive authority. An ordinary reversible one-file change can use change, test and
+done in three lines. Larger plans use only the fields that decide or coordinate real work.
 
-## "Just give me the list" — compress, never de-structure
-This rule fires on the request shape, not only under pushback: whether the FIRST message
-says "just a numbered checklist" or the third says "stop overthinking", you may shorten
-the plan, but retain concrete work, necessary order and a done-signal —
-one line per Build unit is fine:
-`1. Add queue idleness, acceptance tests and docs — done: immediate and busy-cycle waits
-pass the declared suite.` That IS the
-numbered list they asked for. A bare feature list with no order or done-signals is the one
-output this skill never produces, on any turn, including the first and the last. A request
-to shorten changes presentation, not coverage: keep the chat summary short, but keep the
-executable plan and any requirement map complete. There is no fixed word cap when the
-source is normative.
-
-## Delegated mode (running as a subagent)
-Follow the same source and BLOCKED rules. Where only a bridgeable implementation choice
-remains, record it under Assumptions. Persist the complete plan when possible.
-{{/skill}}
-{{#agent}}
-when the request explicitly says "plan it": for a trivial reversible change, the three-line
-version IS the plan. Noting it's trivial and then producing the full machinery anyway is
-the failure, not the compliance.
-
-## Compression — compress, never de-structure
-If the request says "just give me the list / keep it short": you may shorten the plan,
-but retain concrete work, necessary order and a done-signal — one line per Build unit
-is fine: `1. Add queue idleness, acceptance tests and docs — done: immediate and busy-cycle
-waits pass the declared suite.` That IS the list they asked for. A bare feature list with no order or done-signals is
-the one output this agent never produces. A request to shorten changes presentation, not
-coverage: keep the chat summary short, but keep the executable plan and any requirement
-map complete. There is no fixed word cap when the source is normative.
-{{/agent}}
+When asked for a short checklist, retain concrete work, necessary order and a done-signal
+per Build unit. Compress presentation, not coverage. Keep shared requirements/definitions
+once with stable references; task sections should stand on their own with the constraints
+they consume. Do not copy general workflow rules into every requirement or step. Builders
+need relevant sections and cross-cutting constraints, not a mandatory full-plan reread.
+Leave routine design judgment to Build instead of specifying an implementation recipe for
+each assertion. The complete executable plan stays available; chat is a short summary.
 
 ## Output — plan
 Trivial reversible work gets three lines: change, test, done. Small clear work gets one
@@ -225,18 +186,3 @@ BLOCKED: <the ONE question whose answer unblocks the plan>
 Why it blocks: <what cannot be determined without it — one line>
 Have: <what the material did establish — one line>
 ```
-
-## Checks
-| If you are about to… | Instead |
-|---|---|
-{{#agent}}
-| End the plan with questions for the user | Convert each: bridgeable → a stated assumption under Assumptions; load-bearing → the BLOCKED form, alone. |
-| Return BLOCKED plus a "provisional" plan or several questions | BLOCKED is exactly one question and no plan — a speculative plan for an unidentified task helps nobody. |
-{{/agent}}
-| Use requirement IDs as step numbers, or change their meanings | Preserve requirement IDs as coverage targets; label implementation steps with a disjoint prefix (`impl:S1`…). |
-| Claim a referenced requirement is unavailable without opening its path | Read accessible sources completely first; if authority remains missing, request repair via BLOCKED. |
-| Write a flat list like "1. build API 2. build UI 3. test" | Define complete outcomes with acceptance and essential contracts, not horizontal layers. |
-| Present a stub or deferred seam as completed | Name the gap and the unit that exercises it for real. |
-| Split one coherent feature just to create a skeleton or test phase | Keep one Build unit; split only for a concrete dependency, risk or parallel boundary. |
-| Write a step like "add validation" or "handle errors" | Make it a contract: files, exact behavior, the test. If you can't name the test, it's too vague. |
-| Spec a file you haven't opened | Open it. A spec for a fiction wastes everyone's time. |

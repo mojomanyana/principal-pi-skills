@@ -1,192 +1,130 @@
 # AGENTS.md
 
-Instructions for the [pi coding agent](https://github.com/badlogic/pi-mono) operating
-with this set installed. Read this once at session start.
+Principal routes by the output the user needs. Read this once at session start; the
+bootstrap injects a compressed routing table from `bootstrap/BOOTSTRAP.md`. Each skill is
+self-contained for its ordinary task. Conditional mechanics live in references, not a
+required chain of phase skills.
 
-The bootstrap extension (`extensions/bootstrap.ts`) injects this file's routing table,
-compressed, from `bootstrap/BOOTSTRAP.md` into each applicable converted request — you do
-not need to read this file for the framework to route. This file is the long-form
-**routing layer**: full rationale per row, the complete `Next:` set, and the maintenance
-rule. The framework deliberately has no routing skill — routing belongs to the
-orchestrator (you), and each other file is self-contained: no required reading beyond it.
+## Choose the useful role
 
-## Two forms, one rule
-
-A **skill** runs inline in this session: it shares your context, can dialogue with the
-user, and its work stays in your window. A **subagent** (via native delegation or the configured legacy runner) runs in
-its own context with its own tools, cannot ask questions, and returns only its output
-template. The rule: dialogue and session state stay inline; heavy reading, cold judgment,
-and noisy loops get delegated.
-
-The set:
-
-- Skills (inline only): `decide`, `architect`, `git-ops`.
-- Delegated phases: `plan`, `build`, `review`, `debug`, `investigate`, bound to their
-  generated `agents/principal-*.md` contract through `principal-agents.json`. Each also has
-  a SKILL.md for deliberately chosen inline work. Legacy principal-* names are only for an
-  explicitly configured runner when native tools are genuinely absent.
-
-For native delegation, call `delegate_describe({agent:"phase"})`, require binding package
-`principal-pi-skills` and exact phase. Native names are `plan`, `build`, `review`, `debug`,
-`investigate`. Pass the corresponding captured `definitionId` to every `delegate` call,
-`delegate_all` child and `delegate_chain` step. The runtime verifies enabled selected source and
-both generated file hashes. Missing/wrong/disabled bindings, stale reload, unqualified backend,
-permission/context refusal, timeout, report gap or uncertain cleanup stops dependent work;
-never substitute legacy, foreign or inline execution after failure. Follow authored model/effort
-policy without phase-tier overrides. Inline is a workflow choice, not a fallback.
-
-Coordinator handoffs preserve the unmodified describe response and accessible selected
-skill/agent source references or exact copies with original identities. Each gate has an owner
-and due stage fixed by source authority. Leaf agents check current assigned obligations and
-retain later coordinator terminal/cleanup/review gates as pending. The coordinator checks full
-native results and settlement after return, including the reviewer, before dependent work.
-Missing prerequisites still block; ownership never waives or delays a required gate.
-When the operator opts into pi-daddy 0.45.0 public capture, use its exact response/source
-artifact references directly; do not reconstruct describe responses or receipt text. Capture
-excludes raw details/private sessions and later Pi hook formatting; validate used references
-and preserve actual approval ownership. No automatic capture setting or JEV collection is enabled.
-Native process cleanup needs a settled identity-bound receipt even when no disposable workspace
-exists. Missing emitted runtime evidence blocks dependent work and task completion.
-
-For approved independent batches, use one `delegate_all({children:[...]})` call; every child
-carries its native phase name and described `definitionId`. Do not overlap single `delegate`
-calls: each conservatively reserves available subtree capacity. Writers need distinct
-precreated registered Git worktrees, declared scopes/dependencies and unused full-report paths.
-Read every result, retain completed siblings after failures, review candidates and integrate
-serially with merged checks. A refusal stops dependent work, never triggers a runner switch.
-
-## Routing — pick by what the input looks like
-
-| Input shape | Route to | How |
+| Input shape | Route | How |
 |---|---|---|
-| Choice and rationale ("should I…", "Postgres or DynamoDB", "what are my options") | `decide` | inline — the dialogue is the value |
-| System structure, components, boundaries or data ("design X", "review our architecture") | `architect` | inline — drivers come from asking |
-| A task needing order of work and code-level specs ("plan this", "break this down") | `plan` | **subagent** — it opens every file it names; keep that out of this context |
-| Code to write ("implement", "fix this known bug", "make the test pass") | `build` | inline, or native `build` with its captured `definitionId` per approved plan step — never fan parallel writers into one working tree |
-| A change to judge before landing ("review this", "ready to merge?") | `review` | **subagent, always when available** — a fresh context judging the diff cold beats self-review; inline review of code you just wrote is anchored on its own reasoning |
-| An unknown failure to diagnose ("why is this failing", "find the bug") | `debug` | **subagent** when reproduction is noisy (flaky loops, bisects); inline when the user is driving |
-| Facts about current code, data, runtime, or history ("how does", "where is", "map", "what changed between") | `investigate` | **subagent** for heavy reading; inline when dialogue is needed |
-| A git or GitHub operation ("commit", "push", "open a PR", "I leaked a secret") | `git-ops` | inline, never delegated — needs this session's working-tree state, and destructive ops require user consequence-acceptance no subagent can obtain |
+| Choice/rationale, “Postgres or DynamoDB” | `decide` | inline dialogue |
+| System structure, components, boundaries or data | `architect` | inline dialogue |
+| Executable implementation sequence | `plan` | delegate heavy reading; inline deliberately |
+| Known-cause implementation | `build` | inline or delegated; one writer per working tree |
+| Judge a change before landing | `review` | independent cold context when available |
+| Unknown failure | `debug` | delegate noisy diagnosis; inline when appropriate |
+| Facts about code, data, runtime or history | `investigate` | read-only; delegate heavy reading |
+| Git/GitHub operation | `git-ops` | inline only; needs current session authority |
 
-**When more than one applies**, route by requested output: choice/rationale → `decide`,
-structure → `architect`, executable sequence → `plan`. "Redis or Memcached?" is `decide`;
-"how do I commit this" is `git-ops`, not `build`; "why is this test red" is `debug`, not `build`.
-Use only needed phases, not a mandatory chain. Optional read-only Investigate can locate
-sources/definitions before Plan or substantial Review; pass original sources too, and leave
-the verdict to Review.
+Use only needed phases. Everyday Q&A needs no skill. Decide/Architect do not become
+mandatory preliminaries; a plan does not replace a requested choice or design. Subagents
+cannot dialogue or dispatch more agents; their final output is the handoff.
 
-**When no skill fits**, don't force one. Everyday Q&A doesn't need the framework.
+## Native authority and execution
 
-## The handoff contract
+Call `delegate_describe({agent:"phase"})`; require binding package `principal-pi-skills`,
+exact phase and captured `definitionId` on every `delegate`, `delegate_all` child or
+`delegate_chain` step. The native phase names are plan/build/review/debug/investigate.
+Reuse a current selected binding; refresh after selected-resource/reload changes or runtime
+staleness. Preserve the unmodified response and accessible selected skill/agent sources.
+Runtime source/hash checks remain authoritative; never reconstruct receipts or guess paths.
+Public capture, when explicitly enabled, supplies original response/source refs directly.
 
-The phases that hand off end with a `Next:` line naming the follow-on. That plus the fixed
-template fields *is* the handoff. Read Review Verdict before Next: UNVERIFIED means
-evidence/access repair or a caller question, not automatic implementation, even with
-`Next: build`. Otherwise read the `Next:` line and route — a subagent never invokes
-another agent; inline continuation is orchestration, not a skill invoking another.
+Missing/wrong/disabled/stale bindings, unqualified backend, permission/context refusal,
+timeout, report gap or uncertain cleanup stops dependent work. Never substitute another
+runner or inline execution after failure. Legacy principal-* runners require genuinely
+absent native tools and an explicitly configured runner. Follow authored model/effort
+policy without phase-tier overrides. Inline is a choice, not a fallback.
 
-`Next:` carries exactly one bare word from a closed set; after that verdict check,
-routing is a lookup rather than an interpretation. The complete set:
+Every gate has its source-defined owner and due stage. Leaves check current obligations;
+later coordinator terminal/cleanup/review gates remain pending. After return, the coordinator
+checks full native result, complete report and identity-bound `cleanup.state=settled`
+receipt before dependent work, including consuming Review's verdict. No disposable workspace
+does not establish process cleanup. Missing emitted runtime evidence blocks completion.
+
+Use one `delegate_all` for an approved independent batch, never overlapping single calls.
+Writers need separate precreated registered Git worktrees and declared scopes/dependencies;
+shared APIs/resources may serialize work. Preserve completed siblings after failure, inspect
+all results, review candidates and integrate serially with merged checks.
+
+## Handoffs and convergence
+
+Use `principal_workflow` snapshot/reference for canonical workspace/candidate and exact-file
+observations, including inline/evidence work; status revalidates a prior native operation.
+Prepare/complete/retry are native-delegation bookkeeping. Pass the returned `operation_id`
+unchanged to delegate alongside its `definitionId`; after actual native settlement and report
+retention, complete with the actual disposition. Failed or blocked results never approve work.
+Inline work retains the existing private report mechanism; do not dispatch merely to close
+bookkeeping. Reuse returned references; do not recalculate fingerprints, rediscover unchanged
+bindings or launch fresh agents to compare duplicates. Tool state is not execution or approval.
+The coordinator still owns actual authority, native settlement and semantic decisions.
+
+Pass current authoritative source/definition paths, relevant plan sections/map rows,
+accepted finding definitions and due gates. Full originals remain accessible; read history
+only for unresolved findings or needed authority/evidence. Do not require every child to
+reread the complete plan or copy generic workflow rules into product requirements.
+Persist complete plans once under ignored `.principal/plans/`; a coherent feature is one
+Build unit with tests/docs unless a real dependency, risk or parallel boundary justifies a split.
+
+Read Review Verdict before Next. UNVERIFIED means evidence/access reconciliation or a
+caller question, not automatic implementation. Its explicit `Next: evidence` returns to
+the coordinator, not a new agent role. Fix authorized deterministic path/metadata problems
+with the tool, preserving failures/corrections. Reuse matching exact candidate/scope/environment
+evidence; fresh judgment does not require fresh suite execution. A concrete product/test
+defect goes to Build, an unknown behavioral cause to Debug. Do not infer permission denial
+from a wrong checkout or ignored-file search.
 
 | Phase | Allowed `Next:` values |
 |---|---|
 | plan | `build` |
 | debug | `build` · `plan` · `done` · `blocked` |
 | build | `review` · `debug` · `blocked` |
-| review | `build` · `git-ops` |
-| decide · architect · investigate · git-ops | *(none — they terminate)* |
+| review | `build` · `evidence` · `git-ops` |
+| decide · architect · investigate · git-ops | *(none — terminate)* |
 
-`decide` and `architect` end in a judgment the user acts on, not a handoff a workflow routes;
-`investigate` ends in a factual report and `git-ops` runs inline. A ceremonial `Next:` on
-those four invited
-a workflow to route somewhere nobody asked to go. Every value above is consumed by both
-workflow prompts, and a unit test fails if a contract declares a value no workflow handles
-or a workflow handles one no contract can emit.
+Review scopes are task, integrated and scoped-repair. Task approval protects only its
+candidate/interfaces; only integrated approval with all due gates supports finish.
+Repairs retain the original review, whole-change baseline, findings and evidence gaps.
+Continue authorized repairs that resolve distinct defects. Stop/reassess when the same
+failure repeats without new evidence, authority/scope must change, or a required runtime
+gate fails; arbitrary repair-round quotas do not improve convergence.
 
-Typical spines (available as prompt templates):
+Feature/refactor spines plan, obtain any still-required approval, Build, Review and finish
+through Git-Ops. Bugfix diagnoses first. Existing explicit user approval for the actual scope
+persists; urgency and a self-written flag do not create approval. A new material scope/design
+change still requires its applicable decision. Review-branch neither plans nor builds.
+Tiny change: build → git-ops only when finish is requested; ordinary low-risk inline work
+can finish with actual checks/caveats and no Next. Honor requested independent review.
 
-- Feature (`/principal-feature <task>`): plan → approval stop → build (inline or
-  delegated) → review → git-ops finish. Enter `architect`/`decide` first when the call is
-  requesting structure or a choice respectively, and approve that output first.
-- Bug (`/principal-bugfix <symptom>`): debug → approval stop → build → review → git-ops
-  finish. If debug's note says design flaw, stop and surface it.
-- Refactor (`/principal-refactor <scope>`): the feature spine with a no-behavior-change
-  frame — behavior and coverage stay equivalent; test maintenance is allowed, and uncovered
-  behavior gets a characterization test first.
-- Review a branch (`/principal-review-branch [base]`): cold native `review` with its captured `definitionId` of
-  `merge-base <base> HEAD..HEAD`, then git-ops finish mode on APPROVE; findings stop for the
-  user otherwise. No plan, no build.
-- Every spine uses the bound native or explicitly configured legacy interface above.
-  Build↔review repair loops stop after two rounds; a third means the plan or diagnosis was
-  wrong. A missing full report blocks dependent review; preserve independent completed work.
-- Persist plans for delegated Build at `.principal/plans/<slug>.md` (git-ignored). A routine
-  coherent feature is one complete Build unit including tests/docs, then independent integrated
-  Review. Split for a real dependency, risk or parallel boundary, not a fixed count or test phase.
-  Intermediate task review protects consumed interfaces and parallel integration, not merely
-  more tests/docs. A compacted or fresh session resumes from the same approved plan.
-- Tiny change: build → git-ops only when finish is requested. Clear, reversible, localized
-  low-risk direct work may finish inline with actual checks and caveats, without `Next:`.
-  Honor requested review and existing approvals; a tiny security or normative edit is
-  consequential. Delegated status/report protocols and explicit spine approval stops remain.
-- Review scope is task, integrated or scoped repair. Task approval covers only its candidate
-  and interfaces; only final integrated approval supports Git-Ops finish. Keep original
-  whole-change obligations and gates through repairs.
-- Progress records are optional coordinator evidence indexes, never approval or execution.
-  Reconcile actual authority, work and current report/candidate references; commit, review,
-  integration and verification are separate facts. Incomplete/stale records stay unresolved.
-  If used, all progress writes go through the installed `principal-pi-progress` helper; never
-  hand-write its run manifest or JSONL. Run `check <run> <actual-current-candidate>` after append
-  and before relying on resumed progress. Zero issues means index integrity, not completion or approval.
-  Full committed workflows can use `check-completion <run> <full-commit> <required-step>...`
-  for all five latest phase claims per required step, historical evidence/findings, exact HEAD
-  and clean tracked/untracked state; masked index entries and indexed submodules refuse.
-  It never infers approval or runs/commits work.
+Before any orchestrator artifact write create an absent `.principal/.gitignore` containing
+`*`, never overwrite existing policy, and verify ignored destinations. Allocate an unused
+absolute report path in the actual child's workspace under
+`.principal/reports/<task>-<run>/<candidate>/`; never overwrite a referenced prior artifact.
+Routine safe allocation within current authority needs no new approval. Plan writes only its
+plan/absent ignore; Investigate stays read-only; the coordinator persists additional reports.
+Inline Build needs a complete saved report before cold delegated Review.
 
-## Opt-in quiescent resume
+For an external private archive, optional progress index or opt-in quiescent resume, read
+only the relevant section of [workflow mechanics](references/workflow-mechanics.md).
+Exact archive copying is mechanical, not another hand-authored evidence package. Progress
+facts and resume receipts never infer approval or permission. Source-required completion
+checks remain required; never invent completed phases to pass them.
 
-`principal-pi-resume prepare` and `inspect` are offline evidence helpers. Only the interactive
-`/principal-resume arm <checkpoint>` command, with explicit operator confirmation, authorizes
-one next phase at an idle workflow boundary. It binds the exact saved plan, source scope,
-worktree/candidate, reports, optional progress, selected package, model, session leaf and
-pi-daddy owned-execution settlement. The next startup/resume/reload of that same session
-rechecks every binding, consumes the checkpoint durably, then queues one fixed coordinator
-continuation. It does not execute a free-form `nextAction`, bypass native permissions, promote
-progress facts, invent approval, grant push/publish, or automatically re-arm.
+## Optional advisory and test review
 
-Dirty source candidates are supported through separate staged/unstaged and nonignored untracked
-fingerprints. Masked index entries, submodules, unmerged state, ambiguous or active children,
-changed evidence/model/session and uncertain prior dispatch refuse. Ignored dependencies and
-secrets are not fingerprinted. This Linux x64 facility is quiescent boundary recovery, not arbitrary
-mid-execution crash recovery or a filesystem sandbox. The operator still judges semantic gates
-and full report coverage. `/principal-resume disarm` preserves history; `status` explains state.
-See README for setup and the explicit checkpoint request. No JEV or retention consent is implied.
+Use `jev_advice` only when helpful and current status explicitly enables workflow mode.
+After deterministic gates select a bounded decision-time requirement/evidence packet; no
+quota, automatic activation or CLI bypass. Keep predictions and prior outcomes out of cold
+review until its own verdict. Disabled/manual/unavailable/error states leave otherwise
+permitted work proceeding. Advice cannot approve, waive gates or establish defects.
+Storage choice and separate curation/training permission remain distinct; predictions are
+not labels. OpenAI Decisions is excluded. Do not collect private transcripts or secrets.
 
-Before any orchestrator artifact write (including planless Review, inline Build or optional
-Investigate persistence), create an absent `.principal/.gitignore` containing `*`, never
-overwrite an existing ignore file, and verify repository report destinations are ignored;
-otherwise stop for caller policy repair. Plan retains its restricted writes; Investigate
-remains read-only. Before dispatch requiring a report, allocate its primary path in the actual child's workspace
-under ignored `.principal/reports/<task>-<run>/<candidate>/`, pass its absolute unused path and
-report-write scope, and preserve prior files/baselines. Routine safe allocation within existing
-task authority needs no additional permission. A requested external evidence directory is the
-coordinator's archive, not a child write target: after settlement copy complete bytes exclusively,
-verify matching hashes and record original path/hash/copy path. Use only authorized private
-locations, refuse symlink redirects, and retain originals through review/repair/resume. Exposed
-ignore policy, permissions failure or an explicit local-artifact prohibition still stops dispatch;
-archive failure leaves primary evidence intact and blocks only work requiring that copy.
-
-Handoffs carry accessible current source/definition references, applicable map rows/global gates,
-and full report paths, not summaries or bare finding IDs. Read history only when it supplies
-current authority, unresolved findings or needed evidence; do not recursively reread every
-handoff or phase skill. Keep generic coordinator gates addressable once, rather than repeating
-them as product requirements. Preserve exact source IDs and all task obligations. Collect caveats even on success;
-a commit or green suite alone is not full requirement coverage. Review validates candidate-bound
-evidence independently. Plans persist completely with short chat summaries. Debug's sandbox
-proof is not applied work; a direct diagnose-and-fix request continues through an announced
-switch to Build, while the bugfix workflow retains its approval stop.
-
-A delegated step returning `BLOCKED` stops the chain: surface its one question to the
-user; don't answer it yourself and keep going.
+Test-quality review is an optional focus within Review, not another mandatory phase.
+Use [the rubric](review/references/test-quality.md) when requested or material to the diff;
+judge observable failure coverage, mocks, determinism and redundancy without count quotas.
 
 ## Maintenance rule — the contracts are generated
 
@@ -213,40 +151,11 @@ When maintaining this package, put lasting regressions in existing behavior/doma
 not PR-named files. `npm test` checks current contracts and product behavior.
 Behavioural measurement—including the fidelity corpus and skill-harness evidence—lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks live here.
 
-## Decision — 2026-10-08
-
-Exact public evidence persistence belongs to the native producer; Principal consumes its file
-references and keeps semantic gate decisions explicit. Progress v1 remains unchanged. Quiescent resume uses a separate versioned checkpoint and
-interactive operator authorization tied to the exact session leaf, with native runtime
-reconciliation and consume-before-enqueue semantics. The new
-read-only completion check requires all named steps and phases, verified finding dispositions,
-exact committed identity and a clean checkout; it never turns recorded claims into approval.
-Retained failures and incomplete runs remain evidence for later JEV/LoRA evaluation, not automatic
-training labels. Completion checks remain required for completion claims; advisory evaluation
-never promotes their result.
-
-## Optional session advisory
-
-The coordinator may use the matching skill-harness `jev_advice` tool after checking current
-`{action:"status"}`. Only explicitly enabled workflow mode authorizes its selected metered
-calls. After deterministic gates, choose a useful uncertain acceptance-evidence handoff and
-freeze a bounded selected decision-time requirement/evidence packet for the actual candidate.
-Exclude reviewer verdicts and prior JEV outcomes. Evaluate with
-`{action:"evaluate",candidate,requirements,evidence}`; skip obvious decisions and review quotas.
-Keep the prediction out of every independent review until its own verdict, preserving the full
-underlying authority/evidence; then reconcile advice against code/tests. Advice cannot supply authority, approve, waive gates or establish
-defects. Disabled/manual/unavailable/error states do not block otherwise permitted work; never
-bypass them through CLI or implicit activation. Do not read private transcripts, credentials
-or whole files for collection. Selected text is not verified public capture. Keep returned refs
-and usage as unlabeled advice only under current storage consent; training needs separate
-permission and independent labels. Progress v1 and native capture remain unchanged. OpenAI
-Decisions remains excluded.
-
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.11.2`,
-   `pi install npm:pi-daddy@0.47.0` and `pi install npm:skill-harness@0.26.2`.
+   `pi install npm:principal-pi-skills@4.12.0`,
+   `pi install npm:pi-daddy@0.48.0` and `pi install npm:skill-harness@0.27.0`.
    Native delegation uses exactly Pi 1.0.4 and the qualified captured setup
    (`PI_DADDY_HERDR=0`). Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -257,8 +166,8 @@ Decisions remains excluded.
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.11.2 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.11.2 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.12.0 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.12.0 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase
@@ -271,19 +180,3 @@ Decisions remains excluded.
    `git-ops` allows none, on purpose. Each reason is in the
    skill's frontmatter and the README install section, along with the egress note. Don't
    ask a child for more than its ceiling, and don't raise a ceiling to make a refusal go away.
-
-
-## Decision — 2026-10-08 independent lifecycle review
-
-Quiescent resume waits for an exact per-pass inert prompt resource in Pi's finalized public
-resource list. A timer firing during `resources_discover` is not completion: later asynchronous
-handlers may still alter selected resources. The receipt authorizes nothing; all original
-selected-phase, candidate, session, operator and native-settlement checks run after it. Missing
-readiness times out without consumption. The temporary marker contains no user data and is
-removed on clean shutdown. Offline helpers must run from the actual selected npm installation,
-because an identical package installed elsewhere has a different checkpoint identity.
-
-Automatic readiness uses a cheap validated control-state inventory before selecting the sole
-armed checkpoint. Historical checkpoints never require repeated full worktree hashing during
-startup; malformed state still refuses, and the selected candidate retains its full evidence
-checks and consume-time recheck. Explicit full inspection remains available.

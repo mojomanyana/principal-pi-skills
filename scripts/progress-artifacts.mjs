@@ -41,9 +41,7 @@ function durableWrite(path, bytes, flag = constants.O_CREAT | constants.O_EXCL |
 }
 
 /** Allocate an unused private candidate directory without changing an existing ignore policy. */
-export function createRun(repo, task, candidate) {
-  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(task)) fail("task must be a short safe name");
-  text(candidate, "candidate");
+export function privateRoot(repo) {
   const root = realpathSync(git(repo, ["rev-parse", "--show-toplevel"]));
   const principal = join(root, ".principal");
   directory(principal);
@@ -51,6 +49,13 @@ export function createRun(repo, task, candidate) {
   try { durableWrite(ignore, "*\n"); } catch (error) { if (error.code !== "EEXIST") throw error; }
   plain(ignore, "file");
   ignored(root, join(principal, "reports", "unused-probe"));
+  return root;
+}
+
+export function createRun(repo, task, candidate) {
+  if (!/^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(task)) fail("task must be a short safe name");
+  text(candidate, "candidate");
+  const root = privateRoot(repo), principal = join(root, ".principal");
   const reports = join(principal, "reports");
   directory(reports);
   const run = mkdtempSync(join(reports, `${task}-`));

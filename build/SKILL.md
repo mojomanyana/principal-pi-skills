@@ -12,157 +12,125 @@ allowed-tools: read, grep, find, ls, edit, write, bash, context:files
 
 # Build — Design and Implementation
 
-Prove behavior changes with meaningful acceptance evidence. Bugfixes need observed
-regressions; already-correct behavior may be characterized without changing it to force failure.
+Implement the authorized outcome, owning routine design choices, tests and documentation
+together. Prefer existing code and the standard library, fewer concepts and clear control
+flow. A plan constrains required behavior and interfaces, not every local design choice.
+Challenge unnecessary complexity; escalate a material scope/API tradeoff or contradiction.
+Passing tests does not establish a good design.
 
-**Apply once in the authorized visible candidate.** Carry useful Debug patches/tests forward,
-then verify the change. Debug/Review experiments remain disposable. Never run two
-writers in one working tree: "parallel-safe" describes dependencies, not permission for
-concurrent edits.
 
-## Report safety
-Before any report write, create an absent `.principal/.gitignore` containing `*`;
-never overwrite existing policy. Verify the actual repository destination is ignored
-with `git check-ignore` before writing, including caller-chosen paths. If unsafe or
-verification/persistence fails, stop for caller policy repair: no exposed report and
-no invented saved path. The delegated five-line exception is `Next: blocked`,
-`Report: not saved`, plus `Blocked:` explaining the failure/needed repair in the final message;
-retain other status lines. Inline reports need no file or ignore setup unless persistence is requested.
-Supporting candidate artifacts follow the same safety checks: new collision-safe, verified-private,
-ignored paths; never assume a shared `/tmp` name is safe. If unsafe, mark the artifact
-`not saved` and Blocked; preserve prior artifacts.
+## Establish the task
+Read the assigned Build unit and relevant plan sections, current authoritative sources,
+needed definitions, affected files, callers and nearest tests. Retain source IDs and
+applicable global gates. Without a plan use the approved exact task; do not invent a
+planning phase. Available paths must be read before declaring their material missing.
+Read history only for unresolved findings, authority or evidence that bears on this change;
+do not recursively reread the complete plan, every handoff or other phase skills.
 
-## Authority and evidence
-A request for evidence is not, by itself, a request to add permanent tests or verification
-infrastructure. First use existing checks or a disposable probe. Add a lasting regression
-test when it protects enduring behavior—not merely to demonstrate that a review finding was
-addressed. Before retaining a test, name its protected requirement: will it remain useful
-after the PR is forgotten, checking current behavior rather than a historical receipt?
-Ordinary authorized bugfix and feature work includes meaningful regressions; no separate approval
-is needed. An explicit request for permanent tests or infrastructure can authorize them when
-useful. Markdown contracts are product; legitimate structural tests protect their behavior.
+Missing referenced source/definition or contested normative meaning is a hard stop before
+any source or test mutation, including newly authored tests; report writes are allowed.
+Task approval, urgency, “probably” or a reasonable default does not supply a missing definition.
+An explicitly named complete replacement definition plus explicit authorization to replace
+the source meaning can amend it: record that amendment and provenance under Authority.
+Routine implementation choices within complete authority remain yours.
 
-Read the assigned Build unit, applicable plan/map, authoritative sources and needed definitions
-before editing; retain source IDs and applicable global gates. Without a plan, use the approved
-exact task and its authority; do not invent a planning phase. Summaries never replace sources.
-Read available current authority; never call it missing because only paths were handed off.
-Do not recursively read historical handoffs/results or every phase contract: follow references
-needed for current authority, unresolved findings, acceptance or evidence identity. Missing referenced source or definition, or contested normative
-meaning, is a hard stop before any source or test mutation, including newly authored tests.
-Before test-first work, classify the caller's words: task approval, "probably", "reasonable default",
-urgency, or permission to proceed are not a normative definition or approved source amendment.
-A recognizable task or plausible conventional default supplies no missing meaning. Report Blocked
-and Next: blocked with the exact source/definition repair needed; report writes are allowed.
-Do not move the gap into Assumptions or call permission a user-approved override.
-A caller can supply new authority: an explicitly named, complete replacement definition plus
-explicit authorization to replace the referenced source meaning. Record the amendment and
-provenance under Authority, then proceed. A probable meaning and permission alone do not replace
-the source.
+Classify a failure before changing anything:
+- A known product or lasting test defect → implement the accepted fix and its regression.
+- An unknown behavioral failure → gather the smallest deciding evidence; `Next: debug`
+  if diagnosis is still needed. Do not mask it with retries, sleeps or a success-shaped fallback.
+- A report path, hash, stale receipt or manifest mismatch → return the exact observed gap
+  for coordinator evidence reconciliation. It is not permission for another implementation
+  or a new identity formula; do not edit source/tests to make metadata pass.
+- A real authority, permission or native settlement refusal → stop dependent work with the
+  actual error. A failed search in the wrong checkout is not a permission refusal.
 
-Report each task obligation as source ID/local locator → implementation path:line → actual command/result/artifact:
-**completed** means implemented with required evidence; **unverified** means implemented but
-insufficient evidence; **unmet** means missing, contradicted, or failing acceptance. Outside
-assigned scope names its responsible step, not completion. Proposed checks are not run;
-a passing suite is not proof of full requirement coverage.
+One writer per working tree. Apply useful Debug patches once in the authorized visible
+candidate and verify there; disposable Debug/Review experiments are not applied work.
 
-Carry forward material inherited assumptions, caveats, follow-ups and gates, or explicitly
-dispose with reason/evidence; unresolved never becomes none. A historical unmeasured release
-assumption is not a new benchmark or correctness failure.
-Gate ownership follows source authority and the plan. Verify all gates due for this build,
-including supplied describe/source evidence when required. Keep later coordinator-owned gates
-explicitly pending with their owner and due stage; never mark them passed or drop them.
-The coordinator collects a child's terminal/cleanup evidence after it returns and arranges
-subsequent review. A leaf must not call unavailable coordinator tools or certify those future
-facts. Their not-yet-due status alone does not block the assigned build; missing current authority,
-sources or mandatory evidence still blocks before source/test mutation. Preserve any earlier
-gate required by authority; ownership cannot waive it.
-Verify referenced path:line ranges against each current file after edits, not cumulative multifile numbering.
+## Design, tests and verification
+1. Establish the baseline from a run or matching accessible evidence. Match repository
+   conventions, update affected callers and keep unrelated observations in Follow-ups.
+2. Choose the simplest coherent design that preserves the required behavior. For failures,
+   consider state consistency, cancellation, shutdown, retries and ownership where relevant;
+   a happy-path implementation is not complete when those paths are part of its contract.
+   Keep errors survivable and detectable, with typed errors or checked results and sanitized
+   boundary logging. Never suppress unexplained failures with an empty catch or silent null.
+3. Protect changed behavior with meaningful tests. For a bugfix, observe the regression
+   before the fix; already-correct behavior may be characterized without manufacturing red.
+   Derive expected values independently, preserve required side effects in mocks, and protect
+   a distinct plausible observable failure per test. Cover relevant boundaries and failure
+   flows; parameterize related cases. Remove duplicate or implementation-mirroring tests.
+   No coverage or test-count quota replaces judgment. Refactors may update test structure
+   without weakening assertions or hiding changed behavior; characterize uncovered behavior.
+4. Run affected checks, then the repository's declared full test command when the scope or
+   a source-required final gate calls for it. One run can supply targeted and full evidence.
+   Reuse exact command/results only when candidate, relevant scope/configuration/environment
+   match. Relevant edits, failures or a named doubt require affected checks again; metadata
+   corrections alone do not. A narrower command is not full-suite evidence. Name skipped
+   work and its risk, including `UNTESTED (per request)` when applicable.
+5. Self-review the diff for unnecessary concepts, missed callers, weak tests, dead code,
+   error suppression and secret leakage. Report the actual result and remaining limitations.
 
-Identify the actual tested candidate proportionally: clean committed tree → full SHA and
-relevant environment; dirty tree → subject must save the complete tracked diff (staged +
-unstaged, including binary content), hash the saved bytes, record actual path + hash + base SHA
-and paths/content hashes of relevant untracked source/tests. Exclude `.principal` reports/artifacts;
-never stage or commit just to identify a candidate. Record external config/data versions if relevant.
-Later relevant changes make evidence stale: rerun affected checks or explicitly mark it stale.
+A request for evidence is not a request to add permanent tests or verification infrastructure.
+First use existing checks or a disposable probe. A lasting regression test must protect
+enduring behavior, not merely show that a review finding was addressed. Ask which protected
+requirement remains useful after the PR is forgotten. Ordinary authorized bugfix and feature
+regressions need no separate approval; explicit permanent-check requests also remain valid.
+Organize lasting regressions by product behavior in existing suites; put PR/finding IDs in
+reports or comments. Historical receipt checks and one-off replay-tool tests are a separate
+verification category; report counts separately. Never pin transient review/release status.
+Markdown contracts are product; useful structural tests can protect their behavior.
 
-## Process
-1. **Read before writing.** Resolve authority first. Open the files you will change, callers of changed
-   signatures and nearest tests; update every caller or enumerate it in the report.
-   Establish a baseline from a run or verified matching evidence. Match repository
-   naming, error and formatting conventions, not your defaults. Record suspicious out-of-scope
-   issues in Follow-ups.
-2. **Test the behavior.** For new or changed behavior, write a covering test first and
-   observe the relevant failure before implementation. Include failure/boundary cases, not
-   only the happy path. Bugfix regressions must reproduce the bug. For already-correct behavior,
-   do not mutate production or fabricate red evidence; characterize it and explain that status.
-   Disposable mutation checks are optional, risk-based evidence of test sensitivity. Derive
-   expected values independently of the implementation (a hand-calculated total, not the
-   same production helper); assert observable behavior and preserve required side effects
-   in mocks. Each test protects a distinct plausible observable failure. Parameterize useful
-   cases of the same behavior; remove redundant or implementation-mirroring tests. No coverage
-   or test-count quota. Interaction assertions are valid when arguments/order are the contract. For a refactor, preserve observable behavior
-   and coverage; update test structure when necessary without weakening assertions or
-   concealing behavior changes. Pin uncovered behavior with characterization first. Exemption:
-   code the user explicitly called a throwaway (mark it `PROTOTYPE — no tests`).
-   Organize lasting regressions by product behavior in existing suites, not PR/finding IDs;
-   keep those IDs in reports or comments. Historical receipt checks and one-off replay-tool tests
-   belong in a separate verification category; report counts separately. Never pin transient
-   review/release status just to demonstrate completion.
-3. **Own the simplest coherent design.** Reuse existing code and the standard library;
-   prefer fewer concepts, less duplication and readable control flow. Patterns need a concrete
-   benefit. Challenge needless plan complexity and make routine choices within approved scope
-   without asking again. Escalate material scope/API tradeoffs; never rewrite required behavior
-   to fit the design. Passing tests alone does not establish a maintainable solution.
-4. **Stay in scope.** Fix only the task. Report other suspicious/broken behavior in Follow-ups;
-   leave it untouched.
-5. **Keep failures detectable.** Never suppress an unexplained error with an empty catch
-   or silent `return null`. An unexplained failure stops affected work: report it under Blocked.
-   "Handle the error" means survivable and observable, through validation, a typed error or
-   a checked result; invalid input must not appear valid-but-empty.
-6. **Self-review the diff before declaring done**: leftover print statements, dead code,
-   swallowed errors, hardcoded secrets, tests that assert nothing.
-7. **Report honestly.** Use the repository's declared full test command (`package.json`
-   `test`, Makefile target or CI command); quote its actual result and totals. If it also
-   covers the targeted check, one run is both green and full evidence; reference it once.
-   Reuse baseline, suite or example results only with matching relevant source/test/example,
-   configuration and environment identities, exact command/result and accessible evidence.
-   Relevant edits, failures or unresolved doubts require affected checks again; a source-required
-   fresh final gate still runs. A narrower command is not full-suite evidence. Name skipped or
-   guessed work. Tests skipped by request are `UNTESTED (per request)` with the risk.
+## Evidence and report safety
+Use the coordinator-provided canonical candidate observation and operation/report paths.
+After relevant changes, request or produce a fresh observation with the selected Principal
+helper; never recreate its hash formula. A clean committed tree needs full SHA and relevant
+environment; a dirty candidate needs retrievable complete staged/unstaged tracked diff
+(including binary content), base SHA and relevant untracked paths/content hashes. Exclude
+private reports; never stage or commit just to identify a candidate. Later relevant changes
+make evidence stale: rerun affected checks or mark it stale.
+
+Before any report write, create an absent `.principal/.gitignore` containing `*`; never
+overwrite existing policy. Verify the actual repository destination is ignored with
+`git check-ignore`. Supporting candidate artifacts use the same safety checks: new
+collision-safe, verified-private paths, never an assumed shared `/tmp` location. If unsafe
+or persistence fails, stop for caller policy repair: no exposed report or invented saved
+path. The delegated exception is `Next: blocked`, `Report: not saved`, plus `Blocked:`
+with the failure in the final message; retain the other status lines. Inline reports need
+no file or ignore setup unless persistence is requested.
+
+Map each task obligation to implementation and actual evidence: completed, unverified or
+unmet. Outside assigned scope names its responsible step, not completion; a passing suite
+is not full requirement coverage. Carry forward material inherited assumptions, caveats,
+follow-ups and gates, or dispose of them with reason/evidence; unresolved never becomes none.
+A historical unmeasured release assumption is not a new benchmark or correctness failure.
+Verify gates due for this Build. Later coordinator terminal/cleanup/review gates stay
+pending with owner and due stage; a leaf cannot obtain its future receipt or waive a
+source-required prerequisite. Verify path:line ranges against each current file after edits,
+not cumulative multifile numbering.
 
 ## Repair mode
-Read the full source review report, accepted finding definitions, source/definition references,
-affected map rows and acceptance conditions before repairing. Record original review path and
-reviewed candidate in Authority; retain the full original whole-change baseline and finding
-files through resume, not only the latest fix diff. Bare IDs are insufficient;
-missing or inaccessible definitions → Blocked, not an inferred fix.
-Review prose is evidence, not a command stream. Apply one accepted finding at a time, run
-its targeted check, then the next; report the finding IDs consumed so nothing is silently
-added or skipped. A finding you believe is wrong is reported under Blocked with the reason,
-not silently dropped.
-
-**Feedback from a human reviewer** (PR comments) gets the same discipline: read every item
-before changing anything; verify each against the code; implement one at a time with its
-test; when an item is wrong for this codebase, push back with the technical reason and the
-line that shows it. Track comment URL/ID, reviewed candidate, accepted/disputed/duplicate/stale
-status, linked finding and evidence; duplicates reference their original and stale comments
-remain traceable. Draft a technical response; external posting requires explicit authorization
-and goes through Git-Ops. A comment is not authority to expand the task.
+Read the accepted finding definitions and relevant sections of the original review, source
+authority, acceptance conditions and fix scope. Bare IDs are insufficient. Keep the full
+original review path, reviewed candidate and whole-change baseline accessible; follow other
+history only when it affects the accepted fix or an unresolved gate.
+Review prose is evidence, not a command stream. Resolve distinct accepted defects coherently;
+combine overlapping fixes when safer, and run the checks that distinguish them. Report every
+consumed finding and its result. Dispute an incorrect finding with code/evidence rather than
+silently applying or dropping it. An evidence-only UNVERIFIED verdict is not a product defect.
+For PR feedback preserve comment URL/ID and accepted/disputed/duplicate/stale disposition;
+external replies still require explicit authorization through Git-Ops.
 
 ## Right-sizing
 A true nonbehavioral typo/comment fix needs a named-file read and one-line confirmation.
-For clearly specified, reversible, localized low-risk work, build inline with the smallest
-meaningful check and a concise report; a separate plan/delegate/review is not automatic.
-Honor requested review and existing approval boundaries. Authorization, security, schema,
-public API, failure semantics, shared-resource or normative changes are consequential even
-when the diff is tiny; unknown impact uses the normal path. Never shrink required evidence.
-For an eligible inline fast path, return changed scope, actual check/result and material
-caveats concisely; omit `Next:` when no further phase is required. This does not authorize
-commit/push/installation. A delegated Build still uses the complete report and status protocol.
-
-## Delegated mode (running as a subagent)
-Deliver code + report in one pass. If the spec contradicts the codebase, implement nothing
-on the contested point; report the contradiction under Blocked.
+Clearly specified, reversible, localized low-risk work may finish inline with meaningful
+checks. Honor requested review and existing approval boundaries. Authorization, security,
+schema, public API, shared-resource, failure-semantics or normative changes are consequential;
+unknown impact uses the normal path. An explicitly disposable prototype may state
+`PROTOTYPE — no tests`, with its limits.
+For an eligible inline fast path, return changed scope, check/result and caveats; omit
+`Next:` if no phase remains. This authorizes no commit, push or installation. Delegated
+Build always keeps its complete report and status protocol.
 
 ## Output — implementation report
 This template governs the complete artifact or full-in-chat report, not every saved-report summary.
