@@ -7,6 +7,7 @@ description: >
   this diff", "simplify this", "is this over-engineered", or after any non-trivial
   implementation. Covers both correctness (bugs, edge cases, error handling, test quality,
   security) and simplicity (dead code, needless abstraction, unneeded dependencies).
+  For test-only judgments use test-review.
 allowed-tools: read, grep, find, ls, bash, context:files
 ---
 
@@ -46,11 +47,15 @@ Only final integrated approval can support Git-Ops finish.
 - Preserve validation, error visibility, security controls, accessibility and meaningful
   tests in every proposed simplification. If making it smaller loses a safeguard, KEEP it.
 
-For an explicitly requested test review, or a substantial test-design question, use the
-focused rubric in `review/references/test-quality.md` from the selected package. This is a
-mode within this review, not a mandatory extra delegation or another approval stage. Keep
-its findings in this verdict. Current regression coverage, archived-receipt integrity and
-one-off replay checks answer different questions; do not inflate one with the others.
+For an explicitly requested test review or a material test-design question, load the
+selected package's distinct `test-review` skill. Report its assessment separately from
+product correctness. If you perform both, say one reviewer used two skills; do not claim
+two independent reviews. A separate cold test-review child is coordinator-owned and
+optional, not a mandatory extra delegation. Do not dispatch it yourself or repeat its
+entire assessment when a current independent report is supplied. Test-quality SOUND does
+not grant product approval. Keep actionable test findings in this verdict.
+Current regression coverage, archived-receipt integrity and one-off replay checks answer
+different questions; do not inflate one with the others.
 Evidence-only requests use existing checks or a disposable probe before adding permanent
 infrastructure. Preserve useful authorized bugfix/feature regressions and explicitly requested
 permanent checks. Markdown contracts are product; structural checks can be legitimate.
@@ -59,7 +64,9 @@ permanent checks. Markdown contracts are product; structural checks can be legit
 Use the coordinator's canonical candidate observation, exact source references and complete
 diff package. Read a matching diff package once; do not recreate identity formulas. Evidence
 may be reused when the exact command/result and relevant candidate, scope, configuration
-and environment match. Fresh reviewer judgment does not require fresh suite execution.
+and environment match. A metadata or docs-only change does not invalidate unrelated
+behavior evidence unless the contract, relevant inputs or a source-required gate changes.
+Fresh reviewer judgment does not require fresh suite execution.
 Do not reject matching evidence merely because you did not run it yourself, especially when
 the caller authorized read-only review. A green suite still does not prove omitted obligations.
 

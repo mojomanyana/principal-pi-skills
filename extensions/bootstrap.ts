@@ -5,7 +5,7 @@ import { dirname, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const root = resolve(dirname(fileURLToPath(import.meta.url)), "..");
-const names = new Set(["decide", "architect", "plan", "build", "review", "debug", "investigate", "git-ops"]);
+const names = new Set(["decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops"]);
 
 export default function bootstrapExtension(pi) {
   // Capture at registration, so a later npm install cannot impersonate this loaded generation.

@@ -108,42 +108,39 @@ Leave routine design judgment to Build instead of specifying an implementation r
 each assertion. The complete executable plan stays available; chat is a short summary.
 
 ## Output — plan
-Trivial reversible work gets three lines: change, test, done. Small clear work gets one
-complete Build unit; add units only for a concrete boundary. Omit empty fields and needless
-dependency annotations. Scale the template below to the task. Unknown codebase facts are
-Assumptions; material risks and a real [ONE-WAY] always survive.
+Persist the complete executable plan at `.principal/plans/<slug>.md` for delegated Build.
+Small clear work needs one Build unit with its behavior, affected files and acceptance;
+trivial reversible work can be change, test and done in three lines. Use more units only
+for a concrete dependency, risk or independently useful increment. A concise plan is a
+complete plan when it states all task-specific obligations; completeness is not verbosity.
 
-**Persist the complete executable plan** for delegated Build at `.principal/plans/<slug>.md`,
-including the full map, file/signature behavior, tests and assumptions. Return only a
-short chat summary of outcome/risks, approval cue, and `Plan file: <path>`, not a second plan.
-Shortening on any turn changes chat, never the persisted artifact's completeness.
+Use this compact shape; omit empty optional fields and do not repeat generic governance,
+source text, hashes or report metadata already retained by the coordinator. Keep exact
+source IDs and a source/ID → step → acceptance map when the supplied specification uses
+them; ordinary prose requirements need only a source-located checklist. Shared definitions
+and global constraints appear once, with relevant references in affected units.
+
+```
+## Plan: <outcome>
+Authority: <exact task/source reference; relevant constraints>
+impl:S1. <complete implementation, tests and docs> — done: <observable acceptance>
+  Files: <affected paths>
+  Behavior: <required inputs, outputs, errors and essential interfaces>
+  Verification: <check → expected result; relevant boundary/failure cases>
+Decisions: <material tradeoff and reason, only if needed>
+Risks / Assumptions: <material uncertainty and resolution, only if present>
+Next: build
+```
+
+Add a requirement map, dependency/parallel scope, or `[ONE-WAY]` rollback note only when
+applicable. Preserve all actual obligations and unresolved gates; omit ceremonial `none`
+rows. Routine local design and test organization belong to Build.
+
+Return a short chat summary and `Plan file: <path>`, not a second copy of the plan.
 Write only that plan and, if absent, `.principal/.gitignore` containing `*`; never overwrite
 an existing ignore file. No shell, implementation, reports, or other writes.
 No repository → complete plan in chat. If persistence fails, report why and supply the
 complete chat artifact explicitly marked not persisted; never claim a saved path.
-```
-## Plan: <outcome, one sentence>
-Authority: <approved design, requirement, or exact user request>
-Out of scope: <explicit exclusions> | none
-Conventions observed: <naming / error / test patterns found in the codebase>
-Risks: <risk → mitigation or spike step>
-Requirement map: <source/definition + ID/local locator + obligation (Gate: owner and due stage) → impl:step(s) → acceptance tests → planned, not executed> | none
-Steps:
-  impl:S1. <complete Build unit, including tests/docs> — done: <observable acceptance>
-     Files: <paths>
-     Change: <required behavior + essential interfaces; leave routine design choices open>
-     Test: <name, level, edge cases; the command that runs it>
-     Ripples: <callers, config, migrations> | none
-  <Only when a concrete boundary needs another unit:>
-  impl:S2. <step name>  [after: impl:S1]  [ONE-WAY: <rollback + kill criterion>]
-     Files: <paths>
-     Change: <required behavior + essential interfaces; leave routine design choices open>
-     Test: <name, level, edge cases; the command that runs it>
-     Ripples: <callers, config, migrations> | none
-Parallel-safe: <which steps> | none
-Assumptions: <what only hands-on work can confirm>
-Next: build
-```
 
 ## Output — BLOCKED (when a load-bearing fact is missing or authority conflicts)
 Literally this shape and nothing else — no speculative plan attached, no question list:

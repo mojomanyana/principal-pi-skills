@@ -27,7 +27,7 @@ import { fileURLToPath } from "node:url";
 import { parsePackMetadata } from "../../scripts/pack-meta.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const SKILLS = ["decide", "architect", "plan", "build", "review", "debug", "investigate", "git-ops"];
+const SKILLS = ["decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops"];
 
 // Track exactly what we create; see the note in install-agents.test.mjs — test FILES run
 // concurrently, so cleaning by prefix glob reaches into a sibling suite's directories.
@@ -66,7 +66,7 @@ test("the tarball ships every runtime file a user needs", () => {
   for (const p of ["principal-feature", "principal-bugfix", "principal-refactor", "principal-review-branch"]) {
     if (!files.includes(`prompts/${p}.md`)) missing.push(`prompts/${p}.md`);
   }
-  for (const a of ["principal-plan", "principal-review", "principal-debug", "principal-build", "principal-investigate"]) {
+  for (const a of ["principal-plan", "principal-review", "principal-test-review", "principal-debug", "principal-build", "principal-investigate"]) {
     if (!files.includes(`agents/${a}.md`)) missing.push(`agents/${a}.md`);
   }
   if (!files.includes("scripts/install-agents.mjs")) missing.push("scripts/install-agents.mjs");
@@ -109,7 +109,7 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   assert.ok(existsSync(join(installed, "prompts", "principal-feature.md")));
   const bindings = JSON.parse(readFileSync(join(installed, "principal-agents.json"), "utf8"));
   assert.equal(bindings.package, "principal-pi-skills");
-  assert.deepEqual(Object.keys(bindings.bindings).sort(), ["build", "debug", "investigate", "plan", "review"]);
+  assert.deepEqual(Object.keys(bindings.bindings).sort(), ["build", "debug", "investigate", "plan", "review", "test-review"]);
   for (const binding of Object.values(bindings.bindings)) for (const kind of ["skill", "agent"]) {
     const digest = createHash("sha256").update(readFileSync(join(installed, binding[kind]))).digest("hex");
     assert.equal(digest, binding[`${kind}Sha256`], "packed inline/delegated bytes must match their generated identities");
@@ -122,7 +122,7 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   });
 
   const agents = readdirSync(join(piDir, "agents")).filter((f) => f.endsWith(".md")).sort();
-  assert.deepEqual(agents, ["principal-build.md", "principal-debug.md", "principal-investigate.md", "principal-plan.md", "principal-review.md"]);
+  assert.deepEqual(agents, ["principal-build.md", "principal-debug.md", "principal-investigate.md", "principal-plan.md", "principal-review.md", "principal-test-review.md"]);
 
   const realAfter = existsSync(join(homedir(), ".pi", "agent", "agents"))
     ? readdirSync(join(homedir(), ".pi", "agent", "agents")).sort().join(",")
@@ -326,7 +326,7 @@ test("pi resolves the package and materializes every resource it declares", { sk
   for (const p of ["principal-feature", "principal-bugfix", "principal-refactor", "principal-review-branch"]) {
     assert.ok(existsSync(join(tree, "prompts", `${p}.md`)), `declared prompt ${p} is missing`);
   }
-  assert.equal(pkg.pi.skills.length, SKILLS.length, "all eight skills must be declared");
+  assert.equal(pkg.pi.skills.length, SKILLS.length, "all nine skills must be declared");
 
   rmSync(home, { recursive: true, force: true });
 });

@@ -16,7 +16,7 @@ function fixture(t) {
   const home = mkdtempSync(join(tmpdir(), "principal-resume-")), repo = join(home, "repo"), pkg = join(home, "package");
   t.after(() => rmSync(home, { recursive: true, force: true }));
   mkdirSync(repo); mkdirSync(pkg);
-  for (const name of ["package.json", "AGENTS.md", "principal-agents.json", "bootstrap", "extensions", "scripts", "agents", "prompts", "decide", "architect", "plan", "build", "review", "debug", "investigate", "git-ops"]) cpSync(join(ROOT, name), join(pkg, name), { recursive: true });
+  for (const name of ["package.json", "AGENTS.md", "principal-agents.json", "bootstrap", "extensions", "scripts", "agents", "prompts", "decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops"]) cpSync(join(ROOT, name), join(pkg, name), { recursive: true });
   run(repo, "init", "-q"); run(repo, "config", "user.name", "Fixture"); run(repo, "config", "user.email", "fixture@example.invalid");
   mkdirSync(join(repo, "src")); writeFileSync(join(repo, "src/x.js"), "export const x = 1;\n");
   run(repo, "add", "."); run(repo, "commit", "-qm", "seed");

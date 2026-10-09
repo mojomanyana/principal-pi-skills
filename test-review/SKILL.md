@@ -1,0 +1,85 @@
+---
+name: test-review
+metadata:
+  principal-package: principal-pi-skills
+description: >
+  Use to judge tests themselves — "review these tests", "do these assertions catch the bug",
+  "which tests are redundant", "are mocks hiding failures". Assess behavioral oracles,
+  input/output and error contracts, boundary coverage, determinism and maintainability.
+  Not a product-code or integration approval (review), test implementation (build), or diagnosis (debug).
+allowed-tools: read, grep, find, ls, bash, context:files
+---
+
+# Test Review — Behavior and Assertions
+
+Judge whether tests detect meaningful wrong behavior and remain understandable. Tests
+serve the public contract, not a coverage percentage or the implementation's structure.
+This skill has its own test-quality judgment; it cannot approve a product for integration.
+
+## Scope and independence
+Read the exact task/contract, affected production behavior and relevant tests. Reuse the
+coordinator's candidate and file references; do not calculate another fingerprint. Read
+only history needed for an accepted finding or evidence gap. Author claims, review
+verdicts and JEV predictions do not establish test quality.
+
+Use this skill when requested or when changed tests, missing critical flows or weak
+assertions warrant it. A code reviewer can load it and report a distinct test judgment;
+that is one reviewer using two skills, not two independent reviewers. Request a separate
+cold `test-review` child when independent test judgment is required or its focused work
+materially helps. Neither mode is an always-required extra agent or approval stage.
+Do not recurse into Review or duplicate its whole-code assessment.
+
+## Evaluate the important behaviors
+- Trace input, action and observable result: successful flows, exact error classes/codes,
+  boundaries and lifecycle/concurrency behavior when relevant. Derive expected values
+  independently of the implementation. A green suite cannot prove an omitted obligation.
+- Name a plausible wrong implementation for a critical assertion. Would it still pass?
+  For configurable limits, examine zero, one and a representative value above one when
+  those distinguish behavior; use valid/invalid endpoints as the contract requires.
+  Accepting several exception classes is wrong when the contract promises exactly one.
+- Follow state transitions in order. Observe the consequence before another read, reset,
+  retry or mock restores the state and hides the defect. In ordering/eviction tests, apply
+  pressure before an action that repairs recency. Distinguish queued from running work,
+  ownership replacement from cancellation, and settled from merely scheduled effects.
+- Keep mock side effects, timing and failure modes that can cause the real bug. Prefer
+  controlled clocks/events and bounded waits for observable conditions over sleeps.
+- Consolidate cases that prove the same behavior. Preserve cases with distinct failure
+  modes; a parameterized table can reduce repetition without erasing them. Organize by
+  enduring behavior, not PR IDs, implementation lines or transient release status.
+
+A concrete doubt can justify a disposable wrong-implementation challenge or focused probe.
+First inspect or reuse matching evidence. Run the smallest deciding check; there is no
+mandatory mutation campaign, full-suite replay, test-count, coverage or mutation-score quota.
+Do not manufacture permanent tests merely to produce review evidence. For a claimed
+regression, establish that its oracle fails with the bug and passes with the fix when
+possible; an unrun challenge stays a reasoned concern, not a reproduced defect.
+
+Use the coordinator-provided selected `scripts/snapshot-workspace.mjs` helper for probes
+that alter or execute the dirty working state. Create with `node <helper> create --repo
+<caller-repo>` and remove with `node <helper> remove <path> --repo <caller-repo>`; never mutate
+the caller checkout. Missing helper allows read-only assessment; report UNVERIFIED only
+when a required deciding check remains unavailable. Reuse verified command/results for
+matching relevant code, tests, configuration and environment. A docs-only change does not
+invalidate unrelated behavior evidence unless the contract or a required gate changes.
+
+## Output
+Return one compact report. Include actual source locations and consequences for findings;
+keep a useful regression, weak oracle and demonstrated product defect distinct. Report
+executed versus reused evidence and what was not checked. Describe a concrete consolidation
+before recommending deletion. Do not invent a finding to satisfy a quota.
+
+```
+## Test review: <scope>
+Assessment: SOUND | CHANGES-REQUESTED | UNVERIFIED
+Candidate: <provided identity and tested scope>
+Findings: <path:line — protected contract, plausible failure, evidence and correction> | none
+Challenges: <executed/reasoned wrong-implementation probes and actual outcomes> | none
+Simplifications: <specific redundant structure to combine, preserving distinct behavior> | none
+Verified: <commands/results or exact reused evidence>
+Limitations: <unassessed behavior, unavailable evidence or uncertain claims> | none
+```
+
+SOUND means the assessed tests are useful; it is not engineering or integration approval.
+A surviving mutant identifies a test weakness, not proof that the actual product contains
+that defect. The coordinator accepts actionable findings within authority and returns
+required fixes to Build. Only integrated Review and its due gates can authorize finish.

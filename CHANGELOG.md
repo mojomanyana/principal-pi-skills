@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.13.0 — 2026-10-09
+
+- Save the exact captured native child final through `principal_workflow complete`, with session/workspace ownership checks, hash verification and exclusive report paths. Requires pi-daddy 0.49.0. Prepared handoffs provide verified report/artifact directories; `result` inspects a settled native final without writing workflow bookkeeping.
+- Add a focused `test-review` skill and native binding for behavioral assertions, error semantics, queue/capacity boundaries, determinism and redundant tests. Review may use it within one review or as a separate child when useful; no mandatory extra agent or coverage/count quota.
+- Shorten feature/refactor workflows and handoffs. A clear authorized feature can use Build then Review directly; evidence reconciliation does not require an implementation repair. Preserve original authority and independently verified settlement.
+- Ask optional JEV advice about the selected stage, next action and unresolved engineering judgment. Expose a session-bound canonical candidate observation for Harness, without granting review approval or training eligibility.
+
 ## 4.12.0 — 2026-10-09
 
 - Add deterministic `principal_workflow` candidate observations, private handoffs and exclusive report allocation. Repeated native operations reuse verified references; explicit retries preserve old attempts and require settled or never-started runtime evidence. Completion checks the actual child workspace and never grants semantic approval. Requires pi-daddy 0.48.0 for native operation completion.

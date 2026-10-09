@@ -1,7 +1,7 @@
 {
     "name": "principal-pi-skills",
-    "version": "4.12.0",
-    "description": "Skill framework for principal-level software engineering: eight skills (decide, architect, plan, build, review, debug, investigate, git-ops), a pi bootstrap, and two approval-gated workflows.",
+    "version": "4.13.0",
+    "description": "Skill framework for principal-level software engineering: nine skills (decide, architect, plan, build, review, test-review, debug, investigate, git-ops), a pi bootstrap, and two approval-gated workflows.",
     "license": "MIT",
     "author": "Nemanja Alavanja",
     "repository": {
@@ -38,6 +38,7 @@
             "./plan",
             "./build",
             "./review",
+            "./test-review",
             "./debug",
             "./investigate",
             "./git-ops"
@@ -67,6 +68,7 @@
         "plan/SKILL.md",
         "build/SKILL.md",
         "review/SKILL.md",
+        "test-review/SKILL.md",
         "debug/SKILL.md",
         "investigate/SKILL.md",
         "git-ops/SKILL.md",

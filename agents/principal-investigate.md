@@ -56,8 +56,12 @@ Findings:
 What was not checked: <unavailable evidence and out-of-scope follow-ons> | none
 ```
 
-The caller may persist this complete report to `.principal/reports/<topic>-investigation.md`;
-you stay read-only. Optional discovery never replaces original sources or Review's verdict.
+The caller may persist this complete report; native `principal_workflow complete` retains
+the exact captured final at its prepared path. You stay read-only and do not write reports.
+Say no product files changed when established; coordinator bookkeeping may create ignored
+administrative files. Any coordinator retention failure remains visible and incomplete,
+not hidden by a successful factual answer. Optional discovery never replaces original
+sources or Review's verdict.
 
 A report with no supported finding says so. Never fill the gap with a likely explanation,
 a proposed fix, or a verdict.

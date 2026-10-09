@@ -55,7 +55,7 @@ test("install writes only principal-* by default", () => {
   const { env, dir } = fresh();
   assert.equal(quiet(() => run(["install"], env)), 0);
   const files = ls(dir);
-  assert.deepEqual(files, ["principal-build.md", "principal-debug.md", "principal-investigate.md", "principal-plan.md", "principal-review.md"]);
+  assert.deepEqual(files, ["principal-build.md", "principal-debug.md", "principal-investigate.md", "principal-plan.md", "principal-review.md", "principal-test-review.md"]);
 });
 
 test("installed agents are real files, not symlinks into the checkout", () => {
@@ -182,7 +182,7 @@ test("unknown flags and commands are usage errors, not silent no-ops", () => {
 });
 
 test("every source agent is namespaced", () => {
-  assert.deepEqual(sources(), ["principal-build.md", "principal-debug.md", "principal-investigate.md", "principal-plan.md", "principal-review.md"]);
+  assert.deepEqual(sources(), ["principal-build.md", "principal-debug.md", "principal-investigate.md", "principal-plan.md", "principal-review.md", "principal-test-review.md"]);
 });
 
 test("the developer's real agents directory was never touched", () => {

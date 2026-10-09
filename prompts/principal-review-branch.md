@@ -9,21 +9,28 @@ prior task approval alone does not cover interactions or global gates.
 
 1. Find `git merge-base ${1:-main} HEAD` and full HEAD. If dirty, report that this branch
    workflow reviews committed work and stop. Capture the range/commit list and complete diff
-   once. Use `principal_workflow` snapshot/reference for canonical observations and prepare/status
-   for the native review operation. Pass its returned `operation_id` unchanged to delegate.
-   Preparation never authorizes execution or approval; inline work uses existing private reports,
-   never a delegation solely to close bookkeeping.
-2. Before any artifact write, create if absent `.principal/.gitignore` containing `*`;
-   never overwrite an existing ignore file. An exposed ignore policy, permission failure or
-   explicit artifact prohibition stops dispatch; routine safe allocation needs no extra approval.
-   Verify ignored/private destinations and use a
-   new unused directory under `.principal/reports/<task>-<run>/<candidate>/` in the actual
-   child's workspace. A caller report path must be ignored, local and unused; never overwrite
-   previous reports. Preserve original review path, reviewed candidate and whole-change
+   once. Use `principal_workflow` snapshot/reference for canonical observations. If artifact
+   writes are prohibited, skip prepare/complete: dispatch with a unique operation_id and use
+   `result` to verify and read the exact settled native final without retaining a file.
+   Otherwise use prepare/status for the native review operation and pass its returned
+   `operation_id` unchanged to delegate. Preparation never authorizes execution or approval;
+   inline work needs no delegation solely to close bookkeeping.
+2. Apply this artifact retention step only when writes are allowed. Before any artifact write,
+   create if absent `.principal/.gitignore` containing `*`; never overwrite an existing ignore file.
+   An exposed ignore policy or permission failure stops artifact-dependent dispatch;
+   routine safe allocation needs no extra approval.
+   Native prepare allocates the private ignored report destination under
+   `.principal/reports/<task>-<run>/<candidate>/` in the actual child's workspace. A prepared
+   directory already exists; do not allocate a duplicate. Outside native preparation, use a
+   new unused directory and verify private ignored destinations. A caller report path must
+   never overwrite previous reports. Preserve original review path, reviewed candidate and whole-change
    baseline through repair or resume. External copies use the selected package's conditional
    `references/workflow-mechanics.md` archive section; originals remain available.
 3. Pass exact task authority, accessible source/definition references, optional plan map
-   and candidate-bound evidence. Optional Investigate locates facts without replacing sources
+   and candidate-bound evidence. For a material test-design question, Review may load the
+   distinct test-review skill or consume a current independent test-review report. State
+   whether one reviewer used both skills or a separate test reviewer participated; no
+   automatic extra agent or product approval from test-quality SOUND. Optional Investigate locates facts without replacing sources
    or the Review verdict. Do not create a plan or require unrelated history/full-plan reads.
    Native Review uses `delegate_describe({agent:"review"})`: require binding package
    `principal-pi-skills`, phase review, and captured `definitionId`, then
@@ -39,8 +46,10 @@ prior task approval alone does not cover interactions or global gates.
    After return, check the full native result, complete report and settlement before consuming
    the verdict. Require `cleanup.state=settled` and its matching identity-bound process receipt;
    missing emitted evidence blocks finish even without a disposable workspace. The reviewer
-   cannot certify its own future return. Persist its complete verdict and retain the diff,
-   then complete the native workflow operation with its actual disposition. A retained blocked,
+   cannot certify its own future return. When artifact writes are allowed, retain the diff
+   and complete the native workflow operation; complete retains the exact captured final
+   verdict without another model-written copy. With writes prohibited, consume the verified
+   `result` directly. A failure remains visible and incomplete. A retained blocked,
    unverified or changes-requested result never becomes approval.
 5. Read Verdict before Next. APPROVE or APPROVE-WITH-NITS supports Git-Ops finish mode only
    after every due integrated gate. CHANGES-REQUESTED presents concrete findings and stops;
@@ -57,7 +66,9 @@ prior task approval alone does not cover interactions or global gates.
 
 Optional JEV: check current `jev_advice({action:"status"})` only when advice could help.
 Only explicitly enabled workflow mode allows selected bounded evaluations after deterministic
-gates. Exclude reviewer verdicts/prior predictions from input and withhold advice from cold
+gates. Supply stage, proposed nextAction and a precise unresolved uncertainty with current
+candidate/requirements/evidence; optional evidenceRefs identify local verified files. Use
+code for missing-file/hash checks. Do not ask all-acceptance readiness before required review. Exclude reviewer verdicts/prior predictions from input and withhold advice from cold
 review until its own verdict. No quota or implicit activation; disabled/manual/unavailable/
 error states permit ordinary authorized work and no CLI bypass. Advice supplies no approval,
 gate waiver or defect. Storage consent and curation/training permission remain separate;

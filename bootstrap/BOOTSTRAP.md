@@ -1,6 +1,6 @@
-# Principal routing
+# Principal
 
-Route by requested output; everyday Q&A needs no skill.
+Route by output; Q&A needs no skill.
 
 | Input shape | Route | How |
 |---|---|---|
@@ -9,6 +9,7 @@ Route by requested output; everyday Q&A needs no skill.
 | implementation sequence | `plan` | delegate |
 | known-cause implementation | `build` | inline/delegate |
 | judge changes | `review` | independent |
+| judge test assertions | `test-review` | focused, on demand |
 | unknown failure | `debug` | diagnosis |
 | facts | `investigate` | read-only |
 | Git/GitHub | `git-ops` | inline |
@@ -20,21 +21,21 @@ uncertain cleanup stops dependent work: no substitution. Legacy needs genuinely 
 native tools and an explicitly configured runner. Follow authored model/effort policy.
 Use `delegate_all`, never overlapping single calls; writers need separate worktrees.
 
-Coordinator checks authority and native settlement, including reviewer return. Preserve
-source identities and unused private ignored reports in actual child workspaces.
+Coordinator checks authority and native settlement, including reviewers. Keep
+source identities and private ignored reports.
 Use `principal_workflow` snapshot/reference for observations; prepare/complete/retry track
-native work, status revalidates it. Pass returned operation_id unchanged to delegate;
-complete after actual settlement/report retention. Inline reports stay separate; never
+native work; status revalidates it. Pass operation_id unchanged to delegate;
+complete retains the exact child final after actual settlement. Inline reports stay separate; never
 delegate to close bookkeeping or hand-calculate duplicate checks. Tool state cannot approve.
 
 Read Review Verdict before Next: UNVERIFIED → evidence/access repair or caller question,
 not automatic implementation. Route plan → build; debug → build/plan/done/blocked;
 build → review/debug/blocked; review → build/evidence/git-ops. Only integrated approval
-supports finish. Other roles have no Next. Subagents never dispatch.
+supports finish. Other roles terminate. Children never dispatch.
 
-Preserve explicit approval, source gates and one-writer scope. Use coherent Build units;
-read relevant authority, not recursive history/full plans. Reuse matching evidence;
-reassess repeated failures without new evidence. Honor known finish preferences.
+Preserve approval, source gates and one-writer scope. Plan only for dependencies/risk.
+Read relevant authority, reuse matching evidence and honor finish preferences. Reassess
+repeated failures without new evidence. Test-review is optional, never integration approval.
 
-JEV needs current enabled workflow consent: advisory only, no implicit activation/CLI
+JEV needs enabled workflow consent: advisory only, no implicit activation/CLI
 bypass. Keep predictions from reviewers until verdict; storage/training remain separate.

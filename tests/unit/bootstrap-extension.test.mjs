@@ -121,7 +121,7 @@ test("stale discovery fails visibly instead of retaining old active resources", 
 test("compact bootstrap states exact native binding policy and bounded inline routing", () => {
   const text = readFileSync(join(ROOT, "bootstrap/BOOTSTRAP.md"), "utf8");
   assert.ok(text.trim().split(/\s+/).length <= 300);
-  for (const name of ["decide", "architect", "plan", "build", "review", "debug", "investigate", "git-ops"]) assert.match(text, new RegExp(`\`${name}\``));
+  for (const name of ["decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops"]) assert.match(text, new RegExp(`\`${name}\``));
   assert.match(text, /delegate_describe/);
   assert.match(text, /definitionId/);
   assert.match(text, /genuinely absent/);
