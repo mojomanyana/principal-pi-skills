@@ -26,7 +26,7 @@ const TRANSITIONS = {
   plan: ["build"],
   debug: ["build", "plan", "done", "blocked"],
   build: ["review", "debug", "blocked"],
-  review: ["build", "git-ops"],
+  review: ["build", "evidence", "git-ops"],
 };
 
 /** Phases that deliberately carry no `Next:` at all. */
@@ -45,23 +45,23 @@ const WORKFLOWS = ["prompts/principal-feature.md", "prompts/principal-bugfix.md"
 
 test("independent runs and resumed repairs preserve original candidate artifacts and baseline", () => {
   for (const p of ARTIFACT_WORKFLOWS) {
-    const text = read(p);
-    for (const rule of [/task.*run.*candidate/i, /create.*new.*directory/i,
-      /caller.*report path/i, /never overwrite/i, /original review path/, /reviewed candidate/,
+    const text = read(p).replace(/\s+/g, " ");
+    for (const rule of [/task.*run.*candidate/i, /new.*(?:directory|report path)/i,
+      /caller.*report path/i, /never overwrite/i, /original review path/, /reviewed\s+candidate/,
       /whole-change baseline/, /resume/i]) assert.match(text, rule, p);
     assert.doesNotMatch(text, /\.principal\/reports\/(?:review-(?:1|<round>)\.md|review-diff\.txt|<step>-build\.md)/);
   }
-  assert.match(read(SOURCES.build), /referenced prior artifact/);
+  assert.match(read(SOURCES.build), /referenced prior\s+artifact/);
   assert.doesNotMatch(read(SOURCES.build), /default `\.principal\/reports\/<step>-build\.md`/);
 });
 
 test("artifact persistence initializes ignore without overwriting policy or widening Plan permissions", () => {
   for (const p of ARTIFACT_WORKFLOWS) {
-    const text = read(p);
+    const text = read(p).replace(/\s+/g, " ");
     assert.match(text, /Before any artifact write/);
     assert.match(text, /if absent.*`\.principal\/\.gitignore` containing `\*`/s);
-    assert.match(text, /never overwrite an existing ignore file/);
-    assert.match(text, /authority.*Investigate.*review/s);
+    assert.match(text, /never\s+overwrite an existing ignore file/);
+    assert.match(text, /Investigate/);
     if (p.startsWith("contracts/")) assert.match(text, /inline Build/);
   }
   assert.match(read(SOURCES.plan), /No shell, implementation, reports, or other writes/);
@@ -70,13 +70,13 @@ test("artifact persistence initializes ignore without overwriting policy or wide
 test("evidence-only followups do not restart implementation through workflow resume", () => {
   const text = read("contracts/workflows.md.tmpl");
   assert.match(text, /Before starting or resuming.*evidence-only/s);
-  assert.match(text, /existing checks or a disposable probe.*not.*implementation/s);
+  assert.match(text, /existing checks or a disposable\s+probe.*not.*implementation/s);
   assert.ok(text.indexOf("evidence-only") < text.indexOf("**Resume.**"));
 });
 
 test("common routing checks Review Verdict before Next and surfaces unverified evidence", () => {
   for (const p of ["AGENTS.md", "bootstrap/BOOTSTRAP.md"]) {
-    const text = read(p);
+    const text = read(p).replace(/\s+/g, " ");
     assert.match(text, /Read (?:Review )?Verdict before Next/);
     assert.match(text, /UNVERIFIED.*evidence\/access.*caller question.*not automatic.*implementation/s);
   }
@@ -143,7 +143,8 @@ test("both workflows handle BLOCKED and the one-way pause explicitly", () => {
     // precisely the drift this test exists to catch, waved through by its own regex.
     assert.match(text, /CHANGES-REQUESTED/, `${wf} must branch on the verdict review actually emits`);
     assert.doesNotMatch(text, /REQUEST-CHANGES/, `${wf} uses a verdict token no contract emits`);
-    assert.match(text, /two|2 rounds|twice/i, `${wf} must bound the repair loop`);
+    assert.match(text, /same failure repeats without new evidence/, `${wf} must stop unproductive loops`);
+    assert.doesNotMatch(text, /At most two repair rounds|it counts as a repair round/);
     assert.match(text, /UNVERIFIED/, `${wf} must say what an unverified review means`);
   }
   assert.match(read("prompts/principal-feature.md"), /\[ONE-WAY\]/, "the feature spine must pause on a one-way step");
@@ -238,7 +239,7 @@ test("native workflows use phase identities and batch independent parallel child
     const text = read(path);
     assert.match(text, /delegate_all/);
     assert.match(text, /definitionId/);
-    assert.match(text, /(?:never overlapping|Do not overlap|Do not\s+launch concurrent|overlapping single)/);
+    assert.match(text, /(?:never overlapping|Do not overlap|Do not\s+launch concurrent|overlapping single)/i);
     assert.match(text, /(?:separate|distinct)[\s\S]*?worktrees/);
     assert.doesNotMatch(text, /(?:Always delegate to|dispatch one fresh|Invoke|→) `principal-(?:build|review|plan|debug)`/);
   }
@@ -248,9 +249,9 @@ test("native workflows use phase identities and batch independent parallel child
   for (const path of WORKFLOWS) {
     const text = read(path);
     assert.match(text, /delegate_all\(\{children:\[\.\.\.\]\}\)/);
-    assert.match(text, /agent:"build".*captured build `definitionId`/);
+    assert.match(text, /agent:"build"[\s\S]*?captured build `definitionId`/);
     assert.match(text, /integrate serially/);
-    assert.match(text, /preserve completed\s+siblings/);
+    assert.match(text, /preserve\s+completed\s+siblings/i);
   }
 });
 
@@ -264,5 +265,21 @@ test("coordinator handoffs preserve selected evidence and wait for reviewer sett
     assert.match(text, /(?:After.*returns|After return).*native result.*(?:cleanup|settlement).*verdict/i, path);
     assert.match(text, /(?:Missing evidence due|Missing due prerequisites)/, path);
     assert.match(text, /(?:never guess|never guess an).*path/i, path);
+  }
+});
+
+test("review disposition table routes missing evidence away from Build in every generated spine", () => {
+  const expected = new Map([
+    ["CHANGES-REQUESTED", "build"], ["UNVERIFIED", "evidence"],
+    ["APPROVE", "git-ops"], ["APPROVE-WITH-NITS", "git-ops"],
+  ]);
+  for (const path of ["contracts/workflows.md.tmpl", ...WORKFLOWS]) {
+    const rows = [...read(path).matchAll(/^\| (CHANGES-REQUESTED|UNVERIFIED|APPROVE(?:-WITH-NITS)?) \| ([a-z-]+) \|/gm)];
+    assert.equal(rows.length, expected.size, `${path}: missing or duplicate disposition`);
+    assert.deepEqual(new Map(rows.map(([, verdict, next]) => [verdict, next])), expected, path);
+  }
+  for (const path of ["review/SKILL.md", "agents/principal-review.md"]) {
+    assert.match(read(path), /`evidence` for UNVERIFIED/);
+    assert.doesNotMatch(read(path), /build\*\* if anything needs addressing/);
   }
 });

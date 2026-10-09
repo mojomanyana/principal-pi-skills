@@ -5,250 +5,156 @@ argument-hint: "<scope>"
 Execute this workflow for: refactor $@ without changing behavior.
 
 <!-- shared:start -->
-## How this chain runs
+## Coordinate the work
 
-You are the orchestrator. Each phase is an enabled skill or a bound delegated contract;
-route on its `Next:` and never let a phase invoke another. Before native delegation, call
-`delegate_describe({agent:"phase"})`; require `binding.package: principal-pi-skills`, the
-exact `binding.phase`, and a captured `definitionId`. Native agent names are `plan`, `build`,
-`review`, `debug`, `investigate`. Pass the corresponding ID to each `delegate` call, each
-`delegate_all` child and each `delegate_chain` step; the runtime checks selected source and generated
-skill/agent bytes. Missing/wrong/disabled bindings, stale reload, unqualified backend,
-permission/context refusal, timeout, report gap or uncertain cleanup stops dependent work.
-No alternate runner or inline substitution after failure. Only when native tools are genuinely
-absent may an explicitly configured legacy `principal-*` runner be used. Inline is an explicit
-workflow choice. Follow authored model/effort policy, not phase-based tier overrides.
+Use only needed phases. The coordinator chooses the next action; a leaf never dispatches
+another agent. Keep current task authority, candidate, unresolved findings and due gates
+accessible once. Pass relevant plan sections/map rows and source/definition references,
+not a copied history or mandatory full-plan reread. Optional Investigate can locate facts;
+its report complements original sources and never replaces Review's judgment.
 
-**Evidence ownership.** Give each gate an owner and due stage, preserving source-required
-ordering. Before dispatch, the coordinator verifies authority, binding and permitted runtime
-configuration. Initialize private artifacts as below and preserve the unmodified
-`delegate_describe` response in a new handoff report, with the actual selected skill/agent
-source references and package manifest. Resolve paths from selected Pi resources; the describe
-response alone supplies no source path. Verify full source bytes against the described binding;
-never guess an installation path or substitute a different same-name definition. When copies
-are needed, retain exact bytes, original paths/hashes and capture provenance. Pass accessible
-handoff/source files, the assigned unit and each gate's owner/due stage to the child.
-Keep this gate block addressable by reference, rather than copying it into every product map
-and report. The leaf reads its current authority, needed definitions and evidence, not all
-historical handoffs/results or every phase skill merely because they are linked. Preserve full
-prior findings and unresolved gates; follow historical references when they are needed to resolve them.
-When the operator enables pi-daddy's `PI_DADDY_PUBLIC_EVIDENCE_DIR`, read the returned
-`Public evidence capture:` manifest reference and pass its exact public response/source artifact
-references directly; use the progress helper's `reference` for needed files without retranscribing
-them or creating another manifest. Verify each referenced source/response used in the handoff.
-The capture excludes raw details/private sessions and later Pi hook formatting; it is not approval.
-If required capture failed, stop dependent work. Do not enable collection implicitly.
-Missing evidence due before the assigned work stops dispatch; metadata is not new authority.
+**Authority and approval.** Preserve exact task authority and normative IDs/definitions.
+If dialogue needs a file handoff, save its exact text with provenance. Missing authority
+blocks affected work; a readable reference is not missing material. Present a newly needed
+plan/design/diagnosis and obtain approval before Build. Existing explicit user authorization
+for that scope can satisfy this stage; do not ask again or infer consent from urgency.
+A material change in scope or a one-way action needs its applicable approval. Small direct,
+reversible, low-risk requests can use inline Build with meaningful checks; an explicitly
+invoked spine retains its actual approval boundary.
 
-The leaf verifies its assigned, due-now obligations and reports later coordinator gates as
-pending. It cannot obtain its own future terminal/cleanup receipt or dispatch a future reviewer.
-After each child returns, the coordinator retains the full native result and checks terminal,
-report and cleanup evidence before dependent work. Supply those observations to the next
-reviewer. The coordinator also checks the reviewer's own settlement before consuming its verdict;
-do not make the reviewer certify its future return. Unknown or failed evidence stays unresolved.
-Process settlement requires native `cleanup.state=settled` and its matching identity-bound receipt.
-No disposable workspace does not mean process cleanup is verified. Preserve the emitted runtime
-evidence; if it is unavailable, block dependent work and task completion even when tests or review pass.
-A later due stage cannot postpone a prerequisite required by source authority.
+**Native dispatch.** Call `delegate_describe({agent:"phase"})` and require binding package
+`principal-pi-skills`, exact phase and captured `definitionId`. Native names are `plan`,
+`build`, `review`, `debug`, `investigate`. Pass the ID to every delegate/chain/batch child.
+Reuse a still-current selected binding; re-describe after selection/reload changes or runtime
+staleness. The runtime verifies enabled selected source and generated bytes. Preserve the
+unmodified describe response and accessible selected skill/agent source references/manifest;
+never guess an installation path or reconstruct native JSON from prose. Enabled public
+capture supplies exact producer references directly; do not copy/re-hash the same selected
+bytes manually at every hop or enable capture implicitly.
 
-**Scope.** Before starting or resuming, an evidence-only follow-up calls for existing checks or a disposable probe,
-not starting/restarting implementation or adding durable tests/infrastructure merely to prove completion.
+Missing/wrong/disabled bindings, stale reload, unqualified backend, permission/context
+refusal, timeout, report gap or uncertain cleanup stops dependent work. No fallback to
+another runner or inline execution after failure. Only genuinely absent native tools permit
+an explicitly configured legacy `principal-*` runner. Inline is a deliberate choice, not
+failure recovery. Follow authored model/effort policy under the same standards.
 
-**Resume.** Locate the actual prior plan, reports and progress index; list `.principal/plans/`
-only to find candidates. If several could match, ask which one. A matching title, commit,
-message role or self-written approval flag is not approval. Check actual user authority and
-current work/evidence before choosing what remains; never re-plan an unchanged approved plan
-or repeat an evidenced completed step merely because the conversation stopped. A commit may
-establish implementation, never review, integration or verification. Missing, stale or
-ambiguous references stay unresolved. Without an explicitly armed checkpoint, this is manual reconciliation, not automatic resume.
-For quiescent boundary recovery, the operator may prepare `principal-pi-resume` evidence and
-explicitly confirm `/principal-resume arm <checkpoint>` in Pi. The separate checkpoint binds
-the exact plan, source scope, candidate, phase, repair budget, package, session leaf and reconciled
-native settlement. It authorizes one continuation on the same session startup/resume/reload;
-changed evidence, intervening work, fork/new sessions or unknown children refuse. It is not
-in-flight recovery, automatic re-approval or permission to repeat work. Stop at the next boundary;
-never arm through a model-written flag or silently re-arm. See README quiescent resume.
+**Deterministic preparation.** Use `principal_workflow` for mechanical identity and handoff
+work: `snapshot` observes the canonical workspace/current candidate and `reference` identifies
+exact file bytes. These also support inline/evidence work. `prepare`, `complete` and `retry`
+are native-delegation bookkeeping: prepare allocates or reuses a stable task/step/phase
+operation with its expected candidate and source refs. Pass the returned `operation_id`
+unchanged to `delegate` alongside its captured `definitionId`. `status` revalidates a prior
+operation before resuming or repeating it. Consume returned paths and identities. Do not invent a fingerprint formula, repeat equivalent checks
+with fresh agents, or dispatch again merely because a prior result was not noticed.
+After actual native settlement and complete report retention, use `complete` with the
+actual disposition. A retained succeeded/changes-requested/unverified/blocked result is not
+approval. Inline work keeps the existing private report mechanism; never dispatch an agent
+merely to close bookkeeping. The tool does not execute phases, grant permission, infer
+approval or interpret evidence.
+Record the exact failure if preparation refuses; correct an authorized path/metadata error
+with the tool, but never bypass a real authority or settlement gate.
 
-**Small direct requests.** Clearly specified, reversible, localized low-risk work may use
-Build inline with meaningful checks and a concise result; no mandatory plan/delegate/review
-bundle. Honor explicit reviews, plans and inherited gates. Small authorization, security,
-public API, schema, failure-semantics or normative changes are consequential. Unknown impact
-uses the normal path. An explicitly invoked spine keeps its approval stop; a direct eligible
-inline completion may omit `Next:` and ends without authorizing Git operations or installation.
-Delegated protocols are unchanged.
+Before any artifact write, create if absent `.principal/.gitignore` containing `*`; never
+overwrite an existing ignore file. Verify ignored destinations and permissions; an exposed
+ignore policy, permission failure or explicit artifact prohibition stops dispatch. Routine
+safe allocation within existing task authority needs no extra approval. Allocate
+reports in the actual child's workspace under `.principal/reports/<task>-<run>/<candidate>/`,
+using the prepared operation's unused report path for native work, or the existing private
+report helper for inline work; never relative paths in another checkout.
+Caller report paths must be private, ignored and unused; never overwrite prior evidence.
+Inline Build persists its complete implementation report before delegated Review, with the
+same evidence and caveats as the agent; persistence failure stops the dependent handoff.
+Read every successful report as well as blocked ones. Plan writes only its plan/absent ignore;
+the coordinator persists additional Plan or Investigate evidence. Investigate remains read-only.
 
-**Artifacts.** Before dispatch requiring a report, resolve the actual child workspace and
-allocate its primary report under `.principal/reports/<task>-<run>/<candidate>/`; inline Build
-and other inline artifacts use the coordinator's workspace. Before any artifact write, create
-if absent `.principal/.gitignore` containing `*`;
-never overwrite an existing ignore file. Verify repository destinations are ignored with
-`git check-ignore`; if an existing ignore policy exposes them, stop for caller policy repair.
-Permission failure or an explicit prohibition on local artifacts also stops dispatch. Routine
-safe allocation within existing task authority needs no separate user approval. Plan still
-writes only its plan and an absent ignore file; Investigate remains read-only. The coordinator
-persists any additional Plan/Investigate report without widening either leaf's write scope.
-Create a new unused directory (timestamp plus collision suffix for run; SHA or dirty-tree
-fingerprint for candidate). This `<artifact-dir>` holds authority, Investigate, Build, diff
-and review files. Pass the absolute unused report path and report-write scope to the child.
-Independent requests and repeat reviews get new runs; number attempts, never overwrite prior
-files. Preserve a caller-chosen primary report path only if workspace-local, ignored and unused;
-otherwise allocate the safe default and report its actual path. Read explicitly identified
-prior reports on resume; ask if ambiguous. Continue in a new candidate/attempt location.
+**Settlement.** Each gate has an owner and due stage fixed by source authority. Missing
+evidence due now blocks dependent work. Leaves verify assigned obligations; later coordinator
+terminal/cleanup/review gates remain pending, not waived or demanded before they can exist.
+After each child returns, inspect the full native result, report and settlement before
+dependent work; do this for the reviewer before consuming its verdict too. Require
+`cleanup.state=settled` and its matching identity-bound process receipt even without a
+disposable workspace. Missing emitted runtime evidence remains unresolved. No helper's
+successful status or saved report substitutes for native settlement or semantic approval.
 
-A requested external evidence directory is a coordinator archive destination, not the child's
-primary report path. After return (and native settlement for delegated work), copy the complete
-report bytes to an authorized private archive; never overwrite archive files or follow symlink redirects. Record original
-path + SHA-256 + copy path, verify matching hashes, and retain the original through review,
-repair and resume. Copying within existing authority needs no extra permission; an archive
-failure leaves the primary report intact: report the gap and stop only work requiring that
-copy. Do not recreate a native capture manifest or replace its original response/source refs.
-Record original review path + reviewed candidate and original whole-change baseline (full
-base/head range or saved tracked diff plus relevant untracked content/hashes) in existing
-Authority/Candidate fields. Keep full original finding definitions, gates and evidence files
-accessible through every repair/re-review; REV IDs are scoped to that original report.
-Recompute candidate identity after Build; use the new candidate directory for Review while
-passing earlier report paths unchanged. The installed coordinator helper `principal-pi-progress`
-allocates private ignored runs and writes complete reports exclusively. Progress indexes are
-optional, but every index write must use this helper; never hand-write `run.json` or JSONL.
-Use the actual selected package's `scripts/progress-artifacts.mjs` with Node if its binary is
-not on PATH. Read its installed README example; do not install/fetch a helper or guess its schema.
-Use selected-package `scripts/resume-checkpoint.mjs candidate <repo>` for supported whole-candidate
-observations; it does not establish partial-scope equivalence. Use progress `reference <file>`
-and `copy <run> <name> <source> <expected-sha256>` to retain exact producer files privately.
-Copy verifies bytes, not approval or settlement. Prefer original receipt/public-capture files;
-otherwise preserve the actual native response through the available channel and state any
-persistence gap. Never retype a receipt or reconstruct native JSON from prose.
+**Build units.** Keep a coherent feature's implementation, tests and docs together. Split
+for real dependencies, risks or independently useful increments. One writer per working tree.
+Send the assigned outcome, relevant plan sections, accepted findings/acceptance conditions,
+authoritative references, canonical Candidate and an unused absolute report path such as
+`<artifact-dir>/<step>-build-<attempt>.md`. The complete plan remains available for needed
+cross-cutting constraints; do not require reading unrelated sections or all prior reports.
+Preserve material assumptions, follow-ups and evidence gaps even after a successful Build.
 
-**Progress.** If tracking progress, use helper `create` for the candidate run, `report` and
-`reference` for complete evidence, then `append` for each phase update. Version 1 requires a
-candidate string, plan reference or null, step, findings, nextAction and all five facts:
-planned/implemented/reviewed/integrated/verified, each an object `{state,evidence,note}`.
-States are `unknown`, `incomplete` or `complete`; file references are absolute path/SHA-256
-objects returned by the helper. After every append and before claiming valid progress on resume
-or completion, run `check <run> <actual-current-candidate>`; require exit zero and inspect both
-top-level and per-record issues. Diagnostic `read` alone does not fail its exit status on issues.
-An integrity-valid index may contain incomplete facts; reconcile required phases by step and
-actual evidence before claiming completion. The helper neither computes candidate identity nor
-validates approval or evidence meaning. A completed review fact records its verdict, even
-CHANGES-REQUESTED; it is not approval. Preserve full sources/reports, original baseline,
-unresolved findings and caveats; the index only points to them. Reconcile all step records,
-not just the final line. Evidence hashing proves bytes, not their meaning or broad candidate
-equality. A missing index or failed append leaves progress incomplete while the full report
-survives. Readers ignore/report an incomplete final line and invalid records; preserve those
-bytes and use a new run rather than truncating history. Changed candidate/plan/report refs
-invalidate applicable facts. Inspect actual current work and user authority before acting;
-no saved fact, role, title or boolean reconstructs approval. No automatic execution from progress.
-The separately operator-armed resume checkpoint never promotes these facts or grants approval.
-For a full committed workflow requiring all five phases, additionally run
-`check-completion <run> <full-final-commit> <required-step>...` with the complete explicit step set.
-Create that run and every record with the same full commit string; a changed candidate needs a
-new run. The command checks latest-per-step phase claims, all historical evidence, missing/extra
-steps, exact HEAD and clean tracked/untracked state; masked index entries and any indexed
-submodules refuse because hidden nested changes cannot be established. Earlier unresolved findings remain
-until explicitly verified; omitted findings and accepted/duplicate labels do not close gates.
-Zero exit is mechanical completion checks only, never approval or task acceptance. Actual verdict,
-source-required gates and user authority remain coordinator judgments. Partial/planless workflows
-retain `check` plus explicit phase reconciliation; never invent completed phases to pass.
+For approved independent batches use `delegate_all({children:[...]})`, with `agent:"build"`
+and captured build `definitionId` on each Build child. Never overlapping single calls;
+writers need distinct precreated registered Git worktrees, scopes and dependencies.
+Shared interfaces/resources may still require serial work. Read every outcome, preserve
+completed siblings after failure, review candidates and integrate serially with merged checks.
 
-**Authority.** Carry authoritative source/definition paths and relevant map rows/global gates
-through Plan → Build → Review. Ordinary requirements can use a compact source-located checklist;
-preserve exact normative IDs and clauses without promoting generic workflow prose into repeated
-product-requirement matrices. If exact user authority exists only in dialogue and needs
-file handoff, persist it with provenance to `<artifact-dir>/authority.md`, not a
-summary. Ensure paths are accessible in each child/disposable workspace; ignored `.principal`
-files may need exact caller-persisted copies with original identity. A readable reference is
-not missing material; unresolved authority stops for repair, never invented definitions.
-Optional read-only Investigate before Plan or substantial Review may locate sources,
-definitions, behavior and evidence. The caller may persist its full report; pass original
-sources alongside it, never instead of them. Review still owns reconciliation and verdict.
+## Review and convergence
 
-**Approval.** After the planning or diagnosing phase returns, present its artifact and stop. Do not
-build until the user says go. Presenting the artifact and starting to build in the same turn
-is the failure. The artifact scales — three lines for a config change, one complete unit for a
-coherent feature, necessary slices for larger work — the stop does not. A re-plan needs a new approval. Explicit operator confirmation
-of a prepared resume checkpoint is approval only for its displayed exact plan, scope and next
-phase after the complete artifact was inspected; the model cannot confirm it.
+Choose task, integrated or scoped-repair review. Task review protects a consumed interface
+or parallel integration boundary; more tests/docs alone do not require it. Review a coherent
+candidate independently with `delegate({agent:"review",definitionId,...})`. Supply original
+authority, the relevant plan/map, candidate-bound Build evidence, settled prior execution
+and a complete diff package at `<artifact-dir>/review-diff-<round>.txt`. Retain the complete
+verdict at `<artifact-dir>/review-<round>.md`. Preserve the original review path, reviewed
+candidate, whole-change baseline and full finding definitions through repair and resume.
 
-**Build.** One writer per working tree, in the authorized visible checkout. Keep a routine
-coherent feature's implementation, tests and documentation in one complete Build unit.
-Split for a real dependency, risk boundary or independently useful parallel increment, not
-a fixed slice count. Inline is a deliberate workflow choice; otherwise dispatch native `build`
-with its captured `definitionId` per approved unit — a batched unit is one child —
-with the complete plan file path, step ID, coordinator handoff report, source/definition paths, applicable rows/global gates,
-and unused report path `<artifact-dir>/<step>-build-<attempt>.md`. Without a plan pass the approved exact
-task and authority. It returns five status lines; read every successful report too:
-Assumptions, Follow-ups, Evidence gaps, Blocked, Requirements/Gates and Candidate. Aggregate
-caveats into the Digest's existing labels; success or a commit is not measured compliance.
-Inline Build returns chat: the orchestrator must persist its complete implementation report
-to `<artifact-dir>/<step>-build-<attempt>.md` before delegated Review, with the same evidence and caveats as the
-agent report, not a summary. If persistence fails, stop and report the handoff gap.
-Never paste report prose into a later dispatch; pass accessible files. Authored model/effort
-policy governs under the same standards; neither cost nor a word budget permits dropping
-requirements, gates or safety. Surface an inadequate policy rather than silently replacing it.
+Read Verdict before Next:
+| Review verdict | Next | Coordinator action |
+|---|---|---|
+| CHANGES-REQUESTED | build | Accept concrete product/test findings within authority; repair the defined defect. |
+| UNVERIFIED | evidence | Reconcile the named authority/access/identity/evidence gap; no automatic implementation. |
+| APPROVE | git-ops | Finish only for integrated scope with all required gates settled. |
+| APPROVE-WITH-NITS | git-ops | Same integrated-scope and gate requirements. |
 
-**Parallel work.** For an approved independent batch, use one `delegate_all({children:[...]})`
-call, with `agent:"build"` and the captured build `definitionId` on every build child. Do not
-launch concurrent single `delegate` calls: each conservatively reserves the available subtree
-capacity, so overlapping calls can be refused. Precreate separate registered Git worktrees
-at the declared base for writers; record each workspace, write scope, dependencies, shared
-resources and unused full-report path before dispatch. Shared interfaces/resources may require
-serial work despite different files. Read every outcome and full report, preserve completed
-siblings when another fails, review each candidate, then integrate serially and verify the
-merged whole. A capacity or other refusal stops dependent work; never retry through another
-runner. Independent diagnostic/review batches also use `delegate_all` with each child's exact
-phase name and described `definitionId`, under their applicable workspace/tool constraints.
+`Next: evidence` is coordinator work, not a new agent phase or failure fallback. Use the
+existing exact references and `principal_workflow` status/snapshot rather than asking a
+fresh Build agent to repair paths, hashes or manifests. Reuse matching candidate/scope/
+environment evidence; independent review does not mean rerunning every suite. A named doubt
+may require one targeted existing check or disposable probe. If that demonstrates a real
+product/test defect, route that accepted defect to Build. Inaccessible authority or a real
+permission refusal requires the actual repair/answer; do not claim permission failure from
+a wrong working directory or ignored-file search. An UNVERIFIED verdict never grants approval.
 
-**Optional JEV advice.** If `jev_advice` is available, the coordinator checks
-`jev_advice({action:"status"})`. Only enabled workflow mode permits evaluation. After
-deterministic authority, candidate and evidence checks, select an uncertain acceptance-evidence
-handoff only when advice could help; skip obvious decisions, with no review quota. Freeze a
-bounded selected decision-time requirement/evidence packet for the actual candidate.
-Exclude reviewer verdicts and prior JEV outcomes. Then call
-`jev_advice({action:"evaluate",candidate,requirements,evidence})`. Use known accessible sources:
-no private transcripts, credentials, full file scans or invented references. Selected input
-is not verified public capture. Keep the prediction out of every independent review's
-handoff until its own verdict (task, integrated or scoped repair); preserve the full underlying
-authority and evidence. Afterwards reconcile suggestions against code/tests. Advice is never
-approval and cannot waive a gate, replace review or establish a defect. Preserve returned
-refs/usage as unlabeled advice under current storage consent; training permission is separate.
-Disabled/manual mode, unavailable tools or errors leave the ordinary workflow proceeding when
-required gates are met; no CLI fallback may bypass refusal. Never enable JEV implicitly.
+Product repairs get scoped re-review of accepted findings and new breakage, retaining all
+original gaps/global gates. Use an integrated review when assembled interactions or due
+whole-change obligations remain. Continue authorized repairs while they resolve distinct
+problems; stop and reassess when the same failure repeats without new evidence, the plan
+must materially change, or a required authority/runtime gate blocks. No arbitrary round
+quota and no fresh agent merely to repeat an unchanged failed operation.
 
-**Review.** Select `task`, `integrated` or `scoped-repair` scope. Use task review before another step consumes
-a consequential interface across a real implementation dependency or risk boundary; parallel
-candidates also need task review before integration. More tests or documentation for the same
-coherent feature do not require intermediate review. Retain final integrated review of the
-assembled whole change and all global gates. A task verdict permits
-only its scoped handoff, not Git-Ops finish. Scoped repair keeps the original full-change
-obligations. Optional focused reviewers need a concrete independent concern, not default fan-out.
-Use native `delegate({agent:"review",definitionId,...})` when available — a cold read beats
-self-review. The ID must be the described review definition; legacy names follow only the absent-native rule above. Hand it files, not prose: write `git diff --stat` and `git diff -U6 <base>..<head>`
-for the whole change to `<artifact-dir>/review-diff-<round>.txt` and pass that path plus the build
-report paths, coordinator handoff and settled prior-execution evidence, governing source/definition paths, full plan/map if present, and candidate
-identity. Dirty candidates need the complete tracked diff and relevant untracked content,
-not just a committed range. Review validates reused evidence and checks named doubts.
-Persist the complete review result to
-`<artifact-dir>/review-<round>.md`. `CHANGES-REQUESTED` → decide which findings are
-accepted; repair with their IDs, full report path/definitions, authority refs, affected map
-rows and acceptance conditions — resume the builder when possible, otherwise dispatch fresh.
-Then scoped re-review gets those files, original whole-change baseline/gates and fix diff,
-under the same authored policy; judge each ID and new breakage, without losing original gaps. At most two repair rounds; a third means
-the plan or diagnosis was wrong. `UNVERIFIED` is not approval: fix whatever blocked
-verification, then review again; it counts as a repair round. Read Verdict before Next:
-UNVERIFIED's `Next: build` requests evidence/handoff repair, not automatic code changes. `APPROVE` or `APPROVE-WITH-NITS`
-→ git-ops only for the final integrated scope; a task verdict returns to the coordinator.
+`Next: debug` requests needed diagnosis; `Next: blocked` stops affected work. A BLOCKED
+question that needs new authority goes to the user. The coordinator may correct its own
+authorized deterministic handoff mistake without asking again, preserving the original
+failure and correction; it may not answer a missing normative definition by assumption.
 
-**Blocked.** A phase returning `BLOCKED` stops the chain: surface its one question and
-wait. Do not answer it yourself.
+**Before starting or resuming**, evidence-only work uses existing checks or a disposable
+probe, not restarting implementation. **Resume.** Locate the named plan/reports and revalidate
+the actual candidate/operation; ask only if the intended task is ambiguous. Do not re-plan
+an unchanged approved plan or repeat completed evidenced work. Titles, commits, role labels
+and self-written approval flags are not authority. Optional progress/checkpoint mechanics
+are in `references/workflow-mechanics.md`; read only the section for a feature actually used.
+External evidence copies use that reference's archive section; keep originals and copy bytes
+mechanically rather than reconstructing reports.
 
-**Finish.** Git-Ops runs inline: fresh full suite on the final tree, then honor an explicit
-known finish preference without asking again. If none is known, offer only applicable choices:
-merge locally / push and open a PR / keep the current work. Keep uncommitted changes on their
-actual branch when requested; do not create a branch or commit just to satisfy a finish label.
-Never auto-push, tag, force-push or clean up. End with `Digest:` followed by one line per label:
-`Ref:` (full final commit SHA, or actual branch + uncommitted status), `Plan file:` (path or none), `Assumptions:`,
-`Follow-ups:`, `Evidence gaps:`, `Execution contexts:` (inline / delegated per phase).
-No transcript narration after it.
+**Optional JEV advice.** When useful, check `jev_advice({action:"status"})`; only explicitly
+enabled workflow mode permits selected advisory evaluations after deterministic gates. No
+quota or implicit activation. Freeze bounded current-candidate requirements/evidence without
+reviewer verdicts, prior predictions, private transcripts or secrets. Keep the prediction
+out of independent review until its verdict; then reconcile with code/tests. Disabled/manual/
+unavailable/error states do not block otherwise permitted work and permit no CLI bypass.
+Advice cannot approve, waive gates or establish defects. Current storage consent and separate
+curation/training permission remain distinct; predictions are not labels. OpenAI Decisions
+is excluded.
+
+**Finish.** Git-Ops runs inline only after integrated approval and all due gates. Run a
+source-required fresh final suite; otherwise reuse matching evidence and investigate named
+doubts. Honor the known finish preference: keep uncommitted work when requested, without
+creating a branch/commit for ceremony. If unspecified, ask among applicable local merge,
+push/PR or keep-work choices. Never auto-push, tag, force-push or clean up.
+End with `Digest:` and `Ref:`, `Plan file:`, `Assumptions:`, `Follow-ups:`, `Evidence gaps:`,
+`Execution contexts:`; report actual uncommitted state or full final commit. No transcript narration.
 <!-- shared:end -->
 
 ## Refactor path
@@ -260,7 +166,7 @@ The request is a refactor of `$@`: structure changes, behavior does not.
    weakened coverage or concealed behavior changes are findings. Untested touched behavior gets a
    characterization test pinning it first within the same Build unit unless a real boundary requires separation. A `[ONE-WAY]` step (public API,
    schema, data) must carry its rollback note.
-2. Approval stop. Then Build, step by step, as above.
+2. Satisfy the approval boundary above, then Build the authorized units.
 3. Review, with one extra question: does the diff change any observable behavior? If yes,
    that is a `[BLOCKER]` finding regardless of quality. Repair loop as above. `Next: debug`
    → native `debug` with its captured `definitionId` (or Debug inline); `Next: blocked` → stop.

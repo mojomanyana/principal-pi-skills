@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.12.0 — 2026-10-09
+
+- Add deterministic `principal_workflow` candidate observations, private handoffs and exclusive report allocation. Repeated native operations reuse verified references; explicit retries preserve old attempts and require settled or never-started runtime evidence. Completion checks the actual child workspace and never grants semantic approval. Requires pi-daddy 0.48.0 for native operation completion.
+- Route missing evidence to coordinator reconciliation with `Next: evidence`; keep concrete code/test defects in Build. Shorten shared workflows and reports, preserve existing user authorization, and remove the fixed repair-round quota.
+- Separate focused test-quality review from production-code judgment without requiring another agent or a test-count/coverage target.
+- Reuse Pi's native executor through `principal_codemode` with tool calls only, normal nested hooks and no model globals. Host packages are optional wildcard peers.
+
 ## 4.11.2 — 2026-10-09
 
 - Report the loaded Principal package version through Pi's native event bus for the ecosystem dashboard. Keep it distinct from package files updated on disk and detach the reporter when the extension shuts down. No package installation or workflow execution is triggered by version queries.

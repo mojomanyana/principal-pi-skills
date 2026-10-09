@@ -18,6 +18,29 @@ subagents do the work.** Two properties follow, and every design choice below se
 the work — and **cheap iteration** — a defect found is a defect fixed, not documented
 around.
 
+## Deterministic workflow tools
+
+Principal 4.12 adds `principal_workflow` for candidate identity, exact file references and
+private report handoffs. `snapshot` and `reference` support any coordinator work. For native
+phases, `prepare` allocates one ignored report path and stable operation ID; pass that ID to
+Daddy delegation. After settlement, `complete` binds the retained report to the actual
+execution workspace. `status` checks current bytes before reuse. Explicit `retry` preserves
+the old attempt and needs native settled or never-started proof. A new coordinator session
+cannot silently redispatch an old prepared operation; inspect and reconcile it first. These records are evidence,
+not review approval. Native completion requires pi-daddy 0.48.0 in the same session.
+
+The tool uses the existing candidate snapshot implementation with the named
+`principal-candidate-v1` format. It refuses stale inputs, conflicting requests, exposed report
+paths and uncertain execution. It does not reconstruct historical fingerprint formulas.
+Inline work does not require a dummy delegation to complete a record.
+
+`principal_codemode` reuses the available native Pi Codemode factory with `models: false`.
+It batches tool calls through native hooks; no classifier/model API is exposed by this
+adapter. Independent reads may run together, while writes and dependent operations remain
+sequential. It is a coordinator facility; governed child Codemode remains unqualified.
+Hosts without the factory simply do not register the adapter. Model-free loading and
+operation-bridge checks passed with Pi 1.0.4 and 1.1.0; this is not paid model qualification.
+
 ## Three constraints
 
 1. **Dual-use.** `plan`, `build`, `review`, `debug`, and `investigate` each serve as a loaded skill *and*
@@ -53,10 +76,10 @@ claims of measured model compliance. Common ceilings remain unchanged.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
-| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 2040) or inline | 1979 |
-| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 2100) or inline | 2088 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1938) or inline | 1897 |
-| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1582) or inline | 1446 |
+| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1617) or inline | 1551 |
+| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1676) or inline | 1694 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1256) or inline | 1199 |
+| `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1573) or inline | 1433 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 494) or inline | 495 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2523 |
 
@@ -96,11 +119,11 @@ dependencies, shared resources and full-report destinations. Read every outcome,
 completed siblings after failure, review candidates, integrate serially and check the merged whole.
 
 The three spines (`/principal-feature <task>`, `/principal-bugfix <symptom>`,
-`/principal-refactor <scope>`) stop for your approval after the planning phase or the debug
-note and wait for an explicit go
-before building — presenting the artifact and starting to build in the same turn is the
-failure the rule exists to catch. The artifact scales with the change (three lines for a
-config tweak, one complete Build unit for a coherent feature); the stop does not.
+`/principal-refactor <scope>`) present a newly needed plan/design or debugging note before
+Build. They obtain approval when it is still needed; explicit existing user authorization
+for the actual scope persists and does not need to be requested again. Urgency, a title or
+a self-written flag cannot supply it. Material scope changes and one-way actions retain
+their applicable approval boundaries.
 
 A routine feature keeps implementation, acceptance tests and documentation together, followed
 by one independent integrated Review. Split for a real dependency, risk boundary or useful
@@ -121,18 +144,26 @@ actual branch, without asking again.
 Plan resolves essential outcome and interface tradeoffs; Build owns the simplest coherent,
 readable and maintainable implementation within that authority. Routine design choices need
 no repeated permission. Review judges design and test quality alongside correctness; neither
-green tests nor a coverage percentage substitutes for sound engineering judgment.
+green tests nor a coverage percentage substitutes for sound engineering judgment. The optional
+[focused test-review rubric](review/references/test-quality.md) stays in the same review and
+verdict; it does not require another delegation. [Workflow mechanics](references/workflow-mechanics.md)
+contains conditional archive/progress/resume details, read only when that facility is used.
 
 Delegated phases hand artifacts to each other as files, not pasted text. A native `build` child
 writes its full report to an unused task/run/candidate-scoped path under `.principal/reports/`
 (or a valid unused caller-chosen path) and returns five status lines;
-review receives governing source/definition references, the complete plan/map when present,
+review receives governing source/definition references and relevant plan sections/map rows,
 and a candidate-identified diff package plus reports. Only matching candidate/scope evidence
 is reusable; a passing suite alone is not complete requirement coverage. Every successful
 report contributes assumptions, follow-ups and evidence gaps to the Digest. Repairs carry
 full review-report paths, finding definitions and acceptance conditions, not IDs alone;
-scoped re-review retains original whole-change evidence and gates. Independent runs never
-reuse prior report/diff paths; repairs retain original review path and reviewed candidate.
+scoped re-review retains original whole-change evidence and gates. Independent work gets
+new report/diff paths; resuming the same prepared operation reuses its verified references.
+Repairs retain original review path and reviewed candidate. `UNVERIFIED` returns
+`Next: evidence` for coordinator reconciliation, not automatic Build. A concrete product/test
+finding routes to Build only within repair authority. Reuse matching receipts; run a targeted
+check for a named doubt, not every suite merely to obtain a fresh reviewer. Stop/reassess
+repeated failures without new evidence rather than imposing a fixed repair-round quota.
 Before any artifact write, the orchestrator creates an absent `.principal/.gitignore`
 containing `*`, never overwrites it, and checks report destinations are ignored. This covers
 planless Review, inline Build and optional Investigate persistence too. An existing policy
@@ -158,8 +189,10 @@ contracts/{plan,build,review,debug,investigate}.md.tmpl    source for dual-use c
 contracts/workflows.md.tmpl           source for the three namespaced spines
 prompts/principal-{feature,bugfix,refactor}.md generated workflows
 prompts/principal-review-branch.md    handwritten planless/buildless review entry
-bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary + model tiering, injected by the extension
+bootstrap/BOOTSTRAP.md                routing table + Next: vocabulary, injected by the extension
 extensions/bootstrap.ts               pi extension: request-local routing after selected-resource discovery
+review/references/test-quality.md     optional focused test-review rubric
+references/workflow-mechanics.md      optional archive/progress/resume mechanics
 scripts/                              generator, installers, and checks behind `npm test`
 tests/{unit,install}/                 current product/contract + clean-home install tests (node:test)
 evals/{triggers.json,adversarial-triggers.json,baseline/}  routing checks and baselines
@@ -172,9 +205,9 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.11.2
-   pi install npm:pi-daddy@0.47.0
-   pi install npm:skill-harness@0.26.2
+   pi install npm:principal-pi-skills@4.12.0
+   pi install npm:pi-daddy@0.48.0
+   pi install npm:skill-harness@0.27.0
    ```
 
    Restart Pi after package changes. The `pi` manifest registers eight skills, four
@@ -210,8 +243,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.11.2 principal-pi-agents install
-   npx -p principal-pi-skills@4.11.2 principal-pi-agents check
+   npx -p principal-pi-skills@4.12.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.12.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm

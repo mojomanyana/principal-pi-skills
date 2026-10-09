@@ -5,26 +5,26 @@
     "plan": {
       "skill": "plan/SKILL.md",
       "agent": "agents/principal-plan.md",
-      "skillSha256": "94d45e67f067c54c6247e2cebb37dce21dab94f857948f8507e4a9fc11052b46",
-      "agentSha256": "470b944374c02ae450c7d0f9aad91a8645413cbcd3fac8f1596e5f36b3b4c786"
+      "skillSha256": "28cb2583982dec36500a61240476a0d1b1c8a3d7b65df56ee94423f4f2186f81",
+      "agentSha256": "77808d50516d55317593fc9bf9b488eed7ea19df433ff64809827c00bf3f7953"
     },
     "review": {
       "skill": "review/SKILL.md",
       "agent": "agents/principal-review.md",
-      "skillSha256": "5989ffeb909dd6ff2b395fd7d8ae3aa72333193c227728d3a49d16f5041147df",
-      "agentSha256": "c40d623bb9acafc9cf1ee5be6a1702e5a3ef086393006faafb1c497e0c84342d"
+      "skillSha256": "cdf183cd3a2a6ffa7a2da6dcf515729615c8f0ca7b08246bb48e1062f49bcfc9",
+      "agentSha256": "db2cd4e09a57bd5e78953d56431c96a5b928acf461096fda835cca1d6c61e60b"
     },
     "debug": {
       "skill": "debug/SKILL.md",
       "agent": "agents/principal-debug.md",
-      "skillSha256": "22b6094ae2ab8384bcbc55e061a926f61476e978cc1c92106a8a8c2a1fc7b092",
-      "agentSha256": "859258e2bc3f143c267129b74576b1d66dfd3004b14cb7cde40276ef820b8e6c"
+      "skillSha256": "61a84750343eb3b7d298431f69b969a855051c8c000518a4cd933564961e67dc",
+      "agentSha256": "d62b09c69fa5ac123f24301505e395fb81bb0ad28dfa42fc71533617ddd2c663"
     },
     "build": {
       "skill": "build/SKILL.md",
       "agent": "agents/principal-build.md",
-      "skillSha256": "d7daff430e36d0ebbd02713ceb3959fe38339c86db1d038b007519c4744dc174",
-      "agentSha256": "cf166819290c576e4fc68a21c7024d19a1d14d9bb1d63a82b10fcc78f416f6d8"
+      "skillSha256": "237cb881b90546d9b62b2ffb2d69f25f1a3f90dd97184dbe3c1d05c078def1e1",
+      "agentSha256": "852d880c4c0b7d30ca106c8ea6d18ef6e5d89f8165c961ba24f65639a6e5aaee"
     },
     "investigate": {
       "skill": "investigate/SKILL.md",

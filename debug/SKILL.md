@@ -24,7 +24,7 @@ unknown one; the harder the bug, the stricter the loop.
    Follow sanitized input/output/config evidence to the first divergent component boundary;
    never dump credentials, raw payloads or environment values to make the comparison.
 3. **Hypothesize testably.** First read the error message word by word — it usually names
-   the file, line, and cause. Then write 2–3 hypotheses in the form "the bug is at
+   the file, line, and cause. Then state a falsifiable hypothesis in the form "the bug is at
    file:line because <observed evidence> implies <cause>"; test the cheapest first.
 4. **Probe — in a workspace you own.** One smallest experiment per hypothesis; one change
    at a time. Resolve `scripts/snapshot-workspace.mjs` from the actual selected Principal package
@@ -82,7 +82,7 @@ catch at a boundary:
 — and the caller checks it. `catch {}`, `catch (e) { return null; }`, or an empty
 `catch (e) { return; }` is the bug, not the fix.
 
-## When stuck (~1 hour, or the user says "still failing")
+## When probes stop producing new information
 Never repeat a suggestion that was already tried — each next step must produce NEW
 information. For environment-specific failures (CI-only, prod-only, "works on my
 machine"): capture artifacts from where it fails (logs, recordings, core state), reproduce
@@ -92,14 +92,14 @@ timeouts are not diagnostics. If genuinely out of moves, stop: re-read the origi
 far as you verifiably got, ending with the one question that would branch the search.
 
 ## Right-sizing
-An obvious one-line bug with an obvious cause doesn't need the full loop. But after two
-speculative edits with no traction, you are in a hard bug: return to step 1.
+An obvious known cause needs only the evidence that distinguishes it. If probes stop
+reducing uncertainty, reassess the reproduction rather than accumulating speculative edits.
 
 ## Several failures at once
 When a report names N failures with clearly different root causes and no shared files,
-each is its own diagnosis: in a workflow, the orchestrator dispatches one debug agent per
-failure in the same turn and then a single build. Failures that might share a cause (one
-fix could clear several) stay with one diagnosis.
+each may justify an independent diagnosis. The orchestrator decides whether an approved
+read-only batch helps; distinct failures do not mandate more agents. Failures that might
+share a cause (one fix could clear several) stay with one diagnosis.
 
 ## Delegated mode (running as a subagent)
 Run the loop with the tools you have; return the note in one response, filled to wherever
