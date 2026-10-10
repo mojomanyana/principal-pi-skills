@@ -54,7 +54,8 @@ candidate and verify there; disposable Debug/Review experiments are not applied 
    consider state consistency, cancellation, shutdown, retries and ownership where relevant;
    a happy-path implementation is not complete when those paths are part of its contract.
    Keep errors survivable and detectable, with typed errors or checked results and sanitized
-   boundary logging. Never suppress unexplained failures with an empty catch or silent null.
+   boundary logging. Diagnostics use allowlisted settings and credential-presence booleans,
+   never environment dumps or connection URLs. Never hide failures with empty catches or silent null.
 3. Protect changed behavior with meaningful tests. For a bugfix, observe the regression
    before the fix; already-correct behavior may be characterized without manufacturing red.
    Derive expected values independently, preserve required side effects in mocks, and protect

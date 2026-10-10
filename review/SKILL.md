@@ -30,7 +30,9 @@ Scoped repair checks accepted findings and new breakage in the fix; retain the o
 whole-change baseline and unresolved gates. Later coordinator-owned terminal/cleanup gates
 stay pending, never falsely passed or demanded as a leaf's impossible current prerequisite.
 The coordinator checks your own settlement after return before consuming the verdict.
-Only final integrated approval can support Git-Ops finish.
+Only final integrated approval can support Git-Ops finish. When assigned integrated scope
+after repairs, synthesize the preserved whole-change assessment and verified fixes, examining
+remaining interactions. Reuse valid evidence; a scoped verdict alone cannot supply that judgment.
 
 ## Examine behavior and design
 - Trace happy, error and boundary flows, including concurrency, cancellation, persistence

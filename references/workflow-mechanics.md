@@ -10,6 +10,21 @@ An explicit retry reason is required. Native proof must show the prior attempt s
 was authoritatively not-started with no execution. Active/uncertain attempts refuse. A retry
 does not bypass permission checks or reinterpret a dismissed prompt as approval.
 
+## Native result bookkeeping
+
+Pass the returned `snapshot.candidate` directly as `expectedCandidate` to `prepare`. Supply
+`inputPaths` for authority/evidence files that matter to this handoff; the tool calculates
+references, while candidate identity already covers product files. Existing exact `inputs`
+references remain valid. Avoid another product-file hash inventory.
+
+Pass `prepared.operation_id` unchanged to native delegation. After settlement, immediately
+call `complete` with `operationId: prepared.operation_id` and the actual `disposition`, before
+repairing anything. `status` and `retry` also accept that ID without repeated task/step fields.
+The immutable `result.json` retains the verified final and producer identity. `completion.json`
+requires matching current inputs/candidate. `resultRetained: true` is historical evidence;
+`completionValid: true` is bookkeeping freshness, and neither grants approval. A result already stale at first retention stays historical even if files are later restored.
+Reconcile the affected work, never rewrite history.
+
 ## Archive exact evidence
 
 A caller's external evidence directory is an authorized private archive, not a child's

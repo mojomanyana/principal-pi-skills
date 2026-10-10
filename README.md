@@ -23,18 +23,22 @@ around.
 Principal 4.12 adds `principal_workflow` for candidate identity, exact file references and
 private report handoffs. `snapshot` and `reference` support any coordinator work. For native
 phases, `prepare` allocates one ignored report path and stable operation ID; pass that ID to
-Daddy delegation. After settlement, `complete` retains the exact captured native final at that report path
-and binds it to the execution workspace. A differing existing report is preserved and refused;
+Daddy delegation. After settlement and before repairs, `complete` retains the exact captured final
+and producer identity in immutable `result.json`; `completion.json` requires current matching
+inputs/candidate. Stale results remain history, not current approval. A differing existing report is preserved and refused;
 an identical final may be reused. `result` verifies and returns a settled native final without
 storage for strict no-files tasks; skip prepare/complete in that mode. `status` checks current bytes before reuse. Explicit `retry` preserves
 the old attempt and needs native settled or never-started proof. A new coordinator session
 cannot silently redispatch an old prepared operation; inspect and reconcile it first. These records are evidence,
-not review approval. Native completion requires pi-daddy 0.48.0 in the same session.
+not review approval. Native result retention requires the compatible pi-daddy installation pinned below in the same session.
 
 The tool uses the existing candidate snapshot implementation with the named
 `principal-candidate-v1` format. It refuses stale inputs, conflicting requests, exposed report
 paths and uncertain execution. It does not reconstruct historical fingerprint formulas.
-Inline work does not require a dummy delegation to complete a record.
+Inline work does not require a dummy delegation to complete a record. Pass relevant authority/
+evidence as `inputPaths` for tool-generated references and the returned candidate object as
+`expectedCandidate`; product-file hash lists are unnecessary. `complete`, `status` and `retry`
+accept `operationId` alone to locate the recorded task/step. See [mechanics](references/workflow-mechanics.md).
 
 `principal_codemode` reuses the available native Pi Codemode factory with `models: false`.
 It batches tool calls through native hooks; no classifier/model API is exposed by this
@@ -79,9 +83,9 @@ claims of measured model compliance. Common ceilings remain unchanged.
 | `decide` | Options and stress-tests for a decision that isn't settled â€” "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
 | `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1591) or inline | 1525 |
-| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1717) or inline | 1702 |
-| `review` | One pass, two axes â€” correctness and simplicity â€” ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1320) or inline | 1268 |
-| `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 780) or inline | 759 |
+| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1728) or inline | 1713 |
+| `review` | One pass, two axes â€” correctness and simplicity â€” ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1348) or inline | 1296 |
+| `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 799) or inline | 778 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1573) or inline | 1433 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 538) or inline | 539 |
 | `git-ops` | Safe version-control operator â€” reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2523 |
@@ -222,8 +226,8 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** â€” install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.13.0
-   pi install npm:pi-daddy@0.49.0
+   pi install npm:principal-pi-skills@4.14.0
+   pi install npm:pi-daddy@0.49.1
    pi install npm:skill-harness@0.28.0
    ```
 
@@ -261,8 +265,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.13.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.13.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.14.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.14.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm

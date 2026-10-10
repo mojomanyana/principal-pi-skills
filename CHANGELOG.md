@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.14.0 — 2026-10-10
+
+- Let workflow tools hash named `inputPaths`, accept returned candidate objects, and locate status/completion/retry by operation ID. Coordinators no longer need to copy product-file hash lists or repeat task metadata.
+- Retain exact settled native finals and producer identity before checking whether changed files make them historical. Immutable result retention and current completion validation are separate; neither grants review approval.
+- Complete bookkeeping before repairs, preserve actual review scope in the final summary, and allow integrated judgment to reuse unchanged evidence. Tighten test boundary claims and diagnostic credential handling; report whether enabled JEV was actually evaluated.
+
 ## 4.13.0 — 2026-10-09
 
 - Save the exact captured native child final through `principal_workflow complete`, with session/workspace ownership checks, hash verification and exclusive report paths. Requires pi-daddy 0.49.0. Prepared handoffs provide verified report/artifact directories; `result` inspects a settled native final without writing workflow bookkeeping.

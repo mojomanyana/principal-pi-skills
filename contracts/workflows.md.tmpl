@@ -47,7 +47,8 @@ fallback after failure. Only genuinely absent native tools permit an explicitly 
 legacy runner. Honor authored model/effort policy; leaves never dispatch agents.
 
 **Mechanical handoff.** Use `principal_workflow` snapshot/reference for canonical candidate
-and exact file observations, including inline/evidence work. Inline work needs no dummy
+and exact file observations, including inline/evidence work. Pass `inputPaths` for relevant authority/evidence; the candidate already
+binds product files. Reuse returned objects, never copy product hash lists. Inline work needs no dummy
 delegation merely to close bookkeeping. If the task prohibits all filesystem writes, skip
 prepare/complete: dispatch with a unique operation_id and use `result` to verify and read
 the exact settled native final without retaining a file. Do not silently create bookkeeping. For native work, `prepare` returns operation_id, canonical workspace,
@@ -60,10 +61,11 @@ Each child returns its complete final report; Plan also writes its actual plan. 
 child returns, the coordinator checks the full native result and identity-bound
 `cleanup.state=settled` receipt before dependent work, including consuming Review's verdict.
 Missing evidence due now blocks; later coordinator-owned terminal/cleanup gates retain their
-owner and due stage. Use `complete` after native settlement: it retains the exact captured
-final automatically at the prepared report path. Read every successful report as well as
-blocked ones. A completion failure remains incomplete and visible; never hand-write a
-success record. This tool does not execute phases, grant permission, infer approval or
+owner and due stage. Call `complete` immediately after settlement, before repairs, using
+`operationId: prepared.operation_id` and the actual disposition. It retains the exact captured final automatically;
+`resultRetained` preserves history, while `completionValid` checks freshness. Stale results
+never approve a changed candidate. Read every successful report and blocked report. A
+completion failure remains incomplete and visible; never hand-write success. This tool does not execute phases, grant permission, infer approval or
 interpret a semantic verdict. Correct authorized path/metadata errors with tools, preserving
 the original failure; never bypass a real authority or settlement gate.
 
@@ -113,8 +115,9 @@ relevant inputs or a required gate changes. For a named doubt run the smallest d
 check or disposable probe. A demonstrated defect can then go to Build.
 
 Product repairs receive scoped re-review of accepted findings and new breakage; retain
-original evidence gaps/global gates. Use integrated review for remaining whole-change
-interactions. Continue distinct authorized fixes; stop/reassess when the same failure
+original evidence gaps/global gates. A reviewer may synthesize integrated judgment from the
+whole-change baseline and verified repairs without replaying unchanged checks; request that
+scope explicitly. A scoped approval alone never becomes integrated. Continue fixes; reassess when the same failure
 repeats without new evidence, material authority changes or runtime gates block. No arbitrary
 round quota. `Next: debug` requests diagnosis; `Next: blocked` stops affected work. A BLOCKED
 question needing authority goes to the user; deterministic handoff repair needs no repeat
@@ -147,7 +150,8 @@ source-required fresh final suite; otherwise reuse matching evidence. Honor the 
 preference, including keep uncommitted work; ask only when unspecified. No automatic commit,
 push, tag or cleanup without authority. Return a concise Digest with Ref, optional Plan file,
 material Assumptions, Follow-ups, Evidence gaps and actual Execution contexts. Omit empty
-ceremonial fields; never omit a limitation, failed bookkeeping or unmet gate.
+ceremonial fields; preserve actual review scope, limitations, failed bookkeeping and unmet gates.
+When JEV was enabled, say whether it was used; status checks are not evaluations.
 <!-- shared:end -->
 
 {{#feature}}

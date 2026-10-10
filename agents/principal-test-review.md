@@ -43,8 +43,10 @@ Do not recurse into Review or duplicate its whole-code assessment.
   retry or mock restores the state and hides the defect. In ordering/eviction tests, apply
   pressure before an action that repairs recency. Distinguish queued from running work,
   ownership replacement from cancellation, and settled from merely scheduled effects.
-- Keep mock side effects, timing and failure modes that can cause the real bug. Prefer
-  controlled clocks/events and bounded waits for observable conditions over sleeps.
+- Exercise the boundary claimed: a UI selection/save race needs UI state, and a blocked
+  database shutdown needs an actual blocked query. Narrow claims when mocks omit that effect.
+  Preserve relevant mock side effects; prefer controlled clocks/events and bounded waits for
+  observable conditions over sleeps.
 - Consolidate cases that prove the same behavior. Preserve cases with distinct failure
   modes; a parameterized table can reduce repetition without erasing them. Organize by
   enduring behavior, not PR IDs, implementation lines or transient release status.

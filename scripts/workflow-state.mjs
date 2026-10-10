@@ -1,7 +1,7 @@
 // Deterministic handoffs and exclusive operation records. Never executes work or grants approval.
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { constants, closeSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, realpathSync, writeSync } from "node:fs";
+import { constants, closeSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, writeSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { candidateSnapshot } from "./resume-checkpoint.mjs";
@@ -62,7 +62,7 @@ function location(repo, task, step, attempt, create = false) {
   const id = key(task, step, attempt), path = join(store, id);
   if (create) {
     try { ordinary(store, true); } catch (error) { if (error.code !== "ENOENT") throw error; }
-    for (const name of ["request.json", "completion.json"]) assertIgnored(root, join(path, name));
+    for (const name of ["request.json", "result.json", "completion.json"]) assertIgnored(root, join(path, name));
     directory(store);
   }
   ordinary(principal, true); ordinary(store, true);
@@ -78,6 +78,27 @@ function references(inputs) {
   }).sort((a, b) => a.path.localeCompare(b.path));
   assert(new Set(refs.map(ref => ref.path)).size === refs.length, "duplicate input reference");
   return refs;
+}
+function requestedReferences(root, request) {
+  const paths = request.inputPaths ?? [];
+  assert(Array.isArray(paths) && paths.length <= 128 && paths.every(path => typeof path === "string" && path.trim()),
+    "inputPaths must be at most 128 nonempty file paths, relative to the worktree or absolute");
+  return references([...(request.inputs ?? []), ...paths.map(path => reference(resolve(root, path)))]);
+}
+function expectedMatches(current, expected) {
+  return typeof expected === "string" ? current.id === expected
+    : expected && expected.algorithm === current.algorithm && expected.root === current.root && expected.id === current.id;
+}
+function referenceIssues(refs) {
+  try { references(refs); return []; } catch (error) { return [error.message]; }
+}
+/** Observe product identity and named authority/evidence bytes without caller-computed hashes. */
+export function observeSnapshot(repo, request = {}) {
+  const candidate = observeCandidate(repo);
+  if (request.expectedCandidate !== undefined) assert(expectedMatches(candidate, request.expectedCandidate), "candidate changed since the caller's observation");
+  const inputs = requestedReferences(candidate.root, request);
+  assert(same(observeCandidate(repo), candidate), "candidate changed during snapshot; observe again");
+  return { version: 1, state: "observed", approval: false, administrativeWrites: false, candidate, inputs };
 }
 export function observeCandidate(repo) {
   const c = candidateSnapshot(repo);
@@ -119,28 +140,78 @@ function summary(record, state, extra = {}) {
     inputs: record.inputs, owner: record.owner ?? null, approval: false, ...extra };
 }
 function load(repo, request) {
-  const where = location(repo, request.task, request.step, request.attempt ?? 1);
+  let selected = request;
+  if (request.operationId !== undefined) {
+    assert(typeof request.operationId === "string" && /^principal:[a-f0-9]{64}$/.test(request.operationId), "invalid Principal operationId");
+    const root = realpathSync(execFileSync("git", ["--no-optional-locks", "-C", repo, "rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim());
+    const store = join(root, ".principal", "workflow");
+    ordinary(join(root, ".principal"), true); ordinary(store, true);
+    const matches = [];
+    for (const entry of readdirSync(store, { withFileTypes: true })) {
+      if (!/^[a-f0-9]{64}$/.test(entry.name)) continue;
+      const path = join(store, entry.name);
+      let record;
+      try {
+        ordinary(path, true);
+        record = optionalRecord(join(path, "request.json"));
+      } catch {
+        // An interrupted or unsafe sibling is not a valid operation identity. Preserve it;
+        // a requested damaged record still refuses below instead of blocking unrelated work.
+        continue;
+      }
+      if (record?.operationId === request.operationId) matches.push(record);
+    }
+    assert(matches.length === 1, "Principal operationId is missing or ambiguous in this workspace");
+    const record = matches[0];
+    for (const field of ["task", "step", "attempt"]) {
+      assert(request[field] === undefined || request[field] === record[field], "operationId conflicts with supplied task/step/attempt");
+    }
+    selected = { ...request, task: record.task, step: record.step, attempt: record.attempt };
+  }
+  const where = location(repo, selected.task, selected.step, selected.attempt ?? 1);
   ordinary(where.path, true);
   const record = readRecord(join(where.path, "request.json"));
-  assert(record.operationId === where.operationId && record.root === where.root && record.task === request.task && record.step === request.step && record.attempt === (request.attempt ?? 1), "workflow operation identity mismatch");
+  assert(record.operationId === where.operationId && record.root === where.root && record.task === selected.task && record.step === selected.step && record.attempt === (selected.attempt ?? 1), "workflow operation identity mismatch");
   assert(same(record.implementation, implementation()), "workflow implementation changed; reconcile previous operation before a new attempt");
   return { ...where, record };
 }
 function optionalRecord(path) {
   try { return readRecord(path); } catch (error) { if (error.code === "ENOENT") return null; throw error; }
 }
+function retainedResult(path, record) {
+  const result = optionalRecord(join(path, "result.json"));
+  if (!result) return null;
+  assert(result.operationId === record.operationId && Array.isArray(result.issues) && result.issues.every(issue => typeof issue === "string"), "retained result identity mismatch");
+  const identity = settledRuntime(result.runtime, record.operationId, record.root);
+  assert(result.report.path === record.reportPath && result.report.sha256 === identity.runtime.final.sha256, "retained result report identity mismatch");
+  assert(reference(record.reportPath).sha256 === result.report.sha256, "retained report changed");
+  return result;
+}
 export function inspectOperation(repo, request) {
   const { path, record } = load(repo, request), current = observeCandidate(repo);
-  references(record.inputs);
+  const inputIssues = referenceIssues(record.inputs), retained = retainedResult(path, record);
   const completion = optionalRecord(join(path, "completion.json"));
-  if (!completion) return summary(record, "prepared", { candidateMatches: same(current, record.input) });
-  assert(completion.operationId === record.operationId, "completion operation mismatch");
-  references(completion.evidence);
-  assert(reference(record.reportPath).sha256 === completion.report.sha256, "completed report changed");
-  const matches = same(current, completion.output);
-  return summary(record, matches ? "complete" : "stale", { candidateMatches: matches, output: completion.output,
-    report: completion.report, evidence: completion.evidence, runtime: completion.runtime, disposition: completion.disposition,
-    productChanged: !same(completion.output, record.input) });
+  if (!completion && !retained) return summary(record, "prepared", {
+    candidateMatches: same(current, record.input), inputsMatch: !inputIssues.length, issues: inputIssues,
+    resultRetained: false, completionValid: false,
+  });
+  const result = completion ?? retained;
+  assert(result.operationId === record.operationId, "completion operation mismatch");
+  assert(reference(record.reportPath).sha256 === result.report.sha256, "completed report changed");
+  if (completion && retained) {
+    for (const field of ["output", "report", "runtime", "disposition"]) assert(same(completion[field], retained[field]), "completion differs from retained native result");
+  }
+  const readOnly = !["build", "debug"].includes(record.phase);
+  const target = completion ? completion.output : readOnly ? record.input : retained.output;
+  const matches = same(current, target);
+  const issues = [...inputIssues, ...(retained?.issues ?? []), ...referenceIssues(completion?.evidence ?? [])];
+  if (!matches) issues.push("candidate changed; retained result does not validate the current tree");
+  const valid = !!completion && !issues.length;
+  return summary(record, valid ? "complete" : issues.length ? "stale" : "retained", {
+    candidateMatches: matches, inputsMatch: !inputIssues.length, output: result.output,
+    report: result.report, evidence: completion?.evidence ?? [], runtime: result.runtime, disposition: result.disposition,
+    productChanged: !same(result.output, record.input), resultRetained: true, completionValid: valid, issues: [...new Set(issues)],
+  });
 }
 /** Mutating/reusing completion belongs to its original live coordinator; status remains inspectable. */
 export function inspectOwnedOperation(repo, request, owner) {
@@ -149,13 +220,13 @@ export function inspectOwnedOperation(repo, request, owner) {
   return current;
 }
 function prepare(repo, request) {
-  const { task, step, phase, expectedCandidate, inputs = [], attempt = 1 } = request;
+  const { task, step, phase, expectedCandidate, attempt = 1 } = request;
   assert(phases.includes(phase), "unsupported workflow phase");
   const owner = request.owner ?? null;
   assert(owner === null || (typeof owner.sessionId === "string" && owner.sessionId && typeof owner.cwd === "string" && isAbsolute(owner.cwd)), "invalid coordinator identity");
   const current = observeCandidate(repo);
-  assert(current.id === expectedCandidate, "candidate changed; observe again before preparing a handoff");
-  const checked = references(inputs), where = location(current.root, task, step, attempt, true);
+  assert(expectedMatches(current, expectedCandidate), "candidate changed; observe again before preparing a handoff");
+  const checked = requestedReferences(current.root, request), where = location(current.root, task, step, attempt, true);
   try { mkdirSync(where.path, { mode: 0o700 }); }
   catch (error) {
     if (error.code !== "EEXIST") throw error;
@@ -163,7 +234,7 @@ function prepare(repo, request) {
     assert(same(existing.owner ?? null, owner), "operation belongs to another coordinator session; inspect and reconcile the original before a new attempt");
     assert(existing.phase === phase && same(existing.inputs, checked), "operation conflict: stable task/step already has different phase or inputs");
     const result = inspectOperation(current.root, request);
-    assert(result.candidateMatches, "operation candidate changed; reconcile its result or use an explicit settled retry");
+    assert(result.candidateMatches && !result.issues?.length, "operation candidate changed; reconcile its result or use an explicit settled retry");
     return { ...result, reused: true };
   }
   // A crash after the exclusive claim leaves an incomplete operation, never a silent retry.
@@ -176,7 +247,7 @@ function prepare(repo, request) {
   directory(record.artifactsPath);
   assertIgnored(current.root, join(where.path, "request.json"));
   writeNew(join(where.path, "request.json"), record);
-  return summary(record, "prepared", { candidateMatches: true, reused: false, administrativeWrites: true });
+  return summary(record, "prepared", { candidateMatches: true, inputsMatch: true, resultRetained: false, completionValid: false, issues: [], reused: false, administrativeWrites: true });
 }
 export function prepareOperation(repo, request) {
   assert((request.attempt ?? 1) === 1, "use retry to create a later attempt after settlement");
@@ -207,7 +278,7 @@ function finalText(runtime) {
 /** Observe an exact native result without creating Principal metadata or report files. */
 export function observeOperationResult(repo, request, runtime) {
   const candidate = observeCandidate(repo), identity = settledRuntime(runtime, request.operationId, candidate.root);
-  if (request.expectedCandidate !== undefined) assert(candidate.id === request.expectedCandidate, "candidate changed since the caller's observation");
+  if (request.expectedCandidate !== undefined) assert(expectedMatches(candidate, request.expectedCandidate), "candidate changed since the caller's observation");
   const text = finalText(runtime);
   return { version: 1, state: "observed", approval: false, administrativeWrites: false, storage: "none",
     candidate, runtime: identity, final: { ...identity.runtime.final, text } };
@@ -216,26 +287,41 @@ export function observeOperationResult(repo, request, runtime) {
 export function completeOperation(repo, request, runtime) {
   const { path, record } = load(repo, request);
   if (optionalRecord(join(path, "completion.json"))) return { ...inspectOperation(repo, request), reused: true };
-  const identity = settledRuntime(runtime, record.operationId, record.root);
-  assert(["succeeded", "changes-requested", "unverified", "blocked"].includes(request.disposition), "explicit result disposition required");
-  references(record.inputs);
-  const evidence = references(request.evidence ?? []), output = observeCandidate(repo);
-  if (!["build", "debug"].includes(record.phase)) assert(same(output, record.input), "read-only workflow phase changed candidate");
-  assertIgnored(record.root, record.reportPath);
-  assertIgnored(record.root, join(path, "completion.json"));
-  let report;
-  try {
-    report = reference(record.reportPath);
-    assert(report.sha256 === identity.runtime.final.sha256, "existing report differs from the exact native final; preserve it and reconcile");
-  } catch (error) {
-    if (error.code !== "ENOENT") throw error;
-    // Exclusive write; no invented summary or model copying of a captured child result.
-    report = saveReport(dirname(record.reportPath), `${record.phase}.md`, finalText(runtime));
+  let retained = retainedResult(path, record), wrote = false;
+  if (!retained) {
+    const identity = settledRuntime(runtime, record.operationId, record.root);
+    assert(["succeeded", "changes-requested", "unverified", "blocked"].includes(request.disposition), "explicit result disposition required");
+    const output = observeCandidate(repo), issues = referenceIssues(record.inputs);
+    if (!["build", "debug"].includes(record.phase) && !same(output, record.input)) issues.push("read-only workflow phase changed candidate before native result retention");
+    for (const destination of [record.reportPath, join(path, "result.json"), join(path, "completion.json")]) assertIgnored(record.root, destination);
+    let report;
+    try {
+      report = reference(record.reportPath);
+      assert(report.sha256 === identity.runtime.final.sha256, "existing report differs from the exact native final; preserve it and reconcile");
+    } catch (error) {
+      if (error.code !== "ENOENT") throw error;
+      report = saveReport(dirname(record.reportPath), `${record.phase}.md`, finalText(runtime));
+    }
+    assert(report.sha256 === identity.runtime.final.sha256, "retained native report failed integrity verification");
+    if (!same(observeCandidate(repo), output)) issues.push("candidate changed while retaining native result");
+    issues.push(...referenceIssues(record.inputs));
+    retained = { version: 1, operationId: record.operationId, output, report,
+      runtime: identity, disposition: request.disposition, issues: [...new Set(issues)] };
+    // Preserve immutable producer evidence before deciding whether it applies to this tree.
+    writeNew(join(path, "result.json"), retained);
+    wrote = true;
+  } else if (request.disposition !== undefined) {
+    assert(request.disposition === retained.disposition, "retained result disposition is immutable");
   }
-  assert(report.sha256 === identity.runtime.final.sha256, "retained native report failed integrity verification");
-  assert(same(observeCandidate(repo), output), "candidate changed while retaining native result; preserve report and reconcile");
-  writeNew(join(path, "completion.json"), { version: 1, operationId: record.operationId, output, report, evidence,
-    runtime: identity, disposition: request.disposition });
+  const current = inspectOperation(repo, request);
+  if (current.state === "stale") return { ...current, reused: !wrote, administrativeWrites: wrote };
+  const evidence = references(request.evidence ?? []);
+  assertIgnored(record.root, join(path, "completion.json"));
+  // Recheck after evidence reads. Neither changed authority nor a late repair can promote an old result.
+  const checked = inspectOperation(repo, request);
+  if (checked.state === "stale") return { ...checked, reused: !wrote, administrativeWrites: wrote };
+  writeNew(join(path, "completion.json"), { version: 1, operationId: record.operationId, output: retained.output,
+    report: retained.report, evidence, runtime: retained.runtime, disposition: retained.disposition });
   return { ...inspectOperation(repo, request), reused: false, administrativeWrites: true };
 }
 
@@ -249,6 +335,7 @@ export function retryOperation(repo, request, runtime) {
   assert(neverStarted || settled, "prior operation is not settled or proven unstarted; retry refused");
   if (settled) assert(runtime.cwd === record.root, "native execution used a different workspace");
   assert(typeof request.reason === "string" && request.reason.trim(), "retry reason required");
-  return prepare(repo, { ...request, owner: record.owner, inputs: request.inputs ?? record.inputs, phase: record.phase, attempt: record.attempt + 1,
+  return prepare(repo, { ...request, operationId: undefined, task: record.task, step: record.step, owner: record.owner,
+    inputs: request.inputs ?? (request.inputPaths ? [] : record.inputs), phase: record.phase, attempt: record.attempt + 1,
     previous: { operationId: record.operationId, reason: request.reason, runtime } });
 }

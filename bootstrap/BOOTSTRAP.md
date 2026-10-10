@@ -25,8 +25,8 @@ Coordinator checks authority and native settlement, including reviewers. Keep
 source identities and private ignored reports.
 Use `principal_workflow` snapshot/reference for observations; prepare/complete/retry track
 native work; status revalidates it. Pass operation_id unchanged to delegate;
-complete retains the exact child final after actual settlement. Inline reports stay separate; never
-delegate to close bookkeeping or hand-calculate duplicate checks. Tool state cannot approve.
+complete retains the settled final before repairs. Stale results remain history, never approval.
+Inline reports stay separate; never delegate for bookkeeping or hand-calculate tool-owned hashes.
 
 Read Review Verdict before Next: UNVERIFIED → evidence/access repair or caller question,
 not automatic implementation. Route plan → build; debug → build/plan/done/blocked;
