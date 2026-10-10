@@ -55,13 +55,15 @@ all results, review candidates and integrate serially with merged checks.
 Use `principal_workflow` snapshot/reference for canonical workspace/candidate and exact-file
 observations, including inline/evidence work; status revalidates a prior native operation.
 Prepare/complete/retry are native-delegation bookkeeping. Pass the returned `operation_id`
-unchanged to delegate alongside its `definitionId`; after actual native settlement,
-complete retains the exact captured child final report with the actual disposition. A failed
-completion remains visible and incomplete. Prepared directories already exist; consume
+unchanged to delegate alongside its `definitionId`. Complete immediately after native settlement,
+before repairs: it retains the exact captured final and actual disposition. `resultRetained`
+preserves history; `completionValid` checks freshness, never approval. Stale results and failed
+completion stay visible. Prepared directories already exist; consume
 provided helper locations and references rather than rediscovering them. Failed or blocked results never approve work.
 Inline work retains the existing private report mechanism; do not dispatch merely to close
-bookkeeping. Reuse returned references; do not recalculate fingerprints, rediscover unchanged
-bindings or launch fresh agents to compare duplicates. Tool state is not execution or approval.
+bookkeeping. Pass `inputPaths` for relevant authority/evidence; the returned candidate already
+binds product files. Reuse references, not handwritten hash lists or duplicate comparisons.
+Tool state is not execution or approval.
 The coordinator still owns actual authority, native settlement and semantic decisions.
 For a strict no-files task, skip prepare/complete and use `result` with the unique dispatched
 operation_id to verify the settled native final without storage. Describe prepare/complete
@@ -169,8 +171,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.13.0`,
-   `pi install npm:pi-daddy@0.49.0` and `pi install npm:skill-harness@0.28.0`.
+   `pi install npm:principal-pi-skills@4.14.0`,
+   `pi install npm:pi-daddy@0.49.1` and `pi install npm:skill-harness@0.28.0`.
    Native report-completion composition is checked on Pi 1.0.4 and 1.1.0. The
    captured setup uses `PI_DADDY_HERDR=0`; Herdr additionally requires Daddy's live compatibility/ownership checks. Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -181,8 +183,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.13.0 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.13.0 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.14.0 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.14.0 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase

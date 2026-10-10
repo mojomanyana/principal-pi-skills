@@ -2,7 +2,7 @@
 import { randomUUID } from "node:crypto";
 import { realpathSync } from "node:fs";
 import { Type } from "typebox";
-import { observeCandidate, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation } from "../scripts/workflow-state.mjs";
+import { observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation } from "../scripts/workflow-state.mjs";
 import { reference } from "../scripts/progress-artifacts.mjs";
 
 const ref = Type.Object({ path: Type.String(), sha256: Type.String({ pattern: "^[a-f0-9]{64}$" }) }, { additionalProperties: false });
@@ -14,7 +14,10 @@ const parameters = Type.Object({
   task: Type.Optional(Type.String()), step: Type.Optional(Type.String()),
   attempt: Type.Optional(Type.Integer({ minimum: 1 })),
   phase: Type.Optional(choice(["plan", "build", "review", "test-review", "debug", "investigate"])),
-  expectedCandidate: Type.Optional(Type.String()), inputs: Type.Optional(Type.Array(ref, { maxItems: 128 })),
+  expectedCandidate: Type.Optional(Type.Union([Type.String(), Type.Object({
+    algorithm: Type.Literal("principal-candidate-v1"), root: Type.String(), id: Type.String(),
+  }, { additionalProperties: true })])),
+  inputPaths: Type.Optional(Type.Array(Type.String(), { maxItems: 128 })), inputs: Type.Optional(Type.Array(ref, { maxItems: 128 })),
   evidence: Type.Optional(Type.Array(ref, { maxItems: 128 })),
   disposition: Type.Optional(choice(["succeeded", "changes-requested", "unverified", "blocked"])),
   reason: Type.Optional(Type.String()),
@@ -57,8 +60,8 @@ export default function workflowExtension(pi) {
   const bindCandidateObserver = registerCandidateObserver(pi);
   pi.registerTool({
     name: "principal_workflow", label: "Principal workflow", parameters, outputSchema,
-    description: "Deterministic candidate identity and private handoffs. snapshot observes a Git worktree; reference hashes an exact file. prepare needs stable task/step, phase, expectedCandidate and exact inputs, returning coordinator-owned reportPath, precreated artifactsPath and operation_id. Repeating it reuses verified artifacts. Pass operation_id to native delegation. status verifies evidence. complete retains the exact verified native final automatically after settlement, without approving it. result reads a named native operation without writing files; use it instead of prepare/complete when all filesystem writes are forbidden. retry preserves a settled previous attempt. Different inputs or stale evidence refuse; do not invent replacement fingerprints.",
-    promptGuidelines: ["Use this tool for workflow bookkeeping instead of assembling hashes, report names or duplicate checks with shell recipes. Reuse exact references; read only authority and evidence relevant to the assigned work. Prepared artifact directories already exist. The coordinator observes candidates and retains final reports; children need not locate helper scripts or copy reports. prepare/complete write private administrative files; snapshot/reference/result are read-only. A complete operation is a retained result, not an approval verdict."],
+    description: "Deterministic candidate identity and private handoffs. snapshot observes a Git worktree and hashes named inputPaths (relative to its root or absolute); reference hashes an exact file. prepare accepts the returned candidate object or its id as expectedCandidate, plus inputPaths or existing exact inputs. Product identity already covers the tree: name only relevant authority/evidence inputs. prepare needs stable task/step and phase, returning coordinator-owned reportPath, precreated artifactsPath and operation_id. Repeating it reuses verified artifacts. Pass operation_id to native delegation. status/complete/retry accept operationId without repeating task/step. complete first retains the exact verified native final after settlement, even if later edits make it historical; separate completionValid and issues describe current candidate/input checks. Neither retention nor completion approves work. result reads a named native operation without writing files; use it instead of prepare/complete when all filesystem writes are forbidden. retry preserves a settled previous attempt. Conflicting preparation inputs refuse; native results remain preserved when candidate/authority freshness fails; optional completion evidence still requires exact references. Do not invent replacement fingerprints.",
+    promptGuidelines: ["Use this tool for workflow bookkeeping instead of assembling hashes, report names or duplicate checks with shell recipes. Reuse exact references; read only authority and evidence relevant to the assigned work. Prepared artifact directories already exist. The coordinator observes candidates and retains final reports; children need not locate helper scripts or copy reports. prepare/complete write private administrative files; snapshot/reference/result are read-only. resultRetained records immutable native provenance. completionValid checks current bookkeeping only; neither implies semantic approval. Preserve a settled review with complete before repair, using its operationId."],
     async execute(_callId, request, signal, _update, ctx) {
       try {
         if (signal?.aborted) throw new Error("workflow operation aborted");
@@ -67,7 +70,7 @@ export default function workflowExtension(pi) {
         if (request.action === "reference") result = { version: 1, state: "referenced", approval: false, reference: reference(request.path) };
         else {
           const repo = request.repo ?? ctx.cwd;
-          if (request.action === "snapshot") result = { version: 1, state: "observed", approval: false, candidate: observeCandidate(repo) };
+          if (request.action === "snapshot") result = observeSnapshot(repo, request);
           else if (request.action === "result") {
             if (typeof request.operationId !== "string" || !request.operationId) throw new Error("result requires the actual native operationId");
             const runtime = await operationStatus(pi, ctx, request.operationId, signal, true);
@@ -77,7 +80,8 @@ export default function workflowExtension(pi) {
           else if (request.action === "status") result = inspectOperation(repo, request);
           else {
             const current = inspectOwnedOperation(repo, request, { sessionId: ctx.sessionManager.getSessionId(), cwd: realpathSync(ctx.cwd) });
-            if (request.action === "complete" && ["complete", "stale"].includes(current.state)) result = { ...current, reused: true };
+            if (request.action === "complete" && current.resultRetained) result = completeOperation(repo, request);
+            else if (request.action === "complete" && ["complete", "stale"].includes(current.state)) result = { ...current, reused: true };
             else {
               const runtime = await operationStatus(pi, ctx, current.operation_id, signal, request.action === "complete");
               result = request.action === "complete" ? completeOperation(repo, request, runtime) : retryOperation(repo, request, runtime);
