@@ -12,12 +12,12 @@ import { candidateSnapshot, prepareCheckpoint, inspectCheckpoint, consumeCheckpo
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
 const run = (repo, ...args) => execFileSync("git", args, { cwd: repo, encoding: "utf8", stdio: ["ignore", "pipe", "pipe"] }).trim();
-function fixture(t) {
+function fixture(t, objectFormat = "sha1") {
   const home = mkdtempSync(join(tmpdir(), "principal-resume-")), repo = join(home, "repo"), pkg = join(home, "package");
   t.after(() => rmSync(home, { recursive: true, force: true }));
   mkdirSync(repo); mkdirSync(pkg);
   for (const name of ["package.json", "AGENTS.md", "principal-agents.json", "bootstrap", "extensions", "scripts", "agents", "prompts", "decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops"]) cpSync(join(ROOT, name), join(pkg, name), { recursive: true });
-  run(repo, "init", "-q"); run(repo, "config", "user.name", "Fixture"); run(repo, "config", "user.email", "fixture@example.invalid");
+  run(repo, "init", "-q", `--object-format=${objectFormat}`); run(repo, "config", "user.name", "Fixture"); run(repo, "config", "user.email", "fixture@example.invalid");
   mkdirSync(join(repo, "src")); writeFileSync(join(repo, "src/x.js"), "export const x = 1;\n");
   run(repo, "add", "."); run(repo, "commit", "-qm", "seed");
   mkdirSync(join(repo, ".principal")); writeFileSync(join(repo, ".principal/.gitignore"), "*\n");
@@ -54,6 +54,89 @@ test("candidate fingerprint binds staged, unstaged and untracked state independe
   assert.equal(inspectCheckpoint(item.path, f.pkg).checksPassed, true);
   writeFileSync(join(f.repo, "src/new.js"), "changed\n");
   assert.match(inspectCheckpoint(item.path, f.pkg).issues.join(" "), /candidate/);
+});
+for (const format of ["sha1", "sha256"]) test(`large tracked files bind every byte with bounded reads (${format})`, { skip: !supported }, t => {
+  const f = fixture(t, format), name = "src/model.bin", path = join(f.repo, name);
+  const content = Buffer.alloc(16 * 1024 * 1024 + 17, 0);
+  content[0] = 1; content[65536] = 2; content[content.length - 1] = 3;
+  writeFileSync(path, content); run(f.repo, "add", name); run(f.repo, "commit", "-qm", "model");
+  const inode = fs.lstatSync(path).ino, original = fs.readSync;
+  let reads = 0;
+  fs.readSync = (fd, buffer, offset, length, position) => {
+    if (fs.fstatSync(fd).ino === inode) {
+      reads++; assert.ok(buffer.length <= 65536, "tracked file buffers must stay bounded");
+      assert.ok(length <= 65536, "read one bounded chunk, not the full model");
+    }
+    return original(fd, buffer, offset, length, position);
+  };
+  syncBuiltinESMExports();
+  let clean;
+  try { clean = candidateSnapshot(f.repo); } finally { fs.readSync = original; syncBuiltinESMExports(); }
+  assert.ok(reads > 2, "both observations must stream the complete model");
+  assert.equal(clean.id, run(f.repo, "rev-parse", "HEAD"));
+  assert.equal(clean.tracked.find(row => row.path === name).sha256, createHash("sha256").update(content).digest("hex"));
+  content[content.length - 1] = 4; writeFileSync(path, content);
+  const changed = candidateSnapshot(f.repo);
+  assert.notEqual(changed.id, clean.id);
+  assert.deepEqual(changed.changedPaths, [name]);
+  assert.equal(changed.tracked.find(row => row.path === name).sha256, createHash("sha256").update(content).digest("hex"));
+});
+test("tracked assets above the former aggregate limit are all included", { skip: !supported }, t => {
+  const f = fixture(t), content = Buffer.alloc(16 * 1024 * 1024, 0), first = join(f.repo, "src/asset-0.bin");
+  writeFileSync(first, content);
+  for (let n = 1; n < 17; n++) fs.linkSync(first, join(f.repo, `src/asset-${n}.bin`));
+  run(f.repo, "add", "."); run(f.repo, "commit", "-qm", "assets");
+  const candidate = candidateSnapshot(f.repo);
+  assert.equal(candidate.id, run(f.repo, "rev-parse", "HEAD"));
+  const assets = candidate.tracked.filter(row => row.path.endsWith(".bin"));
+  assert.equal(assets.length, 17);
+  const expected = createHash("sha256").update(content).digest("hex");
+  assert.ok(assets.every(row => row.sha256 === expected));
+});
+test("tracked byte budget rejects from metadata before reading an over-budget file", { skip: !supported }, t => {
+  const f = fixture(t), name = "src/z-over-budget.bin", path = join(f.repo, name);
+  const remaining = 1024 * 1024 * 1024 - fs.statSync(join(f.repo, "src/x.js")).size;
+  const fd = fs.openSync(path, "w");
+  try { fs.ftruncateSync(fd, remaining + 1); } finally { fs.closeSync(fd); }
+  // Index an existing small blob; do not hash/store a GiB fixture merely to exercise a refusal.
+  run(f.repo, "update-index", "--add", "--cacheinfo", `100644,${run(f.repo, "rev-parse", "HEAD:src/x.js")},${name}`);
+  const inode = fs.lstatSync(path).ino, original = fs.readSync;
+  let reads = 0;
+  fs.readSync = (fd, ...args) => { if (fs.fstatSync(fd).ino === inode) reads++; return original(fd, ...args); };
+  syncBuiltinESMExports();
+  try { assert.throws(() => candidateSnapshot(f.repo), /tracked byte limit exceeded/); }
+  finally { fs.readSync = original; syncBuiltinESMExports(); }
+  assert.equal(reads, 0);
+});
+for (const change of ["overwrite", "truncate", "grow", "replace", "mode"]) test(`streaming tracked observation refuses mid-read ${change}`, { skip: !supported }, t => {
+  const f = fixture(t), path = join(f.repo, "src/x.js"), content = Buffer.alloc(131073, 0);
+  writeFileSync(path, content); run(f.repo, "add", "."); run(f.repo, "commit", "-qm", "stream fixture");
+  const inode = fs.lstatSync(path).ino, original = fs.readSync;
+  let changed = false;
+  fs.readSync = (fd, ...args) => {
+    const count = original(fd, ...args);
+    if (!changed && count > 0 && fs.fstatSync(fd).ino === inode) {
+      changed = true;
+      if (change === "overwrite") { const writer = fs.openSync(path, "r+"); try { fs.writeSync(writer, Buffer.from([9]), 0, 1, 0); } finally { fs.closeSync(writer); } }
+      if (change === "truncate") fs.truncateSync(path, 1);
+      if (change === "grow") fs.appendFileSync(path, "extra");
+      if (change === "replace") { renameSync(path, join(f.repo, ".principal/old-model")); writeFileSync(path, content); }
+      if (change === "mode") fs.chmodSync(path, 0o755);
+    }
+    return count;
+  };
+  syncBuiltinESMExports();
+  try { assert.throws(() => candidateSnapshot(f.repo), /changed while reading/); }
+  finally { fs.readSync = original; syncBuiltinESMExports(); }
+  assert.equal(changed, true);
+});
+test("streaming tracked support does not relax evidence or untracked limits", { skip: !supported }, t => {
+  const f = fixture(t), path = join(f.repo, "src/untracked.bin");
+  const fd = fs.openSync(path, "w");
+  try { fs.ftruncateSync(fd, 16 * 1024 * 1024 + 1); } finally { fs.closeSync(fd); }
+  assert.throws(() => candidateSnapshot(f.repo), /16 MiB/);
+  renameSync(path, f.plan);
+  assert.throws(f.prepare, /16 MiB/);
 });
 test("changes outside explicit source scope refuse even when staged and unstaged cancel", { skip: !supported }, t => {
   const f = fixture(t); f.request.scope = ["other/"];

@@ -171,7 +171,7 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.14.0`,
+   `pi install npm:principal-pi-skills@4.14.1`,
    `pi install npm:pi-daddy@0.49.1` and `pi install npm:skill-harness@0.28.0`.
    Native report-completion composition is checked on Pi 1.0.4 and 1.1.0. The
    captured setup uses `PI_DADDY_HERDR=0`; Herdr additionally requires Daddy's live compatibility/ownership checks. Generated skill/agent bindings and captured definition IDs must
@@ -183,8 +183,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.14.0 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.14.0 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.14.1 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.14.1 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase

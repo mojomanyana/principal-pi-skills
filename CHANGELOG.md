@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.14.1 — 2026-11-03
+
+- Snapshot checks now stream every tracked byte in reusable 64 KiB chunks and permit up to 1 GiB of tracked content per observation; previously tracked files were read into memory with a 16 MiB per-file limit and a 256 MiB aggregate cap. No assets are excluded. Raw SHA-256, Git blob digests, descriptor/path stability checks and two complete observations remain required.
+- Preserve evidence and untracked file limits, tracked file-count limits, and Git output bounds. Large changed binary diffs can still refuse explicitly at the existing 64 MiB Git output cap.
+- Add SHA-1/SHA-256 large-file, aggregate-budget, bounded-read and mid-read mutation regressions. Direct-function probes on the target repositories verify implementation behavior, not activation of a running native tool; restart Pi and verify through `principal_workflow` after installation.
+
 ## 4.14.0 — 2026-10-10
 
 - Let workflow tools hash named `inputPaths`, accept returned candidate objects, and locate status/completion/retry by operation ID. Coordinators no longer need to copy product-file hash lists or repeat task metadata.
