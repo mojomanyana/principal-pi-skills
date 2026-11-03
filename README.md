@@ -226,7 +226,7 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** â€” install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.14.0
+   pi install npm:principal-pi-skills@4.14.1
    pi install npm:pi-daddy@0.49.1
    pi install npm:skill-harness@0.28.0
    ```
@@ -265,8 +265,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.14.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.14.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.14.1 principal-pi-agents install
+   npx -p principal-pi-skills@4.14.1 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -734,7 +734,7 @@ Model-free tests exercise authorization, exact-session restart/reload, dirty can
 changed evidence, missing/busy runtime, duplicate consumption and failed enqueue. Those tests
 qualify these mechanisms, not general autonomous success or automatic semantic approval.
 
-Resume candidate checks hash raw ordinary tracked worktree bytes in addition to Git index and staged/unstaged diffs, so newline normalization or clean filters cannot hide changed bytes. Tracked symlinks, non-UTF-8 Git output and newline-containing repository metadata paths are unsupported. The bounded snapshot permits at most 16,384 tracked files and 256 MiB of tracked content, with a 16 MiB per-file limit; untracked limits remain 256 files and 64 MiB. A raw byte or executable-mode difference from the index is treated as a candidate change even when Git reports a clean normalized diff. Every shipped runtime helper is included in the package binding.
+Resume candidate checks hash raw ordinary tracked worktree bytes in addition to Git index and staged/unstaged diffs, so newline normalization or clean filters cannot hide changed bytes. Tracked symlinks, non-UTF-8 Git output and newline-containing repository metadata paths are unsupported. The bounded snapshot permits at most 16,384 tracked files and 1 GiB of tracked content per observation. Tracked bytes (including large model/video assets) are hashed in 64 KiB chunks with no separate 16 MiB per-file limit; the remaining aggregate budget is checked before reading each file. Every tracked byte still contributes to both its raw SHA-256 and Git blob digest, with descriptor/path stability checks and two complete observations. Evidence and untracked files retain their 16 MiB per-file limit; untracked totals remain 256 files and 64 MiB. Git command output, including binary diffs, remains capped at 64 MiB; large changed diffs can still refuse explicitly rather than being omitted. A raw byte or executable-mode difference from the index is treated as a candidate change even when Git reports a clean normalized diff. Every shipped runtime helper is included in the package binding.
 
 
 An armed startup uses a temporary inert `principal-resume-ready-<nonce>` prompt to prove that

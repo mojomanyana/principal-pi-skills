@@ -10,7 +10,9 @@ import { checkProgress } from "./progress-artifacts.mjs";
 const HASH = /^[a-f0-9]{64}$/;
 const UUID = /^[a-f0-9]{8}-[a-f0-9]{4}-4[a-f0-9]{3}-[89ab][a-f0-9]{3}-[a-f0-9]{12}$/;
 const PHASES = ["build", "review", "git-ops"];
-const MAX_FILE = 16 * 1024 * 1024;
+const MAX_FILE = 16 * 1024 * 1024; // Evidence and untracked files remain bounded in memory.
+const MAX_TRACKED_BYTES = 1024 * 1024 * 1024; // Per observation; all bytes are still hashed.
+const TRACKED_CHUNK_BYTES = 64 * 1024;
 const hash = value => createHash("sha256").update(value).digest("hex");
 const fail = message => { throw new Error(message); };
 const json = value => JSON.stringify(value);
@@ -50,6 +52,28 @@ function bytes(path) {
     return data;
   } finally { closeSync(fd); }
 }
+/** Hash ordinary tracked files without allocating the whole asset; retain the same stability checks as bytes(). */
+function trackedFile(path, objectFormat, remainingBytes, buffer) {
+  const absolute = ancestors(path), fd = openSync(absolute, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0));
+  try {
+    const before = fstatSync(fd);
+    if (!before.isFile()) fail("tracked artifact must be an ordinary file");
+    if (before.size > remainingBytes) fail("tracked byte limit exceeded");
+    const sha256 = createHash("sha256"), blob = createHash(objectFormat).update(`blob ${before.size}\0`);
+    let size = 0;
+    // Read at most one byte beyond the initial size so growth cannot be silently accepted.
+    while (size <= before.size) {
+      const count = readSync(fd, buffer, 0, Math.min(buffer.length, before.size - size + 1), size);
+      if (!count) break;
+      const chunk = buffer.subarray(0, count);
+      sha256.update(chunk); blob.update(chunk); size += count;
+    }
+    const after = fstatSync(fd), named = plain(absolute);
+    const identity = s => [s.dev, s.ino, s.mode, s.size, s.mtimeMs, s.ctimeMs].join(":");
+    if (size !== before.size || identity(before) !== identity(after) || identity(before) !== identity(named)) fail("artifact changed while reading");
+    return { size, sha256: sha256.digest("hex"), blob: blob.digest("hex"), mode: before.mode & 0o777 };
+  } finally { closeSync(fd); }
+}
 function parsed(path) { return JSON.parse(new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(bytes(path))); }
 function reference(path) { const absolute = resolve(path); return { path: absolute, sha256: hash(bytes(absolute)) }; }
 function verifyRef(ref) { exact(ref, ["path", "sha256"], "reference"); if (!isAbsolute(ref.path) || !HASH.test(ref.sha256) || hash(bytes(ref.path)) !== ref.sha256) fail(`changed evidence: ${ref.path}`); }
@@ -76,6 +100,7 @@ export function candidateSnapshot(repo) {
   const commonDir = realpathSync(resolve(root, gitPath(git(root, ["rev-parse", "--git-common-dir"]))));
   const gitDir = realpathSync(gitPath(git(root, ["rev-parse", "--absolute-git-dir"])));
   const rootStat = plain(root, true), gitStat = plain(gitDir, true);
+  const trackedBuffer = Buffer.alloc(TRACKED_CHUNK_BYTES);
   const read = () => {
     const head = git(root, ["rev-parse", "--verify", "HEAD"]).trim();
     if (!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(head)) fail("full committed HEAD required");
@@ -95,17 +120,15 @@ export function candidateSnapshot(repo) {
     const rawChanged = [];
     const tracked = indexRows.map(row => {
       const full = join(root, row.path);
-      let data;
-      try { data = bytes(full); } catch (error) {
+      let observed;
+      try { observed = trackedFile(full, objectFormat, MAX_TRACKED_BYTES - trackedTotal, trackedBuffer); } catch (error) {
         if (error.code !== "ENOENT") throw error;
         rawChanged.push(row.path); return { path: row.path, missing: true };
       }
-      trackedTotal += data.length;
-      if (trackedTotal > 256 * 1024 * 1024) fail("tracked byte limit exceeded");
-      const mode = plain(full).mode & 0o777;
-      const blob = createHash(objectFormat).update(`blob ${data.length}\0`).update(data).digest("hex");
+      trackedTotal += observed.size;
+      const { mode, blob, sha256 } = observed;
       if (blob !== row.blob || Boolean(mode & 0o111) !== (row.mode === "100755")) rawChanged.push(row.path);
-      return { path: row.path, sha256: hash(data), mode };
+      return { path: row.path, sha256, mode };
     });
     const staged = git(root, ["diff", "--cached", "--binary", "--no-ext-diff", "--no-textconv", "--no-renames", "HEAD", "--"]);
     const unstaged = git(root, ["diff", "--binary", "--no-ext-diff", "--no-textconv", "--no-renames", "--"]);
