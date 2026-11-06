@@ -5,6 +5,7 @@ import { constants, closeSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openS
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { candidateSnapshot } from "./resume-checkpoint.mjs";
+import { resolveIntegrationSubject } from "./continuity.mjs";
 import { createRun, privateRoot, reference, saveReport } from "./progress-artifacts.mjs";
 
 export const CANDIDATE_ALGORITHM = "principal-candidate-v1";
@@ -16,7 +17,7 @@ const same = (a, b) => canonical(a) === canonical(b);
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 function implementation() {
-  return ["package.json", "scripts/workflow-state.mjs", "scripts/resume-checkpoint.mjs", "scripts/progress-artifacts.mjs"]
+  return ["package.json", "scripts/workflow-state.mjs", "scripts/runtime-operation-query.mjs", "scripts/continuity.mjs", "scripts/review-observation.mjs", "scripts/resume-checkpoint.mjs", "scripts/progress-artifacts.mjs"]
     .map(path => reference(join(packageRoot, path)));
 }
 function ordinary(path, directory = false) {
@@ -129,6 +130,32 @@ export function registerCandidateObserver(pi) {
   pi.on("session_shutdown", () => { bound = undefined; unsubscribe(); });
   return bind;
 }
+function reviewBinding(request, inputs, current) {
+  if (request.reviewBinding === undefined) return null;
+  const input = request.reviewBinding;
+  assert(request.phase === "review" && input && typeof input === "object" && !Array.isArray(input), "review binding requires a Review operation");
+  const keys = ["initiativeId", "taskId", "taskRevision", "outputId", "outputReference", "sourceOperationId", "reviewScope", "integrationSubject"];
+  assert(Object.keys(input).every(key => keys.includes(key)), "unknown review binding field");
+  for (const key of ["initiativeId", "taskId", "taskRevision", "outputId"])
+    assert(typeof input[key] === "string" && input[key].trim() && input[key].length <= 256 && !/[\x00-\x1f\x7f]/u.test(input[key]), "invalid review binding identity");
+  assert(/^principal:[a-f0-9]{64}$/.test(input.sourceOperationId), "review binding requires its original Build operation");
+  assert(["task", "integrated"].includes(input.reviewScope), "explicit required review scope is required");
+  const output = input.outputReference;
+  assert(output?.owner === "principal" && output.reference?.kind === "principal-git" && output.reference.repo === current.root && output.reference.candidateId === current.id,
+    "review output must identify the exact current Principal Git resource");
+  assert(Buffer.byteLength(canonical(output)) <= 4096 && inputs.length > 0, "review binding needs bounded output and exact authority/evidence inputs");
+  if (input.integrationSubject !== undefined) {
+    const subject = input.integrationSubject;
+    assert(input.reviewScope === "integrated" && Buffer.byteLength(canonical(subject)) <= 32000 && Array.isArray(subject?.resources), "integration subject requires bounded integrated scope");
+    const integration = resolveIntegrationSubject(subject, { repositories: subject.resources.map(resource => resource.repo) });
+    assert(integration.status === "current" && subject.resources.some(resource => same(resource, output.reference)), "integrated review requires the exact current member set including its output");
+  }
+  const source = inspectOperation(current.root, { operationId: input.sourceOperationId });
+  assert(["build", "debug"].includes(source.phase) && source.completionValid && source.disposition === "succeeded" && source.runtime?.runtime?.final?.sessionId,
+    "review binding requires a current completed native Build or Debug result");
+  const body = { version: 1, ...structuredClone(input), inputs };
+  return { ...body, id: `principal-review-binding:${hash(canonical(body))}` };
+}
 function summary(record, state, extra = {}) {
   ordinary(dirname(record.reportPath), true);
   ordinary(record.artifactsPath, true);
@@ -137,9 +164,13 @@ function summary(record, state, extra = {}) {
     handoff: { cwd: record.root, reportPath: record.reportPath, artifactsPath: record.artifactsPath,
       directoriesExist: true, reportWriter: "coordinator", candidateObserver: "coordinator" },
     storage: "private-files", administrativeWrites: false,
+    ...(record.reviewBinding ? { reviewBinding: record.reviewBinding,
+      reviewReceiptInstruction: "The independent reviewer must read the bound inputs and copy this binding id into exactly one principal-review JSON fence described in references/continuity.md; do not reconstruct any digest.",
+      ...(extra.report ? { reviewReference: { kind: "principal-review", repo: record.root, operationId: record.operationId,
+        bindingId: record.reviewBinding.id, reportSha256: extra.report.sha256 } } : {}) } : {}),
     inputs: record.inputs, owner: record.owner ?? null, approval: false, ...extra };
 }
-function load(repo, request) {
+function load(repo, request, historical = false) {
   let selected = request;
   if (request.operationId !== undefined) {
     assert(typeof request.operationId === "string" && /^principal:[a-f0-9]{64}$/.test(request.operationId), "invalid Principal operationId");
@@ -172,7 +203,7 @@ function load(repo, request) {
   ordinary(where.path, true);
   const record = readRecord(join(where.path, "request.json"));
   assert(record.operationId === where.operationId && record.root === where.root && record.task === selected.task && record.step === selected.step && record.attempt === (selected.attempt ?? 1), "workflow operation identity mismatch");
-  assert(same(record.implementation, implementation()), "workflow implementation changed; reconcile previous operation before a new attempt");
+  if (!historical) assert(same(record.implementation, implementation()), "workflow implementation changed; reconcile previous operation before a new attempt");
   return { ...where, record };
 }
 function optionalRecord(path) {
@@ -219,6 +250,45 @@ export function inspectOwnedOperation(repo, request, owner) {
   assert(current.owner && same(current.owner, owner), "operation belongs to another coordinator session or workspace");
   return current;
 }
+
+/** Decode supported historical records without granting present implementation compatibility. */
+export function inspectHistoricalOperation(repo, request, owner) {
+  const { record } = load(repo, request, true);
+  assert(record.owner && same(record.owner, owner), "operation belongs to another coordinator session or workspace");
+  const current = observeCandidate(repo), inputIssues = referenceIssues(record.inputs);
+  return { version: 1, state: "historical", operation_id: record.operationId,
+    task: record.task, step: record.step, attempt: record.attempt, phase: record.phase,
+    root: record.root, owner: record.owner, candidate: record.input, currentCandidate: current,
+    candidateMatches: same(current, record.input), inputsMatch: !inputIssues.length,
+    implementationMatches: same(record.implementation, implementation()), issues: inputIssues,
+    approval: false, completionValid: false, administrativeWrites: false,
+  };
+}
+
+/** Producer-verified history is evidence only; it never completes, retries or dispatches work. */
+export function observeHistoricalOperation(repo, request, runtime, owner) {
+  const current = inspectHistoricalOperation(repo, request, owner);
+  assert(runtime?.historical === true && runtime.operationId === current.operation_id && runtime.cwd === current.root,
+    "historical native operation identity mismatch");
+  const artifact = runtime.artifact;
+  if (artifact) {
+    assert(artifact.version === 1 && artifact.producer === "pi-daddy" && same(artifact.owner, owner) &&
+      artifact.operationId === current.operation_id && artifact.executionId === runtime.executionId &&
+      isAbsolute(artifact.manifest?.path ?? "") && /^[a-f0-9]{64}$/.test(artifact.manifest?.sha256) &&
+      Number.isSafeInteger(artifact.manifest?.bytes) && artifact.manifest.bytes > 0,
+    "historical artifact identity mismatch");
+  }
+  let final;
+  if (runtime.finalObservation?.state === "complete") {
+    assert(artifact, "historical final requires its producer artifact");
+    final = { ...runtime.runtime?.final, text: finalText(runtime) };
+  }
+  const { finalObservation: _text, ...identity } = runtime;
+  return { ...current, runtime: identity, ...(final ? { final } : {}),
+    resultRetained: !!artifact, applicability: "not-established",
+    issues: [...current.issues, "Historical evidence does not establish current completion, approval or permission to retry."],
+  };
+}
 function prepare(repo, request) {
   const { task, step, phase, expectedCandidate, attempt = 1 } = request;
   assert(phases.includes(phase), "unsupported workflow phase");
@@ -226,13 +296,13 @@ function prepare(repo, request) {
   assert(owner === null || (typeof owner.sessionId === "string" && owner.sessionId && typeof owner.cwd === "string" && isAbsolute(owner.cwd)), "invalid coordinator identity");
   const current = observeCandidate(repo);
   assert(expectedMatches(current, expectedCandidate), "candidate changed; observe again before preparing a handoff");
-  const checked = requestedReferences(current.root, request), where = location(current.root, task, step, attempt, true);
+  const checked = requestedReferences(current.root, request), binding = reviewBinding(request, checked, current), where = location(current.root, task, step, attempt, true);
   try { mkdirSync(where.path, { mode: 0o700 }); }
   catch (error) {
     if (error.code !== "EEXIST") throw error;
     const existing = load(current.root, request).record;
     assert(same(existing.owner ?? null, owner), "operation belongs to another coordinator session; inspect and reconcile the original before a new attempt");
-    assert(existing.phase === phase && same(existing.inputs, checked), "operation conflict: stable task/step already has different phase or inputs");
+    assert(existing.phase === phase && same(existing.inputs, checked) && same(existing.reviewBinding ?? null, binding), "operation conflict: stable task/step already has different phase or inputs");
     const result = inspectOperation(current.root, request);
     assert(result.candidateMatches && !result.issues?.length, "operation candidate changed; reconcile its result or use an explicit settled retry");
     return { ...result, reused: true };
@@ -240,7 +310,7 @@ function prepare(repo, request) {
   // A crash after the exclusive claim leaves an incomplete operation, never a silent retry.
   const run = createRun(current.root, task, current.id);
   const record = { version: 1, operationId: where.operationId, root: current.root, task, step, attempt, phase,
-    input: current, inputs: checked, owner, previous: request.previous ?? null, reportPath: join(run, `${phase}.md`), artifactsPath: join(run, "artifacts"), implementation: implementation() };
+    input: current, inputs: checked, ...(binding ? { reviewBinding: binding } : {}), owner, previous: request.previous ?? null, reportPath: join(run, `${phase}.md`), artifactsPath: join(run, "artifacts"), implementation: implementation() };
   assert(same(observeCandidate(current.root), current), "candidate changed while preparing handoff; preserve incomplete claim");
   assertIgnored(current.root, record.reportPath);
   assertIgnored(current.root, join(record.artifactsPath, "unused-probe"));
@@ -256,6 +326,7 @@ export function prepareOperation(repo, request) {
 
 /** Runtime comes from the extension's session-bound Daddy query, never model-supplied prose. */
 function settledRuntime(runtime, operationId, root) {
+  assert(runtime?.historical !== true, "historical observation cannot establish live completion");
   assert(runtime?.operationId === operationId && runtime.state === "settled" && runtime.runtime?.cleanup?.state === "settled" && runtime.runtime.cleanup.executionId === runtime.executionId,
     "exact operation settlement is unavailable; preserve prepared operation");
   assert(typeof runtime.executionId === "string" && runtime.executionId, "native execution identity required");
@@ -270,7 +341,7 @@ function finalText(runtime) {
   const expected = runtime.runtime.final, final = runtime.finalObservation;
   assert(final?.state === "complete" && typeof final.text === "string" && final.text.trim() && Buffer.byteLength(final.text) <= 4 * 1024 * 1024,
     `exact native final unavailable; retain the original result and reconcile: ${final?.reason ?? "runtime does not expose it"}`);
-  assert(["sessionId", "messageId", "leafId", "sha256"].every(key => final[key] === expected[key]) && hash(final.text) === expected.sha256,
+  assert(expected?.state === "complete" && ["sessionId", "messageId", "leafId", "sha256"].every(key => typeof expected[key] === "string" && expected[key] && final[key] === expected[key]) && hash(final.text) === expected.sha256,
     "native final content or identity mismatch");
   return final.text;
 }
@@ -285,6 +356,7 @@ export function observeOperationResult(repo, request, runtime) {
 }
 
 export function completeOperation(repo, request, runtime) {
+  assert(runtime?.historical !== true, "historical observation cannot establish live completion");
   const { path, record } = load(repo, request);
   if (optionalRecord(join(path, "completion.json"))) return { ...inspectOperation(repo, request), reused: true };
   let retained = retainedResult(path, record), wrote = false;
@@ -327,6 +399,7 @@ export function completeOperation(repo, request, runtime) {
 
 /** Retry preserves the old attempt; uncertain executions never authorize another dispatch. */
 export function retryOperation(repo, request, runtime) {
+  assert(runtime?.historical !== true, "historical observation cannot authorize a retry");
   const { record } = load(repo, request);
   assert(runtime?.operationId === record.operationId, "prior operation identity mismatch");
   const neverStarted = runtime.state === "not-started" && runtime.runtime?.cleanup?.state === "not-started";

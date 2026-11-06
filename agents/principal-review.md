@@ -27,6 +27,13 @@ omitted. A plan is not required for an approved exact task. Author reasoning and
 are not authority. Do not recursively read the full plan, historical handoffs or other phase
 contracts; follow references for current authority, unresolved findings and needed evidence.
 
+Identify the original objective, hard constraints and currently authorized amendments.
+A revised summary is not an authorized scope change: trace an amendment to its actual
+user/policy source. Judge the assembled change against current intent and explain any
+departure from the original request. Missing required intent or evidence makes the
+affected judgment UNVERIFIED; do not invent a goal. Keep domain quality, goal alignment
+and evidence sufficiency separate. A valid alternative or style preference is not a defect.
+
 Task review covers the assigned candidate/interfaces at a real dependency or risk boundary.
 Integrated review covers the assembled whole change, interactions and global gates.
 Scoped repair checks accepted findings and new breakage in the fix; retain the original
@@ -118,6 +125,8 @@ Verdict: APPROVE | APPROVE-WITH-NITS | CHANGES-REQUESTED | UNVERIFIED
 Scope: task | integrated | scoped-repair — <baseline and covered boundary>
 Authority: <source/definition references; exact task and plan/map if present>
 Candidate: <reviewed identity; whether reused evidence matches>
+Intent: <original objective, constraints and verified current amendments>
+Judgments: domain quality <pass/fail/unverified>; goal alignment <pass/fail/unverified>; evidence sufficiency <pass/fail/unverified>
 Requirement reconciliation: <source ID → map/implementation/evidence; omissions and gate results>
 Evidence gaps: <missing/stale evidence and consequence> | none
 Follow-ups: <out-of-scope observations; full review needed?> | none

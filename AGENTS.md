@@ -5,6 +5,29 @@ bootstrap injects a compressed routing table from `bootstrap/BOOTSTRAP.md`. Each
 self-contained for its ordinary task. Conditional mechanics live in references, not a
 required chain of phase skills.
 
+## Own the engineering outcome
+
+The current coordinator is the Principal lead: connect each contribution to the user's
+product outcome and carry authorized work through to a useful result. Keep the current
+goal, success conditions, constraints and material decisions in view using supplied
+context or existing project records. Distinguish them from a proposed method; no new
+document, service or separate lead agent is required.
+
+Before implementing affected work, consider the simplest adequate use of existing parts.
+Explain consequential tradeoffs, operational costs and what would change the decision.
+Preserve actual constraints when simplifying; seek a decision only where a material
+choice remains. Use Decide or Architect when their expertise helps, not as preliminaries
+to every task. Across repositories, identify shared contracts and affected consumers;
+deliver a coherent usable slice rather than optimize each local task independently.
+
+Choose verification that can expose plausible wrong behavior and interaction failures.
+Passing checks or a stopped child do not by themselves establish the product outcome.
+Accept equivalent sound designs, distinguish optional polish from defects, and reuse
+applicable evidence. Continue useful authorized work without repeated permission or
+unchanged recommendations. At meaningful boundaries, explain what is achieved and what
+still matters; finish when the requested outcome is met. This responsibility adds no
+execution authority, mandatory review stage or background work.
+
 ## Choose the useful role
 
 | Input shape | Route | How |
@@ -14,6 +37,7 @@ required chain of phase skills.
 | Executable implementation sequence | `plan` | delegate heavy reading; inline deliberately |
 | Known-cause implementation | `build` | inline or delegated; one writer per working tree |
 | Judge a change before landing | `review` | independent cold context when available |
+| Judge a plan, decision, architecture or another role's artifact | `artifact-review` | scoped, read-only resource; no native phase |
 | Judge test assertions, behavioral gaps or redundancy | `test-review` | focused skill or independent child when useful |
 | Unknown failure | `debug` | delegate noisy diagnosis; inline when appropriate |
 | Facts about code, data, runtime or history | `investigate` | read-only; delegate heavy reading |
@@ -51,6 +75,16 @@ shared APIs/resources may serialize work. Preserve completed siblings after fail
 all results, review candidates and integrate serially with merged checks.
 
 ## Handoffs and convergence
+
+Optional `principal_handoff` prepares a compact task, caveats and exact required/optional
+references. Resolve required inputs before dependent judgment; missing, denied, stale or
+truncated inputs block, never approve. Select optional history only for a named uncertainty.
+Local refs are exact text files inside the current workspace. Bookie/Scout refs use their
+trusted resolver and existing disclosure scope; references do not authorize body access.
+Absent optional components do not cause shell discovery or dispatch. On ordinary Pi the
+self-contained `artifact-review` skill can consume directly supplied artifacts; no runtime
+helper is mandatory. It is not a native engineering phase or integrated product approval.
+
 
 Use `principal_workflow` snapshot/reference for canonical workspace/candidate and exact-file
 observations, including inline/evidence work; status revalidates a prior native operation.
@@ -91,6 +125,13 @@ from a wrong checkout or ignored-file search.
 | build | `review` · `debug` · `blocked` |
 | review | `build` · `evidence` · `git-ops` |
 | decide · architect · investigate · test-review · git-ops | *(none — terminate)* |
+
+For plans, decisions, architecture and other outputs, use artifact-review when requested
+or when a material risk warrants it. Separate quality, alignment with authorized intent,
+and evidence sufficiency. Do not force another review of every artifact. Proposals name
+their concrete trigger, useful options and what current authority permits; never dispatch
+from a recommendation alone. Repeated unchanged disagreement needs adjudication or
+evidence, not an automatic review/repair loop.
 
 Review scopes are task, integrated and scoped-repair. Task approval protects only its
 candidate/interfaces; only integrated approval with all due gates supports finish.
@@ -171,10 +212,10 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.14.1`,
-   `pi install npm:pi-daddy@0.49.1` and `pi install npm:skill-harness@0.28.0`.
-   Native report-completion composition is checked on Pi 1.0.4 and 1.1.0. The
-   captured setup uses `PI_DADDY_HERDR=0`; Herdr additionally requires Daddy's live compatibility/ownership checks. Generated skill/agent bindings and captured definition IDs must
+   `pi install npm:principal-pi-skills@4.15.0`,
+   `pi install npm:pi-daddy@0.50.0` and `pi install npm:skill-harness@0.33.0`.
+   Historical native report-completion checks cover Pi 1.0.4 and 1.1.0. Those
+   captures used `PI_DADDY_HERDR=0`; Herdr additionally requires Daddy's live compatibility/ownership checks. Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
    Enable built-in discovery through Pi `settings.json` `defaultTools` containing
    `read`, `bash`, `edit`, `write`, `grep`, `find`, `ls`; preserve other settings and check
@@ -183,8 +224,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.14.1 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.14.1 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.15.0 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.15.0 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase
@@ -197,3 +238,11 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    `git-ops` allows none, on purpose. Each reason is in the
    skill's frontmatter and the README install section, along with the egress note. Don't
    ask a child for more than its ceiling, and don't raise a ceiling to make a refusal go away.
+
+## Historical evidence (2026-11-04)
+
+`principal_workflow` action `history` reads producer-retained results for the
+original coordinator session/workspace after restart. It decodes supported old
+records but never grants current completion, approval or retry authority.
+Reconcile present inputs and execution separately. Missing history does not prove
+that a prior child never started; do not dispatch again on that assumption.

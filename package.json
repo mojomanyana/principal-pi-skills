@@ -1,103 +1,115 @@
 {
-    "name": "principal-pi-skills",
-    "version": "4.14.1",
-    "description": "Skill framework for principal-level software engineering: nine skills (decide, architect, plan, build, review, test-review, debug, investigate, git-ops), a pi bootstrap, and two approval-gated workflows.",
-    "license": "MIT",
-    "author": "Nemanja Alavanja",
-    "repository": {
-        "type": "git",
-        "url": "git+https://github.com/mojomanyana/principal-pi-skills.git"
-    },
-    "homepage": "https://github.com/mojomanyana/principal-pi-skills#readme",
-    "bugs": {
-        "url": "https://github.com/mojomanyana/principal-pi-skills/issues"
-    },
-    "keywords": [
-        "pi-package",
-        "skills",
-        "agent-skills"
+  "name": "principal-pi-skills",
+  "version": "4.15.0",
+  "description": "Nine principal engineering skills, a portable artifact-review skill, and optional Pi coordination tools.",
+  "license": "MIT",
+  "author": "Nemanja Alavanja",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mojomanyana/principal-pi-skills.git"
+  },
+  "homepage": "https://github.com/mojomanyana/principal-pi-skills#readme",
+  "bugs": {
+    "url": "https://github.com/mojomanyana/principal-pi-skills/issues"
+  },
+  "keywords": [
+    "pi-package",
+    "skills",
+    "agent-skills"
+  ],
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "npm run generate:check && npm run test:unit && npm run test:install && npm run check:pack && npm run lint:skills",
+    "test:unit": "node --test tests/unit/*.test.mjs && node scripts/check-word-budgets.mjs",
+    "generate": "node scripts/generate-contracts.mjs",
+    "generate:check": "node scripts/generate-contracts.mjs --check",
+    "lint:skills": "node scripts/lint-skills.mjs",
+    "test:install": "node --test tests/install/*.test.mjs",
+    "check:pack": "node scripts/check-pack.mjs",
+    "check:routing-collisions": "node scripts/check-description-collisions.mjs",
+    "check:routing-triggers": "node scripts/check-skill-triggers.mjs"
+  },
+  "pi": {
+    "skills": [
+      "./decide",
+      "./architect",
+      "./plan",
+      "./build",
+      "./review",
+      "./test-review",
+      "./debug",
+      "./investigate",
+      "./git-ops",
+      "./artifact-review"
     ],
-    "engines": {
-        "node": ">=20"
-    },
-    "scripts": {
-        "test": "npm run generate:check && npm run test:unit && npm run test:install && npm run check:pack && npm run lint:skills",
-        "test:unit": "node --test tests/unit/*.test.mjs && node scripts/check-word-budgets.mjs",
-        "generate": "node scripts/generate-contracts.mjs",
-        "generate:check": "node scripts/generate-contracts.mjs --check",
-        "lint:skills": "node scripts/lint-skills.mjs",
-        "test:install": "node --test tests/install/*.test.mjs",
-        "check:pack": "node scripts/check-pack.mjs",
-        "check:routing-collisions": "node scripts/check-description-collisions.mjs",
-        "check:routing-triggers": "node scripts/check-skill-triggers.mjs"
-    },
-    "pi": {
-        "skills": [
-            "./decide",
-            "./architect",
-            "./plan",
-            "./build",
-            "./review",
-            "./test-review",
-            "./debug",
-            "./investigate",
-            "./git-ops"
-        ],
-        "prompts": [
-            "./prompts"
-        ],
-        "extensions": [
-            "./extensions/bootstrap.ts",
-            "./extensions/resume.ts",
-            "./extensions/workflow.ts",
-            "./extensions/codemode.ts"
-        ]
-    },
-    "bin": {
-        "principal-pi-agents": "./scripts/install-agents.mjs",
-        "principal-pi-workspace": "./scripts/snapshot-workspace.mjs",
-        "principal-pi-progress": "./scripts/progress-artifacts.mjs",
-        "principal-pi-resume": "./scripts/resume-checkpoint.mjs"
-    },
-    "files": [
-        "AGENTS.md",
-        "principal-agents.json",
-        "CHANGELOG.md",
-        "decide/SKILL.md",
-        "architect/SKILL.md",
-        "plan/SKILL.md",
-        "build/SKILL.md",
-        "review/SKILL.md",
-        "test-review/SKILL.md",
-        "debug/SKILL.md",
-        "investigate/SKILL.md",
-        "git-ops/SKILL.md",
-        "prompts/*.md",
-        "agents/*.md",
-        "scripts/install-agents.mjs",
-        "scripts/snapshot-workspace.mjs",
-        "scripts/progress-artifacts.mjs",
-        "extensions/bootstrap.ts",
-        "bootstrap/BOOTSTRAP.md",
-        "scripts/resume-checkpoint.mjs",
-        "extensions/resume.ts",
-        "scripts/workflow-state.mjs",
-        "extensions/workflow.ts",
-        "extensions/codemode.ts",
-        "references/workflow-mechanics.md",
-        "review/references/test-quality.md"
+    "prompts": [
+      "./prompts"
     ],
-    "devDependencies": {},
-    "peerDependencies": {
-        "@earendil-works/pi-coding-agent": "*",
-        "typebox": "*"
+    "extensions": [
+      "./extensions/bootstrap.ts",
+      "./extensions/resume.ts",
+      "./extensions/workflow.ts",
+      "./extensions/codemode.ts",
+      "./extensions/handoff.ts",
+      "./extensions/continuity.ts"
+    ]
+  },
+  "bin": {
+    "principal-pi-agents": "./scripts/install-agents.mjs",
+    "principal-pi-workspace": "./scripts/snapshot-workspace.mjs",
+    "principal-pi-progress": "./scripts/progress-artifacts.mjs",
+    "principal-pi-resume": "./scripts/resume-checkpoint.mjs"
+  },
+  "files": [
+    "AGENTS.md",
+    "principal-agents.json",
+    "CHANGELOG.md",
+    "decide/SKILL.md",
+    "architect/SKILL.md",
+    "plan/SKILL.md",
+    "build/SKILL.md",
+    "review/SKILL.md",
+    "test-review/SKILL.md",
+    "debug/SKILL.md",
+    "investigate/SKILL.md",
+    "git-ops/SKILL.md",
+    "prompts/*.md",
+    "agents/*.md",
+    "scripts/install-agents.mjs",
+    "scripts/snapshot-workspace.mjs",
+    "scripts/progress-artifacts.mjs",
+    "extensions/bootstrap.ts",
+    "bootstrap/BOOTSTRAP.md",
+    "scripts/resume-checkpoint.mjs",
+    "extensions/resume.ts",
+    "scripts/workflow-state.mjs",
+    "scripts/runtime-operation-query.mjs",
+    "extensions/workflow.ts",
+    "extensions/codemode.ts",
+    "references/workflow-mechanics.md",
+    "review/references/test-quality.md",
+    "artifact-review/SKILL.md",
+    "extensions/handoff.ts",
+    "scripts/compact-handoff.mjs",
+    "scripts/continuity.mjs",
+    "references/continuity.md",
+    "extensions/continuity.ts",
+    "scripts/review-observation.mjs",
+    "scripts/frozen-snapshot.mjs"
+  ],
+  "devDependencies": {},
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": "*",
+    "typebox": "*"
+  },
+  "peerDependenciesMeta": {
+    "@earendil-works/pi-coding-agent": {
+      "optional": true
     },
-    "peerDependenciesMeta": {
-        "@earendil-works/pi-coding-agent": {
-            "optional": true
-        },
-        "typebox": {
-            "optional": true
-        }
+    "typebox": {
+      "optional": true
     }
+  }
 }

@@ -18,7 +18,28 @@ subagents do the work.** Two properties follow, and every design choice below se
 the work â€” and **cheap iteration** â€” a defect found is a defect fixed, not documented
 around.
 
+The additional `artifact-review` resource reviews plans, decisions, architecture and
+other roles' outputs against the original objective and currently authorized intent.
+It is self-contained: copy its directory to use it with Pi without Principal, Daddy,
+Bookie or Harness. It has no native phase binding and does not activate Principal
+routing by itself. Review is chosen for a concrete need, never a mandatory extra stage.
+
 ## Deterministic workflow tools
+
+`principal_handoff` optionally prepares a compact task, caveats and exact required/optional
+references. `resolve` fetches required inputs and explicitly selected optional history.
+Local text files must be inside the current workspace and match the supplied SHA-256.
+Bookie context/registered producer refs and Scout brief refs go through their trusted
+optional resolvers under existing project, destination and disclosure permissions. A
+reference does not authorize body access. Missing, changed, denied or incomplete required
+inputs withhold aggregate excerpts and block readiness; no shell fallback or dispatch.
+The tool does not verify that a supplied intent document has user authority: reviewers
+must trace amendments to their actual user/policy provenance. `ready` means required
+input availability only, never approval or permission. Up to 16 exact inputs and 48,000
+aggregate text bytes bound retrieval; these are transport limits, not model budgets.
+A current-session Daddy evidence observation is optional; it conveys availability only.
+The portable skill also works with directly supplied artifacts when no helper is loaded.
+
 
 Principal 4.12 adds `principal_workflow` for candidate identity, exact file references and
 private report handoffs. `snapshot` and `reference` support any coordinator work. For native
@@ -84,10 +105,11 @@ claims of measured model compliance. Common ceilings remain unchanged.
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
 | `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1591) or inline | 1525 |
 | `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1728) or inline | 1713 |
-| `review` | One pass, two axes â€” correctness and simplicity â€” ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1348) or inline | 1296 |
+| `review` | One pass, two axes â€” correctness and simplicity â€” ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1442) or inline | 1390 |
 | `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 799) or inline | 778 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1573) or inline | 1433 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 538) or inline | 539 |
+| `artifact-review` | Quality, intent alignment and evidence for plans, decisions, architecture or custom artifacts | standalone Pi skill; no native phase | 947 |
 | `git-ops` | Safe version-control operator â€” reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2523 |
 
 Routing between them belongs to the orchestrator, not to a skill â€” there is deliberately no
@@ -226,13 +248,13 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** â€” install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.14.1
-   pi install npm:pi-daddy@0.49.1
-   pi install npm:skill-harness@0.28.0
+   pi install npm:principal-pi-skills@4.15.0
+   pi install npm:pi-daddy@0.50.0
+   pi install npm:skill-harness@0.33.0
    ```
 
-   Restart Pi after package changes. The `pi` manifest registers nine skills, four
-   `/principal-*` commands and the bootstrap extension automatically. Exact npm pins keep
+   Restart Pi after package changes. The `pi` manifest registers ten skills, four
+   `/principal-*` commands and six extensions automatically. Exact npm pins keep
    the installed source version identifiable.
 
    For planning or review that needs repository discovery, merge this setting into your Pi
@@ -253,8 +275,8 @@ CHANGELOG.md                          release history
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
-   Native report-completion composition is checked with **Pi 1.0.4 and 1.1.0**.
-   Captured execution uses `PI_DADDY_HERDR=0`; Herdr (`PI_DADDY_HERDR=1`) additionally
+   Historical native report-completion checks cover **Pi 1.0.4 and 1.1.0**.
+   Those captures used `PI_DADDY_HERDR=0`; Herdr (`PI_DADDY_HERDR=1`) additionally
    requires pi-daddy's live compatibility and native ownership checks. This is runtime
    qualification, not a model-quality claim for every provider. The selected package's generated `principal-agents.json` binds each phase
    to its skill and agent bytes. Native routing uses `delegate_describe` and the captured
@@ -265,8 +287,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.14.1 principal-pi-agents install
-   npx -p principal-pi-skills@4.14.1 principal-pi-agents check
+   npx -p principal-pi-skills@4.15.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.15.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -755,3 +777,7 @@ Automatic startup checks the bounded checkpoint/control-file inventory first and
 reconciles only the sole armed candidate. Consumed and disarmed history does not trigger
 repeated full worktree reads. Malformed checkpoint/control records and multiple armed records
 still refuse; the final armed candidate is independently observed again before consumption.
+
+## Optional work-map Git resources
+
+The read-only [continuity adapter](references/continuity.md) binds existing Principal candidate and worktree identities to optional cross-repository work maps. Git resource observations report per-resource currentness and supply no semantic approval. An opt-in native Review binding can additionally expose an exact, scoped quality/alignment/evidence judgment against the current task and output; legacy or unbound reviews remain unverified. Partial release evidence stays per target, and neither observation grants a writer claim, registry confirmation or automatic action. Non-code roles and ordinary skills do not require this adapter or the rest of the ecosystem.

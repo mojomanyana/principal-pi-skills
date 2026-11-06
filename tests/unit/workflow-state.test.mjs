@@ -6,7 +6,7 @@ import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSyn
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { observeCandidate, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation } from "../../scripts/workflow-state.mjs";
+import { observeCandidate, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation } from "../../scripts/workflow-state.mjs";
 import { reference } from "../../scripts/progress-artifacts.mjs";
 
 function fixture(t) {
@@ -27,6 +27,73 @@ function settled(operationId, cwd, text = "Done.\n") {
     work: "succeeded", final, cleanup: { state: "settled", executionId: "exec:fixture" },
   } };
 }
+
+function historical(operationId, owner, text = "Preserved native report.\n") {
+  const runtime = settled(operationId, owner.cwd, text);
+  return { ...runtime, historical: true, artifact: {
+    version: 1, producer: "pi-daddy", owner, operationId, executionId: runtime.executionId,
+    manifest: { path: join(owner.cwd, "producer-manifest.json"), sha256: "a".repeat(64), bytes: 1024 },
+  } };
+}
+
+test("historical decoding survives implementation and input changes without accepting them as current", t => {
+  const { root, request } = fixture(t), owner = { sessionId: "same-resumed-session", cwd: root };
+  const prepared = prepareOperation(root, { ...request, owner });
+  const store = join(root, ".principal/workflow", readdirSync(join(root, ".principal/workflow"))[0]);
+  const path = join(store, "request.json"), record = JSON.parse(readFileSync(path, "utf8"));
+  record.implementation[0].sha256 = "b".repeat(64);
+  writeFileSync(path, JSON.stringify(record));
+  writeFileSync(join(root, "product.txt"), "later work\n");
+  writeFileSync(join(root, ".principal/plan.md"), "changed authority\n");
+  const before = readFileSync(path), selected = { operationId: prepared.operation_id };
+  const result = observeHistoricalOperation(root, selected, historical(prepared.operation_id, owner), owner);
+  assert.equal(result.final.text, "Preserved native report.\n");
+  assert.equal(result.state, "historical"); assert.equal(result.resultRetained, true);
+  assert.equal(result.implementationMatches, false); assert.equal(result.inputsMatch, false);
+  assert.equal(result.candidateMatches, false); assert.equal(result.completionValid, false);
+  assert.equal(result.approval, false); assert.equal(result.administrativeWrites, false);
+  assert.equal(result.applicability, "not-established");
+  assert.deepEqual(readFileSync(path), before);
+  assert.deepEqual(readdirSync(store), ["request.json"]);
+  assert.throws(() => completeOperation(root, selected, settled(prepared.operation_id, root)), /implementation changed/);
+  assert.throws(() => prepareOperation(root, { ...request, owner, expectedCandidate: observeCandidate(root) }), /implementation changed|changed input/);
+  record.version = 2; writeFileSync(path, JSON.stringify(record));
+  assert.throws(() => inspectHistoricalOperation(root, request, owner), /unsupported workflow record version/);
+});
+
+test("history requires the original owner and exact result identity, and cannot complete or retry", t => {
+  const { root, request } = fixture(t), owner = { sessionId: "original", cwd: root };
+  const prepared = prepareOperation(root, { ...request, owner }), selected = { operationId: prepared.operation_id };
+  const runtime = historical(prepared.operation_id, owner);
+  assert.throws(() => observeHistoricalOperation(root, selected, runtime, { ...owner, sessionId: "foreign" }), /another coordinator/);
+  assert.throws(() => observeHistoricalOperation(root, selected, { ...runtime, cwd: "/foreign" }, owner), /identity mismatch/);
+  const wrongOwner = structuredClone(runtime); wrongOwner.artifact.owner.sessionId = "foreign";
+  assert.throws(() => observeHistoricalOperation(root, selected, wrongOwner, owner), /artifact identity mismatch/);
+  const wrongText = structuredClone(runtime); wrongText.finalObservation.text += "forged";
+  assert.throws(() => observeHistoricalOperation(root, selected, wrongText, owner), /content or identity mismatch/);
+  assert.throws(() => observeHistoricalOperation(root, selected, { ...runtime, artifact: undefined }, owner), /requires its producer artifact/);
+  assert.throws(() => completeOperation(root, { ...selected, disposition: "succeeded" }, runtime), /historical observation/);
+  assert.throws(() => retryOperation(root, { ...selected, reason: "retry" }, runtime), /historical observation/);
+  assert.equal(inspectOperation(root, selected).state, "prepared");
+  completeOperation(root, { ...selected, disposition: "succeeded" }, settled(prepared.operation_id, root));
+  const store = join(root, ".principal/workflow", readdirSync(join(root, ".principal/workflow"))[0]);
+  rmSync(join(store, "completion.json"));
+  assert.throws(() => completeOperation(root, selected, runtime), /historical observation/);
+  assert.equal(inspectOperation(root, selected).completionValid, false);
+  completeOperation(root, selected);
+  assert.throws(() => completeOperation(root, selected, runtime), /historical observation/);
+});
+
+test("interrupted historical dispatch remains uncertain without inventing settlement or a final", t => {
+  const { root, request } = fixture(t), owner = { sessionId: "same", cwd: root };
+  const prepared = prepareOperation(root, { ...request, owner });
+  const result = observeHistoricalOperation(root, { operationId: prepared.operation_id }, {
+    historical: true, operationId: prepared.operation_id, cwd: root, state: "uncertain",
+  }, owner);
+  assert.equal(result.runtime.state, "uncertain");
+  assert.equal(result.resultRetained, false); assert.equal(result.final, undefined);
+  assert.equal(result.completionValid, false); assert.equal(result.approval, false);
+});
 
 test("one handoff and report allocation are reused, with current code and exact inputs checked", t => {
   const { root, request } = fixture(t), first = prepareOperation(root, request), second = prepareOperation(root, request);

@@ -55,6 +55,26 @@ test("candidate fingerprint binds staged, unstaged and untracked state independe
   writeFileSync(join(f.repo, "src/new.js"), "changed\n");
   assert.match(inspectCheckpoint(item.path, f.pkg).issues.join(" "), /candidate/);
 });
+test("candidate index hash preserves unusual Git path bytes and raw changes", { skip: !supported }, t => {
+  const f = fixture(t), names = [" leading.txt", "src/tab\tname.txt", "src/line\nname.txt", "src/é-日本.txt"];
+  for (const name of names) writeFileSync(join(f.repo, name), "original bytes\n");
+  run(f.repo, "add", "--", ...names); run(f.repo, "commit", "-qm", "unusual paths");
+  const indexBytes = () => execFileSync("git", ["--no-optional-locks", "ls-files", "--stage", "-z"], {
+    cwd: f.repo, maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"],
+  });
+  const originalIndex = indexBytes(), indexSha256 = createHash("sha256").update(originalIndex).digest("hex");
+  const clean = candidateSnapshot(f.repo);
+  assert.equal(clean.indexSha256, indexSha256);
+  assert.equal(clean.id, run(f.repo, "rev-parse", "HEAD"));
+  const changedPath = names[2], changedBytes = "different raw bytes\n";
+  writeFileSync(join(f.repo, changedPath), changedBytes);
+  const dirty = candidateSnapshot(f.repo);
+  assert.deepEqual(indexBytes(), originalIndex, "a raw worktree change does not rewrite the Git index");
+  assert.equal(dirty.indexSha256, indexSha256);
+  assert.notEqual(dirty.id, clean.id);
+  assert.deepEqual(dirty.changedPaths, [changedPath]);
+  assert.equal(dirty.tracked.find(row => row.path === changedPath).sha256, createHash("sha256").update(changedBytes).digest("hex"));
+});
 for (const format of ["sha1", "sha256"]) test(`large tracked files bind every byte with bounded reads (${format})`, { skip: !supported }, t => {
   const f = fixture(t, format), name = "src/model.bin", path = join(f.repo, name);
   const content = Buffer.alloc(16 * 1024 * 1024 + 17, 0);
