@@ -7,6 +7,14 @@ Execute this workflow for: refactor $@ without changing behavior.
 <!-- shared:start -->
 ## Coordinate the outcome
 
+Own the product result across the requested scope. Keep the user outcome distinct from
+the proposed method; prefer the simplest adequate design without weakening constraints.
+Resolve consequential tradeoffs and shared contracts before affected implementation.
+For multiple repositories, identify the consumers and verify their combined behavior.
+Use checks that expose plausible wrong behavior, accept equivalent sound solutions, and
+keep optional polish separate from defects. Continue authorized useful work; stop when
+the requested outcome is met. This is the coordinator's responsibility, not another phase.
+
 Choose useful outputs, not a fixed ceremony. Decide resolves a consequential choice;
 Architect defines structure; Plan coordinates dependencies. A clear authorized change
 can go directly to Build and independent Review. Do not create a plan merely to satisfy a

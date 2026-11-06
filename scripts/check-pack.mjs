@@ -24,7 +24,7 @@ import { fileURLToPath } from "node:url";
 import { parsePackMetadata } from "./pack-meta.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const SKILLS = ["decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops"];
+const SKILLS = ["decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops", "artifact-review"];
 
 const REQUIRED = [
   "package.json",
@@ -44,6 +44,14 @@ const REQUIRED = [
   "extensions/workflow.ts",
   "extensions/codemode.ts",
   "scripts/workflow-state.mjs",
+  "scripts/runtime-operation-query.mjs",
+  "scripts/compact-handoff.mjs",
+  "scripts/continuity.mjs",
+  "scripts/review-observation.mjs",
+  "scripts/frozen-snapshot.mjs",
+  "extensions/continuity.ts",
+  "references/continuity.md",
+  "extensions/handoff.ts",
   "references/workflow-mechanics.md",
   "review/references/test-quality.md",
   "extensions/bootstrap.ts",
@@ -57,7 +65,7 @@ const FORBIDDEN = [
   [/tests\//, "scenarios, fixtures and committed results"],
   [/^contracts\//, "contract templates — build-time source, not runtime"],
   [/^\.github\//, "CI configuration"],
-  [/^scripts\/(?!install-agents\.mjs$|snapshot-workspace\.mjs$|progress-artifacts\.mjs$|resume-checkpoint\.mjs$|workflow-state\.mjs$)/, "dev-only scripts"],
+  [/^scripts\/(?!install-agents\.mjs$|snapshot-workspace\.mjs$|progress-artifacts\.mjs$|resume-checkpoint\.mjs$|workflow-state\.mjs$|runtime-operation-query\.mjs$|compact-handoff\.mjs$|continuity\.mjs$|review-observation\.mjs$|frozen-snapshot\.mjs$)/, "dev-only scripts"],
   [/(^|\/)\.claude\//, "local editor/agent settings"],
   [/(^|\/)\.pi\//, "local pi settings"],
   [/package-lock\.json$/, "lockfile — not consumed by installers of this package"],

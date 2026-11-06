@@ -1,5 +1,26 @@
 # Changelog
 
+## 4.15.0 — Unreleased
+
+- Reduce repeated Git index listing during candidate observation while preserving canonical index hashes, output bounds and both complete currentness checks.
+
+- Bind optional native Review judgments to the exact current task, output, required review scope and retained independent execution. Keep quality, alignment and evidence claims explicit; legacy results remain unverified, and no judgment grants publication permission.
+
+- Add optional read-only Git resource and integration-subject observations using existing candidate/worktree identities; retain per-resource staleness without inferring review acceptance or release confirmation.
+
+- Add optional compact exact-input handoffs with bounded local/Bookie/Scout resolution,
+  no hidden dispatch and no approval from availability. Missing required evidence blocks.
+- Add a portable, role-neutral artifact-review skill and separate engineering Review
+  quality, goal alignment and evidence judgments against verified current intent.
+- Publish optional current-session handoff readiness to Daddy as information only.
+  These changes do not claim live model qualification or mandatory additional phases.
+
+- Add read-only, owner-bound historical native result retrieval from Daddy's
+  durable store. Supported prior records remain inspectable after a Principal
+  update without granting current completion, approval or retry authority.
+- Keep historical responses separate from qualified live runtime observations;
+  malformed identities and session changes refuse before consuming results.
+
 ## 4.14.1 — 2026-11-03
 
 - Snapshot checks now stream every tracked byte in reusable 64 KiB chunks and permit up to 1 GiB of tracked content per observation; previously tracked files were read into memory with a 16 MiB per-file limit and a 256 MiB aggregate cap. No assets are excluded. Raw SHA-256, Git blob digests, descriptor/path stability checks and two complete observations remain required.

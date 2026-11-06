@@ -74,3 +74,22 @@ exact per-pass inert prompt resource; a timer during discovery does not prove co
 Operator semantic gates still apply. Disarm preserves history; status explains state.
 Use the actual selected installation, since package location is part of checkpoint identity.
 This Linux x64 facility is not a filesystem sandbox and implies no JEV or retention consent.
+
+## Read historical native results
+
+After restarting the same Pi session, use `principal_workflow` with
+`action: "history"` and its original `operationId` to inspect Daddy's durable
+result. The query checks the original coordinator session and canonical
+workspace. It accepts a supported historical record format even when Principal's
+implementation changed, without claiming the old implementation is compatible.
+
+This action is read-only: no report copy, completion record, retry or new child.
+It returns exact retained final bytes when available, candidate/input comparison,
+and `completionValid: false`, `approval: false`, `applicability: "not-established"`.
+An interrupted operation stays uncertain. Missing or changed producer bytes are
+an error, not evidence that the old dispatch never started. Reconcile current
+authority, settlement and candidate applicability before continuing work.
+
+Older Daddy versions without the history bridge report it unavailable. Ordinary
+live completion and existing retained reports keep their original checks; this
+is not a fallback runner or cross-session ownership transfer.

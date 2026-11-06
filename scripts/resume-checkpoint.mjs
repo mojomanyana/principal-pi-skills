@@ -13,11 +13,13 @@ const PHASES = ["build", "review", "git-ops"];
 const MAX_FILE = 16 * 1024 * 1024; // Evidence and untracked files remain bounded in memory.
 const MAX_TRACKED_BYTES = 1024 * 1024 * 1024; // Per observation; all bytes are still hashed.
 const TRACKED_CHUNK_BYTES = 64 * 1024;
+const MAX_GIT_OUTPUT = 64 * 1024 * 1024;
+const MAX_TRACKED_FILES = 16384;
 const hash = value => createHash("sha256").update(value).digest("hex");
 const fail = message => { throw new Error(message); };
 const json = value => JSON.stringify(value);
 const equal = (a, b) => json(a) === json(b);
-const git = (root, args) => new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(execFileSync("git", ["--no-optional-locks", ...args], { cwd: root, maxBuffer: 64 * 1024 * 1024, stdio: ["ignore", "pipe", "pipe"] }));
+const git = (root, args, maxBuffer = MAX_GIT_OUTPUT) => new TextDecoder("utf-8", { fatal: true, ignoreBOM: true }).decode(execFileSync("git", ["--no-optional-locks", ...args], { cwd: root, maxBuffer, stdio: ["ignore", "pipe", "pipe"] }));
 const gitPath = value => {
   if (!value.endsWith("\n") || value.slice(0, -1).includes("\n")) fail("newline-containing Git paths are unsupported");
   return value.slice(0, -1); // Preserve legitimate leading/trailing path whitespace.
@@ -104,16 +106,19 @@ export function candidateSnapshot(repo) {
   const read = () => {
     const head = git(root, ["rev-parse", "--verify", "HEAD"]).trim();
     if (!/^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(head)) fail("full committed HEAD required");
-    const flags = git(root, ["ls-files", "-v", "-z"]).split("\0").filter(Boolean);
+    // Split only at NUL: names may contain tabs/newlines. Remove the status prefix without changing staged bytes.
+    const taggedIndex = git(root, ["ls-files", "--stage", "-v", "-z"], MAX_GIT_OUTPUT + 2 * MAX_TRACKED_FILES).split("\0").filter(Boolean);
+    const flags = taggedIndex.map(row => row.slice(0, 2) + row.slice(row.indexOf("\t") + 1));
     if (flags.some(row => /^[a-zS] /.test(row))) fail("masked index entries cannot be resumed");
-    const index = git(root, ["ls-files", "--stage", "-z"]);
+    const index = taggedIndex.map(row => row.slice(2) + "\0").join("");
+    if (Buffer.byteLength(index, "utf8") > MAX_GIT_OUTPUT) fail("Git index output limit exceeded");
     if (index.split("\0").some(row => /^160000 /.test(row) || /^\d+ [a-f0-9]+ [123]\t/.test(row))) fail("submodules or unmerged index cannot be resumed");
     const indexRows = index.split("\0").filter(Boolean).map(row => {
       const match = /^(100644|100755) ([a-f0-9]+) 0\t([\s\S]+)$/.exec(row);
       if (!match) fail("tracked symlinks or unsupported index modes cannot be resumed");
       return { mode: match[1], blob: match[2], path: match[3] };
     });
-    if (indexRows.length > 16384) fail("too many tracked files for a resume checkpoint");
+    if (indexRows.length > MAX_TRACKED_FILES) fail("too many tracked files for a resume checkpoint");
     const objectFormat = git(root, ["rev-parse", "--show-object-format"]).trim();
     if (!["sha1", "sha256"].includes(objectFormat)) fail("unsupported Git object format");
     let trackedTotal = 0;
