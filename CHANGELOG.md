@@ -1,6 +1,13 @@
 # Changelog
 
-## 4.15.0 — Unreleased
+## 4.15.1 — Unreleased
+
+- Coordinators now carry accepted scope, verification alternatives and standing decisions into the next step; previously the guidance did not consistently prevent repeated questions or retrieval of facts already in context.
+- Finish now reuses exact applicable verification evidence; previously it required an unconditional full-suite rerun. Changed inputs, unresolved failures and repository-required fresh checks still require their own validation.
+- Build and Review now check real producer/consumer boundaries, keeping valid alternatives distinct from defects; previously convenient mocks could obscure a contract mismatch.
+- Optional JEV advice now explicitly supports one proposed evidence or tool step using selected public or redacted facts. Previously that use was implicit; advice still grants no access, safe retry or approval, and is never required per tool call.
+
+## 4.15.0 — 2026-11-06
 
 - Reduce repeated Git index listing during candidate observation while preserving canonical index hashes, output bounds and both complete currentness checks.
 

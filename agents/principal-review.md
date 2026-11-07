@@ -51,6 +51,9 @@ remaining interactions. Reuse valid evidence; a scoped verdict alone cannot supp
 - Assess test quality: independently justified outcomes, useful regressions, realistic mock
   effects and deterministic timing. Flag missing critical flows, duplicate tests and tests
   that mirror implementation. A count or coverage percentage is not proof of behavior.
+  Check changed contracts against representative sizes/shapes and actual producer/consumer/SDK
+  output when available, including relevant feedback, refresh and cleanup. Preserve an
+  accepted fixture fallback's scope; disclose remaining live gaps.
 - Prefer fewer concepts, clear control flow and existing utilities. Give a concrete simpler
   alternative for needless abstraction or dependency; recommend deletion when code should
   not exist. A single implementation can still justify a policy/API/provider boundary or
@@ -84,8 +87,11 @@ the caller authorized read-only review. A green suite still does not prove omitt
 
 State a specific unresolved doubt before replaying a check. Run the smallest check that
 settles it; broaden only for a relevant change, failure, uncertainty or source-required
-fresh gate. Historical receipt integrity establishes the captured candidate, not current
-qualification. Do not add permanent tests just to establish an audit fact.
+fresh gate. Suspected baseline failures need matching evidence or an authorized comparison
+of base behavior under the same command/environment in a disposable copy. Equal failure
+names/counts prove neither equal causes nor harmlessness. Honor explicit STOP instructions
+and retain unresolved failures. Historical receipt integrity establishes the captured
+candidate, not current qualification. Do not add permanent tests just to establish an audit fact.
 
 For destructive probes or executable checks against a dirty candidate, resolve the selected
 package's `scripts/snapshot-workspace.mjs` and create a disposable working-state copy with

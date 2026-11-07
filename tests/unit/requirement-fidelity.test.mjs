@@ -79,7 +79,11 @@ for (const mode of ["skill", "agent"]) {
       /boundaries and failure flows/, /parameterize related cases/i, /duplicate or implementation-mirroring tests/,
       /No coverage or test-count quota/, /without weakening assertions/,
       /Reuse exact command\/results.*candidate.*configuration\/environment match/,
-      /metadata corrections alone do not/, /source-required final gate/]);
+      /metadata corrections alone do not/, /source-required final gate/,
+      /representative real artifact sizes\/shapes.*proposed limits/,
+      /actual producer output.*consumer\/SDK/, /accepted fixture fallback/,
+      /same command\/environment in an authorized disposable copy/,
+      /Equal failing names\/counts.*not prove equal causes or harmlessness/, /explicit STOP instructions/]);
   });
   test(`build ${mode}: evidence-only requests do not manufacture permanent product work`, () => {
     clauses(contract("build",mode),[/request for evidence is not a request to add permanent tests/,
@@ -106,7 +110,10 @@ for (const mode of ["skill", "agent"]) {
       /Fresh reviewer judgment does not require fresh suite execution/,
       /Do not reject matching evidence merely because you did not run it/,
       /specific unresolved doubt before replaying/, /Missing or stale evidence already due.*UNVERIFIED/,
-      /Known violated behavior.*CHANGES-REQUESTED/, /retain both findings and Evidence gaps/]);
+      /Known violated behavior.*CHANGES-REQUESTED/, /retain both findings and Evidence gaps/,
+      /actual producer\/consumer\/SDK output/, /accepted fixture fallback's scope/,
+      /same command\/environment in a disposable copy/,
+      /Equal failure names\/counts prove neither equal causes nor harmlessness/, /explicit STOP instructions/]);
   });
   test(`review ${mode}: scope and settlement constrain approval and repairs`, () => {
     clauses(contract("review",mode),[/task.*,.*integrated.*,.*scoped-repair/,
@@ -180,8 +187,26 @@ test('coordinator routes converging work without arbitrary rounds or mandatory r
     /Read every successful report/, /Inline Build persists its complete implementation report before delegated Review/,
     /UNVERIFIED.*evidence.*no automatic implementation/, /same failure repeats without new evidence/,
     /No arbitrary round quota/, /Existing explicit user authorization.*do not ask again/,
-    /Honor the known finish preference/, /keep uncommitted work/, /source-required fresh final suite/]);
+    /Honor the known finish preference/, /keep uncommitted work/, /source-required fresh final suite/,
+    /Before asking or resuming.*non-goals.*accepted verification fallbacks.*standing authorization/,
+    /without it use supplied\/local context/, /Summaries do not create authority/,
+    /already-authorized alternative.*recorded scope and prerequisites/,
+    /cannot clear uncertain admission\/cleanup or waive a required gate/,
+    /Missing history is not proof of no start.*retry requires supported runtime evidence/,
+    /what is usable, remaining gaps.*actual user decision/]);
   assert.doesNotMatch(text,/At most two repair rounds|it counts as a repair round/);
+});
+
+test('finish reuses applicable verification without weakening source-required release checks',()=>{
+  const git=normalized(read('git-ops/SKILL.md'));
+  const finish=git.split('## Finish mode')[1].split('## Right-sizing')[0];
+  clauses(finish,[/Reuse exact applicable command\/results.*candidate, scope, configuration and environment/,
+    /fresh affected checks.*relevant edits, failures or named doubts/,
+    /source-required fresh final suite/, /unresolved failures/,
+    /partial checks are not full-suite success/, /Discard requires explicit authorization/]);
+  assert.doesNotMatch(finish,/rerun the full suite/);
+  assert.match(git.split('## Release mode')[1].split('## Finish mode')[0],
+    /Run the repository's full test command/);
 });
 
 test('disposable checks use the selected helper and do not mutate the caller',()=>{
@@ -200,7 +225,11 @@ test('optional advice retains current consent and independent review boundaries'
     clauses(text,[/jev_advice.*action:"status"/, /enabled workflow mode/,
       /bounded/, /reviewer verdicts/, /independent review until its verdict|cold review until its own verdict/,
       /No quota|no quota/, /CLI bypass/, /Storage.*training permission.*separate|storage consent.*training permission.*distinct/i,
-      /predictions are not labels/, /OpenAI Decisions/, /private transcripts/]);
+      /predictions are not labels/, /OpenAI Decisions/, /private transcripts/,
+      /assess one proposed evidence\/tool step/, /Bookie/, /Scout/,
+      /public or already-redacted facts/, /Bookie retrieval permission does not authorize sending its body to JEV/,
+      /[Nn]o mandatory stage or per-tool advice/, /arguments|argument validation/,
+      /retry proof|safe retry/, /model-policy change|model\/effort policy/]);
   }
 });
 

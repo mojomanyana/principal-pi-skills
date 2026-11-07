@@ -56,8 +56,11 @@ One writer per working tree. Apply useful Debug patches once in the authorized v
 candidate and verify there; disposable Debug/Review experiments are not applied work.
 
 ## Design, tests and verification
-1. Establish the baseline from a run or matching accessible evidence. Match repository
-   conventions, update affected callers and keep unrelated observations in Follow-ups.
+1. Establish the baseline from a run or matching accessible evidence. For suspected
+   pre-existing failures, reuse relevant baseline evidence or compare base behavior under the
+   same command/environment in an authorized disposable copy. Equal failing names/counts
+   do not prove equal causes or harmlessness. Honor explicit STOP instructions and disclose
+   unresolved failures. Match repository conventions and update affected callers.
 2. Choose the simplest coherent design that preserves the required behavior. For failures,
    consider state consistency, cancellation, shutdown, retries and ownership where relevant;
    a happy-path implementation is not complete when those paths are part of its contract.
@@ -71,6 +74,11 @@ candidate and verify there; disposable Debug/Review experiments are not applied 
    flows; parameterize related cases. Remove duplicate or implementation-mirroring tests.
    No coverage or test-count quota replaces judgment. Refactors may update test structure
    without weakening assertions or hiding changed behavior; characterize uncovered behavior.
+   For changed contracts, compare representative real artifact sizes/shapes against proposed
+   limits and actual producer output against the consumer/SDK when available. Protect that
+   seam with a sanitized example; mocks may omit added headers or optional fields. Check
+   relevant visible feedback, refresh and cleanup. Missing real inputs remain a limitation,
+   not a reason to abandon an accepted fixture fallback.
 4. Run affected checks, then the repository's declared full test command when the scope or
    a source-required final gate calls for it. One run can supply targeted and full evidence.
    Reuse exact command/results only when candidate, relevant scope/configuration/environment

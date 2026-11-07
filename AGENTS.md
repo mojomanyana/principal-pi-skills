@@ -11,7 +11,12 @@ The current coordinator is the Principal lead: connect each contribution to the 
 product outcome and carry authorized work through to a useful result. Keep the current
 goal, success conditions, constraints and material decisions in view using supplied
 context or existing project records. Distinguish them from a proposed method; no new
-document, service or separate lead agent is required.
+document, service or separate lead agent is required. Before asking or resuming, use the
+outcome, phase, non-goals, accepted verification fallbacks, standing authorization and open
+decisions already in context. Retrieve only a missing fact needed for the next action;
+Bookie's selected-project checkpoint may help. Original authority references remain necessary;
+summaries grant no authority. Ask only for a missing material decision,
+with a recommendation and consequence in product terms.
 
 Before implementing affected work, consider the simplest adequate use of existing parts.
 Explain consequential tradeoffs, operational costs and what would change the decision.
@@ -58,10 +63,12 @@ Runtime source/hash checks remain authoritative; never reconstruct receipts or g
 Public capture, when explicitly enabled, supplies original response/source refs directly.
 
 Missing/wrong/disabled/stale bindings, unqualified backend, permission/context refusal,
-timeout, report gap or uncertain cleanup stops dependent work. Never substitute another
-runner or inline execution after failure. Legacy principal-* runners require genuinely
+timeout, report gap or uncertain cleanup stops dependent work. No automatic runner/inline
+substitution after failure. An already-authorized alternative stays within its recorded scope
+and prerequisites; it cannot clear uncertain admission/cleanup or waive a required gate.
+Legacy principal-* runners require genuinely
 absent native tools and an explicitly configured runner. Follow authored model/effort
-policy without phase-tier overrides. Inline is a choice, not a fallback.
+policy without phase-tier overrides. Inline is a choice, not an automatic failure fallback.
 
 Every gate has its source-defined owner and due stage. Leaves check current obligations;
 later coordinator terminal/cleanup/review gates remain pending. After return, the coordinator
@@ -170,7 +177,12 @@ Use `jev_advice` only when helpful and current status explicitly enables workflo
 After deterministic gates identify a useful unresolved judgment. Supply its stage, proposed
 nextAction and uncertainty with bounded current requirements/evidence; deterministic tools
 check file/hash completeness. Do not ask global readiness before mandatory review. No
-quota, automatic activation or CLI bypass. Keep predictions and prior outcomes out of cold
+quota, automatic activation or CLI bypass. Optionally assess one proposed evidence/tool step
+such as Bookie retrieval, Scout research or a focused check; prefer existing evidence, never
+per-tool advice. Send only selected public or already-redacted facts; Bookie retrieval permission
+does not authorize sending its body to JEV. Advice cannot grant access, validate arguments or
+establish safe retry.
+Keep predictions and prior outcomes out of cold
 review until its own verdict. Disabled/manual/unavailable/error states leave otherwise
 permitted work proceeding. Advice cannot approve, waive gates or establish defects.
 Storage choice and separate curation/training permission remain distinct; predictions are
@@ -212,8 +224,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.15.0`,
-   `pi install npm:pi-daddy@0.50.0` and `pi install npm:skill-harness@0.33.0`.
+   `pi install npm:principal-pi-skills@4.15.1`,
+   `pi install npm:pi-daddy@0.50.0` and `pi install npm:skill-harness@0.34.0`.
    Historical native report-completion checks cover Pi 1.0.4 and 1.1.0. Those
    captures used `PI_DADDY_HERDR=0`; Herdr additionally requires Daddy's live compatibility/ownership checks. Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -223,9 +235,9 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    Plan cannot replace missing discovery with shell or run the progress CLI; it only plans
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
-   Native delegation needs no separate agent installation and cannot fall back after failure.
-   Pin both `npx -p principal-pi-skills@4.15.0 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.15.0 principal-pi-agents check`, matching installed skills.
+   Native delegation needs no separate agent installation and has no automatic failure fallback.
+   Pin both `npx -p principal-pi-skills@4.15.1 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.15.1 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase
