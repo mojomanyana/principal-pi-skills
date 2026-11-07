@@ -104,13 +104,13 @@ claims of measured model compliance. Common ceilings remain unchanged.
 | `decide` | Options and stress-tests for a decision that isn't settled â€” "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
 | `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1591) or inline | 1525 |
-| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1728) or inline | 1713 |
-| `review` | One pass, two axes â€” correctness and simplicity â€” ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1442) or inline | 1390 |
+| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1819) or inline | 1804 |
+| `review` | One pass, two axes â€” correctness and simplicity â€” ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1508) or inline | 1456 |
 | `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 799) or inline | 778 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1573) or inline | 1433 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 538) or inline | 539 |
 | `artifact-review` | Quality, intent alignment and evidence for plans, decisions, architecture or custom artifacts | standalone Pi skill; no native phase | 947 |
-| `git-ops` | Safe version-control operator â€” reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2523 |
+| `git-ops` | Safe version-control operator â€” reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2536 |
 
 Routing between them belongs to the orchestrator, not to a skill â€” there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is the
@@ -135,7 +135,9 @@ Native handoffs use `delegate_describe({agent:"phase"})`, require binding packag
 inline/delegated paths and full-file SHA-256 hashes from the same generation pass. The
 runtime must verify enabled selected source, package identity and both hashes. Missing,
 wrong or disabled bindings and operational failures stop dependent work; they never trigger
-legacy/foreign/inline substitution. Only genuinely absent native tools permit an explicitly
+automatic legacy/foreign/inline substitution. A previously authorized alternative remains
+scoped and must satisfy its own prerequisites; it cannot clear uncertain admission/cleanup
+or waive a required gate. Only genuinely absent native tools permit an explicitly
 configured legacy principal-* runner. Inline is a workflow choice. Authored model/effort
 policy governs; phase labels do not silently override it. This contract alone does not qualify
 live native execution; the actual installed runtime/candidate still needs integration evidence.
@@ -248,9 +250,9 @@ CHANGELOG.md                          release history
 1. **Skills + prompts** â€” install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.15.0
+   pi install npm:principal-pi-skills@4.15.1
    pi install npm:pi-daddy@0.50.0
-   pi install npm:skill-harness@0.33.0
+   pi install npm:skill-harness@0.34.0
    ```
 
    Restart Pi after package changes. The `pi` manifest registers ten skills, four
@@ -280,15 +282,15 @@ CHANGELOG.md                          release history
    requires pi-daddy's live compatibility and native ownership checks. This is runtime
    qualification, not a model-quality claim for every provider. The selected package's generated `principal-agents.json` binds each phase
    to its skill and agent bytes. Native routing uses `delegate_describe` and the captured
-   `definitionId`; refusal or failure cannot fall back to a legacy runner or inline execution.
+   `definitionId`; refusal or failure cannot automatically fall back to a legacy runner or inline execution.
 
 2. **Legacy subagents (optional).** A configured legacy runner can use the six definitions
    when native tools are genuinely absent. Native delegation needs no separate agent install.
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.15.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.15.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.15.1 principal-pi-agents install
+   npx -p principal-pi-skills@4.15.1 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -615,13 +617,13 @@ diffs and test output. The seven skills were the strongest part of the repo and 
 Markdown. 4.0 returns the repo to skills plus a thin orchestration layer and borrows four
 mechanisms from [superpowers](https://github.com/obra/superpowers) that serve the north star.
 
-Decisions taken for 4.0, all closed:
+Current decisions following the 4.0 redesign:
 
 | Decision | Chosen |
 |---|---|
 | Target harness | pi only |
 | Assurance ledger and profiles | removed; per-skill right-sizing is the mechanism; the tool lives on the `v3.2.0` tag for porting to pi-daddy |
-| Human approval | always, after plan (feature) or after the debug note (bugfix); the artifact scales, the stop does not |
+| Human approval | preserve explicit authorization for the same scope; ask only for a missing material decision or source-required approval, not every phase |
 | Routing delivery | request-local bootstrap after selected-resource discovery; quoted markers do not suppress it |
 | Build delegation | bound native phase, or explicitly configured legacy runner when native tools are absent; inline is a workflow choice |
 | Plan persistence | multi-step plans to git-ignored `.principal/plans/<slug>.md`; titles locate candidates, while manual resume checks actual authority, current work and evidence |
