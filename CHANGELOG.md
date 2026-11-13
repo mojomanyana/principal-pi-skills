@@ -1,6 +1,10 @@
 # Changelog
 
-## 4.15.1 — Unreleased
+## 4.15.2 — 2026-11-13
+
+- Use Daddy's validated selected-resource locations for Principal helpers and supporting skills. Older Daddy versions and ordinary Pi retain the verified source-path fallback; no additional permission, helper execution or resource-content verification is inferred from a path.
+
+## 4.15.1 — 2026-11-07
 
 - Coordinators now carry accepted scope, verification alternatives and standing decisions into the next step; previously the guidance did not consistently prevent repeated questions or retrieval of facts already in context.
 - Finish now reuses exact applicable verification evidence; previously it required an unconditional full-suite rerun. Changed inputs, unresolved failures and repository-required fresh checks still require their own validation.

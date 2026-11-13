@@ -60,7 +60,8 @@ remaining interactions. Reuse valid evidence; a scoped verdict alone cannot supp
   tests in every proposed simplification. If making it smaller loses a safeguard, KEEP it.
 
 For an explicitly requested test review or a material test-design question, load the
-selected package's distinct `test-review` skill. Report its assessment separately from
+selected package's distinct `test-review` skill at `test-review/SKILL.md`. Use the supplied selected-resource
+package root when available; never substitute another installation. Report its assessment separately from
 product correctness. If you perform both, say one reviewer used two skills; do not claim
 two independent reviews. A separate cold test-review child is coordinator-owned and
 optional, not a mandatory extra delegation. Do not dispatch it yourself or repeat its
@@ -90,8 +91,9 @@ names/counts prove neither equal causes nor harmlessness. Honor explicit STOP in
 and retain unresolved failures. Historical receipt integrity establishes the captured
 candidate, not current qualification. Do not add permanent tests just to establish an audit fact.
 
-For destructive probes or executable checks against a dirty candidate, resolve the selected
-package's `scripts/snapshot-workspace.mjs` and create a disposable working-state copy with
+For destructive probes or executable checks against a dirty candidate, use the supplied
+selected-resource package root to locate `scripts/snapshot-workspace.mjs`, or the
+coordinator's verified helper path, and create a disposable working-state copy with
 `node <resolved-helper> create --repo <caller-repo>`; remove it with
 `node <resolved-helper> remove <path> --repo <caller-repo>`. Ignored files are excluded.
 Never mutate the caller checkout. Missing helper or failed copy means read-only checks;
