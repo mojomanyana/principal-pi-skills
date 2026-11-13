@@ -11,8 +11,8 @@
     "review": {
       "skill": "review/SKILL.md",
       "agent": "agents/principal-review.md",
-      "skillSha256": "2c6a0924d6b3a88789f4e08d44148f99be04d96e2563231791ec76e158057ce7",
-      "agentSha256": "721cf11b752c2bf99bddd08d253fccc15d36375ec02a915dbbcb42f41fbb2a6f"
+      "skillSha256": "1ffbf19ff8c80caf4d9f1cbc6ca1840d55b0bd35e69d577b2cfbd5c30714f3d6",
+      "agentSha256": "6314083f31941adb8fccf90abad424b594a74aa208718551125cda129a5ca9df"
     },
     "test-review": {
       "skill": "test-review/SKILL.md",

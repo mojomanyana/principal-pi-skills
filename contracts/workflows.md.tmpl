@@ -57,6 +57,8 @@ in product terms; do not make the operator interpret internal receipts.
 current selected bindings until reload/resource changes or runtime staleness. Preserve the
 unmodified describe response and selected skill/agent source references. Enabled public
 capture supplies them; never guess an installation path or reconstruct native JSON.
+When present, pass `selectedResources` unchanged: it identifies selected sources and the
+validated package root, not helper contents, extra permissions or product evidence.
 Missing/wrong/disabled/stale binding, permission/context refusal, unqualified backend,
 timeout, report gap or uncertain cleanup stops dependent work. No automatic inline/foreign
 runner fallback after failure. An already-authorized alternative stays within its recorded

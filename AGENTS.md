@@ -61,6 +61,10 @@ Reuse a current selected binding; refresh after selected-resource/reload changes
 staleness. Preserve the unmodified response and accessible selected skill/agent sources.
 Runtime source/hash checks remain authoritative; never reconstruct receipts or guess paths.
 Public capture, when explicitly enabled, supplies original response/source refs directly.
+When available, preserve `delegate_describe.details.selectedResources` in the handoff.
+Its validated `package.root` locates this package's known helpers and supporting skills;
+paths do not establish their contents or grant additional tools. Older Daddy versions
+may omit it: use the coordinator's verified selected source path, never another installation.
 
 Missing/wrong/disabled/stale bindings, unqualified backend, permission/context refusal,
 timeout, report gap or uncertain cleanup stops dependent work. No automatic runner/inline
@@ -224,8 +228,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.15.1`,
-   `pi install npm:pi-daddy@0.50.0` and `pi install npm:skill-harness@0.34.0`.
+   `pi install npm:principal-pi-skills@4.15.2`,
+   `pi install npm:pi-daddy@0.57.0` and `pi install npm:skill-harness@0.35.5`.
    Historical native report-completion checks cover Pi 1.0.4 and 1.1.0. Those
    captures used `PI_DADDY_HERDR=0`; Herdr additionally requires Daddy's live compatibility/ownership checks. Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -236,8 +240,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and has no automatic failure fallback.
-   Pin both `npx -p principal-pi-skills@4.15.1 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.15.1 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.15.2 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.15.2 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase
