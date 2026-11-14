@@ -247,12 +247,30 @@ CHANGELOG.md                          release history
 
 ## Install (pi)
 
+### Starting a project or recalling completed work
+
+In a new folder, Pi can inspect readiness with `principal_workflow` action `preflight`.
+If native engineering handoffs need an initial Git baseline, action `setup` (or
+`/principal-setup`) presents one confirmation in Pi. It creates one empty setup commit,
+leaves product files uncommitted, and excludes runtime notes locally. Existing committed
+projects are reused; it does not stage files, add a remote or change global Git settings.
+Snapshot and preflight never initialize Git automatically. Existing restrictions on
+commits and writes still apply.
+
+Planning and memory recall work without this setup. For a fresh-session recap, ask for
+the saved delivery, historical test/review results, limitations and open choices; do not
+paste a previous setup or implementation continuation. A refused note lookup means
+history is unknown. Readiness and candidate diagnostics are explained in
+[workflow mechanics](references/workflow-mechanics.md).
+
+### Package installation
+
 1. **Skills + prompts** â€” install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.15.2
+   pi install npm:principal-pi-skills@4.15.3
    pi install npm:pi-daddy@0.57.0
-   pi install npm:skill-harness@0.35.5
+   pi install npm:skill-harness@0.35.6
    ```
 
    Restart Pi after package changes. The `pi` manifest registers ten skills, four
@@ -289,8 +307,8 @@ CHANGELOG.md                          release history
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.15.2 principal-pi-agents install
-   npx -p principal-pi-skills@4.15.2 principal-pi-agents check
+   npx -p principal-pi-skills@4.15.3 principal-pi-agents install
+   npx -p principal-pi-skills@4.15.3 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm

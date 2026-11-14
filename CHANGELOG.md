@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.15.3 — 2026-11-14
+
+- Add read-only project preflight and one confirmed empty-baseline setup path for new folders. Existing products, indexes, remotes and global Git configuration are preserved; recall and plain planning need no Git.
+- Distinguish malformed or missing candidate inputs, workspace mismatch and changed identity. Report supported HEAD/index/source comparisons without changing candidate IDs or silently retrying.
+- Keep saved-note recaps separate from creation and verification requests, preserving historical limitations and open choices without duplicate work.
+
 ## 4.15.2 — 2026-11-13
 
 - Use Daddy's validated selected-resource locations for Principal helpers and supporting skills. Older Daddy versions and ordinary Pi retain the verified source-path fallback; no additional permission, helper execution or resource-content verification is inferred from a path.

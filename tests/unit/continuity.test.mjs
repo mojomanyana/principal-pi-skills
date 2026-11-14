@@ -267,16 +267,24 @@ test("freeze authority revoked after publication withholds the return without er
 test("workflow freeze defaults to its current root and checks trusted scope/owner after awaits", async t => {
   const f = fixture(t), one = f.repo("one"), two = f.repo("two"), roots = [one, two];
   // Execute the actual extension; only unused schema constructors are stubbed. Pi loading is separately qualified.
-  const extension = new URL("../../extensions/workflow.ts", import.meta.url);
-  const source = readFileSync(extension, "utf8").replace('import { Type } from "typebox";', 'const Type = new Proxy({}, { get: () => (..._args) => ({}) });')
-    .replace(/from "(\.\.\/scripts\/[^"]+)"/gu, (_match, path) => `from ${JSON.stringify(new URL(path, extension).href)}`);
-  const { default: register } = await import("data:text/javascript;base64," + Buffer.from(source).toString("base64"));
+  // Include the JavaScript-syntax setup factory instead of asking Node 20 to import a raw .ts URL.
+  function extensionFixtureUrl(url) {
+    const source = readFileSync(url, "utf8")
+      .replace('import { Type } from "typebox";', "const Type = new Proxy({}, { get: () => (..._args) => ({}) });")
+      .replace(/from "(\.\.?\/[^"]+)"/gu, (_match, path) => {
+        const dependency = new URL(path, url);
+        return "from " + JSON.stringify(dependency.pathname.endsWith(".ts") ? extensionFixtureUrl(dependency) : dependency.href);
+      });
+    return "data:text/javascript;base64," + Buffer.from(source).toString("base64");
+  }
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
   function host(options) {
     let tool, sessionId = "native-parent";
     const hooks = new Map();
-    const pi = { registerTool: value => { tool = value; }, on: (event, fn) => hooks.set(event, [...(hooks.get(event) ?? []), fn]), events: { on: () => () => {} } };
+    const pi = { registerTool: value => { tool = value; }, registerCommand: () => {},
+      on: (event, fn) => hooks.set(event, [...(hooks.get(event) ?? []), fn]), events: { on: () => () => {} } };
     register(pi, options);
-    const ctx = { cwd: one, sessionManager: { getSessionId: () => sessionId } };
+    const ctx = { cwd: one, isProjectTrusted: () => true, sessionManager: { getSessionId: () => sessionId } };
     return { ctx, changeOwner: () => { sessionId = "other-owner"; }, call: request => tool.execute("fixture", request, undefined, () => {}, ctx) };
   }
   const request = { action: "freeze", repositories: roots, expectedSubject: observeIntegrationSubject(roots) };

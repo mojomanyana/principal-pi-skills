@@ -12,10 +12,37 @@ does not bypass permission checks or reinterpret a dismissed prompt as approval.
 
 ## Native result bookkeeping
 
+### New folders and saved-note recaps
+
+`principal_workflow({action:"preflight"})` reports the current folder's readiness
+without creating files. A missing repository or initial commit is a setup prerequisite,
+not a product defect. `action:"setup"` or `/principal-setup` asks once in interactive Pi
+before creating one empty baseline. It leaves product files uncommitted, adds only local
+runtime exclusions, and uses no remote or global identity configuration. Existing committed
+projects are reused. Cancel, headless mode, parent repositories, unsafe metadata and
+changed confirmation state cannot silently initialize another folder. Partial failures
+report which setup steps completed; inspect them rather than blindly retrying.
+
+Keep creation and recall requests separate. A request to recall a delivered task after
+`/new` retrieves the selected project's notes and reports historical results; it does not
+request Git setup, a new review, fresh tests or another saved handoff. A blocked or incomplete
+lookup is history unknown. The separate `history` operation below reads original-owner
+native records; it does not transfer execution ownership into a new session.
+
+### Candidate diagnostics
+
 Pass the returned `snapshot.candidate` directly as `expectedCandidate` to `prepare`. Supply
 `inputPaths` for authority/evidence files that matter to this handoff; the tool calculates
 references, while candidate identity already covers product files. Existing exact `inputs`
 references remain valid. Avoid another product-file hash inventory.
+
+Missing or malformed expected identity is different from a different candidate or workspace.
+The tool explains those cases and refuses before handoff writes. Full snapshot objects may
+support HEAD/index/source comparisons; ID-only or older snapshots cannot explain every
+dimension, so those comparisons stay unknown. Passing HEAD for a dirty tree can be a stale
+observation or a wrong field, not proof of either. Keep the original record and use the exact
+current snapshot only after understanding why the expected input differs. Do not reconstruct
+hashes or repeat prepare unchanged. These diagnostics neither approve work nor authorize retry.
 
 Pass `prepared.operation_id` unchanged to native delegation. After settlement, immediately
 call `complete` with `operationId: prepared.operation_id` and the actual `disposition`, before
