@@ -86,9 +86,42 @@ function requestedReferences(root, request) {
     "inputPaths must be at most 128 nonempty file paths, relative to the worktree or absolute");
   return references([...(request.inputs ?? []), ...paths.map(path => reference(resolve(root, path)))]);
 }
-function expectedMatches(current, expected) {
-  return typeof expected === "string" ? current.id === expected
-    : expected && expected.algorithm === current.algorithm && expected.root === current.root && expected.id === current.id;
+const candidateId = value => typeof value === "string" && /^(?:[a-f0-9]{40}|[a-f0-9]{64}|dirty:[a-f0-9]{64})$/.test(value);
+const digest = value => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
+const commitId = value => typeof value === "string" && /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(value);
+/** Fixed, path-free diagnostics. A supplied baseline is informative, never additional authority. */
+export class CandidateIdentityError extends Error {
+  constructor(code, message, diagnostic) {
+    super(message);
+    this.name = "CandidateIdentityError";
+    this.code = code;
+    this.administrativeWrites = false;
+    this.diagnostic = Object.freeze({ kind: "candidate-identity", ...diagnostic });
+  }
+}
+function candidateComparison(current, expected) {
+  const compare = (key, valid) => valid(expected?.[key]) ? current[key] === expected[key] ? "same" : "different" : "unknown";
+  return Object.freeze({ head: compare("head", commitId), index: compare("indexSha256", digest), source: compare("sourceSha256", digest) });
+}
+function requireExpectedCandidate(current, expected) {
+  const fail = (code, message, reason) => { throw new CandidateIdentityError(code, message, { reason }); };
+  if (expected === undefined)
+    fail("CANDIDATE_EXPECTED_MISSING", "expectedCandidate is required; pass the returned snapshot.candidate or snapshot.candidate.id unchanged.", "missing-expected");
+  const object = expected !== null && typeof expected === "object" && !Array.isArray(expected);
+  if (!(typeof expected === "string" ? candidateId(expected) : object && expected.algorithm === CANDIDATE_ALGORITHM &&
+    typeof expected.root === "string" && isAbsolute(expected.root) && candidateId(expected.id)))
+    fail("CANDIDATE_EXPECTED_INVALID", "expectedCandidate must be a returned candidate identity or its exact id, not the whole snapshot response or an arbitrary value.", "malformed-expected");
+  if (object && expected.root !== current.root)
+    fail("CANDIDATE_WORKSPACE_MISMATCH", "The supplied candidate belongs to a different workspace; reconcile the selected workspace before preparing work.", "workspace-mismatch");
+  const expectedId = object ? expected.id : expected;
+  if (current.id === expectedId) return;
+  const headOnly = expectedId === current.head && current.id.startsWith("dirty:");
+  throw new CandidateIdentityError("CANDIDATE_IDENTITY_MISMATCH",
+    headOnly
+      ? "Candidate identity differs: the supplied id identifies HEAD, while the current candidate includes uncommitted files. Use the exact snapshot.candidate after reconciling the intended work."
+      : "Candidate identity differs from the supplied observation; reconcile the current workspace and inputs before preparing work.",
+    { reason: "identity-mismatch", comparisonBasis: "supplied-candidate", comparison: candidateComparison(current, object ? expected : undefined),
+      ...(headOnly ? { hint: "head-does-not-identify-dirty-candidate" } : {}) });
 }
 function referenceIssues(refs) {
   try { references(refs); return []; } catch (error) { return [error.message]; }
@@ -96,15 +129,22 @@ function referenceIssues(refs) {
 /** Observe product identity and named authority/evidence bytes without caller-computed hashes. */
 export function observeSnapshot(repo, request = {}) {
   const candidate = observeCandidate(repo);
-  if (request.expectedCandidate !== undefined) assert(expectedMatches(candidate, request.expectedCandidate), "candidate changed since the caller's observation");
+  if (request.expectedCandidate !== undefined) requireExpectedCandidate(candidate, request.expectedCandidate);
   const inputs = requestedReferences(candidate.root, request);
-  assert(same(observeCandidate(repo), candidate), "candidate changed during snapshot; observe again");
+  const after = observeCandidate(repo);
+  if (!same(after, candidate)) throw new CandidateIdentityError("CANDIDATE_OBSERVATION_CHANGED", "Candidate changed during snapshot; no handoff was prepared.",
+    { reason: "observation-changed", comparisonBasis: "observed-candidate", comparison: candidateComparison(after, candidate) });
   return { version: 1, state: "observed", approval: false, administrativeWrites: false, candidate, inputs };
 }
 export function observeCandidate(repo) {
   const c = candidateSnapshot(repo);
+  // Index membership is deliberately absent: staging unchanged bytes changes the index, not the source.
+  const sources = [...c.tracked, ...c.untracked].filter(file => !file.missing)
+    .map(({ path, sha256, mode }) => ({ path, sha256, mode }))
+    .sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
   return { algorithm: CANDIDATE_ALGORITHM, root: c.root, id: c.id, head: c.head,
     indexSha256: c.indexSha256, stagedSha256: c.stagedSha256, unstagedSha256: c.unstagedSha256,
+    sourceSha256: hash(canonical(sources)),
     changedPaths: c.changedPaths.slice(0, 100), changedPathCount: c.changedPaths.length };
 }
 /** Optional in-process advisory observation. The caller cannot select another workspace. */
@@ -259,7 +299,9 @@ export function inspectHistoricalOperation(repo, request, owner) {
   return { version: 1, state: "historical", operation_id: record.operationId,
     task: record.task, step: record.step, attempt: record.attempt, phase: record.phase,
     root: record.root, owner: record.owner, candidate: record.input, currentCandidate: current,
-    candidateMatches: same(current, record.input), inputsMatch: !inputIssues.length,
+    // Additive observation fields do not change the authoritative historical candidate identity.
+    candidateMatches: current.algorithm === record.input?.algorithm && current.root === record.input?.root && current.id === record.input?.id,
+    inputsMatch: !inputIssues.length,
     implementationMatches: same(record.implementation, implementation()), issues: inputIssues,
     approval: false, completionValid: false, administrativeWrites: false,
   };
@@ -295,7 +337,7 @@ function prepare(repo, request) {
   const owner = request.owner ?? null;
   assert(owner === null || (typeof owner.sessionId === "string" && owner.sessionId && typeof owner.cwd === "string" && isAbsolute(owner.cwd)), "invalid coordinator identity");
   const current = observeCandidate(repo);
-  assert(expectedMatches(current, expectedCandidate), "candidate changed; observe again before preparing a handoff");
+  requireExpectedCandidate(current, expectedCandidate);
   const checked = requestedReferences(current.root, request), binding = reviewBinding(request, checked, current), where = location(current.root, task, step, attempt, true);
   try { mkdirSync(where.path, { mode: 0o700 }); }
   catch (error) {
@@ -349,7 +391,7 @@ function finalText(runtime) {
 /** Observe an exact native result without creating Principal metadata or report files. */
 export function observeOperationResult(repo, request, runtime) {
   const candidate = observeCandidate(repo), identity = settledRuntime(runtime, request.operationId, candidate.root);
-  if (request.expectedCandidate !== undefined) assert(expectedMatches(candidate, request.expectedCandidate), "candidate changed since the caller's observation");
+  if (request.expectedCandidate !== undefined) requireExpectedCandidate(candidate, request.expectedCandidate);
   const text = finalText(runtime);
   return { version: 1, state: "observed", approval: false, administrativeWrites: false, storage: "none",
     candidate, runtime: identity, final: { ...identity.runtime.final, text } };

@@ -87,6 +87,20 @@ all results, review candidates and integrate serially with merged checks.
 
 ## Handoffs and convergence
 
+For a recap or recall-only request, use selected project memory when available and
+report saved delivery, historical checks, limitations and open choices. Use distinctive
+terms or recent notes when wording is unknown; read the relevant saved record. Do not
+rebuild, research, rerun tests or save duplicates merely to repeat a known outcome.
+A refused or incomplete lookup leaves history unknown; it does not prove no notes exist.
+This does not require Git, workflow preparation or a delegated child.
+
+Before native engineering handoffs in a new folder, use `principal_workflow` preflight.
+The setup action (also `/principal-setup`) offers one current-session confirmation for
+an empty Git baseline. It stages no product files and changes no global Git settings.
+Respect existing no-commit/no-write instructions; ask only for the missing setup decision.
+Never initialize as a side effect of snapshot, invent a baseline, or switch folders to
+evade refusal. Plain planning can remain in chat and saved-note recall needs no Git.
+
 Optional `principal_handoff` prepares a compact task, caveats and exact required/optional
 references. Resolve required inputs before dependent judgment; missing, denied, stale or
 truncated inputs block, never approve. Select optional history only for a named uncertainty.
@@ -228,8 +242,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.15.2`,
-   `pi install npm:pi-daddy@0.57.0` and `pi install npm:skill-harness@0.35.5`.
+   `pi install npm:principal-pi-skills@4.15.3`,
+   `pi install npm:pi-daddy@0.57.0` and `pi install npm:skill-harness@0.35.6`.
    Historical native report-completion checks cover Pi 1.0.4 and 1.1.0. Those
    captures used `PI_DADDY_HERDR=0`; Herdr additionally requires Daddy's live compatibility/ownership checks. Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -240,8 +254,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and has no automatic failure fallback.
-   Pin both `npx -p principal-pi-skills@4.15.2 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.15.2 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.15.3 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.15.3 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase

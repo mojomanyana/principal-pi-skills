@@ -1,16 +1,18 @@
 // Coordinator-only bookkeeping. Native execution and semantic approval remain separate.
 import { realpathSync } from "node:fs";
 import { Type } from "typebox";
-import { observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation } from "../scripts/workflow-state.mjs";
+import { CandidateIdentityError, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation } from "../scripts/workflow-state.mjs";
 import { reference } from "../scripts/progress-artifacts.mjs";
 import { freezeSnapshot } from "../scripts/frozen-snapshot.mjs";
 import { observeGitResource, observeIntegrationSubject, observePackageRelease, packageReleaseEffectTarget } from "../scripts/continuity.mjs";
 import { queryRuntimeOperation } from "../scripts/runtime-operation-query.mjs";
+import { inspectProject, ProjectSetupError } from "../scripts/project-setup.mjs";
+import { createProjectSetup } from "./project-setup.ts";
 
 const ref = Type.Object({ path: Type.String(), sha256: Type.String({ pattern: "^[a-f0-9]{64}$" }) }, { additionalProperties: false });
 const choice = values => Type.Union(values.map(value => Type.Literal(value)));
 const parameters = Type.Object({
-  action: choice(["snapshot", "reference", "prepare", "status", "complete", "retry", "result", "history", "resource", "freeze"]),
+  action: choice(["preflight", "setup", "snapshot", "reference", "prepare", "status", "complete", "retry", "result", "history", "resource", "freeze"]),
   expectedSubject: Type.Optional(Type.Object({ kind: Type.Literal("principal-integration") }, { additionalProperties: true })),
   packageRelease: Type.Optional(Type.Object({ packagePath: Type.String({ maxLength: 1024 }), registry: Type.String({ maxLength: 1024 }) }, { additionalProperties: false })),
   repositories: Type.Optional(Type.Array(Type.String(), { minItems: 1, maxItems: 16 })),
@@ -38,19 +40,21 @@ const outputSchema = Type.Object({
   operation_id: Type.Optional(Type.String()), reportPath: Type.Optional(Type.String()),
   candidateMatches: Type.Optional(Type.Boolean()), reused: Type.Optional(Type.Boolean()),
   error: Type.Optional(Type.String()),
+  code: Type.Optional(Type.String()),
 }, { additionalProperties: true });
 
 export function operationStatus(pi, ctx, operationId, signal, includeFinal = false) {
   return queryRuntimeOperation(pi, ctx, operationId, signal, { includeFinal });
 }
 export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] } = {}) {
+  const projectSetup = createProjectSetup(pi);
   let freezeEpoch = 0;
   for (const event of ["session_start", "session_switch", "session_fork", "session_tree", "model_select", "session_shutdown"]) pi.on(event, () => { freezeEpoch++; });
   const bindCandidateObserver = registerCandidateObserver(pi);
   pi.registerTool({
     name: "principal_workflow", label: "Principal workflow", parameters, outputSchema,
-    description: "Deterministic candidate identity and private handoffs. snapshot observes a Git worktree and hashes named inputPaths (relative to its root or absolute); reference hashes an exact file. prepare accepts the returned candidate object or its id as expectedCandidate, plus inputPaths or existing exact inputs. Product identity already covers the tree: name only relevant authority/evidence inputs. prepare needs stable task/step and phase, returning coordinator-owned reportPath, precreated artifactsPath and operation_id. Repeating it reuses verified artifacts. Pass operation_id to native delegation. status/complete/retry accept operationId without repeating task/step. complete first retains the exact verified native final after settlement, even if later edits make it historical; separate completionValid and issues describe current candidate/input checks. Neither retention nor completion approves work. result reads a named native operation without writing files; use it instead of prepare/complete when all filesystem writes are forbidden. history reads the original owner-bound durable result after restart; it never grants current completion, approval or retry authority. retry preserves a settled previous attempt. freeze preserves exact source and explicit in-root evidence as an immutable historical resource, never approval; it requires an expected integration subject and trusted selected roots (ordinary Pi defaults to cwd). resource returns the owner-computed exact Git work-map reference, or an exact integrationSubject when repositories is supplied. An integrated reviewBinding may bind that complete subject; every member must remain current and selected. For an optional Bookie task review, prepare may bind reviewBinding to a completed Build/Debug operation and exact task/output identity. The tool returns the binding id; pass the entire binding to the independent reviewer and use references/continuity.md for its optional receipt. Never construct a digest yourself. Conflicting preparation inputs refuse; native results remain preserved when candidate/authority freshness fails; optional completion evidence still requires exact references. Do not invent replacement fingerprints.",
-    promptGuidelines: ["Use this tool for workflow bookkeeping instead of assembling hashes, report names or duplicate checks with shell recipes. Reuse exact references; read only authority and evidence relevant to the assigned work. Prepared artifact directories already exist. The coordinator observes candidates and retains final reports; children need not locate helper scripts or copy reports. prepare/complete write private administrative files; snapshot/reference/result are read-only. resultRetained records immutable native provenance. completionValid checks current bookkeeping only; neither implies semantic approval. Preserve a settled review with complete before repair, using its operationId."],
+    description: "preflight observes project readiness without writes; setup offers native confirmation for bounded setup in the current workspace, without dispatching work. Deterministic candidate identity and private handoffs. snapshot observes a Git worktree and hashes named inputPaths (relative to its root or absolute); reference hashes an exact file. prepare accepts the returned candidate object or its id as expectedCandidate, plus inputPaths or existing exact inputs. Product identity already covers the tree: name only relevant authority/evidence inputs. prepare needs stable task/step and phase, returning coordinator-owned reportPath, precreated artifactsPath and operation_id. Repeating it reuses verified artifacts. Pass operation_id to native delegation. status/complete/retry accept operationId without repeating task/step. complete first retains the exact verified native final after settlement, even if later edits make it historical; separate completionValid and issues describe current candidate/input checks. Neither retention nor completion approves work. result reads a named native operation without writing files; use it instead of prepare/complete when all filesystem writes are forbidden. history reads the original owner-bound durable result after restart; it never grants current completion, approval or retry authority. retry preserves a settled previous attempt. freeze preserves exact source and explicit in-root evidence as an immutable historical resource, never approval; it requires an expected integration subject and trusted selected roots (ordinary Pi defaults to cwd). resource returns the owner-computed exact Git work-map reference, or an exact integrationSubject when repositories is supplied. An integrated reviewBinding may bind that complete subject; every member must remain current and selected. For an optional Bookie task review, prepare may bind reviewBinding to a completed Build/Debug operation and exact task/output identity. The tool returns the binding id; pass the entire binding to the independent reviewer and use references/continuity.md for its optional receipt. Never construct a digest yourself. Conflicting preparation inputs refuse; native results remain preserved when candidate/authority freshness fails; optional completion evidence still requires exact references. Do not invent replacement fingerprints.",
+    promptGuidelines: ["Use preflight for a read-only project readiness observation before Git-dependent bookkeeping. setup uses the current workspace's native confirmation flow when setup is needed; a setup result never dispatches work. Use this tool for workflow bookkeeping instead of assembling hashes, report names or duplicate checks with shell recipes. Pass snapshot.candidate or its exact id unchanged as expectedCandidate; HEAD alone does not identify uncommitted files. Candidate diagnostics compare the supplied baseline where available; unknown dimensions remain unknown. A refusal never authorizes an automatic retry or a new build. Reuse exact references; read only authority and evidence relevant to the assigned work. Prepared artifact directories already exist. The coordinator observes candidates and retains final reports; children need not locate helper scripts or copy reports. prepare/complete write private administrative files; preflight/snapshot/reference/result are read-only. resultRetained records immutable native provenance. completionValid checks current bookkeeping only; neither implies semantic approval. Preserve a settled review with complete before repair, using its operationId."],
     async execute(_callId, request, signal, _update, ctx) {
       try {
         if (signal?.aborted) throw new Error("workflow operation aborted");
@@ -59,7 +63,22 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
         if (request.action === "reference") result = { version: 1, state: "referenced", approval: false, reference: reference(request.path) };
         else {
           const repo = request.repo ?? ctx.cwd;
-          if (request.action === "snapshot") result = observeSnapshot(repo, request);
+          if (request.action === "preflight") result = inspectProject(repo);
+          else if (request.action === "setup") result = await projectSetup(ctx, request.repo, signal);
+          else if (request.action === "snapshot" || request.action === "prepare") {
+            let readiness = inspectProject(repo);
+            // Snapshot/prepare have always resolved a subdirectory's containing Git worktree.
+            // Setup itself remains limited to the session folder; never inspect an expectedCandidate path.
+            if (readiness.reasonCode === "PARENT_REPOSITORY") {
+              const parent = inspectProject(readiness.repositoryRoot);
+              if (parent.state === "ready") readiness = parent;
+            }
+            if (readiness.state !== "ready") result = readiness.state === "setup-required"
+              ? { ...readiness, message: readiness.message + " Use principal_workflow setup or /principal-setup to request interactive confirmation. No setup was performed." }
+              : readiness;
+            else result = request.action === "snapshot" ? observeSnapshot(repo, request)
+              : prepareOperation(repo, { ...request, owner: { sessionId: ctx.sessionManager.getSessionId(), cwd: realpathSync(ctx.cwd) } });
+          }
           else if (request.action === "resource") {
             if (request.packageRelease && request.repositories) throw Error("Select one repository for a package release target");
             const selected = request.packageRelease ? observePackageRelease(repo, request.packageRelease) : request.repositories ? observeIntegrationSubject(request.repositories) : observeGitResource(repo);
@@ -95,7 +114,6 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
             const runtime = await operationStatus(pi, ctx, request.operationId, signal, true);
             result = observeOperationResult(repo, request, runtime);
           }
-          else if (request.action === "prepare") result = prepareOperation(repo, { ...request, owner: { sessionId: ctx.sessionManager.getSessionId(), cwd: realpathSync(ctx.cwd) } });
           else if (request.action === "status") result = inspectOperation(repo, request);
           else {
             const current = inspectOwnedOperation(repo, request, { sessionId: ctx.sessionManager.getSessionId(), cwd: realpathSync(ctx.cwd) });
@@ -107,10 +125,20 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
             }
           }
         }
-        return { content: [{ type: "text", text: JSON.stringify(result) }], structuredContent: result, details: result };
+        return { content: [{ type: "text", text: JSON.stringify(result) }], structuredContent: result, details: result,
+          ...(result.state === "setup-blocked" ||
+            result.state === "setup-required" && ["snapshot", "prepare"].includes(request.action) ? { isError: true } : {}) };
       } catch (error) {
+        const candidateError = error instanceof CandidateIdentityError;
+        const setupError = error instanceof ProjectSetupError;
+        const setupSteps = setupError && error.steps && typeof error.steps === "object"
+          ? Object.fromEntries(["repositoryCreated", "exclusionsWritten", "baselineInstalled"]
+            .filter(key => typeof error.steps[key] === "boolean").map(key => [key, error.steps[key]])) : undefined;
         const result = { version: 1, state: "refused", approval: false, error: error.message,
-          administrativeWrites: ["prepare", "complete", "retry", "freeze"].includes(request.action) ? "possible" : false };
+          ...(candidateError ? { code: error.code, diagnostic: error.diagnostic } : setupError ? { code: error.code } : {}),
+          ...(setupSteps && Object.keys(setupSteps).length ? { setupSteps } : {}),
+          administrativeWrites: candidateError || setupError ? error.administrativeWrites
+            : ["setup", "prepare", "complete", "retry", "freeze"].includes(request.action) ? "possible" : false };
         return { content: [{ type: "text", text: JSON.stringify(result) }], structuredContent: result, details: result, isError: true };
       }
     },
