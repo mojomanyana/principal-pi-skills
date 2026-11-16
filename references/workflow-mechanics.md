@@ -69,6 +69,17 @@ requires matching current inputs/candidate. `resultRetained: true` is historical
 `completionValid: true` is bookkeeping freshness, and neither grants approval. A result already stale at first retention stays historical even if files are later restored.
 Reconcile the affected work, never rewrite history.
 
+Build/Debug normally changes the candidate. Keep its original operation and use `complete`
+after its native final and cleanup settle; do not call `prepare` again to save the result.
+If repeated preparation reports `PREPARED_OUTPUT_CHANGED`, use `recovery.resultArguments`
+to inspect that exact native result without writing. `recovery.statusArguments` observes
+its bookkeeping. Then use `recovery.completionArguments` with the actual `disposition`;
+`requiredCompletionFields` deliberately leaves that decision unset. This response does
+not prove that work started or succeeded and does not authorize a retry or replacement.
+For a partial delivery, preserve missing requirements and reported-check limitations.
+Fresh bookkeeping is not product acceptance. Changed required inputs, other owners,
+older implementations, read-only mutations and stale retained output keep their guards.
+
 ### Transfer identities without recopying
 
 A current prepared response includes `delegationArguments` (`agent`, `operation_id`) and

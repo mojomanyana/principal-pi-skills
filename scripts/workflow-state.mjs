@@ -34,6 +34,22 @@ export class PrepareInputError extends Error {
     this.recovery = Object.freeze({ action: "prepare", message: "Correct the named field and repeat prepare for the same authorized work. Reuse established task/step identities. For a new task with no established internal identity, choose a short valid ID such as workshop-desk-v1-stage1 without asking permission again. Keep attempt unchanged; never rename an existing operation to evade a refusal. This call allocated no operation and does not authorize execution retry." });
   }
 }
+/** Re-preparation is not completion: inspect the existing native claim without allocating another. */
+export class PreparedOutputChangedError extends Error {
+  constructor(operation) {
+    super("operation candidate changed since preparation; inspect and retain the original result instead of preparing it again");
+    this.name = "PreparedOutputChangedError";
+    this.code = "PREPARED_OUTPUT_CHANGED";
+    this.administrativeWrites = "possible";
+    this.existingOperation = { operation_id: operation.operation_id, phase: operation.phase,
+      candidateMatches: false, resultRetained: false };
+    const selected = { repo: operation.root, operationId: operation.operation_id };
+    this.recovery = { action: "retain-existing-result",
+      message: "Files changed since this Build/Debug operation was prepared. Inspect its original native result with resultArguments. After exact settlement and a complete final, retain it with completionArguments plus the actual disposition. Changed files alone do not prove execution or success. Do not prepare a replacement, retry execution or choose succeeded merely to finish bookkeeping; preserve unfinished requirements and reported-check limitations.",
+      statusArguments: { action: "status", ...selected }, resultArguments: { action: "result", ...selected },
+      completionArguments: { action: "complete", ...selected }, requiredCompletionFields: ["disposition"] };
+  }
+}
 const phases = ["plan", "build", "review", "test-review", "debug", "investigate"];
 const hash = value => createHash("sha256").update(value).digest("hex");
 const canonical = value => JSON.stringify(value, (_key, item) => item && typeof item === "object" && !Array.isArray(item)
@@ -422,6 +438,9 @@ function prepare(repo, request) {
     assert(same(existing.owner ?? null, owner), "operation belongs to another coordinator session; inspect and reconcile the original before a new attempt");
     assert(existing.phase === phase && same(existing.inputs, checked) && same(existing.reviewBinding ?? null, binding), "operation conflict: stable task/step already has different phase or inputs");
     const result = inspectOperation(current.root, request);
+    if (!result.candidateMatches && !result.resultRetained && result.inputsMatch && !result.issues?.length && ["build", "debug"].includes(result.phase)) {
+      throw new PreparedOutputChangedError(result);
+    }
     assert(result.candidateMatches && !result.issues?.length, "operation candidate changed; reconcile its result or use an explicit settled retry");
     return { ...result, reused: true };
   }
