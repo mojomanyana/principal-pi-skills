@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.15.4 — 2026-11-16
+
+- Workflow preparation now exposes task/step naming rules and reports malformed metadata before administrative writes or operation allocation; previously a generic refusal could follow private-directory creation.
+- Coordinators now correct named preparation schema errors for the same authorized work without another permission loop, choosing a first internal task ID when needed. Previously blanket refusal guidance could stop ordinary correction. Established identities, attempt numbers, candidate checks, ownership and native settlement remain unchanged.
+- Missing evidence now explicitly blocks dependent actions while independent authorized work can continue within user gates; previously this distinction was not consistently stated at the central entrypoint.
+- Validate actual schema rejection and corrected preparation against existing Pi 1.0.4 and 1.5.2 runtimes, alongside the complete local suite. This release makes no new model-quality claim; JEV remained off.
+
 ## 4.15.3 — 2026-11-14
 
 - Add read-only project preflight and one confirmed empty-baseline setup path for new folders. Existing products, indexes, remotes and global Git configuration are preserved; recall and plain planning need no Git.

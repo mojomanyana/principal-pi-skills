@@ -197,6 +197,21 @@ test('coordinator routes converging work without arbitrary rounds or mandatory r
   assert.doesNotMatch(text,/At most two repair rounds|it counts as a repair round/);
 });
 
+test('coordinator corrects pre-operation metadata while preserving identity and dependent gates',()=>{
+  for (const path of ['AGENTS.md', 'references/workflow-mechanics.md', 'extensions/workflow.ts']) {
+    const text = normalized(read(path));
+    clauses(text, [/PREPARE_INPUT_INVALID/, /operationAllocated(?:: |=)false/,
+      /[Hh]ost schema validation.*prepare.*task\/step.*before.*execut/,
+      /same authorized work/, /Keep attempt unchanged/,
+      /Reuse established task\/step identities/, /new task with no internal identity, choose a short valid ID/,
+      /never rename an existing operation to evade a refusal/,
+      /(?:not native execution retry|not `retry` of an executed operation|not retry of an executed operation)/]);
+  }
+  clauses(normalized(read('AGENTS.md')), [/Missing evidence blocks the next action that depends on it/,
+    /continue independent authorized work within explicit user gates/,
+    /missing fact changes that next action, offer concrete useful choices and their consequences/]);
+});
+
 test('finish reuses applicable verification without weakening source-required release checks',()=>{
   const git=normalized(read('git-ops/SKILL.md'));
   const finish=git.split('## Finish mode')[1].split('## Right-sizing')[0];

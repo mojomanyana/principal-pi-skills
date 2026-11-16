@@ -6,18 +6,29 @@ import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileS
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
-import { CandidateIdentityError, observeCandidate, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation } from "../../scripts/workflow-state.mjs";
+import { createRequire } from "node:module";
+import { CandidateIdentityError, PrepareInputError, observeCandidate, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation } from "../../scripts/workflow-state.mjs";
 import { candidateSnapshot } from "../../scripts/resume-checkpoint.mjs";
 import { reference } from "../../scripts/progress-artifacts.mjs";
 
 // These extension factories use JavaScript syntax. Load each local .ts dependency as JavaScript too,
 // so the fixture exercises the actual implementation without requiring Node's TypeScript loader.
-function extensionFixtureUrl(url) {
+function extensionFixtureUrl(url, typeboxUrl) {
   const source = readFileSync(url, "utf8")
-    .replace('import { Type } from "typebox";', "const Type = new Proxy({}, { get: () => (..._args) => ({}) });")
+    // Preserve the registered schema's string constraints; an all-empty stub hid missing rules.
+    .replace('import { Type } from "typebox";', typeboxUrl ? `import { Type } from ${JSON.stringify(typeboxUrl)};` : `const Type = {
+      Optional: schema => schema,
+      Object: (properties, options = {}) => ({ type: "object", properties, ...options }),
+      String: (options = {}) => ({ type: "string", ...options }),
+      Integer: (options = {}) => ({ type: "integer", ...options }),
+      Boolean: () => ({ type: "boolean" }),
+      Literal: value => ({ const: value }),
+      Union: anyOf => ({ anyOf }),
+      Array: (items, options = {}) => ({ type: "array", items, ...options }),
+    };`)
     .replace(/from "(\.\.?\/[^"]+)"/gu, (_match, path) => {
       const dependency = new URL(path, url);
-      return "from " + JSON.stringify(dependency.pathname.endsWith(".ts") ? extensionFixtureUrl(dependency) : dependency.href);
+      return "from " + JSON.stringify(dependency.pathname.endsWith(".ts") ? extensionFixtureUrl(dependency, typeboxUrl) : dependency.href);
     });
   return "data:text/javascript;base64," + Buffer.from(source).toString("base64");
 }
@@ -34,6 +45,17 @@ function fixture(t) {
     inputs: [reference(join(root, ".principal/plan.md"))] };
   return { root, request };
 }
+
+const nameCases = {
+  task: {
+    valid: ["A", "0", "WorkshopDeskStage1", "workshop-desk-v1-stage1", "stage_1", "a".repeat(80)],
+    invalid: [undefined, null, 1, "", " ", "workshop desk", "workshop/desk", "../desk", "-desk", "_desk", "d\u00e9sk", "desk\n", "desk\nmore", "a".repeat(80) + "\n", "a".repeat(81)],
+  },
+  step: {
+    valid: ["build", "implementation:S1", "  build  ", "s".repeat(200)],
+    invalid: [undefined, null, 1, "", " \t\n", "s".repeat(201)],
+  },
+};
 function settled(operationId, cwd, text = "Done.\n") {
   const final = { state: "complete", sessionId: "child-session", messageId: "final-message", leafId: "final-leaf", sha256: createHash("sha256").update(text).digest("hex") };
   return { operationId, cwd, executionId: "exec:fixture", state: "settled", finalObservation: { ...final, text }, runtime: {
@@ -135,6 +157,169 @@ test("interrupted historical dispatch remains uncertain without inventing settle
   assert.equal(result.runtime.state, "uncertain");
   assert.equal(result.resultRetained, false); assert.equal(result.final, undefined);
   assert.equal(result.completionValid, false); assert.equal(result.approval, false);
+});
+
+test("malformed preparation names are recoverable before any administrative writes", t => {
+  const { root, request } = fixture(t);
+  rmSync(join(root, ".principal"), { recursive: true });
+  const before = observeCandidate(root);
+  for (const [field, { invalid }] of Object.entries(nameCases)) for (const value of invalid) {
+    assert.throws(() => prepareOperation(root, { ...request, inputs: [], [field]: value }), error => {
+      assert.ok(error instanceof PrepareInputError);
+      assert.equal(error.code, "PREPARE_INPUT_INVALID");
+      assert.deepEqual(error.diagnostic, { kind: "prepare-input", field });
+      assert.equal(error.administrativeWrites, false);
+      assert.equal(error.operationAllocated, false);
+      assert.equal(error.recovery.action, "prepare");
+      assert.match(error.recovery.message, /same authorized work/);
+      assert.equal(error.operation_id, undefined);
+      return true;
+    });
+    assert.equal(existsSync(join(root, ".principal")), false);
+  }
+  assert.deepEqual(observeCandidate(root), before);
+});
+
+test("preparation accepts documented task and step name boundaries unchanged", t => {
+  const { root, request } = fixture(t);
+  for (const [field, { valid }] of Object.entries(nameCases)) for (const value of valid) {
+    const prepared = prepareOperation(root, { ...request, [field]: value });
+    assert.equal(prepared.state, "prepared");
+    assert.equal(prepared[field], value, "identity is never normalized or truncated");
+    assert.equal(prepared.attempt, 1);
+  }
+});
+
+test("legacy task spelling remains readable by task or operation ID without normalization", t => {
+  const { root, request } = fixture(t), task = "WorkshopDeskStage1", owner = { sessionId: "original-parent", cwd: root };
+  const prepared = prepareOperation(root, { ...request, task, owner });
+  const path = join(root, ".principal/workflow", readdirSync(join(root, ".principal/workflow"))[0], "request.json");
+  const record = JSON.parse(readFileSync(path, "utf8"));
+  record.implementation[0].sha256 = "0".repeat(64);
+  writeFileSync(path, JSON.stringify(record));
+  const before = readFileSync(path);
+  for (const selected of [{ operationId: prepared.operation_id }, { task, step: request.step }]) {
+    const history = inspectHistoricalOperation(root, selected, owner);
+    assert.equal(history.task, task);
+    assert.equal(history.operation_id, prepared.operation_id);
+    assert.equal(history.implementationMatches, false);
+    assert.equal(history.completionValid, false);
+    assert.equal(history.administrativeWrites, false);
+  }
+  assert.deepEqual(readFileSync(path), before);
+});
+
+test("registered workflow schema exposes name rules and correction prepares one original attempt", async t => {
+  const { root } = fixture(t);
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
+  let tool;
+  register({ registerTool: value => { tool = value; }, registerCommand: () => {}, on: () => {},
+    events: { on: () => () => {}, emit: () => { throw Error("Name correction must not dispatch or query native work"); } } });
+  for (const [field, cases] of Object.entries(nameCases)) {
+    const schema = tool.parameters.properties[field];
+    assert.equal(schema.type, "string");
+    assert.match(schema.description, /identity/);
+    const accepts = value => typeof value === "string" && (schema.minLength === undefined || value.length >= schema.minLength) &&
+      (schema.maxLength === undefined || value.length <= schema.maxLength) && new RegExp(schema.pattern).test(value);
+    for (const value of cases.valid) assert.equal(accepts(value), true, `${field} schema rejects valid identity`);
+    for (const value of cases.invalid) assert.equal(accepts(value), false, `${field} schema accepts malformed identity`);
+  }
+  let sessionId = "original-parent";
+  const ctx = { cwd: root, isProjectTrusted: () => true, sessionManager: { getSessionId: () => sessionId } };
+  const call = request => tool.execute("fixture", request, undefined, () => {}, ctx);
+  const snapshot = (await call({ action: "snapshot" })).structuredContent;
+  rmSync(join(root, ".principal"), { recursive: true });
+  const request = { action: "prepare", task: "workshop-desk-v1-stage1", step: "build", phase: "build", expectedCandidate: snapshot.candidate };
+  const refused = await call({ ...request, task: "Workshop Desk / Stage 1" });
+  assert.equal(refused.isError, true);
+  assert.equal(refused.structuredContent.state, "refused");
+  assert.equal(refused.structuredContent.code, "PREPARE_INPUT_INVALID");
+  assert.equal(refused.structuredContent.administrativeWrites, false);
+  assert.equal(refused.structuredContent.operationAllocated, false);
+  assert.equal(refused.structuredContent.approval, false);
+  assert.equal(refused.structuredContent.operation_id, undefined);
+  assert.equal(refused.structuredContent.diagnostic.field, "task");
+  assert.equal(refused.structuredContent.recovery.action, "prepare");
+  assert.match(refused.structuredContent.recovery.message, /new task with no established internal identity, choose a short valid ID/);
+  assert.match(refused.structuredContent.recovery.message, /without asking permission again/);
+  assert.match(refused.structuredContent.recovery.message, /never rename an existing operation to evade a refusal/);
+  assert.deepEqual(refused.details, refused.structuredContent);
+  assert.deepEqual(JSON.parse(refused.content[0].text), refused.structuredContent);
+  assert.equal(existsSync(join(root, ".principal")), false);
+  const first = (await call(request)).structuredContent, second = (await call(request)).structuredContent;
+  assert.equal(first.state, "prepared");
+  assert.equal(first.task, "workshop-desk-v1-stage1");
+  assert.equal(first.attempt, 1);
+  assert.equal(first.reused, false);
+  assert.equal(second.reused, true);
+  assert.equal(second.operation_id, first.operation_id);
+  assert.equal(second.reportPath, first.reportPath);
+  assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  assert.equal(readdirSync(join(root, ".principal/reports")).length, 1);
+
+  const assertNotInputRecovery = async (changed, message) => {
+    const result = await call(changed);
+    assert.equal(result.isError, true);
+    assert.match(result.structuredContent.error, message);
+    assert.notEqual(result.structuredContent.code, "PREPARE_INPUT_INVALID");
+    assert.equal(result.structuredContent.recovery, undefined);
+    assert.equal(result.structuredContent.operationAllocated, undefined);
+  };
+  await assertNotInputRecovery({ ...request, phase: "review" }, /operation conflict/);
+  await assertNotInputRecovery({ ...request, attempt: 2 }, /use retry/);
+  sessionId = "different-parent";
+  await assertNotInputRecovery(request, /another coordinator session/);
+  sessionId = "original-parent";
+  writeFileSync(join(root, "product.txt"), "changed candidate\n");
+  await assertNotInputRecovery(request, /Candidate identity differs/);
+  await assertNotInputRecovery({ ...request, expectedCandidate: observeCandidate(root) }, /operation candidate changed/);
+  assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  assert.equal(readdirSync(join(root, ".principal/reports")).length, 1);
+});
+
+test("actual Pi argument validation rejects malformed prepare names before execution and permits correction", { skip: !process.env.PRINCIPAL_PI_SDK_ROOT }, async t => {
+  const sdk = process.env.PRINCIPAL_PI_SDK_ROOT, require = createRequire(join(sdk, "package.json"));
+  t.diagnostic(`Pi ${JSON.parse(readFileSync(join(sdk, "package.json"), "utf8")).version}: actual TypeBox and native argument validator; no model calls`);
+  const aiRoot = require.resolve.paths("@earendil-works/pi-ai").map(path => join(path, "@earendil-works/pi-ai"))
+    .find(path => existsSync(join(path, "package.json")));
+  assert.ok(aiRoot, "selected Pi SDK must supply its native argument validator");
+  const { validateToolArguments } = await import(pathToFileURL(join(aiRoot, "dist/utils/validation.js")).href);
+  const typeboxUrl = pathToFileURL(require.resolve("typebox")).href;
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url), typeboxUrl));
+  const { root } = fixture(t), snapshot = observeSnapshot(root);
+  rmSync(join(root, ".principal"), { recursive: true });
+  let tool, executions = 0;
+  register({ registerTool: value => { tool = value; }, registerCommand: () => {}, on: () => {},
+    events: { on: () => () => {}, emit: () => { throw Error("Argument validation never dispatches native work"); } } });
+  const ctx = { cwd: root, isProjectTrusted: () => true, sessionManager: { getSessionId: () => "original-parent" } };
+  const call = async request => {
+    const validated = validateToolArguments(tool, { name: tool.name, arguments: request });
+    executions++;
+    return tool.execute("fixture", validated, undefined, () => {}, ctx);
+  };
+  const request = { action: "prepare", task: "workshop-desk-v1-stage1", step: "build", phase: "build", expectedCandidate: snapshot.candidate };
+  for (const [field, value] of [["task", "Workshop Desk / Stage 1"], ["step", " \t"]]) {
+    await assert.rejects(call({ ...request, [field]: value }), error => {
+      assert.match(error.message, /Validation failed for tool "principal_workflow"/);
+      assert.ok(error.message.includes(field));
+      assert.equal(error.operationAllocated, undefined, "a host schema error is not a Principal receipt");
+      return true;
+    });
+  }
+  assert.equal(executions, 0);
+  assert.equal(existsSync(join(root, ".principal")), false);
+  const { task: _task, ...missing } = request;
+  const missingResult = (await call(missing)).structuredContent;
+  assert.equal(missingResult.code, "PREPARE_INPUT_INVALID");
+  assert.equal(missingResult.operationAllocated, false);
+  assert.equal(existsSync(join(root, ".principal")), false);
+  const first = (await call(request)).structuredContent, again = (await call(request)).structuredContent;
+  assert.equal(first.state, "prepared");
+  assert.equal(first.attempt, 1);
+  assert.equal(again.reused, true);
+  assert.equal(again.operation_id, first.operation_id);
+  assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  assert.equal(readdirSync(join(root, ".principal/reports")).length, 1);
 });
 
 test("one handoff and report allocation are reused, with current code and exact inputs checked", t => {

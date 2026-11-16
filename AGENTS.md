@@ -17,6 +17,9 @@ decisions already in context. Retrieve only a missing fact needed for the next a
 Bookie's selected-project checkpoint may help. Original authority references remain necessary;
 summaries grant no authority. Ask only for a missing material decision,
 with a recommendation and consequence in product terms.
+Missing evidence blocks the next action that depends on it; continue independent authorized
+work within explicit user gates. When the missing fact changes that next action, offer
+concrete useful choices and their consequences instead of repeating a generic blocker.
 
 Before implementing affected work, consider the simplest adequate use of existing parts.
 Explain consequential tradeoffs, operational costs and what would change the decision.
@@ -124,6 +127,12 @@ bookkeeping. Pass `inputPaths` for relevant authority/evidence; the returned can
 binds product files. Reuse references, not handwritten hash lists or duplicate comparisons.
 Tool state is not execution or approval.
 The coordinator still owns actual authority, native settlement and semantic decisions.
+When host schema validation rejects `prepare` task/step before execution, or
+`PREPARE_INPUT_INVALID` reports `operationAllocated: false`, correct the named field and
+repeat `prepare` for the same authorized work without asking permission again. Reuse
+established task/step identities; for a new task with no internal identity, choose a short
+valid ID. Keep attempt unchanged and never rename an existing operation to evade a refusal.
+This pre-operation correction is not native execution retry.
 For a strict no-files task, skip prepare/complete and use `result` with the unique dispatched
 operation_id to verify the settled native final without storage. Describe prepare/complete
 as administrative writes; do not call them under an all-files read-only instruction.
@@ -242,7 +251,7 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.15.3`,
+   `pi install npm:principal-pi-skills@4.15.4`,
    `pi install npm:pi-daddy@0.57.0` and `pi install npm:skill-harness@0.35.6`.
    Historical native report-completion checks cover Pi 1.0.4 and 1.1.0. Those
    captures used `PI_DADDY_HERDR=0`; Herdr additionally requires Daddy's live compatibility/ownership checks. Generated skill/agent bindings and captured definition IDs must
@@ -254,8 +263,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and has no automatic failure fallback.
-   Pin both `npx -p principal-pi-skills@4.15.3 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.15.3 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.15.4 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.15.4 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase
