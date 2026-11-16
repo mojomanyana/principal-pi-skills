@@ -29,6 +29,23 @@ request Git setup, a new review, fresh tests or another saved handoff. A blocked
 lookup is history unknown. The separate `history` operation below reads original-owner
 native records; it does not transfer execution ownership into a new session.
 
+### Preparation input corrections
+
+`task` is a stable identifier: 1-80 ASCII letters, digits, underscores or hyphens, beginning
+with a letter or digit, such as `workshop-desk-v1-stage1`. `step` is a nonblank stable name
+of at most 200 characters. Reuse established identities unchanged.
+
+Host schema validation can reject malformed `prepare` task/step before the tool executes;
+that diagnostic is not a Principal operation receipt. The same correction below applies.
+`PREPARE_INPUT_INVALID` identifies a malformed task/step before any administrative writes;
+`operationAllocated: false` applies to that call. Correct the named field and repeat `prepare`
+for the same authorized work without asking permission again. Reuse established task/step
+identities; for a new task with no internal identity, choose a short valid ID, such as the
+example above. Keep attempt unchanged, preserve the refusal/correction, and never rename an
+existing operation to evade a refusal. No candidate, ownership or settlement check is waived.
+This is argument correction, not `retry` of an executed operation. Other failures retain
+their stated reconciliation; an absent operation in this call says nothing about earlier work.
+
 ### Candidate diagnostics
 
 Pass the returned `snapshot.candidate` directly as `expectedCandidate` to `prepare`. Supply

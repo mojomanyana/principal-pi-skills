@@ -9,6 +9,31 @@ import { resolveIntegrationSubject } from "./continuity.mjs";
 import { createRun, privateRoot, reference, saveReport } from "./progress-artifacts.mjs";
 
 export const CANDIDATE_ALGORITHM = "principal-candidate-v1";
+export const WORKFLOW_TASK_NAME = Object.freeze({
+  pattern: "^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$",
+  description: "Stable task identity: 1-80 ASCII letters, digits, underscores or hyphens; begin with a letter or digit (for example, workshop-desk-v1-stage1). Reuse an established identity unchanged.",
+});
+export const WORKFLOW_STEP_NAME = Object.freeze({
+  minLength: 1, maxLength: 200, pattern: "\\S",
+  description: "Stable nonblank step identity, at most 200 characters. Reuse an established step unchanged.",
+});
+const validName = (value, rule) => typeof value === "string" && (rule.maxLength === undefined || value.length <= rule.maxLength) && new RegExp(rule.pattern).test(value);
+const nameErrors = {
+  task: "task must be a short stable name: 1-80 ASCII letters, digits, underscores or hyphens, beginning with a letter or digit",
+  step: "step must be a stable nonempty name (at most 200 characters)",
+};
+/** Correctable preparation metadata, checked before this call can allocate an operation. */
+export class PrepareInputError extends Error {
+  constructor(field) {
+    super(nameErrors[field]);
+    this.name = "PrepareInputError";
+    this.code = "PREPARE_INPUT_INVALID";
+    this.administrativeWrites = false;
+    this.operationAllocated = false;
+    this.diagnostic = Object.freeze({ kind: "prepare-input", field });
+    this.recovery = Object.freeze({ action: "prepare", message: "Correct the named field and repeat prepare for the same authorized work. Reuse established task/step identities. For a new task with no established internal identity, choose a short valid ID such as workshop-desk-v1-stage1 without asking permission again. Keep attempt unchanged; never rename an existing operation to evade a refusal. This call allocated no operation and does not authorize execution retry." });
+  }
+}
 const phases = ["plan", "build", "review", "test-review", "debug", "investigate"];
 const hash = value => createHash("sha256").update(value).digest("hex");
 const canonical = value => JSON.stringify(value, (_key, item) => item && typeof item === "object" && !Array.isArray(item)
@@ -48,8 +73,8 @@ function readRecord(path) {
   } finally { closeSync(fd); }
 }
 function key(task, step, attempt) {
-  assert(typeof task === "string" && /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(task), "task must be a short stable name");
-  assert(typeof step === "string" && step.trim() && step.length <= 200, "step must be a stable nonempty name (at most 200 characters)");
+  assert(validName(task, WORKFLOW_TASK_NAME), nameErrors.task);
+  assert(validName(step, WORKFLOW_STEP_NAME), nameErrors.step);
   assert(Number.isSafeInteger(attempt) && attempt > 0, "attempt must be a positive integer");
   return hash(canonical({ task, step, attempt }));
 }
@@ -363,6 +388,9 @@ function prepare(repo, request) {
 }
 export function prepareOperation(repo, request) {
   assert((request.attempt ?? 1) === 1, "use retry to create a later attempt after settlement");
+  for (const [field, rule] of [["task", WORKFLOW_TASK_NAME], ["step", WORKFLOW_STEP_NAME]]) {
+    if (!validName(request[field], rule)) throw new PrepareInputError(field);
+  }
   return prepare(repo, request);
 }
 
