@@ -68,13 +68,16 @@ test("errors name the template and line so a failure is actionable", () => {
 // Driven off the generator's own MODES table rather than a second list here: a mode added
 // to the generator and forgotten here would ship an unchecked file, which is precisely the
 // class of drift this whole mechanism exists to remove.
-test("shared orchestration rules render identically into both spines", () => {
+test("shared continuation rules reach every workflow spine identically", () => {
   const template = read("contracts/workflows.md.tmpl");
-  const feature = render(template, "feature", "contracts/workflows.md.tmpl");
-  const bugfix = render(template, "bugfix", "contracts/workflows.md.tmpl");
   const section = (text) => text.match(/<!-- shared:start -->([\s\S]*?)<!-- shared:end -->/)?.[1];
-  assert.ok(section(feature), "feature rendering has no shared section");
-  assert.equal(section(feature), section(bugfix));
+  const expected = section(render(template, "feature", "contracts/workflows.md.tmpl"));
+  assert.ok(expected, "feature rendering has no shared section");
+  assert.match(expected.replace(/\s+/g, " "), /reconcile historical blockers with the latest authorized scope and amendments/);
+  for (const spec of Object.values(WORKFLOW_MODES)) {
+    assert.equal(section(renderWorkflow(template, spec)), expected);
+    assert.equal(section(read(spec.path)), expected, `${spec.path} must ship the shared continuation rule`);
+  }
 });
 
 for (const [mode, spec] of Object.entries(WORKFLOW_MODES)) {

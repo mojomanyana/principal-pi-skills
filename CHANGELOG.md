@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.15.5 — 2026-11-16
+
+- The injected bootstrap and shared workflow prompts now distinguish recall-only requests from continuation and reconcile saved blockers with the latest authorized scope; previously the central clarification did not reach every injected/shared entrypoint.
+- Build and Plan now scope missing-evidence stops to dependent work; previously broad stop wording could block independent authorized work. Current permission, settlement and explicit user gates remain unchanged.
+- Add context-delivery and generated-contract regression coverage plus unexecuted continuation/recall/current-gate acceptance scenarios. These local checks do not establish model compliance.
+
 ## 4.15.4 — 2026-11-16
 
 - Workflow preparation now exposes task/step naming rules and reports malformed metadata before administrative writes or operation allocation; previously a generic refusal could follow private-directory creation.

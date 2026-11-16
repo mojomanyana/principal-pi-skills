@@ -103,8 +103,8 @@ claims of measured model compliance. Common ceilings remain unchanged.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled â€” "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
-| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1591) or inline | 1525 |
-| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1819) or inline | 1804 |
+| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1594) or inline | 1528 |
+| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1832) or inline | 1817 |
 | `review` | One pass, two axes â€” correctness and simplicity â€” ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1532) or inline | 1480 |
 | `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 799) or inline | 778 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1573) or inline | 1433 |
@@ -268,7 +268,7 @@ history is unknown. Readiness and candidate diagnostics are explained in
 1. **Skills + prompts** â€” install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.15.4
+   pi install npm:principal-pi-skills@4.15.5
    pi install npm:pi-daddy@0.57.0
    pi install npm:skill-harness@0.35.6
    ```
@@ -307,8 +307,8 @@ history is unknown. Readiness and candidate diagnostics are explained in
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.15.4 principal-pi-agents install
-   npx -p principal-pi-skills@4.15.4 principal-pi-agents check
+   npx -p principal-pi-skills@4.15.5 principal-pi-agents install
+   npx -p principal-pi-skills@4.15.5 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm

@@ -82,6 +82,25 @@ test("insertion preserves leading system, compaction and tool state without spli
   assert.deepEqual(messages, before);
 });
 
+test("continuation, recall and current-gate fixtures receive the actual scope policy without rewriting their context", async t => {
+  const h = await load(t); await h.activate();
+  const scenarios = JSON.parse(readFileSync(join(ROOT, "tests/fixtures/continuation-context.json"), "utf8"));
+  for (const scenario of scenarios.cases) {
+    const messages = structuredClone(scenario.messages), before = structuredClone(messages);
+    const result = await h.fire("context", { messages });
+    const inserted = result.messages.filter(bootstrap);
+    assert.equal(inserted.length, 1, scenario.name);
+    const policy = inserted[0].content[0].text.replace(/\s+/g, " ");
+    assert.match(policy, /Recall-only requests report saved delivery/);
+    assert.match(policy, /Continuation reconciles historical blockers with the latest authorized scope and amendments/);
+    assert.match(policy, /Missing evidence blocks only dependent actions; continue independent authorized work within current permission, native settlement and explicit user gates/);
+    assert.deepEqual(result.messages.filter(message => !bootstrap(message)), messages, scenario.name);
+    assert.equal(result.messages.at(-1), messages.at(-1), "the latest user instruction remains intact and last");
+    assert.deepEqual(messages, before, "historical notes and current gates are not rewritten or consumed");
+  }
+  // Expected behaviors in the fixture are for later human/model acceptance, not a claimed result of this test.
+});
+
 test("disabled or shadowed package skills never activate or retain owned routing", async t => {
   const h = await load(t, { enabled: false }); await h.activate();
   assert.equal(await h.fire("context", { messages: [user("request")] }), undefined);
