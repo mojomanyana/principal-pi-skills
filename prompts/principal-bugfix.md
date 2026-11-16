@@ -32,6 +32,12 @@ references, not another handoff
 narrative. Ask only for a missing material decision, with a recommendation and consequence
 in product terms; do not make the operator interpret internal receipts.
 
+Distinguish recall-only requests from continuation. Recall reports saved outcomes without
+new implementation, research or duplicate saves. For continuation, reconcile historical
+blockers with the latest authorized scope and amendments; saved summaries do not impose
+new prerequisites. Missing evidence blocks only dependent actions; continue independent
+authorized work within current permission, native settlement and explicit user gates.
+
 **Native execution.** Call `delegate_describe({agent:"phase"})`; require package
 `principal-pi-skills`, exact phase and captured `definitionId`. Native phases are `plan`,
 `build`, `review`, `test-review`, `debug`, `investigate`. Pass the ID to every child; reuse

@@ -13,7 +13,7 @@ function clauses(text, rules) {
 for (const mode of ["skill", "agent"]) {
   test(`plan ${mode}: source authority survives compact task-scoped plans`, () => {
     clauses(contract("plan", mode), [/read authority completely/, /continue truncated reads/,
-      /Missing normative source.*load-bearing/, /conflicting binding sources/,
+      /Missing normative source or meaning needed for this plan is load-bearing/, /conflicting binding sources/,
       /inaccessible path/, /undefined in the source/, /BLOCKED:.*ONE question/,
       /impl:S1/, /disjoint prefix/, /source alias/, /local locator/, /exact clause and location/,
       /one map row per stable source ID/, /planned, not executed/, /owner and due stage/,
@@ -33,8 +33,9 @@ for (const mode of ["skill", "agent"]) {
       /migrations, lockfiles, databases and ports/, /routine implementation choices/]);
     assert.doesNotMatch(text,/Step 1 is the walking skeleton|Small clear work gets two or three/);
   });
-  test(`build ${mode}: missing normative meaning blocks mutations, not ordinary judgment`, () => {
-    clauses(contract("build",mode),[/hard stop before any source or test mutation, including newly authored tests/,
+  test(`build ${mode}: missing normative meaning blocks dependent mutations, not independent authorized work`, () => {
+    clauses(contract("build",mode),[/needed by this Build unit blocks its dependent source\/test mutations, including newly authored tests/,
+      /Other authorized parts may continue within current permission, settlement and explicit user gates/,
       /report writes are allowed/, /paths must be read before declaring.*missing/,
       /Task approval.*does not supply a missing definition/,
       /complete replacement definition plus explicit authorization to replace the source meaning/,
