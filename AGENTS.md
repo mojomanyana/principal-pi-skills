@@ -129,6 +129,20 @@ bookkeeping. Pass `inputPaths` for relevant authority/evidence; the returned can
 binds product files. Reuse references, not handwritten hash lists or duplicate comparisons.
 Tool state is not execution or approval.
 The coordinator still owns actual authority, native settlement and semantic decisions.
+Use the returned `delegationArguments` and `statusArguments` directly, preferably through
+Codemode, instead of recopying opaque IDs. They preserve identity, not dispatch permission.
+`OPERATION_ID_INVALID` calls for the original response or read-only status using the exact
+known task/step/attempt, never a guessed ID or replacement operation. If the native result
+explicitly confirms a current call was refused before admission, correct its named arguments
+and reuse the same prepared operation and current binding. This says nothing about earlier
+attempts; running work, uncertain cleanup, ownership and actual permission blocks remain.
+After an update or `/new`, follow returned `recoverArguments` for an old operation instead
+of rebuilding or asking the user to reconstruct IDs. Recovery inspection is read-only:
+reuse verified delivered output and historical checks, preserving their limits. For ongoing
+authorized work, use returned `continueArguments` only when the producer proves the original
+operation never started. This creates one linked current-owner successor; it does not adopt
+the old owner. Missing history is not no-start proof. For uncertainty, inspect the original
+run/files or continue unrelated authorized work. Recall-only requests never use continue mode.
 When host schema validation rejects `prepare` task/step before execution, or
 `PREPARE_INPUT_INVALID` reports `operationAllocated: false`, correct the named field and
 repeat `prepare` for the same authorized work without asking permission again. Reuse
@@ -253,8 +267,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi:
-   `pi install npm:principal-pi-skills@4.15.5`,
-   `pi install npm:pi-daddy@0.57.0` and `pi install npm:skill-harness@0.35.6`.
+   `pi install npm:principal-pi-skills@4.15.6`,
+   `pi install npm:pi-daddy@0.59.0` and `pi install npm:skill-harness@0.35.6`.
    Historical native report-completion checks cover Pi 1.0.4 and 1.1.0. Those
    captures used `PI_DADDY_HERDR=0`; Herdr additionally requires Daddy's live compatibility/ownership checks. Generated skill/agent bindings and captured definition IDs must
    match the selected package. Other versions/backends require separate qualification.
@@ -265,8 +279,8 @@ Behavioural measurement—including the fidelity corpus and skill-harness eviden
    later coordinator-owned progress work. See [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent.
    Native delegation needs no separate agent installation and has no automatic failure fallback.
-   Pin both `npx -p principal-pi-skills@4.15.5 principal-pi-agents install` and
-   `npx -p principal-pi-skills@4.15.5 principal-pi-agents check`, matching installed skills.
+   Pin both `npx -p principal-pi-skills@4.15.6 principal-pi-agents install` and
+   `npx -p principal-pi-skills@4.15.6 principal-pi-agents check`, matching installed skills.
    Alternatively use Node with the actual selected npm package's `scripts/install-agents.mjs`.
    Definitions go to `${PI_CODING_AGENT_DIR:-~/.pi/agent}/agents`; foreign files are refused.
    Validate release candidates in isolation. Tags/publication are separate and do not erase

@@ -69,6 +69,78 @@ requires matching current inputs/candidate. `resultRetained: true` is historical
 `completionValid: true` is bookkeeping freshness, and neither grants approval. A result already stale at first retention stays historical even if files are later restored.
 Reconcile the affected work, never rewrite history.
 
+### Transfer identities without recopying
+
+A current prepared response includes `delegationArguments` (`agent`, `operation_id`) and
+`statusArguments`. Use these objects directly. Completed/stale results do not offer new
+delegation arguments; prepared arguments still grant no permission and do not establish
+whether an earlier native call started. `status` observes Principal bookkeeping; it does
+not establish native admission or cleanup. Preserve the full native result separately.
+
+For an already-authorized fresh handoff, this Codemode excerpt accepts the original
+`prepareArguments` and current `taskText`; it never constructs an operation or definition
+digest. Resubmitting the same prepared identity uses Daddy's idempotent operation claim:
+existing work returns its reference rather than starting another child; conflicts refuse.
+Inspect the actual native outcome instead of assuming a new child ran. The caller must
+still verify the native final and cleanup before completion.
+
+```js
+async function prepareAndDelegate(prepareArguments, taskText) {
+  const prepared = await tools.principal_workflow(prepareArguments);
+  if (prepared.state !== "prepared" || !prepared.delegationArguments) {
+    throw new Error(prepared.error ?? "Preparation is not current; inspect its result");
+  }
+  const response = await tools.delegate_describe({ agent: prepared.delegationArguments.agent });
+  const definition = typeof response === "string" ? JSON.parse(response) : response;
+  if (definition.agent !== prepared.phase || definition.binding?.package !== "principal-pi-skills" ||
+      definition.binding.phase !== prepared.phase || !definition.definitionId) {
+    throw new Error("The selected native definition does not match this prepared phase");
+  }
+  return tools.delegate({ ...prepared.delegationArguments, definitionId: definition.definitionId, task: taskText });
+}
+```
+
+`OPERATION_ID_INVALID` means the supplied prepared-operation ID has the wrong format.
+Use the original returned `statusArguments` or complete `operation_id`. If the original
+task, step and attempt are known, read-only `status` accepts those exact fields with
+`operationId` omitted. The diagnostic includes that lookup only when all three were
+supplied; it never selects a fuzzy match. Wrong-owner, missing, ambiguous and conflicting
+records still refuse. Do not call `prepare` to replace an unknown operation.
+
+When a native result explicitly identifies a correctable argument error and confirms that
+call was refused before admission, preserve the result, correct only the named argument
+and use the same prepared operation/current binding. Do not treat a malformed status ID
+as evidence that delegation never started. Earlier attempts and real permission,
+ownership, candidate, running-work or cleanup restrictions still need reconciliation.
+`result` retains support for generic native IDs; it is distinct from prepared-operation
+`status`, `complete`, `retry` and `history`.
+
+### Recover after an update or a new session
+
+Normal mutation paths retain their implementation and coordinator checks. If those checks
+identify an older operation, use the returned `recoverArguments` rather than a replacement
+task name. `recover` defaults to read-only inspection and accepts the original operation ID
+or exact task/step/attempt. It separates the current requester from the original owner.
+
+- `reused`: exact retained output still matches the current candidate and inputs. Reuse the
+  report and historical checks; do not repeat completed work. This is not fresh approval.
+- `ready-to-continue`: the producer has an immutable terminal no-start result for the exact
+  original owner/operation. Its original claim cannot admit a later child. For currently
+  authorized continuation, pass `continueArguments` unchanged; they recheck source bytes,
+  current candidate/inputs and producer proof, then create one linked successor owned by the
+  current session. The old record remains immutable. Repetition returns the same successor.
+- `running`, `historical`, `uncertain` or `existing-successor`: read the reported outcome and
+  suggested options. Inspect the exact original run or delivered files; continue independent
+  authorized work where possible. Absence, an idle session or an empty checkout is not proof
+  that an operation never started. Missing or partial successor records are preserved.
+
+`continue` requires the exact `sourceReference` and `expectedCandidate` from inspection.
+It does not dispatch or expand permissions; native delegation still checks its current
+definition and grants. Recall-only requests never continue. A recovered completed Build
+returns `sourceRecovery` for an optional bound Review: include it with the original
+`sourceOperationId`. Both preparation and later judgment revalidate that exact old output
+and its original child identity, without rerunning Build or inventing independent review.
+
 ## Archive exact evidence
 
 A caller's external evidence directory is an authorized private archive, not a child's

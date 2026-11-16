@@ -42,7 +42,7 @@ const same = (a, b) => canonical(a) === canonical(b);
 const assert = (condition, message) => { if (!condition) throw new Error(message); };
 const packageRoot = resolve(dirname(fileURLToPath(import.meta.url)), "..");
 function implementation() {
-  return ["package.json", "scripts/workflow-state.mjs", "scripts/runtime-operation-query.mjs", "scripts/continuity.mjs", "scripts/review-observation.mjs", "scripts/resume-checkpoint.mjs", "scripts/progress-artifacts.mjs"]
+  return ["package.json", "scripts/workflow-state.mjs", "scripts/runtime-operation-query.mjs", "scripts/prepared-recovery.mjs", "scripts/continuity.mjs", "scripts/review-observation.mjs", "scripts/resume-checkpoint.mjs", "scripts/progress-artifacts.mjs"]
     .map(path => reference(join(packageRoot, path)));
 }
 function ordinary(path, directory = false) {
@@ -199,7 +199,7 @@ function reviewBinding(request, inputs, current) {
   if (request.reviewBinding === undefined) return null;
   const input = request.reviewBinding;
   assert(request.phase === "review" && input && typeof input === "object" && !Array.isArray(input), "review binding requires a Review operation");
-  const keys = ["initiativeId", "taskId", "taskRevision", "outputId", "outputReference", "sourceOperationId", "reviewScope", "integrationSubject"];
+  const keys = ["initiativeId", "taskId", "taskRevision", "outputId", "outputReference", "sourceOperationId", "sourceRecovery", "reviewScope", "integrationSubject"];
   assert(Object.keys(input).every(key => keys.includes(key)), "unknown review binding field");
   for (const key of ["initiativeId", "taskId", "taskRevision", "outputId"])
     assert(typeof input[key] === "string" && input[key].trim() && input[key].length <= 256 && !/[\x00-\x1f\x7f]/u.test(input[key]), "invalid review binding identity");
@@ -215,8 +215,10 @@ function reviewBinding(request, inputs, current) {
     const integration = resolveIntegrationSubject(subject, { repositories: subject.resources.map(resource => resource.repo) });
     assert(integration.status === "current" && subject.resources.some(resource => same(resource, output.reference)), "integrated review requires the exact current member set including its output");
   }
-  const source = inspectOperation(current.root, { operationId: input.sourceOperationId });
-  assert(["build", "debug"].includes(source.phase) && source.completionValid && source.disposition === "succeeded" && source.runtime?.runtime?.final?.sessionId,
+  const source = input.sourceRecovery === undefined ? inspectOperation(current.root, { operationId: input.sourceOperationId })
+    : inspectRecoveryOperation(current.root, { operationId: input.sourceOperationId });
+  if (input.sourceRecovery !== undefined) assert(same(input.sourceRecovery, source.sourceRecovery), "recovered review source changed; inspect its exact historical result again");
+  assert(["build", "debug"].includes(source.phase) && (source.completionValid || input.sourceRecovery !== undefined && source.sourceRecovery !== undefined) && source.disposition === "succeeded" && source.runtime?.runtime?.final?.sessionId,
     "review binding requires a current completed native Build or Debug result");
   const body = { version: 1, ...structuredClone(input), inputs };
   return { ...body, id: `principal-review-binding:${hash(canonical(body))}` };
@@ -283,12 +285,12 @@ function retainedResult(path, record) {
   assert(reference(record.reportPath).sha256 === result.report.sha256, "retained report changed");
   return result;
 }
-export function inspectOperation(repo, request) {
-  const { path, record } = load(repo, request), current = observeCandidate(repo);
+function inspectStoredOperation(repo, request, historical = false) {
+  const { path, record } = load(repo, request, historical), current = observeCandidate(repo);
   const inputIssues = referenceIssues(record.inputs), retained = retainedResult(path, record);
   const completion = optionalRecord(join(path, "completion.json"));
   if (!completion && !retained) return summary(record, "prepared", {
-    candidateMatches: same(current, record.input), inputsMatch: !inputIssues.length, issues: inputIssues,
+    candidateMatches: historical ? current.algorithm === record.input?.algorithm && current.root === record.input?.root && current.id === record.input?.id : same(current, record.input), inputsMatch: !inputIssues.length, issues: inputIssues,
     resultRetained: false, completionValid: false,
   });
   const result = completion ?? retained;
@@ -299,7 +301,7 @@ export function inspectOperation(repo, request) {
   }
   const readOnly = !["build", "debug"].includes(record.phase);
   const target = completion ? completion.output : readOnly ? record.input : retained.output;
-  const matches = same(current, target);
+  const matches = historical ? current.algorithm === target?.algorithm && current.root === target?.root && current.id === target?.id : same(current, target);
   const issues = [...inputIssues, ...(retained?.issues ?? []), ...referenceIssues(completion?.evidence ?? [])];
   if (!matches) issues.push("candidate changed; retained result does not validate the current tree");
   const valid = !!completion && !issues.length;
@@ -308,6 +310,55 @@ export function inspectOperation(repo, request) {
     report: result.report, evidence: completion?.evidence ?? [], runtime: result.runtime, disposition: result.disposition,
     productChanged: !same(result.output, record.input), resultRetained: true, completionValid: valid, issues: [...new Set(issues)],
   });
+}
+export function inspectOperation(repo, request) { return inspectStoredOperation(repo, request); }
+
+/** Recovery reads supported immutable records; live mutation/ownership guards remain separate. */
+export function inspectRecoveryRecord(repo, request) {
+  const loaded = load(repo, request, true);
+  const record = loaded.record;
+  assert(phases.includes(record.phase) && Array.isArray(record.inputs) && record.inputs.length <= 128, "unsupported recovery record fields");
+  assert(record.owner === null || record.owner === undefined || typeof record.owner.sessionId === "string" && record.owner.sessionId && typeof record.owner.cwd === "string" && isAbsolute(record.owner.cwd), "invalid historical coordinator identity");
+  for (const path of [record.reportPath, record.artifactsPath]) {
+    assert(typeof path === "string" && isAbsolute(path) && !relative(join(record.root, ".principal"), path).startsWith(".."), "historical artifact is outside its workspace");
+  }
+  return { ...loaded, sourceReference: reference(join(loaded.path, "request.json")) };
+}
+export function inspectRecoveryOperation(repo, request) {
+  const { path, record, sourceReference } = inspectRecoveryRecord(repo, request);
+  const result = inspectStoredOperation(repo, request, true);
+  if (result.resultRetained) {
+    const runtime = settledRuntime(result.runtime, record.operationId, record.root);
+    assert(result.report?.sha256 === runtime.runtime.final.sha256, "recovered report does not match its native final");
+  }
+  const optionalReference = name => optionalRecord(join(path, name)) ? reference(join(path, name)) : null;
+  return { ...result, ...(result.resultRetained && result.candidateMatches && result.inputsMatch && !result.issues?.length ? { sourceRecovery: {
+    kind: "principal-completed-recovery", operationId: result.operation_id, request: sourceReference,
+    result: optionalReference("result.json"), completion: optionalReference("completion.json"), report: result.report,
+  } } : {}) };
+}
+export function inspectRecoverySuccessor(repo, source) {
+  const next = location(repo, source.task, source.step, source.attempt + 1);
+  try { ordinary(next.path, true); } catch (error) { if (error.code === "ENOENT") return null; throw error; }
+  // An allocated directory without its record is uncertain, not an invitation to allocate again.
+  return inspectRecoveryRecord(repo, { task: source.task, step: source.step, attempt: source.attempt + 1 });
+}
+export function prepareRecoverySuccessor(repo, source, sourceReference, owner, expectedCandidate, artifact) {
+  const current = inspectRecoveryRecord(repo, { operationId: source.operationId });
+  assert(same(current.sourceReference, sourceReference), "recovery source changed before successor preparation");
+  let recoveredBinding = source.reviewBinding ?? undefined;
+  if (recoveredBinding) {
+    const build = inspectRecoveryOperation(repo, { operationId: recoveredBinding.sourceOperationId });
+    assert(build.sourceRecovery, "the original review's Build output changed; reconcile it before recovering this Review");
+    recoveredBinding = { ...recoveredBinding, sourceRecovery: build.sourceRecovery };
+    delete recoveredBinding.id; delete recoveredBinding.version; delete recoveredBinding.inputs;
+  }
+  const result = prepare(repo, { task: source.task, step: source.step, attempt: source.attempt + 1, phase: source.phase, reviewBinding: recoveredBinding,
+    owner, expectedCandidate, inputs: source.inputs, previous: { operationId: source.operationId, reason: "Recovered proven unstarted operation",
+      recovery: { sourceReference, sourceOwner: source.owner, artifact } } });
+  const successor = inspectRecoveryRecord(repo, { operationId: result.operation_id });
+  assert(successor.record.previous?.operationId === source.operationId && same(successor.record.previous?.recovery?.sourceReference, sourceReference), "next attempt belongs to another continuation; inspect it without dispatching");
+  return result;
 }
 /** Mutating/reusing completion belongs to its original live coordinator; status remains inspectable. */
 export function inspectOwnedOperation(repo, request, owner) {

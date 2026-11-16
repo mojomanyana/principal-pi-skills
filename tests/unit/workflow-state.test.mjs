@@ -771,6 +771,170 @@ test("operationId resolves exact completion and retry identity without bypassing
   assert.throws(() => inspectOperation(other.root, selected), /missing or ambiguous/);
 });
 
+test("documented direct argument transfer dispatches the prepared phase once without recopying identities", async t => {
+  const source = readFileSync(new URL("../../references/workflow-mechanics.md", import.meta.url), "utf8");
+  const example = source.match(/```js\n([\s\S]*?function prepareAndDelegate[\s\S]*?)\n```/u)?.[1];
+  assert.ok(example, "the published transfer example must be executable");
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
+  for (const describeAsText of [true, false]) {
+    const { root, request } = fixture(t), calls = [], admitted = new Map();
+    let tool;
+    register({ registerTool: value => { tool = value; }, registerCommand: () => {}, on: () => {},
+      events: { on: () => () => {}, emit: () => { throw Error("Preparation must not query native execution"); } } });
+    const ctx = { cwd: root, sessionManager: { getSessionId: () => "original-parent" } };
+    const definition = { agent: request.phase, definitionId: "a".repeat(64), binding: { package: "principal-pi-skills", phase: request.phase } };
+    const tools = {
+      principal_workflow: async args => (await tool.execute("fixture", args, undefined, () => {}, ctx)).structuredContent,
+      delegate_describe: async args => { calls.push({ name: "describe", args }); return describeAsText ? JSON.stringify(definition) : definition; },
+      delegate: async args => {
+        const observed = inspectOwnedOperation(root, { operationId: args.operation_id }, { sessionId: "original-parent", cwd: root });
+        assert.equal(args.agent, observed.phase);
+        assert.equal(args.definitionId, definition.definitionId);
+        assert.equal(args.task, "Implement only the authorized fixture behavior.");
+        calls.push({ name: "delegate", args });
+        if (admitted.has(args.operation_id)) {
+          assert.deepEqual(args, admitted.get(args.operation_id), "different request inputs cannot reuse the original claim");
+          return { state: "existing-native-operation", operationId: args.operation_id };
+        }
+        admitted.set(args.operation_id, args);
+        return { state: "synthetic-native-result", operationId: args.operation_id };
+      },
+    };
+    const transfer = new Function("tools", `${example}\nreturn prepareAndDelegate;`)(tools);
+    const args = { action: "prepare", ...request };
+    const native = await transfer(args, "Implement only the authorized fixture behavior.");
+    assert.equal(native.state, "synthetic-native-result");
+    assert.match(native.operationId, /^principal:[a-f0-9]{64}$/u);
+    assert.notEqual(native.operationId, request.task);
+    assert.deepEqual(calls.map(call => call.name), ["describe", "delegate"]);
+    const second = await transfer(args, "Implement only the authorized fixture behavior.");
+    assert.equal(second.state, "existing-native-operation");
+    assert.equal(second.operationId, native.operationId);
+    assert.equal(calls.length, 4);
+    assert.equal(admitted.size, 1, "reused preparation must preserve the exact native claim instead of creating another child");
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+    const current = await tools.principal_workflow({ action: "status", operationId: native.operationId });
+    writeFileSync(join(root, "product.txt"), "a later candidate\n");
+    const changed = await tools.principal_workflow(current.statusArguments);
+    assert.equal(changed.candidateMatches, false);
+    assert.equal(changed.delegationArguments, undefined, "stale preparation must not offer fresh dispatch arguments");
+  }
+});
+
+test("malformed prepared IDs have exact read-only recovery without replacing work or asserting no prior start", async t => {
+  const { root, request } = fixture(t), owner = { sessionId: "original-parent", cwd: root };
+  const originalPrepared = prepareOperation(root, { ...request, owner });
+  const store = join(root, ".principal/workflow", readdirSync(join(root, ".principal/workflow"))[0]);
+  const before = readFileSync(join(store, "request.json"));
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
+  let tool;
+  register({ registerTool: value => { tool = value; }, registerCommand: () => {}, on: () => {},
+    events: { on: () => () => {}, emit: () => { throw Error("Malformed IDs must not query or dispatch native work"); } } });
+  const ctx = { cwd: root, sessionManager: { getSessionId: () => owner.sessionId } };
+  const call = args => tool.execute("fixture", args, undefined, () => {}, ctx);
+  const prepared = (await call({ action: "status", operationId: originalPrepared.operation_id })).structuredContent;
+  for (const action of ["status", "complete", "retry", "history"]) {
+    for (const operationId of [request.task, prepared.operation_id.slice(0, -1), prepared.operation_id + "\n", "private-value-do-not-echo", "", null, 1]) {
+      const result = await call({ action, operationId, task: request.task, step: request.step, attempt: 1 });
+      assert.equal(result.isError, true);
+      const refused = result.structuredContent;
+      assert.equal(refused.code, "OPERATION_ID_INVALID");
+      assert.equal(refused.administrativeWrites, false);
+      assert.equal(refused.operationAllocated, undefined, "bad lookup says nothing about previous admission");
+      assert.equal(refused.approval, false);
+      assert.equal(refused.diagnostic.field, "operationId");
+      assert.match(refused.recovery.message, /does not establish whether prior work started or settled/);
+      assert.equal(JSON.stringify(result).includes("private-value-do-not-echo"), false);
+      const recovered = (await call(refused.recovery.statusArguments)).structuredContent;
+      assert.equal(recovered.operation_id, prepared.operation_id);
+      assert.equal(recovered.attempt, 1);
+      assert.deepEqual(recovered.statusArguments, prepared.statusArguments);
+      assert.deepEqual(recovered.delegationArguments, prepared.delegationArguments);
+    }
+  }
+  const unknown = (await call({ action: "status", operationId: "short" })).structuredContent;
+  assert.equal(unknown.recovery.statusArguments, undefined, "do not guess missing task, step or attempt");
+  const conflicting = await call({ action: "status", operationId: prepared.operation_id, task: "different" });
+  assert.match(conflicting.structuredContent.error, /conflicts/);
+  assert.equal(conflicting.structuredContent.recovery, undefined, "valid conflicting IDs must not be ignored");
+  const missing = await call({ action: "status", operationId: "principal:" + "f".repeat(64) });
+  assert.match(missing.structuredContent.error, /missing or ambiguous/);
+  assert.equal(missing.structuredContent.recovery, undefined, "well-shaped missing IDs must not be fuzzy-matched");
+  assert.deepEqual(readFileSync(join(store, "request.json")), before);
+  assert.deepEqual(readdirSync(store), ["request.json"]);
+  assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  assert.equal(readFileSync(join(root, "product.txt"), "utf8"), "before\n");
+  const invalidPrepare = await call({ action: "prepare", ...request, operationId: "short" });
+  assert.equal(invalidPrepare.structuredContent.code, "OPERATION_ID_INVALID");
+  assert.equal(invalidPrepare.structuredContent.administrativeWrites, false);
+  assert.deepEqual(readFileSync(join(store, "request.json")), before);
+});
+
+test("additive tool arguments preserve an existing core-prepared record and its native completion", async t => {
+  const { root, request } = fixture(t), owner = { sessionId: "original", cwd: root };
+  const original = prepareOperation(root, { ...request, owner });
+  assert.equal(original.delegationArguments, undefined, "the core operation format remains unchanged");
+  const record = join(root, ".principal/workflow", readdirSync(join(root, ".principal/workflow"))[0], "request.json");
+  const originalBytes = readFileSync(record), queries = [];
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
+  let tool;
+  register({ registerTool: value => { tool = value; }, registerCommand: () => {}, on: () => {}, events: {
+    on: () => () => {}, emit(name, query) {
+      queries.push({ name, id: query.operationId });
+      const operation = settled(query.operationId, root);
+      query.reply({ version: 1, requestId: query.requestId, sessionId: query.sessionId, cwd: query.cwd,
+        operationId: query.operationId, qualified: true, operation, final: operation.finalObservation });
+    },
+  } });
+  const ctx = { cwd: root, sessionManager: { getSessionId: () => owner.sessionId } };
+  const call = async args => (await tool.execute("fixture", args, undefined, () => {}, ctx)).structuredContent;
+  const current = await call({ action: "status", operationId: original.operation_id });
+  assert.equal(current.state, "prepared");
+  assert.deepEqual(current.delegationArguments, { agent: request.phase, operation_id: original.operation_id });
+  assert.equal(current.statusArguments.operationId, original.operation_id);
+  assert.deepEqual(readFileSync(record), originalBytes, "presenting argument objects does not rewrite the prior record");
+  const complete = await call({ ...current.statusArguments, action: "complete", disposition: "succeeded" });
+  assert.equal(complete.state, "complete");
+  assert.equal(complete.completionValid, true);
+  assert.equal(complete.operation_id, original.operation_id);
+  assert.equal(complete.delegationArguments, undefined, "completed work does not offer new delegation arguments");
+  assert.deepEqual(readFileSync(record), originalBytes);
+  assert.deepEqual(queries, [{ name: "pi-daddy:operation-status:v1", id: original.operation_id }]);
+  assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+});
+
+test("registered result keeps generic native identities while history keeps its original owner checks", async t => {
+  const { root, request } = fixture(t), owner = { sessionId: "original", cwd: root };
+  const prepared = prepareOperation(root, { ...request, owner });
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
+  let tool, sessionId = owner.sessionId;
+  const queries = [];
+  register({ registerTool: value => { tool = value; }, registerCommand: () => {}, on: () => {}, events: {
+    on: () => () => {}, emit(name, query) {
+      queries.push({ name, id: query.operationId });
+      const history = name === "pi-daddy:operation-history:v1";
+      const operation = history ? historical(query.operationId, owner) : settled(query.operationId, root);
+      query.reply({ version: 1, requestId: query.requestId, sessionId: query.sessionId, cwd: query.cwd,
+        operationId: query.operationId, qualified: !history, history, operation,
+        final: operation.finalObservation, ...(history ? { artifact: operation.artifact } : {}) });
+    },
+  } });
+  const ctx = { cwd: root, sessionManager: { getSessionId: () => sessionId } };
+  const call = args => tool.execute("fixture", args, undefined, () => {}, ctx);
+  const result = await call({ action: "result", operationId: "investigate:no-files" });
+  assert.equal(result.isError, undefined);
+  assert.equal(result.structuredContent.runtime.operationId, "investigate:no-files");
+  const history = await call({ action: "history", operationId: prepared.operation_id });
+  assert.equal(history.isError, undefined);
+  assert.equal(history.structuredContent.state, "historical");
+  sessionId = "other-parent";
+  const denied = await call({ action: "history", operationId: prepared.operation_id });
+  assert.equal(denied.isError, true);
+  assert.match(denied.structuredContent.error, /another coordinator/);
+  assert.equal(denied.structuredContent.recovery, undefined);
+  assert.deepEqual(queries, [{ name: "pi-daddy:operation-status:v1", id: "investigate:no-files" }, { name: "pi-daddy:operation-history:v1", id: prepared.operation_id }]);
+});
+
 test("changed authority retains the exact settled review without marking the operation complete", t => {
   const { root, request } = fixture(t), review = { ...request, phase: "review" };
   const prepared = prepareOperation(root, review), text = "Review Verdict: APPROVE\nScope: integrated\nNext: git-ops\n";

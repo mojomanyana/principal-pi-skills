@@ -1,5 +1,12 @@
 # Changelog
 
+## 4.15.6 — 2026-11-16
+
+- Prepared handoffs now return exact delegation and status arguments; previously coordinators had to reconstruct or recopy operation IDs. Definition identity still comes from the current native describe response; these fields grant no execution authority.
+- Malformed prepared-operation IDs now explain how to inspect the original using its exact task, step and attempt. Ordinary pre-admission argument correction does not authorize a new attempt, replace an old operation or bypass ownership, implementation and cleanup checks.
+- The transfer example uses the same native operation identity for idempotent submission. Older operations now expose explicit recovery after updates or `/new`; previously implementation or coordinator ownership changes blocked continuation: reuse verified retained output, or create one linked current-owner successor only from positive immutable no-start evidence. Original records and permission/cleanup protections remain intact; missing history never authorizes replacement work.
+- Bound review can consume a recovered Build's exact unchanged output and still verify independent native review. Partial, active, damaged and uncertain history offers concrete inspection/continuation options without claiming completion or silently repeating work.
+
 ## 4.15.5 — 2026-11-16
 
 - The injected bootstrap and shared workflow prompts now distinguish recall-only requests from continuation and reconcile saved blockers with the latest authorized scope; previously the central clarification did not reach every injected/shared entrypoint.

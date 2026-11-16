@@ -23,11 +23,11 @@ no automatic substitution. Scoped alternatives retain prerequisites. Legacy: gen
 native tools; explicitly configured runner. Honor authored model/effort policy. Use `delegate_all`
 for independent batches, never overlapping calls; writers need separate worktrees.
 
-Coordinator verifies authority/settlement, including reviewers. Use
+Verify authority/settlement, including reviewers. Use
 `principal_workflow` snapshot/reference; prepare/complete/retry track native work; status revalidates it.
 Pass operation_id unchanged; complete retains settled finals before repairs.
-Stale results remain history, never approval. Reuse tool-owned references and private
-ignored reports. Never delegate for bookkeeping.
+After updates or /new, recover: reuse outputs; continue only proven unstarted work.
+Never infer approval or delegate for bookkeeping.
 
 Read Verdict before Next. UNVERIFIED needs evidence/access reconciliation or a caller question,
 not automatic implementation.
@@ -36,6 +36,6 @@ Follow authored Next routes; children never dispatch. Finish needs integrated ap
 Preserve one-writer scope/finish preferences. Plan for dependencies/risk; reuse matching
 evidence. Reassess repeated failures without new evidence. Test-review never grants integration approval.
 
-JEV may selectively assess permitted evidence/tool steps.
-It needs enabled workflow consent: advisory only, no implicit activation/CLI bypass.
+JEV may assess permitted evidence/tool steps.
+Requires enabled workflow consent: advisory only, no implicit activation/CLI bypass.
 Withhold predictions until reviewers' verdict; storage/training remain separate.
