@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.15.7 — 2026-11-16
+
+- Repeating preparation after an unretained Build/Debug changes files now points to the original operation's read-only result/status actions and completion template; previously it returned a generic candidate-change refusal. Completion requires the actual disposition and preserves partial-delivery limitations, without another child, attempt or implied success.
+- Preserve the normal file-changing completion path and the existing input, ownership, implementation, read-only phase and settlement checks.
+
 ## 4.15.6 — 2026-11-16
 
 - Prepared handoffs now return exact delegation and status arguments; previously coordinators had to reconstruct or recopy operation IDs. Definition identity still comes from the current native describe response; these fields grant no execution authority.

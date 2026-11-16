@@ -272,7 +272,11 @@ test("registered workflow schema exposes name rules and correction prepares one 
   sessionId = "original-parent";
   writeFileSync(join(root, "product.txt"), "changed candidate\n");
   await assertNotInputRecovery(request, /Candidate identity differs/);
-  await assertNotInputRecovery({ ...request, expectedCandidate: observeCandidate(root) }, /operation candidate changed/);
+  const changedOutput = await call({ ...request, expectedCandidate: observeCandidate(root) });
+  assert.equal(changedOutput.isError, true);
+  assert.equal(changedOutput.structuredContent.code, "PREPARED_OUTPUT_CHANGED");
+  assert.equal(changedOutput.structuredContent.operationAllocated, undefined, "output recovery does not infer prior admission");
+  assert.equal(changedOutput.structuredContent.recovery.action, "retain-existing-result");
   assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
   assert.equal(readdirSync(join(root, ".principal/reports")).length, 1);
 });
@@ -354,6 +358,128 @@ test("completion needs exact settled native result and unchanged read-only candi
   completeOperation(root, { ...review, disposition: "unverified" }, settled(first.operation_id, root, "Review Verdict: UNVERIFIED\nNext: evidence\n"));
   writeFileSync(first.reportPath, "rewritten verdict\n");
   assert.throws(() => inspectOperation(root, review), /report changed/);
+});
+
+async function registeredWorkflow(root) {
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
+  let tool, native, sessionId = "original-parent";
+  const queries = [];
+  register({ registerTool: value => { tool = value; }, registerCommand: () => {}, on: () => {}, events: {
+    on: () => () => {}, emit(name, query) {
+      assert.equal(name, "pi-daddy:operation-status:v1");
+      queries.push(query.operationId);
+      query.reply({ version: 1, requestId: query.requestId, sessionId: query.sessionId, cwd: query.cwd,
+        operationId: query.operationId, qualified: true, operation: native, final: native?.finalObservation });
+    },
+  } });
+  const ctx = { cwd: root, sessionManager: { getSessionId: () => sessionId } };
+  return { queries, ctx, setNative: value => { native = value; }, setSession: value => { sessionId = value; },
+    run: args => tool.execute("fixture", args, undefined, () => {}, ctx) };
+}
+
+test("registered changed Build completion retains the original partial result with or without mistaken reprepare", async t => {
+  for (const reprepare of [false, true]) await t.test(reprepare ? "correct repeated preparation" : "normal completion", async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const prepared = (await h.run({ action: "prepare", ...request })).structuredContent;
+    const store = join(root, ".principal/workflow", readdirSync(join(root, ".principal/workflow"))[0]);
+    const original = readFileSync(join(store, "request.json"));
+    mkdirSync(join(root, "src")); writeFileSync(join(root, "src/server.js"), "export const queue = [];\n");
+    writeFileSync(join(root, "product.txt"), "API scaffolding added; workshop CRUD unfinished.\n");
+    const text = "Partial delivery: API scaffolding added. Workshop CRUD remains unfinished. Reported API checks were not independently verified.\n";
+    h.setNative(settled(prepared.operation_id, root, text));
+    let completeArgs = { ...prepared.statusArguments, action: "complete" };
+    if (reprepare) {
+      const refused = await h.run({ action: "prepare", ...request, expectedCandidate: observeCandidate(root) });
+      assert.equal(refused.isError, true);
+      const correction = refused.structuredContent;
+      assert.equal(correction.code, "PREPARED_OUTPUT_CHANGED");
+      assert.equal(correction.operation_id, prepared.operation_id);
+      assert.equal(correction.phase, "build"); assert.equal(correction.resultRetained, false);
+      assert.equal(correction.approval, false); assert.equal(correction.delegationArguments, undefined);
+      assert.equal(correction.operationAllocated, undefined, "does not infer whether prior native work started");
+      assert.deepEqual(h.queries, [], "reprepare neither observes execution nor dispatches anything");
+      assert.deepEqual(readdirSync(store), ["request.json"]);
+      assert.deepEqual(readFileSync(join(store, "request.json")), original);
+      const recovery = correction.recovery;
+      assert.equal(recovery.action, "retain-existing-result");
+      assert.deepEqual(recovery.statusArguments, prepared.statusArguments);
+      assert.deepEqual(recovery.requiredCompletionFields, ["disposition"]);
+      assert.equal(recovery.completionArguments.disposition, undefined, "never supplies success or any guessed outcome");
+      assert.deepEqual(recovery.resultArguments, { action: "result", repo: root, operationId: prepared.operation_id });
+      const inspected = (await h.run(recovery.resultArguments)).structuredContent;
+      assert.equal(inspected.state, "observed"); assert.equal(inspected.final.text, text);
+      assert.deepEqual(readdirSync(store), ["request.json"], "result inspection is read-only");
+      completeArgs = recovery.completionArguments;
+    }
+    const complete = (await h.run({ ...completeArgs, disposition: "unverified" })).structuredContent;
+    assert.equal(complete.state, "complete"); assert.equal(complete.operation_id, prepared.operation_id);
+    assert.equal(complete.resultRetained, true); assert.equal(complete.completionValid, true);
+    assert.equal(complete.disposition, "unverified"); assert.equal(complete.approval, false);
+    assert.equal(complete.productChanged, true); assert.equal(readFileSync(complete.report.path, "utf8"), text);
+    const queryCount = h.queries.length;
+    const again = (await h.run({ ...completeArgs, disposition: "unverified" })).structuredContent;
+    assert.equal(again.reused, true); assert.equal(h.queries.length, queryCount);
+    h.setSession("new-parent");
+    const recalled = (await h.run({ action: "recover", operationId: prepared.operation_id })).structuredContent;
+    assert.equal(recalled.state, "reused"); assert.equal(recalled.historical, true);
+    assert.equal(recalled.disposition, "unverified"); assert.equal(recalled.completionValid, false);
+    assert.deepEqual(recalled.report, complete.report); assert.equal(h.queries.length, queryCount);
+    assert.equal(readFileSync(join(root, "src/server.js"), "utf8"), "export const queue = [];\n");
+    assert.deepEqual(readFileSync(join(store, "request.json")), original);
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+    assert.equal(readdirSync(join(root, ".principal/reports")).length, 1);
+  });
+});
+
+test("output correction cannot retain active, uncertain, incomplete or misattributed native results", async t => {
+  const cases = [
+    ["active", native => { native.state = "running"; }],
+    ["uncertain cleanup", native => { native.runtime.cleanup.state = "unknown"; }],
+    ["missing final", native => { delete native.finalObservation; }],
+    ["incomplete final", native => { native.runtime.final.state = "incomplete"; }],
+    ["damaged final", native => { native.finalObservation.text = "tampered"; }],
+    ["foreign workspace", native => { native.cwd = "/another/workspace"; }],
+  ];
+  for (const [name, alter] of cases) await t.test(name, async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const prepared = (await h.run({ action: "prepare", ...request })).structuredContent;
+    writeFileSync(join(root, "product.txt"), "some output\n");
+    const correction = (await h.run({ action: "prepare", ...request, expectedCandidate: observeCandidate(root) })).structuredContent;
+    assert.equal(correction.code, "PREPARED_OUTPUT_CHANGED");
+    const native = settled(prepared.operation_id, root); alter(native); h.setNative(native);
+    assert.equal((await h.run(correction.recovery.resultArguments)).isError, true);
+    assert.equal((await h.run({ ...correction.recovery.completionArguments, disposition: "unverified" })).isError, true);
+    const store = join(root, ".principal/workflow", readdirSync(join(root, ".principal/workflow"))[0]);
+    assert.deepEqual(readdirSync(store), ["request.json"]);
+    assert.equal(existsSync(prepared.reportPath), false);
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  });
+});
+
+test("output correction retains input, ownership, implementation and read-only phase guards", async t => {
+  for (const kind of ["inputs", "owner", "implementation", "read-only phase", "retained output"]) await t.test(kind, async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    if (kind === "read-only phase") request.phase = "review";
+    const prepared = (await h.run({ action: "prepare", ...request })).structuredContent;
+    if (kind === "retained output") {
+      h.setNative(settled(prepared.operation_id, root));
+      assert.equal((await h.run({ action: "complete", operationId: prepared.operation_id, disposition: "unverified" })).isError, undefined);
+    }
+    writeFileSync(join(root, "product.txt"), "changed files\n");
+    if (kind === "inputs") writeFileSync(join(root, ".principal/plan.md"), "changed authority\n");
+    if (kind === "owner") h.setSession("different-parent");
+    if (kind === "implementation") {
+      const path = join(root, ".principal/workflow", readdirSync(join(root, ".principal/workflow"))[0], "request.json");
+      const record = JSON.parse(readFileSync(path, "utf8")); record.implementation[0].sha256 = "f".repeat(64);
+      writeFileSync(path, JSON.stringify(record));
+    }
+    const refused = await h.run({ action: "prepare", ...request, expectedCandidate: observeCandidate(root) });
+    assert.equal(refused.isError, true);
+    assert.notEqual(refused.structuredContent.code, "PREPARED_OUTPUT_CHANGED");
+    assert.equal(refused.structuredContent.recovery, undefined);
+    if (["owner", "implementation"].includes(kind)) assert.equal(refused.structuredContent.recoverArguments.action, "recover");
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  });
 });
 
 test("retry requires a settled predecessor, keeps its artifacts, and allocates a distinct attempt", t => {
