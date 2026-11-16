@@ -1,7 +1,7 @@
 // An exact native Review can judge its bound task output. Bookkeeping alone never approves.
 import { createHash } from "node:crypto";
 import { constants, openSync, closeSync, fstatSync, readSync, realpathSync } from "node:fs";
-import { inspectOperation } from "./workflow-state.mjs";
+import { inspectOperation, inspectRecoveryOperation } from "./workflow-state.mjs";
 
 const canonical = value => JSON.stringify(value, (_key, item) => item && typeof item === "object" && !Array.isArray(item)
   ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
@@ -80,8 +80,11 @@ export function resolveReviewReference(reference, purpose, { repositories, resol
       const { id, ...body } = binding;
       assert(id === `principal-review-binding:${hash(canonical(body))}` && same(binding.inputs, review.inputs), "review binding or inputs changed");
       assert(purpose?.purpose === "judgment" && purpose.reviewScope === binding.reviewScope && ["initiativeId", "taskId", "taskRevision", "outputId"].every(key => purpose[key] === binding[key]), "review belongs to another task revision or output");
-      const source = inspectOperation(exact.repo, { operationId: binding.sourceOperationId });
-      assert(["build", "debug"].includes(source.phase) && source.completionValid && source.disposition === "succeeded" && same(source.output, review.candidate), "source output is no longer current");
+      const source = binding.sourceRecovery === undefined ? inspectOperation(exact.repo, { operationId: binding.sourceOperationId })
+        : inspectRecoveryOperation(exact.repo, { operationId: binding.sourceOperationId });
+      if (binding.sourceRecovery !== undefined) assert(same(binding.sourceRecovery, source.sourceRecovery), "recovered source reference changed");
+      assert(["build", "debug"].includes(source.phase) && (source.completionValid || binding.sourceRecovery !== undefined && source.sourceRecovery !== undefined) && source.disposition === "succeeded" &&
+        (binding.sourceRecovery === undefined ? same(source.output, review.candidate) : source.output?.id === review.candidate.id && source.output?.root === review.candidate.root && source.output?.algorithm === review.candidate.algorithm), "source output is no longer current");
       const author = source.runtime?.runtime?.final, reviewer = review.runtime?.runtime?.final;
       assert(author?.sessionId && reviewer?.sessionId && author.sessionId !== reviewer.sessionId && reviewer.sessionId !== review.owner.sessionId &&
         source.runtime.executionId !== review.runtime.executionId, "review does not have independent native child identity");

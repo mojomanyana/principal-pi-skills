@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, rmSync, realpathSync, readFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { observeCandidate, prepareOperation, completeOperation, inspectOperation } from "../../scripts/workflow-state.mjs";
+import { observeCandidate, prepareOperation, completeOperation, inspectOperation, inspectRecoveryRecord, inspectRecoveryOperation } from "../../scripts/workflow-state.mjs";
 import { observeGitResource, resolveGitResource, observeIntegrationSubject, resolveIntegrationSubject, registerGitResourceObserver } from "../../scripts/continuity.mjs";
 import { observeReviewReference, resolveReviewReference } from "../../scripts/review-observation.mjs";
 
@@ -16,7 +16,7 @@ function native(operationId, cwd, sessionId, text) {
   return { operationId, cwd, executionId, state: "settled", finalObservation: { ...final, text },
     runtime: { work: "succeeded", final, cleanup: { state: "settled", executionId } } };
 }
-function fixture(t, { reviewScope = "task", additionalRepositories = [] } = {}) {
+function fixture(t, { reviewScope = "task", additionalRepositories = [], recoverBuild = false } = {}) {
   const repo = realpathSync(mkdtempSync(join(tmpdir(), "principal-review-binding-")));
   t.after(() => rmSync(repo, { recursive: true, force: true }));
   const git = (...args) => execFileSync("git", ["-C", repo, ...args], { stdio: "pipe" });
@@ -31,6 +31,13 @@ function fixture(t, { reviewScope = "task", additionalRepositories = [] } = {}) 
   const outputReference = { owner: "principal", reference: observeGitResource(repo) };
   const reviewBinding = { initiativeId: "initiative", taskId: "task", taskRevision: "sha256:" + "a".repeat(64), outputId: "output", outputReference, sourceOperationId: build.operation_id, reviewScope, ...(additionalRepositories.length ? { integrationSubject: observeIntegrationSubject([repo, ...additionalRepositories]) } : {}) };
   const reviewRequest = { ...input, phase: "review", step: "review", reviewBinding };
+  if (recoverBuild) {
+    const saved = inspectRecoveryRecord(repo, { operationId: build.operation_id });
+    saved.record.implementation[0].sha256 = "f".repeat(64);
+    writeFileSync(saved.sourceReference.path, JSON.stringify(saved.record));
+    assert.throws(() => prepareOperation(repo, reviewRequest), /implementation changed/);
+    reviewBinding.sourceRecovery = inspectRecoveryOperation(repo, { operationId: build.operation_id }).sourceRecovery;
+  }
   const prepared = prepareOperation(repo, reviewRequest);
   const dimension = { status: "pass", reason: "Synthetic evidence matches the exact scoped objective." };
   const receipt = { version: 1, bindingId: prepared.reviewBinding.id, scope: reviewScope, verdict: "APPROVE", quality: { ...dimension }, alignment: { ...dimension }, evidence: { ...dimension } };
@@ -60,6 +67,18 @@ test("existing native storage binds independent review to exact task/output; cal
   assert.equal(f.resolve(ref, { ...f.purpose, reviewScope: "integrated" }).status, "unverified");
   writeFileSync(join(f.repo, "product.txt"), "Changed after independent review.\n");
   assert.equal(f.resolve(ref).status, "unverified"); await assert.rejects(result.assertCurrent());
+});
+test("a current bound Review can judge an unchanged recovered old Build without rerunning it", async t => {
+  const f = fixture(t, { recoverBuild: true }), { ref } = f.finish();
+  const result = f.resolve(ref);
+  assert.equal(result.status, "current"); assert.equal(result.judgment.verdict, "accepted");
+  await result.assertCurrent();
+  const source = inspectRecoveryRecord(f.repo, { operationId: f.reviewRequest.reviewBinding.sourceOperationId });
+  assert.equal(source.record.owner.sessionId, "coordinator");
+  const changed = JSON.parse(readFileSync(source.sourceReference.path, "utf8")); changed.previous = { reason: "altered source" };
+  writeFileSync(source.sourceReference.path, JSON.stringify(changed));
+  assert.equal(f.resolve(ref).status, "unverified");
+  await assert.rejects(result.assertCurrent());
 });
 test("wrong scope, wrong binding, unknown result and same author/reviewer cannot become accepted", async t => {
   await t.test("wrong scope", t => { const f = fixture(t, { reviewScope: "integrated" }); const { ref } = f.finish({ scope: "task" }); assert.equal(f.resolve(ref).status, "unverified"); });

@@ -59,10 +59,22 @@ binds product files. Reuse returned objects, never copy product hash lists. Inli
 delegation merely to close bookkeeping. If the task prohibits all filesystem writes, skip
 prepare/complete: dispatch with a unique operation_id and use `result` to verify and read
 the exact settled native final without retaining a file. Do not silently create bookkeeping. For native work, `prepare` returns operation_id, canonical workspace,
-reportPath and handoff metadata; pass them unchanged alongside definitionId. It may create
+reportPath and handoff metadata; pass them unchanged alongside definitionId. Use its
+returned `delegationArguments`/`statusArguments` for direct transfer; prefer those objects
+over recopying IDs. They preserve identity, not dispatch authority. `OPERATION_ID_INVALID`
+requires the original response or exact read-only task/step/attempt lookup, never a guessed
+digest or replacement operation. A native argument refusal explicitly confirmed before
+admission may be corrected with the same operation/current binding; earlier attempts and
+real ownership, permission and cleanup gates still require reconciliation. It may create
 ignored administrative files. Its prepared directory is expected to exist; do not assert
 that it is absent or rediscover helpers. Use `status` before repeating/resuming an operation;
-after restart, use `history` for the original session/workspace. Distinguish refused-before-start,
+after restart, use `history` for the original session/workspace.
+When implementation/owner changes prevent that path, follow returned `recoverArguments`.
+Inspection reuses verified delivered output across updates or `/new` without new execution.
+For ongoing authorized work, returned `continueArguments` require positive producer no-start
+proof and create one linked current-owner successor. Missing history never proves no start;
+uncertainty offers original-run/file inspection or independent work, not a replacement child.
+Recall-only requests stay in inspection mode. Distinguish refused-before-start,
 running/uncertain, settled history and current applicability. Missing history is not proof of
 no start; retry requires supported runtime evidence. `retry` preserves prior failed attempts;
 reuse current references, not another agent. Do not invent a fingerprint formula. Explain
