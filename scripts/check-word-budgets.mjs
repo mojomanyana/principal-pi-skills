@@ -68,8 +68,9 @@ const BUDGETS = {
 // grew from 115 words on 2026-10-09 to 861 on 2026-11-16, 399 of them on that last day, outside
 // every budget this file declares.
 //
-// The ceilings are the counts on the day this check was added, so the text may shrink freely
-// and grows only by an edit here. It is the rule stated above: growth is a decision someone
+// The ceilings are the counts after the text was rewritten for weaker models on 2026-11-17
+// (861, 147 and 52 words when this check was added), so the text may shrink freely and grows
+// only by an edit here. It is the rule stated above: growth is a decision someone
 // makes, and when a fix needs the words, the ceiling moves.
 //
 // Counted, per listed file: every plain double-quoted string written as the value of a
@@ -86,10 +87,10 @@ const BUDGETS = {
 //
 // Each entry: file, ceiling in words, mentions of registerTool in the file.
 const TOOL_TEXT = {
-  principal_workflow: ["extensions/workflow.ts", 861, 1],
-  principal_handoff: ["extensions/handoff.ts", 147, 1],
+  principal_workflow: ["extensions/workflow.ts", 385, 1],
+  principal_handoff: ["extensions/handoff.ts", 114, 1],
   // Two mentions: the method Pi's code-mode extension calls, and the call it makes.
-  principal_codemode: ["extensions/codemode.ts", 52, 2],
+  principal_codemode: ["extensions/codemode.ts", 28, 2],
 };
 
 const count = (t) => {

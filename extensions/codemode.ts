@@ -13,7 +13,7 @@ export default function principalCodemode(pi) {
         name: "principal_codemode",
         label: "Principal tools",
         defaultActive: true,
-        promptGuidelines: ["Batch independent inspection with Promise.allSettled and inspect every result. Sequence writes and dependent work. Use principal_workflow for candidate and artifact bookkeeping; its checks also apply outside scripts. Transfer returned delegationArguments/statusArguments directly and preserve the current describe definitionId; do not recopy opaque IDs. Check workflow state and native admission/settlement before dispatch or repeat."],
+        promptGuidelines: ["Batch independent reads with Promise.allSettled and check every result. Run writes and dependent steps in order. Pass returned delegationArguments and statusArguments objects directly, adding the current describe definitionId."],
         prepareLoadout(loadout) {
           const result = tool.prepareLoadout(loadout);
           const { codemode, ...descriptions } = result.descriptions ?? {};

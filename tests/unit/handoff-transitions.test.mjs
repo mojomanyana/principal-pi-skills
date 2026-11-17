@@ -236,6 +236,7 @@ test("native handoffs bind an exact described definition and never fallback afte
     assert.match(text, /genuinely\s+absent/);
     assert.match(text, /explicitly configured/);
     assert.match(text, /report\s+gap/);
+    assert.match(text, /never substitute|no automatic\b[^.]*\b(?:substitution|fallback)/i, path);
     assert.doesNotMatch(text, /unknown agent.*run.*inline/s);
     assert.doesNotMatch(text, /Choose the cheapest|Use the strongest|capable mid-tier/);
   }

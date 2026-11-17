@@ -213,6 +213,12 @@ test('coordinator corrects pre-operation metadata while preserving identity and 
     /missing fact changes that next action, offer concrete useful choices and their consequences/]);
 });
 
+test('per-request tool text keeps the decisions only the model can make',()=>{
+  clauses(normalized(read('extensions/workflow.ts')),[/[Nn]ever (?:construct|compute) (?:an ID or )?(?:a )?digest yourself/,
+    /[Nn]ever (?:fill )?succeeded/]);
+  clauses(normalized(read('extensions/handoff.ts')),[/Never (?:omit|drop) a required source to (?:obtain|reach) ready/]);
+});
+
 test('later prepared-operation calls name task and step instead of copying an operation ID',()=>{
   const paths=['AGENTS.md','bootstrap/BOOTSTRAP.md','references/workflow-mechanics.md','contracts/workflows.md.tmpl',
     'prompts/principal-feature.md','prompts/principal-review-branch.md','extensions/workflow.ts'];

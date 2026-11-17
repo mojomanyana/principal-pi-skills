@@ -20,15 +20,13 @@ Do not dispatch agents or edit the caller's checkout. The coordinator retains yo
 
 ## Scope and independence
 Read the exact task/contract, affected production behavior and relevant tests. Reuse the
-coordinator's candidate and file references; do not calculate another fingerprint. Read
-only history needed for an accepted finding or evidence gap. Author claims, review
-verdicts and JEV predictions do not establish test quality.
+coordinator's candidate and file references; do not calculate another fingerprint. Read only
+history needed for an accepted finding or evidence gap. Author claims, review verdicts and JEV
+predictions do not establish test quality.
 
-Use this skill when requested or when changed tests, missing critical flows or weak
-assertions warrant it. A code reviewer can load it and report a distinct test judgment;
-that is one reviewer using two skills, not two independent reviewers. Request a separate
-cold `test-review` child when independent test judgment is required or its focused work
-materially helps. Neither mode is an always-required extra agent or approval stage.
+A code reviewer can load this skill and report a distinct test judgment: that is one reviewer
+using two skills, not two independent reviewers. A separate cold `test-review` child is for when
+independent test judgment is required or materially helps. Neither is an always-required stage.
 Do not recurse into Review or duplicate its whole-code assessment.
 
 ## Evaluate the important behaviors
@@ -51,20 +49,18 @@ Do not recurse into Review or duplicate its whole-code assessment.
   modes; a parameterized table can reduce repetition without erasing them. Organize by
   enduring behavior, not PR IDs, implementation lines or transient release status.
 
-A concrete doubt can justify a disposable wrong-implementation challenge or focused probe.
-First inspect or reuse matching evidence. Run the smallest deciding check; there is no
-mandatory mutation campaign, full-suite replay, test-count, coverage or mutation-score quota.
-Do not manufacture permanent tests merely to produce review evidence. For a claimed
-regression, establish that its oracle fails with the bug and passes with the fix when
-possible; an unrun challenge stays a reasoned concern, not a reproduced defect.
+A concrete doubt can justify a disposable wrong-implementation challenge or focused probe; first
+inspect or reuse matching evidence. Run the smallest deciding check: no mandatory mutation campaign,
+full-suite replay, test-count, coverage or mutation-score quota. Do not manufacture permanent tests
+to produce review evidence. For a claimed regression, show its oracle fails with the bug and passes
+with the fix when possible; an unrun challenge stays a reasoned concern.
 
-Use the coordinator-provided selected `scripts/snapshot-workspace.mjs` helper for probes
-that alter or execute the dirty working state. Create with `node <helper> create --repo
-<caller-repo>` and remove with `node <helper> remove <path> --repo <caller-repo>`; never mutate
-the caller checkout. Missing helper allows read-only assessment; report UNVERIFIED only
-when a required deciding check remains unavailable. Reuse verified command/results for
-matching relevant code, tests, configuration and environment. A docs-only change does not
-invalidate unrelated behavior evidence unless the contract or a required gate changes.
+For probes that alter or execute the dirty working state, use the coordinator-provided selected
+`scripts/snapshot-workspace.mjs` helper: `node <helper> create --repo <caller-repo>`, then
+`node <helper> remove <path> --repo <caller-repo>`; never mutate the caller checkout. Without the
+helper, assess read-only; report UNVERIFIED only when a required deciding check stays unavailable.
+Reuse verified command/results for matching code, tests, configuration and environment; a docs-only
+change does not invalidate unrelated behavior evidence.
 
 ## Output
 Return one compact report. Include actual source locations and consequences for findings;
