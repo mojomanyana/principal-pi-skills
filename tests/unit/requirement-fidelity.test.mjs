@@ -215,7 +215,10 @@ test('coordinator corrects pre-operation metadata while preserving identity and 
 
 test('per-request tool text keeps the decisions only the model can make',()=>{
   clauses(normalized(read('extensions/workflow.ts')),[/[Nn]ever (?:construct|compute) (?:an ID or )?(?:a )?digest yourself/,
-    /[Nn]ever (?:fill )?succeeded/]);
+    /[Nn]ever (?:fill )?succeeded/,
+    // A blind model comparison (Sonnet, scenario S7) completed an operation with uncertain cleanup 4 of 4 times
+    // without this clause and 0 of 4 with it; keep it in the per-request text.
+    /cleanup is settled \(uncertain is not settled\), call complete/]);
   clauses(normalized(read('extensions/handoff.ts')),[/Never (?:omit|drop) a required source to (?:obtain|reach) ready/]);
 });
 

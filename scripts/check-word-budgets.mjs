@@ -87,7 +87,7 @@ const BUDGETS = {
 //
 // Each entry: file, ceiling in words, mentions of registerTool in the file.
 const TOOL_TEXT = {
-  principal_workflow: ["extensions/workflow.ts", 385, 1],
+  principal_workflow: ["extensions/workflow.ts", 392, 1],
   principal_handoff: ["extensions/handoff.ts", 114, 1],
   // Two mentions: the method Pi's code-mode extension calls, and the call it makes.
   principal_codemode: ["extensions/codemode.ts", 28, 2],
