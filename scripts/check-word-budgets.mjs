@@ -19,7 +19,7 @@
  * trimmed content. Verified equal against coreutils wc.
  */
 
-import { readFileSync } from "node:fs";
+import { readFileSync, readdirSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -60,9 +60,96 @@ const BUDGETS = {
   "git-ops": 2550,
 };
 
-const words = (p) => {
-  const t = readFileSync(join(ROOT, p), "utf8").trim();
+// Tool text.
+//
+// The skill and agent files above are read when a role is used. A registered tool is different:
+// its description and prompt guidelines go to the model with every request while the tool is
+// active, whether or not it is called. Nothing counted that text. In `extensions/workflow.ts` it
+// grew from 115 words on 2026-10-09 to 861 on 2026-11-16, 399 of them on that last day, outside
+// every budget this file declares.
+//
+// The ceilings are the counts on the day this check was added, so the text may shrink freely
+// and grows only by an edit here. It is the rule stated above: growth is a decision someone
+// makes, and when a fix needs the words, the ceiling moves.
+//
+// Counted, per listed file: every plain double-quoted string written as the value of a
+// `description`, `promptSnippet` or `promptGuidelines` key. That is the tool description, its
+// guidelines and the parameter descriptions written in that file. Not counted: schema structure,
+// parameter descriptions imported from scripts/ (37 words for `principal_workflow` today), and
+// for `principal_codemode` the description Pi's own code-mode tool supplies.
+//
+// The check reads source and loads nothing, so it sees text only where it is written at one of
+// those keys in the listed file. Text attached another way (a spread, Object.assign, an object
+// built in another module) is invisible to it. Three things keep that from passing quietly: a
+// listed file must still hold some tool text, must mention registerTool exactly as often as
+// recorded here, and no other file under extensions/ or scripts/ may mention it at all.
+//
+// Each entry: file, ceiling in words, mentions of registerTool in the file.
+const TOOL_TEXT = {
+  principal_workflow: ["extensions/workflow.ts", 861, 1],
+  principal_handoff: ["extensions/handoff.ts", 147, 1],
+  // Two mentions: the method Pi's code-mode extension calls, and the call it makes.
+  principal_codemode: ["extensions/codemode.ts", 52, 2],
+};
+
+const count = (t) => {
+  t = t.trim();
   return t ? t.split(/\s+/).length : 0;
+};
+const words = (p) => count(readFileSync(join(ROOT, p), "utf8"));
+
+// The strings written at the text keys of one source file. A value there that cannot be read
+// whole is reported, never skipped: text continued or assembled some other way would otherwise
+// be counted short and pass. Problems carry the line they were found on.
+const TEXT_KEY = "description|promptSnippet|promptGuidelines";
+const toolText = (source) => {
+  const texts = [], unread = [], keyAt = new Set();
+  const line = (index) => source.slice(0, index).split("\n").length;
+  const key = new RegExp(`\\b(${TEXT_KEY})"?\\s*:\\s*(\\[\\s*)?`, "g");
+  const literal = /"(?:[^"\\]|\\.)*"/y, comma = /\s*,\s*/y;
+  // What must follow a value that was read whole: the end of the property, or the end of the
+  // array and then of the property. `"a" + more` and `["a", more]` do not end there.
+  const endValue = /\s*[,}]/y, endArray = /\s*,?\s*\]\s*[,}]/y;
+  let rest = "", from = 0;
+  for (let match; (match = key.exec(source)); ) {
+    const start = key.lastIndex, end = match[2] ? endArray : endValue, read = [];
+    let at = start, whole = false;
+    keyAt.add(match.index);
+    for (;;) {
+      literal.lastIndex = at;
+      const text = literal.exec(source);
+      if (!text) break;
+      try {
+        read.push(JSON.parse(text[0]));
+      } catch {
+        break;
+      }
+      at = literal.lastIndex;
+      end.lastIndex = at;
+      if (end.exec(source)) {
+        whole = true;
+        break;
+      }
+      // Only an array continues with further strings.
+      comma.lastIndex = at;
+      if (!match[2] || !comma.exec(source)) break;
+      at = comma.lastIndex;
+    }
+    if (!whole) {
+      unread.push([line(match.index), `this ${match[1]} value is not plain double-quoted text`]);
+      continue;
+    }
+    texts.push(...read);
+    // Text already counted is blanked, so it is not searched for further keys or mentions.
+    rest += source.slice(from, start) + " ".repeat(at - start);
+    from = key.lastIndex = at;
+  }
+  rest += source.slice(from);
+  // A shorthand property or a later assignment names the text without a value to read here.
+  for (const mention of rest.matchAll(new RegExp(`\\b(${TEXT_KEY})\\b`, "g"))) {
+    if (!keyAt.has(mention.index)) unread.push([line(mention.index), `${mention[1]} is named without a value to read`]);
+  }
+  return { texts, unread };
 };
 
 const readme = readFileSync(join(ROOT, "README.md"), "utf8");
@@ -112,9 +199,76 @@ if (skillFiles !== EXPECTED_SKILLS) {
   );
 }
 
+const toolCounts = [];
+for (const [tool, [path, ceiling, registrations]] of Object.entries(TOOL_TEXT)) {
+  let source;
+  try {
+    source = readFileSync(join(ROOT, path), "utf8");
+  } catch {
+    errors.push(`${path}: budgeted for ${tool} but not readable`);
+    continue;
+  }
+  if (!source.includes(`name: "${tool}"`)) {
+    errors.push(`${path}: no longer registers ${tool} — update TOOL_TEXT in scripts/check-word-budgets.mjs`);
+    continue;
+  }
+  const { texts, unread } = toolText(source);
+  for (const [at, problem] of unread) {
+    errors.push(
+      `${path}:${at}: ${problem}, so the tool text cannot be counted — write it as "key: \"text\"", ` +
+        `or teach scripts/check-word-budgets.mjs to read it`
+    );
+  }
+  const actual = count(texts.join(" "));
+  toolCounts.push(`${tool} ${actual}/${ceiling}`);
+  // A tool with no text written here, or one more registration than recorded, is how text
+  // supplied from another module would arrive.
+  if (!actual) {
+    errors.push(`${path}: found no tool text for ${tool} — text supplied from elsewhere is not counted`);
+  }
+  const mentions = source.split(/\bregisterTool\b/).length - 1;
+  if (mentions !== registrations) {
+    errors.push(
+      `${path}: mentions registerTool ${mentions} time(s), TOOL_TEXT records ${registrations} — a further ` +
+        `tool's text may come from elsewhere; check it, then update scripts/check-word-budgets.mjs`
+    );
+  }
+  if (actual > ceiling) {
+    errors.push(
+      `${path}: ${tool} sends ${actual} words of tool text, over its ${ceiling} budget — trim it, ` +
+        `or change TOOL_TEXT in scripts/check-word-budgets.mjs and the README`
+    );
+  }
+  // The README states the ceilings as decisions; a stated number that differs is a false claim.
+  const stated = [...readme.matchAll(new RegExp("`" + tool + "`\\s+(\\d+)", "g"))].map((m) => Number(m[1]));
+  if (!stated.length || stated.some((n) => n !== ceiling)) {
+    errors.push(
+      `README.md: says ${stated.join(" and ") || "nothing"} for the ${tool} tool-text budget, ` +
+        `scripts/check-word-budgets.mjs says ${ceiling} — make them agree`
+    );
+  }
+}
+
+// A tool registered from a file not listed above would send text that nothing here counts.
+const budgeted = new Set(Object.values(TOOL_TEXT).map(([path]) => path));
+const sources = (dir) =>
+  readdirSync(join(ROOT, dir), { withFileTypes: true }).flatMap((entry) =>
+    entry.isDirectory() ? sources(`${dir}/${entry.name}`) : entry.isFile() ? [`${dir}/${entry.name}`] : []
+  );
+for (const path of [...sources("extensions"), ...sources("scripts")].sort()) {
+  if (budgeted.has(path) || path === "scripts/check-word-budgets.mjs") continue;
+  if (/\bregisterTool\b/.test(readFileSync(join(ROOT, path), "utf8"))) {
+    errors.push(
+      `${path}: mentions registerTool but has no tool-text ceiling — add it to TOOL_TEXT in ` +
+        `scripts/check-word-budgets.mjs and the README`
+    );
+  }
+}
+
 if (errors.length) {
   for (const e of errors) console.error(`✗ ${e}`);
   console.error(`\n${errors.length} word-budget finding(s)`);
   process.exit(1);
 }
 console.log(`✓ ${checked.length} file(s) match the README table and are within budget`);
+console.log(`✓ ${toolCounts.length} tool text(s) within budget: ${toolCounts.join(", ")}`);
