@@ -974,6 +974,31 @@ test("task and step select the prepared operation for every later action without
   assert.equal(readdirSync(store).length, 2);
 });
 
+test("a replayable native failure can be retried by task and step: settled-failed and never-started both qualify", async t => {
+  // Owner decision 2026-11-17, "Principal retries once": pi-daddy does not retry under an operation; it marks a
+  // failure it would otherwise have retried "replayable":true. That failure's operation is either settled with a
+  // failed result or proven never started. complete refuses both; the retry action the coordinator rule names must
+  // accept both, keep the failed attempt, and return arguments for the new delegation.
+  for (const shape of ["settled", "not-started"]) await t.test(shape, async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const name = { task: request.task, step: request.step };
+    const prepared = (await h.run({ action: "prepare", ...request, phase: "investigate" })).structuredContent;
+    h.setNative(shape === "settled"
+      ? { operationId: prepared.operation_id, cwd: root, executionId: "exec:fixture", state: "settled",
+        finalObservation: { state: "unavailable", reason: "no complete native final" },
+        runtime: { work: "failed", final: { state: "unavailable" }, cleanup: { state: "settled", executionId: "exec:fixture" } } }
+      : { operationId: prepared.operation_id, cwd: root, executionId: "exec:fixture", state: "not-started",
+        runtime: { work: "failed", cleanup: { state: "not-started" } } });
+    assert.equal((await h.run({ action: "complete", ...name, disposition: "blocked" })).isError, true);
+    const retried = (await h.run({ action: "retry", ...name, reason: "replayable failure", expectedCandidate: observeCandidate(root) })).structuredContent;
+    assert.equal(retried.state, "prepared"); assert.equal(retried.attempt, 2); assert.equal(retried.reused, false);
+    assert.deepEqual(retried.delegationArguments, { agent: "investigate", operation_id: retried.operation_id });
+    assert.notEqual(retried.operation_id, prepared.operation_id);
+    const first = (await h.run({ action: "status", ...name, attempt: 1 })).structuredContent;
+    assert.equal(first.operation_id, prepared.operation_id); assert.equal(first.state, "prepared", "the failed attempt is kept");
+  });
+});
+
 test("an uncertain latest attempt is refused with its choices for every action, and a named attempt proceeds", async t => {
   const { root, request } = fixture(t), h = await registeredWorkflow(root, { historyBridge: true });
   const name = { task: request.task, step: request.step }, store = join(root, ".principal/workflow");

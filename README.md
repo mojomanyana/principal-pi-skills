@@ -100,7 +100,7 @@ claims of measured model compliance. Common ceilings remain unchanged.
 Tool text has its own ceilings because it is paid for more often. A skill is read when its
 role is used; a registered tool's description and prompt guidelines go to the model with
 every request while the tool is active, whether or not it is called. Ceilings in words:
-`principal_workflow` 392, `principal_handoff` 114, `principal_codemode` 28. Each counts the
+`principal_workflow` 428, `principal_handoff` 114, `principal_codemode` 28. Each counts the
 description, guidelines and parameter descriptions written in the tool's own extension file;
 parameter descriptions imported from `scripts/` and text Pi itself supplies are outside it.
 The ceilings are the counts after the 2026-11-17 rewrite for weaker models (from 861, 147 and 52), so
