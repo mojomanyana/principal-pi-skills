@@ -57,8 +57,10 @@ function producerNoStart(observation, source) {
 function delegationArguments(result) {
   return { agent: result.phase, operation_id: result.operation_id };
 }
+// Follow-up arguments name the operation; its stored ID stays in operation_id for consumers that record it.
+const named = operation => ({ task: operation.task, step: operation.step, attempt: operation.attempt });
 function statusArguments(result) {
-  return { action: "status", repo: result.root, operationId: result.operation_id };
+  return { action: "status", repo: result.root, ...named(result) };
 }
 const historicalView = result => ({ ...result, historical: true, completionValid: false,
   applicability: result.sourceRecovery ? "current-output" : "not-established" });
@@ -94,7 +96,7 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
   if (existing) {
     assert(existing.record.previous?.operationId === record.operationId, "The next attempt is unrelated; inspect it without replacing work");
     const successor = inspectRecoveryOperation(repo, { operationId: existing.record.operationId });
-    const extra = { successor: historicalView(successor), recoverArguments: { action: "recover", operationId: successor.operation_id } };
+    const extra = { successor: historicalView(successor), recoverArguments: { action: "recover", ...named(successor) } };
     if (successor.resultRetained && successor.candidateMatches && successor.inputsMatch && !successor.issues?.length) {
       return outcome("reused", "Reuse the successor's delivered output and recorded checks; do not repeat its work.", { ...extra, report: successor.report, sourceRecovery: successor.sourceRecovery });
     }
@@ -138,7 +140,7 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
       return outcome("historical", "The original operation never started, but its files or inputs changed. Reconcile the current scope before preparing remaining work.", base);
     }
     const current = observeCandidate(repo);
-    const continueArguments = { action: "recover", mode: "continue", operationId: record.operationId, sourceReference, expectedCandidate: current };
+    const continueArguments = { action: "recover", mode: "continue", ...named(record), sourceReference, expectedCandidate: current };
     if (request.mode !== "continue") return outcome("ready-to-continue", "The original operation is proven unstarted. Continue the authorized work with the supplied arguments.", { ...base, continueArguments });
     assert(request.sourceReference !== undefined && request.expectedCandidate !== undefined, "Continue with the exact arguments returned by recovery inspection");
     assert((typeof request.expectedCandidate === "string" ? request.expectedCandidate : request.expectedCandidate.id) === current.id,
@@ -150,7 +152,7 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
       const winner = inspectRecoverySuccessor(repo, record);
       if (winner?.record.previous?.operationId === record.operationId) {
         return outcome("existing-successor", "Another coordinator already created this continuation. Inspect that exact successor; do not start another child.",
-          { successor: historicalView(inspectRecoveryOperation(repo, { operationId: winner.record.operationId })), recoverArguments: { action: "recover", operationId: winner.record.operationId } });
+          { successor: historicalView(inspectRecoveryOperation(repo, { operationId: winner.record.operationId })), recoverArguments: { action: "recover", ...named(winner.record) } });
       }
       throw error;
     }

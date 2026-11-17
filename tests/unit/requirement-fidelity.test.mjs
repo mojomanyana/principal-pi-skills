@@ -213,6 +213,18 @@ test('coordinator corrects pre-operation metadata while preserving identity and 
     /missing fact changes that next action, offer concrete useful choices and their consequences/]);
 });
 
+test('later prepared-operation calls name task and step instead of copying an operation ID',()=>{
+  const paths=['AGENTS.md','bootstrap/BOOTSTRAP.md','references/workflow-mechanics.md','contracts/workflows.md.tmpl',
+    'prompts/principal-feature.md','prompts/principal-review-branch.md','extensions/workflow.ts'];
+  for(const path of paths)assert.doesNotMatch(normalized(read(path)),
+    /operationId: prepared\.operation_id|copy the complete operation_id|Pass operation_id unchanged|`operation_id` unchanged to delegate|accept operationId without repeating|OPERATION_ID_INVALID`? (?:calls for|requires|identifies)|using its operationId/,path);
+  clauses(normalized(read('AGENTS.md')),[/Pass the returned `delegationArguments` to delegate alongside its `definitionId`; later calls name the task and step/]);
+  clauses(normalized(read('contracts/workflows.md.tmpl')),[/Call `complete` immediately after settlement, before repairs, by task\/step with the actual disposition/]);
+  clauses(normalized(read('references/workflow-mechanics.md')),[/`status`, `retry`, `history` and `result` take the same names; without `attempt` they select the latest, refusing with `choices` when it is uncertain or another coordinator's/,
+    /`OPERATION_ID_INVALID` means a supplied prepared-operation ID has the wrong format; omit it and name the task and step/]);
+  clauses(normalized(read('extensions/workflow.ts')),[/status\/complete\/retry\/history\/result take task and step, selecting the latest attempt unless attempt is given; an uncertain or foreign one refuses with choices/]);
+});
+
 test('finish reuses applicable verification without weakening source-required release checks',()=>{
   const git=normalized(read('git-ops/SKILL.md'));
   const finish=git.split('## Finish mode')[1].split('## Right-sizing')[0];

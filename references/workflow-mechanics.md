@@ -61,9 +61,10 @@ observation or a wrong field, not proof of either. Keep the original record and 
 current snapshot only after understanding why the expected input differs. Do not reconstruct
 hashes or repeat prepare unchanged. These diagnostics neither approve work nor authorize retry.
 
-Pass `prepared.operation_id` unchanged to native delegation. After settlement, immediately
-call `complete` with `operationId: prepared.operation_id` and the actual `disposition`, before
-repairing anything. `status` and `retry` also accept that ID without repeated task/step fields.
+Pass `prepared.delegationArguments` to native delegation. After settlement, immediately
+call `complete` with the prepared `task`, `step` and actual `disposition`, before repairing
+anything. `status`, `retry`, `history` and `result` take the same names; without `attempt`
+they select the latest, refusing with `choices` when it is uncertain or another coordinator's.
 The immutable `result.json` retains the verified final and producer identity. `completion.json`
 requires matching current inputs/candidate. `resultRetained: true` is historical evidence;
 `completionValid: true` is bookkeeping freshness, and neither grants approval. A result already stale at first retention stays historical even if files are later restored.
@@ -111,20 +112,15 @@ async function prepareAndDelegate(prepareArguments, taskText) {
 }
 ```
 
-`OPERATION_ID_INVALID` means the supplied prepared-operation ID has the wrong format.
-Use the original returned `statusArguments` or complete `operation_id`. If the original
-task, step and attempt are known, read-only `status` accepts those exact fields with
-`operationId` omitted. The diagnostic includes that lookup only when all three were
-supplied; it never selects a fuzzy match. Wrong-owner, missing, ambiguous and conflicting
-records still refuse. Do not call `prepare` to replace an unknown operation.
+`OPERATION_ID_INVALID` means a supplied prepared-operation ID has the wrong format; omit it
+and name the task and step. Wrong-owner, missing, ambiguous and conflicting records still
+refuse. Do not call `prepare` to replace an unknown operation.
 
 When a native result explicitly identifies a correctable argument error and confirms that
 call was refused before admission, preserve the result, correct only the named argument
-and use the same prepared operation/current binding. Do not treat a malformed status ID
-as evidence that delegation never started. Earlier attempts and real permission,
+and use the same prepared operation/current binding. Earlier attempts and real permission,
 ownership, candidate, running-work or cleanup restrictions still need reconciliation.
-`result` retains support for generic native IDs; it is distinct from prepared-operation
-`status`, `complete`, `retry` and `history`.
+`result` also accepts a generic native operation ID.
 
 ### Recover after an update or a new session
 
@@ -205,7 +201,7 @@ This Linux x64 facility is not a filesystem sandbox and implies no JEV or retent
 ## Read historical native results
 
 After restarting the same Pi session, use `principal_workflow` with
-`action: "history"` and its original `operationId` to inspect Daddy's durable
+`action: "history"` and its task/step to inspect Daddy's durable
 result. The query checks the original coordinator session and canonical
 workspace. It accepts a supported historical record format even when Principal's
 implementation changed, without claiming the old implementation is compatible.

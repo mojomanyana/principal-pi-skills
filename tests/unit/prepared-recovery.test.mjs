@@ -190,3 +190,28 @@ test("an existing successor is rechecked after awaited proof without returning s
   assert.equal(result.delegationArguments, undefined);
   assert.ok(result.suggestedOptions.length > 0);
 });
+
+test("recovery follow-up arguments name the task, step and attempt and pass straight back without an operation ID", async t => {
+  const f = fixture(t); f.legacy(); f.setObservation(f.noStart());
+  const name = { task: "workshop-desk", step: "backend" }, recover = args => recoverPreparedOperation(f.pi, f.ctx, args);
+  const inspected = await recover({ action: "recover", ...name, attempt: 1 });
+  assert.equal(inspected.state, "ready-to-continue"); assert.equal(inspected.operation_id, f.prepared.operation_id);
+  assert.deepEqual(inspected.continueArguments, { action: "recover", mode: "continue", ...name, attempt: 1,
+    sourceReference: inspected.sourceReference, expectedCandidate: observeCandidate(f.root) });
+  const recovered = await recover(inspected.continueArguments);
+  assert.equal(recovered.state, "recovered"); assert.equal(recovered.successor.attempt, 2);
+  assert.equal(recovered.operation_id, f.prepared.operation_id, "the original's stored ID stays in the output");
+  assert.deepEqual(recovered.statusArguments, { action: "status", repo: f.root, ...name, attempt: 2 });
+  assert.deepEqual(recovered.delegationArguments, { agent: "build", operation_id: recovered.successor.operation_id });
+  assert.equal(inspectOperation(f.root, recovered.statusArguments).operation_id, recovered.successor.operation_id);
+  const repeated = await recover(inspected.continueArguments);
+  assert.equal(repeated.reused, true); assert.deepEqual(repeated.statusArguments, recovered.statusArguments);
+  assert.deepEqual(repeated.recoverArguments, { action: "recover", ...name, attempt: 2 });
+  f.setSession("other-parent");
+  const foreign = await recover(inspected.continueArguments);
+  assert.equal(foreign.state, "existing-successor"); assert.equal(foreign.delegationArguments, undefined);
+  assert.deepEqual(foreign.recoverArguments, { action: "recover", ...name, attempt: 2 });
+  const followed = await recover(foreign.recoverArguments);
+  assert.equal(followed.operation_id, recovered.successor.operation_id); assert.equal(followed.delegationArguments, undefined);
+  assert.equal(readdirSync(join(f.root, ".principal/workflow")).length, 2);
+});
