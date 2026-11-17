@@ -1,10 +1,10 @@
 # principal-pi-skills
 
 **Nine skills for principal-level software engineering with the
-[pi coding agent](https://github.com/badlogic/pi-mono) â€” three inline skills and six
+[pi coding agent](https://github.com/badlogic/pi-mono) — three inline skills and six
 that double as subagents.** Dialogue and session state run inline (`decide`, `architect`,
 `git-ops`); heavy reading, cold judgment, and noisy loops delegate to isolated contexts
-(`plan`, `build`, `review`, `test-review`, `debug`, `investigate` â€” single-shot variants in `agents/`,
+(`plan`, `build`, `review`, `test-review`, `debug`, `investigate` — single-shot variants in `agents/`,
 generated from the same contract as the skill). The files follow the
 [Agent Skills](https://agentskills.io/specification) standard, so other harnesses can
 consume the skills, but pi is the supported target. This is **4.x**: a thin orchestration
@@ -14,8 +14,8 @@ assurance controller and broad model qualification kept on a separate track (see
 
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
-**delegable trust** â€” an output carries the evidence needed to verify it without redoing
-the work â€” and **cheap iteration** â€” a defect found is a defect fixed, not documented
+**delegable trust** — an output carries the evidence needed to verify it without redoing
+the work — and **cheap iteration** — a defect found is a defect fixed, not documented
 around.
 
 The additional `artifact-review` resource reviews plans, decisions, architecture and
@@ -72,20 +72,20 @@ operation-bridge checks passed with Pi 1.0.4 and 1.1.0; this is not paid model q
 
 1. **Dual-use.** `plan`, `build`, `review`, `test-review`, `debug`, and `investigate` each serve as a loaded skill *and*
    as a subagent system prompt. Both forms are rendered from one contract, so the shared
-   behavior cannot drift between them, and the differences â€” single-shot mechanics, the
-   BLOCKED form, no-dialogue rules â€” are marked rather than remembered. That constraint is
+   behavior cannot drift between them, and the differences — single-shot mechanics, the
+   BLOCKED form, no-dialogue rules — are marked rather than remembered. That constraint is
    what forces single-shot-safe behavior and a literal output template.
 2. **Model-agnostic.** Written for the weakest model that will run it (DeepSeek, GLM,
    Sonnet-class), not the strongest: imperative numbered steps, literal fill-in templates,
    plain-text tags (`[ONE-WAY]`, `[BLOCKER]`) instead of an emoji schema, no aphorisms
    doing load-bearing work, no personas, no required reading in reference files.
 3. **Token economics.** Budgets stated as decisions rather than aspirations: **skills
-   â‰¤ 1400 words**, **agents â‰¤ 1500**, and **`git-ops` an accepted exception at â‰¤ 2550** (including operation-specific preservation and verified restoration) â€”
+   ≤ 1400 words**, **agents ≤ 1500**, and **`git-ops` an accepted exception at ≤ 2550** (including operation-specific preservation and verified restoration) —
    the safety-critical operator carries the most arming, and validated behavior outweighs
    a budget. Ceilings move only to buy a fix rather than more prose: an absolute is cheap to write and wrong in real cases, and a rule plus the cases
    it must not eat costs more words than the absolute it replaced. **When a fix and the
    ceiling conflict, the ceiling moves.** Every count in the table below is checkable with
-   `wc -w`. Nothing loads anything else â€” a subagent reads one file and has the whole
+   `wc -w`. Nothing loads anything else — a subagent reads one file and has the whole
    contract.
 
 Individual contract exceptions (skill/agent words): Plan 2050/2100 preserves complete
@@ -101,18 +101,18 @@ claims of measured model compliance. Common ceilings remain unchanged.
 
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
-| `decide` | Options and stress-tests for a decision that isn't settled â€” "should I", "what are my options", "I'm stuck" | inline | 975 |
+| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
 | `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1594) or inline | 1528 |
 | `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1832) or inline | 1817 |
-| `review` | One pass, two axes â€” correctness and simplicity â€” ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1532) or inline | 1480 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1532) or inline | 1480 |
 | `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 799) or inline | 778 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1573) or inline | 1433 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 538) or inline | 539 |
 | `artifact-review` | Quality, intent alignment and evidence for plans, decisions, architecture or custom artifacts | standalone Pi skill; no native phase | 947 |
-| `git-ops` | Safe version-control operator â€” reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2536 |
+| `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2536 |
 
-Routing between them belongs to the orchestrator, not to a skill â€” there is deliberately no
+Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
 routing skill spending context to say "pick a skill". [AGENTS.md](./AGENTS.md) is the
 long-form routing reference, and the bootstrap extension below injects its routing table
 into applicable requests, so nothing needs to point pi at it by hand.
@@ -228,9 +228,9 @@ what the evidence shows remains; do not repeat completed work or infer approval 
 ## Layout
 
 ```
-<skill>/SKILL.md                      the interactive contract â€” nothing else is required reading
+<skill>/SKILL.md                      the interactive contract — nothing else is required reading
 agents/principal-{plan,build,review,test-review,debug,investigate}.md  subagent definitions available for delegation
-contracts/{plan,build,review,test-review,debug,investigate}.md.tmpl    source for dual-use contracts â€” edit here, run `npm run generate`
+contracts/{plan,build,review,test-review,debug,investigate}.md.tmpl    source for dual-use contracts — edit here, run `npm run generate`
 contracts/workflows.md.tmpl           source for the three namespaced spines
 prompts/principal-{feature,bugfix,refactor}.md generated workflows
 prompts/principal-review-branch.md    handwritten planless/buildless review entry
@@ -265,7 +265,7 @@ history is unknown. Readiness and candidate diagnostics are explained in
 
 ### Package installation
 
-1. **Skills + prompts** â€” install the exact npm release:
+1. **Skills + prompts** — install the exact npm release:
 
    ```sh
    pi install npm:principal-pi-skills@4.15.7
@@ -291,7 +291,7 @@ history is unknown. Readiness and candidate diagnostics are explained in
    coordinator-owned progress work; the coordinator runs the helper after that phase, within
    its own authority. Planning does not run the CLI or widen its write ceiling.
 
-   **Do not install `2.3.0`** â€” it is deprecated on npm for a destructive defect: its
+   **Do not install `2.3.0`** — it is deprecated on npm for a destructive defect: its
    `principal-pi-workspace remove` deletes any path handed to it, including your checkout,
    and reports success. `2.3.1` is the lowest safe version.
 
@@ -317,7 +317,7 @@ history is unknown. Readiness and candidate diagnostics are explained in
    `PI_CODING_AGENT_DIR` before release; known behavioral qualification limits still apply.
 
    It installs `principal-plan`, `principal-build`, `principal-review`, `principal-test-review`, `principal-debug`,
-   and `principal-investigate` as **real files, not symlinks** â€” a symlink into a checkout breaks the
+   and `principal-investigate` as **real files, not symlinks** — a symlink into a checkout breaks the
    moment that directory moves, and breaks silently, since pi just reports an unknown
    agent. It refuses to overwrite anything it did not install, and `uninstall` removes only
    its own unmodified files. Symlinked home/config ancestors resolve once to a canonical
@@ -607,7 +607,7 @@ separate training permission and held-out evaluation. OpenAI Decisions remains e
 installer and tarball behavior, `Next:` transition parity, and deterministic source-fidelity
 contract assertions. These check current product contracts, not model behavior or instruction delivery.
 
-Behavioural measurementâ€”including the requirement-fidelity corpus and skill-harness evidenceâ€”lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks live here. Its [current frozen-rubric baseline](https://github.com/mojomanyana/principal-pi-skills-evals/blob/main/BASELINE.md) reports DeepSeek V4.1 Flash at 56/158 (35%) with 2 infrastructure-error scenarios and Nemotron Lightning at 28/158 (18%) with 12; infrastructure errors are retained as non-passes, and both subjects remain NOT READY across all eight skills. These observations include disclosed infrastructure gaps and do not change this package's runtime contracts.
+Behavioural measurement—including the requirement-fidelity corpus and skill-harness evidence—lives in [principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks live here. Its [current frozen-rubric baseline](https://github.com/mojomanyana/principal-pi-skills-evals/blob/main/BASELINE.md) reports DeepSeek V4.1 Flash at 56/158 (35%) with 2 infrastructure-error scenarios and Nemotron Lightning at 28/158 (18%) with 12; infrastructure errors are retained as non-passes, and both subjects remain NOT READY across all eight skills. These observations include disclosed infrastructure gaps and do not change this package's runtime contracts.
 
 **Enforcement boundary:** Build/Review instructions ask the model to organize regressions
 by lasting behavior, not PR/finding IDs, and distinguish product coverage from historical
@@ -632,8 +632,8 @@ routing-description change.
 
 ## Why 4.0
 
-Version 3.x grew a risk-adaptive assurance controller â€” a hash-chained event ledger, task
-packets, digests, fail-closed gates â€” whose protocol leaked into the model-facing skill text
+Version 3.x grew a risk-adaptive assurance controller — a hash-chained event ledger, task
+packets, digests, fail-closed gates — whose protocol leaked into the model-facing skill text
 and whose init step ran before every workflow, including a typo fix. The routing layer in
 `AGENTS.md` was never loaded by pi, the feature spine had no human approval point outside
 critical mode, and every build ran inline so long features filled the steering context with
@@ -663,7 +663,7 @@ repair rounds), in which case the prompt's task is its whole spec.
 
 Why the files look the way they do. Each of these was learned by measuring the alternative.
 
-- **Description = triggers only.** Never a workflow summary â€” a description that summarizes
+- **Description = triggers only.** Never a workflow summary — a description that summarizes
   the process trains the model to follow the description and skip the body.
 - **Recipes, not prohibition tables.** Output-shape problems get a literal template to fill.
   Prohibitions are reserved for genuine discipline failures (skipping tests under pressure,
@@ -674,10 +674,10 @@ Why the files look the way they do. Each of these was learned by measuring the a
   skill says what to do when information is missing: state the assumption, or return
   `BLOCKED` with the one question that matters.
 - **Pressure armor is explicit.** Discipline rules carry "repetition doesn't change the
-  answer â€” any turn, including the last", because models otherwise cave on the third push.
-- **Right-sizing is a hard conditional**, not a suggestion: "2â€“5 sentences, no machinery",
+  answer — any turn, including the last", because models otherwise cave on the third push.
+- **Right-sizing is a hard conditional**, not a suggestion: "2–5 sentences, no machinery",
   and when a user asks for the artifact on a trivial change, the minimal form *is* the
-  deliverable â€” otherwise the model declares the artifact unwarranted and produces it anyway.
+  deliverable — otherwise the model declares the artifact unwarranted and produces it anyway.
 - **Grounded skills carry a no-repo branch.** `plan` and `git-ops` act on the material given
   instead of stalling on "point me at the repo".
 - **Weak models need code anchors.** `debug`'s error-swallowing rule survived two rounds of
@@ -688,7 +688,7 @@ Why the files look the way they do. Each of these was learned by measuring the a
 
 ## License
 
-MIT Â© 2026 Nemanja Alavanja. See [LICENSE](./LICENSE).
+MIT © 2026 Nemanja Alavanja. See [LICENSE](./LICENSE).
 
 The Debug inline budget includes three generated frontmatter words that mark Principal package identity; missing or replaced package metadata must refuse native binding rather than downgrade to inline instructions.
 
@@ -710,7 +710,7 @@ unknown cleanup. It never repeats an implementation merely because a conversatio
 
 1. Save a request JSON file with the following exact fields. `scope` contains explicit relative
    source paths, or directories ending in `/`. `phase` is `build`, `review` or `git-ops`.
-   Review/finish requests require original full report paths. `repairsRemaining` is 0â€“2.
+   Review/finish requests require original full report paths. `repairsRemaining` is 0–2.
 
    ```json
    {
