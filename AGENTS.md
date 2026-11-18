@@ -86,6 +86,11 @@ use `contextPaths` to list editable workspace paths, not as permission or requir
 These hints do not inject file contents: supply needed allowed references in the handoff. With all
 writes forbidden, skip prepare/complete and verify the native final with `result`.
 
+Native prepare requires the selected Pi folder to be the target repository root; `repo` does not
+route the child there. `NATIVE_WORKSPACE_MISMATCH` reports the exact folders before allocation.
+Select the existing target folder for future work; preserve old mismatched operations as history,
+without rewriting identities or rerunning them. Cross-folder snapshot/reference remains read-only.
+
 When host schema validation rejects `prepare` task/step before execution, or `PREPARE_INPUT_INVALID`
 reports `operationAllocated: false`, correct the named field and repeat `prepare` for the same
 authorized work without asking permission again. Reuse established task/step identities; for a new
@@ -179,12 +184,12 @@ live here.
 
 ## Setup (pi)
 
-1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.18.0`,
-   `pi install npm:pi-daddy@0.60.0` and `pi install npm:skill-harness@0.36.0`. Enable `grep`,
+1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.18.1`,
+   `pi install npm:pi-daddy@0.61.0` and `pi install npm:skill-harness@0.36.2`. Enable `grep`,
    `find` and `ls` through Pi `settings.json` `defaultTools`; see [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent:
-   `npx -p principal-pi-skills@4.18.0 principal-pi-agents install`, then
-   `npx -p principal-pi-skills@4.18.0 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.18.1 principal-pi-agents install`, then
+   `npx -p principal-pi-skills@4.18.1 principal-pi-agents check`.
 3. Each skill's `allowed-tools` caps the context a delegated child may receive: `context:summary`
    for `architect`, `decide` and `plan`; `context:files` for `build`, `debug`, `review`,
    `test-review` and `investigate`; none for `git-ops`. The reasons are in each frontmatter and the

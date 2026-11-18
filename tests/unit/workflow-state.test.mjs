@@ -4,7 +4,7 @@ import { createHash } from "node:crypto";
 import { execFileSync, spawn } from "node:child_process";
 import { chmodSync, existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync, symlinkSync } from "node:fs";
 import { tmpdir } from "node:os";
-import { join } from "node:path";
+import { dirname, join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
 import { syncBuiltinESMExports } from "node:module";
@@ -935,10 +935,96 @@ test("actual snapshot and prepare explain missing baselines without initializing
   assert.equal(snapshot.structuredContent.candidate.root, root);
   assert.equal(existsSync(join(root, ".principal")), false);
   const prepared = await call("prepare", { expectedCandidate: snapshot.structuredContent.candidate });
-  assert.equal(prepared.isError, undefined);
-  assert.equal(prepared.structuredContent.owner.cwd, nested);
-  assert.equal(prepared.structuredContent.root, root);
+  assert.equal(prepared.isError, true);
+  assert.equal(prepared.structuredContent.code, "NATIVE_WORKSPACE_MISMATCH");
+  assert.deepEqual(prepared.structuredContent.diagnostic, { kind: "native-workspace", selectedFolder: nested, repositoryRoot: root });
+  assert.equal(prepared.structuredContent.operationAllocated, false);
+  assert.equal(prepared.structuredContent.administrativeWrites, false);
+  assert.equal(existsSync(join(root, ".principal")), false);
   assert.equal(existsSync(join(nested, ".git")), false);
+});
+
+test("native preparation rejects parent and foreign session folders before allocation while observations stay read-only", async t => {
+  const { root, request } = fixture(t), other = fixture(t).root;
+  for (const selectedFolder of [dirname(root), other]) {
+    const h = await registeredWorkflow(selectedFolder);
+    const before = readdirSync(join(root, ".principal")).sort();
+    const snapshot = await h.run({ action: "snapshot", repo: root });
+    assert.equal(snapshot.isError, undefined);
+    assert.equal(snapshot.structuredContent.candidate.root, root);
+    const observed = await h.run({ action: "reference", path: join(root, "product.txt") });
+    assert.equal(observed.isError, undefined);
+    assert.deepEqual(observed.structuredContent.reference, reference(join(root, "product.txt")));
+    const rejected = await h.run({ action: "prepare", repo: root, ...request, expectedCandidate: snapshot.structuredContent.candidate });
+    assert.equal(rejected.isError, true);
+    const result = rejected.structuredContent;
+    assert.equal(result.code, "NATIVE_WORKSPACE_MISMATCH");
+    assert.deepEqual(result.diagnostic, { kind: "native-workspace", selectedFolder, repositoryRoot: root });
+    assert.equal(result.operationAllocated, false); assert.equal(result.administrativeWrites, false);
+    assert.equal(result.approval, false); assert.equal(result.delegationArguments, undefined);
+    assert.match(result.recovery.message, /bookkeeping, not the native child's working folder/);
+    assert.match(result.recovery.message, /changing folders cannot repair/);
+    assert.deepEqual(h.queries, []);
+    assert.deepEqual(readdirSync(join(root, ".principal")).sort(), before);
+    assert.equal(existsSync(join(root, ".principal/workflow")), false);
+    assert.equal(existsSync(join(root, ".principal/reports")), false);
+    assert.equal(existsSync(join(other, ".principal/workflow")), false);
+  }
+});
+
+test("canonical same-workspace preparation reuses the operation and retains a changed Build result", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root);
+  mkdirSync(join(root, "nested"));
+  h.ctx.cwd = root + "/nested/..";
+  const args = { action: "prepare", repo: root + "/.", ...request, expectedCandidate: observeCandidate(root) };
+  const first = await h.run(args), repeated = await h.run(args);
+  assert.equal(first.isError, undefined); assert.equal(repeated.isError, undefined);
+  assert.equal(first.structuredContent.owner.cwd, root);
+  assert.equal(repeated.structuredContent.operation_id, first.structuredContent.operation_id);
+  assert.equal(repeated.structuredContent.reused, true);
+  writeFileSync(join(root, "product.txt"), "implemented\n");
+  const prepared = first.structuredContent;
+  h.setNative(settled(prepared.operation_id, root, "Implemented in the selected repository.\n"));
+  const completed = await h.run({ action: "complete", repo: root, task: request.task, step: request.step, disposition: "succeeded" });
+  assert.equal(completed.isError, undefined); assert.equal(completed.structuredContent.completionValid, true);
+  assert.equal(readFileSync(completed.structuredContent.report.path, "utf8"), "Implemented in the selected repository.\n");
+  assert.deepEqual(h.queries, [prepared.operation_id]);
+});
+
+test("older mismatched records remain inspectable and cannot allocate retry or recovery successors", async t => {
+  const { root, request } = fixture(t), selectedFolder = dirname(root), h = await registeredWorkflow(selectedFolder);
+  // The lower-level record writer models an already existing pre-guard record, not a new session API handoff.
+  const prepared = prepareOperation(root, { ...request, owner: { sessionId: "original-parent", cwd: selectedFolder } });
+  const store = join(root, ".principal/workflow", readdirSync(join(root, ".principal/workflow"))[0]);
+  const original = readFileSync(join(store, "request.json"));
+  const observed = await h.run({ action: "status", repo: root, operationId: prepared.operation_id });
+  assert.equal(observed.isError, undefined); assert.equal(observed.structuredContent.owner.cwd, selectedFolder);
+  const neverStarted = { operationId: prepared.operation_id, cwd: selectedFolder, state: "not-started", runtime: { cleanup: { state: "not-started" } } };
+  h.setNative(neverStarted);
+  const retry = { repo: root, operationId: prepared.operation_id, reason: "authorized retry", retryMode: "manual", expectedCandidate: observeCandidate(root) };
+  const rejected = await h.run({ action: "retry", ...retry });
+  assert.equal(rejected.structuredContent.code, "NATIVE_WORKSPACE_MISMATCH");
+  assert.equal(rejected.structuredContent.operationAllocated, false);
+  assert.equal(rejected.structuredContent.administrativeWrites, false);
+  assert.throws(() => retryOperation(root, retry, neverStarted), error => error.code === "NATIVE_WORKSPACE_MISMATCH" && error.operationAllocated === false);
+  const parentRecovery = await h.run({ action: "recover", repo: root, operationId: prepared.operation_id });
+  assert.equal(parentRecovery.structuredContent.code, "NATIVE_WORKSPACE_MISMATCH");
+  h.ctx.cwd = root; h.setSession("after-new");
+  for (const mode of ["inspect", "continue", "retain"]) {
+    const recovered = await h.run({ action: "recover", repo: root, operationId: prepared.operation_id, mode });
+    assert.equal(recovered.structuredContent.state, "uncertain");
+    assert.equal(recovered.structuredContent.code, "NATIVE_WORKSPACE_MISMATCH");
+    assert.deepEqual(recovered.structuredContent.diagnostic, { kind: "native-workspace", selectedFolder: root, repositoryRoot: root, originalOwnerFolder: selectedFolder });
+    assert.equal(recovered.structuredContent.administrativeWrites, false);
+    assert.equal(recovered.structuredContent.delegationArguments, undefined);
+    assert.equal(recovered.structuredContent.continueArguments, undefined);
+    assert.equal(recovered.structuredContent.retainArguments, undefined);
+    assert.match(recovered.structuredContent.nextAction, /historical evidence/);
+  }
+  assert.deepEqual(h.queries, [], "the old execution is neither queried for a retry nor dispatched");
+  assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  assert.deepEqual(readdirSync(store), ["request.json"]);
+  assert.deepEqual(readFileSync(join(store, "request.json")), original);
 });
 
 test("operationId resolves exact completion and retry identity without bypassing coordinator ownership", t => {

@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.18.1 — 2026-11-18
+
+- Refuse a native preparation before allocating work when Pi's selected folder differs from the target repository root. The diagnostic shows both canonical paths and explains that `repo` selects bookkeeping, not the child's working folder; read-only cross-folder observation remains available.
+- Preserve older mismatched operations and their historical evidence without allocating retry/recovery successors or rewriting native workspace identity. Selecting another folder cannot retroactively establish completion.
+
 ## 4.18.0 — 2026-11-18
 
 - Separate mutable implementation context from immutable operation inputs so intended Build edits need not invalidate their own handoff. Existing immutable inputs, current access and candidate checks remain in force.

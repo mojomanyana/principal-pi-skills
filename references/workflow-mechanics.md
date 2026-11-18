@@ -22,6 +22,13 @@ history unknown.
 
 ### Preparation input corrections
 
+Native `prepare` needs the canonical selected Pi folder to be the target repository root. The
+`repo` argument selects bookkeeping, not the child's execution folder. `NATIVE_WORKSPACE_MISMATCH`
+reports both paths before allocation; select or start Pi in the existing target folder for future
+work, without setup or a new permission request. Cross-folder snapshot/reference stays read-only.
+Preserve old mismatched operations and exact producer references as historical evidence: changing
+folders cannot repair their execution identity, satisfy their completion gate or authorize replay.
+
 `task` is 1-80 ASCII letters, digits, underscores or hyphens, starting with a letter or digit (for
 example `workshop-desk-v1-stage1`); `step` is a nonblank name of at most 200 characters.
 
