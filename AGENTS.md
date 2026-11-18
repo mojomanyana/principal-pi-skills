@@ -105,7 +105,9 @@ overwrite existing policy, and verify the destination is ignored. Native report 
 prepare in the actual child's workspace; never overwrite a referenced prior artifact. Native children
 return complete final reports and complete retains them. Plan writes only its plan; Investigate stays
 read-only. Inline Build saves a complete report before cold delegated Review. Do not hide a
-report-completion failure.
+report-completion failure. A different authored report is preserved separately from the exact native
+final; consume the returned `report` reference. Historical `retainArguments` explicitly save producer
+evidence for authorized continuation, never for a recall-only request or as fresh completion.
 
 ## Convergence
 
@@ -164,12 +166,12 @@ live here.
 
 ## Setup (pi)
 
-1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.16.0`,
+1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.17.0`,
    `pi install npm:pi-daddy@0.59.0` and `pi install npm:skill-harness@0.35.6`. Enable `grep`,
    `find` and `ls` through Pi `settings.json` `defaultTools`; see [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent:
-   `npx -p principal-pi-skills@4.16.0 principal-pi-agents install`, then
-   `npx -p principal-pi-skills@4.16.0 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.17.0 principal-pi-agents install`, then
+   `npx -p principal-pi-skills@4.17.0 principal-pi-agents check`.
 3. Each skill's `allowed-tools` caps the context a delegated child may receive: `context:summary`
    for `architect`, `decide` and `plan`; `context:files` for `build`, `debug`, `review`,
    `test-review` and `investigate`; none for `git-ops`. The reasons are in each frontmatter and the

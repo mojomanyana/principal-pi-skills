@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.17.0 — 2026-11-18
+
+- A differing child-authored report is now preserved while completion retains the exact native final separately; previously any report difference refused completion. It returns both references, allowing independent Review without repeating Build. Report publication is atomic and still exclusive; changed, unsafe or unrelated evidence is never overwritten.
+- Add explicit historical retention after an update or `/new` when an older report collision prevented result retention. Default recovery stays read-only. Exact source, producer and current-candidate bindings retain the prior final as history without adopting the old owner, creating a new Build or inventing its missing output snapshot. Fresh independently scoped Review is supported; an existing bound work-map Build-completion gate is not satisfied by this historical path.
+- Existing valid completion records remain readable. Local checks cover these mechanics; no new model evaluation or live research establishes broader task performance.
+
 ## 4.16.0 — 2026-11-18
 
 - Prepared operations now accept stable task/step names and select an unambiguous owned attempt; previously callers had to copy opaque operation IDs. Internal identity, ownership and stale-state checks remain (#83).

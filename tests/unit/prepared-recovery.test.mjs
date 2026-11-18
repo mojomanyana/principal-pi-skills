@@ -2,11 +2,12 @@ import test from "node:test";
 import assert from "node:assert/strict";
 import { execFileSync } from "node:child_process";
 import { createHash } from "node:crypto";
-import { mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync } from "node:fs";
+import { existsSync, mkdtempSync, mkdirSync, readFileSync, writeFileSync, readdirSync, rmSync, symlinkSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { observeCandidate, prepareOperation, completeOperation, inspectOperation, inspectRecoveryRecord, inspectRecoveryOperation } from "../../scripts/workflow-state.mjs";
 import { recoverPreparedOperation } from "../../scripts/prepared-recovery.mjs";
+import { reference } from "../../scripts/progress-artifacts.mjs";
 
 function fixture(t) {
   const root = mkdtempSync(join(tmpdir(), "principal-recovery-"));
@@ -42,6 +43,93 @@ function native(prepared, root, text = "Delivered backend.\n") {
   return { operationId: prepared.operation_id, executionId: "exec-old", cwd: root, state: "settled", finalObservation: { ...final, text },
     runtime: { work: "succeeded", final, cleanup: { state: "settled", executionId: "exec-old" } } };
 }
+
+function deliveredHistory(f) {
+  const runtime = native(f.prepared, f.root), manifest = join(f.root, ".principal/producer-result.json");
+  writeFileSync(manifest, JSON.stringify(runtime));
+  return { admission: "present", result: "present", noStartProven: false, cleanup: { state: "settled" },
+    operation: { ...runtime, finalObservation: undefined }, final: runtime.finalObservation,
+    artifact: { version: 1, producer: "pi-daddy", owner: f.owner, operationId: f.prepared.operation_id, executionId: runtime.executionId,
+      manifest: { ...reference(manifest), bytes: readFileSync(manifest).length } } };
+}
+
+test("after /new a pre-retention report collision offers read-only inspection and explicit idempotent historical retention", async t => {
+  const f = fixture(t); f.legacy();
+  writeFileSync(join(f.root, "product.txt"), "delivered before previous completion failed\n");
+  writeFileSync(f.prepared.reportPath, "A separately authored report.\n");
+  const before = readFileSync(f.source.sourceReference.path), observation = deliveredHistory(f); f.setObservation(observation);
+  const inspected = await f.call();
+  assert.equal(inspected.state, "historical"); assert.equal(inspected.historical, true); assert.equal(inspected.completionValid, false);
+  assert.equal(inspected.administrativeWrites, false); assert.equal(inspected.resultRetained, false);
+  assert.equal(inspected.final.text, observation.final.text); assert.equal(inspected.retainArguments.mode, "retain");
+  assert.deepEqual(readdirSync(f.source.path), ["request.json"], "default inspection writes no historical record");
+  const [retained, repeated] = await Promise.all([f.call(inspected.retainArguments), f.call(inspected.retainArguments)]);
+  assert.deepEqual(retained.report, repeated.report); assert.equal(repeated.reused, true);
+  assert.equal(retained.resultRetained, true); assert.equal(retained.completionValid, false); assert.equal(retained.approval, false);
+  assert.equal(retained.applicability, "not-established"); assert.equal(retained.sourceRecovery, undefined);
+  assert.equal(retained.delegationArguments, undefined); assert.equal(retained.output, undefined);
+  assert.deepEqual(retained.observedCandidate, inspected.currentCandidate);
+  assert.equal(readFileSync(retained.report.path, "utf8"), observation.final.text);
+  assert.equal(retained.report.sha256, observation.final.sha256);
+  assert.equal(readFileSync(retained.authoredReport.path, "utf8"), "A separately authored report.\n");
+  assert.deepEqual(readdirSync(f.source.path).sort(), ["historical-result.json", "request.json"]);
+  assert.equal(readdirSync(join(f.root, ".principal/workflow")).length, 1);
+  assert.deepEqual(readFileSync(f.source.sourceReference.path), before);
+  f.setSession("third-parent");
+  const recalled = await f.call(); assert.equal(recalled.reused, true); assert.deepEqual(recalled.report, retained.report);
+  writeFileSync(join(f.root, "product.txt"), "later authorized edit\n");
+  const later = await f.call(); assert.deepEqual(later.observedCandidate, retained.observedCandidate);
+  assert.notEqual(later.currentCandidate.id, later.observedCandidate.id); assert.equal(later.completionValid, false);
+  const review = prepareOperation(f.root, { task: "workshop-desk", step: "fresh-review", phase: "review", owner: { sessionId: "third-parent", cwd: f.root },
+    expectedCandidate: later.currentCandidate, inputs: [later.report, later.authoredReport] });
+  assert.equal(review.state, "prepared"); assert.equal(review.reviewBinding, undefined);
+  assert.match(later.nextAction, /does not satisfy a bound work-map/);
+});
+
+test("historical retention binds the selected source, producer and current files and preserves genuine refusals", async t => {
+  for (const kind of ["source", "producer", "candidate", "authority", "foreign-owner", "final", "cleanup", "runtime-cleanup", "unsafe-report", "occupied-final", "unignored"]) {
+    const f = fixture(t); f.legacy(); writeFileSync(f.prepared.reportPath, "Authored details.\n");
+    const observation = deliveredHistory(f); f.setObservation(observation);
+    const inspected = await f.call(), args = structuredClone(inspected.retainArguments);
+    if (kind === "source") args.sourceReference.sha256 = "a".repeat(64);
+    if (kind === "producer") args.producerReference.sha256 = "a".repeat(64);
+    if (kind === "candidate") writeFileSync(join(f.root, "product.txt"), "other current change\n");
+    if (kind === "authority") writeFileSync(f.authority, "different required authority\n");
+    if (kind === "foreign-owner") observation.artifact.owner = { ...f.owner, sessionId: "foreign" };
+    if (kind === "final") observation.final.text = "invented replacement";
+    if (kind === "cleanup") observation.cleanup.state = "unknown";
+    if (kind === "runtime-cleanup") observation.operation.runtime.cleanup.executionId = "different-execution";
+    if (kind === "unsafe-report") { rmSync(f.prepared.reportPath); symlinkSync(join(f.root, "product.txt"), f.prepared.reportPath); }
+    if (kind === "occupied-final") writeFileSync(join(f.prepared.reportPath, "..", "build.native-final.md"), "Unrelated evidence.\n");
+    if (kind === "unignored") writeFileSync(join(f.root, ".principal/.gitignore"), "*\n!workflow/\n!workflow/**/\n!workflow/**/historical-result.json\n");
+    await assert.rejects(f.call(args), /changed|exact|identity|settled|symlink|ignored|candidate/i, kind);
+    assert.equal(existsSync(join(f.source.path, "historical-result.json")), false, kind);
+    assert.equal(existsSync(join(f.source.path, "result.json")), false, kind);
+    assert.equal(readdirSync(join(f.root, ".principal/workflow")).length, 1);
+  }
+});
+
+test("historical retention rechecks access, cancellation and context before writes, and corruption is never reused", async t => {
+  for (const kind of ["revoked", "aborted", "session", "manifest", "retained-final", "retained-record"]) {
+    const f = fixture(t); f.legacy(); const observation = deliveredHistory(f); f.setObservation(observation);
+    const inspected = await f.call(), controller = new AbortController(); let allowed = true;
+    if (["retained-final", "retained-record"].includes(kind)) {
+      const result = await f.call(inspected.retainArguments);
+      writeFileSync(kind === "retained-final" ? result.report.path : result.historicalRecord.path, "altered\n");
+    } else f.setObservation(() => {
+      if (kind === "revoked") allowed = false;
+      if (kind === "aborted") controller.abort();
+      if (kind === "session") f.setSession("changed-during-query");
+      if (kind === "manifest") writeFileSync(observation.artifact.manifest.path, "changed producer record\n");
+      return observation;
+    });
+    await assert.rejects(recoverPreparedOperation(f.pi, f.ctx, inspected.retainArguments, controller.signal,
+      () => { if (!allowed) throw Error("Access revoked"); }), /changed|aborted|revoked|JSON|Unexpected/i);
+    assert.equal(existsSync(join(f.source.path, "result.json")), false);
+    assert.equal(existsSync(join(f.source.path, "completion.json")), false);
+    if (!["retained-final", "retained-record"].includes(kind)) assert.equal(existsSync(join(f.source.path, "historical-result.json")), false);
+  }
+});
 
 test("completed and retained old work is reused after update and new session without another execution", async t => {
   for (const retainedOnly of [false, true]) {

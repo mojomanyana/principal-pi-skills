@@ -612,9 +612,60 @@ test("missing or altered native final refuses before a report is created; an old
   assert.throws(() => completeOperation(root, complete, runtime), /content or identity mismatch/);
   assert.ok(!readdirSync(join(first.reportPath, "..")).includes("build.md"));
   writeFileSync(first.reportPath, "Original report preserved.\n");
-  assert.throws(() => completeOperation(root, complete, settled(first.operation_id, root)), /existing report differs/);
+  const saved = completeOperation(root, complete, settled(first.operation_id, root));
+  assert.equal(saved.state, "complete");
+  assert.equal(readFileSync(saved.report.path, "utf8"), "Done.\n");
+  assert.equal(saved.authoredReport.path, first.reportPath);
   assert.equal(readFileSync(first.reportPath, "utf8"), "Original report preserved.\n");
-  assert.equal(inspectOperation(root, request).state, "prepared");
+  assert.equal(inspectOperation(root, request).state, "complete");
+});
+
+test("registered completion preserves different authored reports and supports fresh Review without another Build", async t => {
+  for (const authored of ["Full report with implementation details.\n", "Done."]) await t.test(JSON.stringify(authored), async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const prepared = (await h.run({ action: "prepare", ...request })).structuredContent;
+    writeFileSync(join(root, "product.txt"), "implemented\n"); writeFileSync(prepared.reportPath, authored);
+    const runtime = settled(prepared.operation_id, root); h.setNative(runtime);
+    const args = { ...prepared.statusArguments, action: "complete", disposition: "succeeded" };
+    const complete = (await h.run(args)).structuredContent;
+    assert.equal(complete.state, "complete"); assert.equal(complete.completionValid, true); assert.equal(complete.approval, false);
+    assert.equal(readFileSync(prepared.reportPath, "utf8"), authored);
+    assert.equal(readFileSync(complete.report.path, "utf8"), "Done.\n");
+    assert.equal(complete.report.path, join(prepared.reportPath, "..", "build.native-final.md"));
+    assert.equal(complete.report.sha256, runtime.runtime.final.sha256);
+    assert.deepEqual(complete.authoredReport, reference(prepared.reportPath));
+    const again = (await h.run(args)).structuredContent;
+    assert.equal(again.reused, true); assert.equal(h.queries.length, 1);
+    h.setSession("after-new");
+    const recovered = (await h.run({ action: "recover", ...request, attempt: 1 })).structuredContent;
+    assert.deepEqual(recovered.report, complete.report); assert.equal(recovered.completionValid, false);
+    assert.deepEqual(recovered.authoredReport, complete.authoredReport);
+    const review = (await h.run({ action: "prepare", task: request.task, step: "fresh-review", phase: "review",
+      expectedCandidate: observeCandidate(root), inputs: [complete.report, complete.authoredReport] })).structuredContent;
+    assert.equal(review.state, "prepared"); assert.equal(review.phase, "review");
+    assert.deepEqual(review.inputs, [complete.report, complete.authoredReport].sort((a, b) => a.path.localeCompare(b.path)));
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 2, "one Build and one Review, no replacement Build");
+  });
+});
+
+test("a conflicting final destination, report symlink or changed authored evidence never gets overwritten", t => {
+  for (const kind of ["occupied", "symlink", "authored-symlink", "changed-authored", "unignored"]) {
+    const { root, request } = fixture(t), first = prepareOperation(root, request), finalPath = join(first.reportPath, "..", "build.native-final.md");
+    writeFileSync(first.reportPath, "Authored detail.\n");
+    const args = { ...request, disposition: "succeeded" };
+    if (kind === "occupied") writeFileSync(finalPath, "Other evidence.\n");
+    if (kind === "symlink") symlinkSync(join(root, "product.txt"), finalPath);
+    if (kind === "authored-symlink") { rmSync(first.reportPath); symlinkSync(join(root, "product.txt"), first.reportPath); }
+    if (kind === "changed-authored") {
+      completeOperation(root, args, settled(first.operation_id, root));
+      writeFileSync(first.reportPath, "Changed after retention.\n");
+    }
+    if (kind === "unignored") writeFileSync(join(root, ".principal/.gitignore"), "*\n!reports/\n!reports/**/\n!reports/**/build.native-final.md\n");
+    assert.throws(() => completeOperation(root, args, settled(first.operation_id, root)), /identity mismatch|symlink|changed|ignored/);
+    assert.equal(readFileSync(join(root, "product.txt"), "utf8"), "before\n");
+    if (kind === "occupied") assert.equal(readFileSync(finalPath, "utf8"), "Other evidence.\n");
+    if (kind !== "authored-symlink" && kind !== "changed-authored") assert.equal(readFileSync(first.reportPath, "utf8"), "Authored detail.\n");
+  }
 });
 
 test("a settled read-only result is retained historically without validating a later candidate", t => {
@@ -1322,6 +1373,10 @@ test("actual Pi argument validation accepts task and step in place of an operati
   }
   for (const args of [{ action: "status", ...name, attempt: 0 }, { action: "status", ...name, state: "prepared" }, { action: "status", task: "two words", step: name.step }])
     assert.throws(() => validateToolArguments(tool, { name: tool.name, arguments: args }), /Validation failed for tool "principal_workflow"/);
+  const retention = { action: "recover", mode: "retain", ...name, attempt: 1, sourceReference: reference(join(root, ".principal/plan.md")),
+    producerReference: reference(join(root, ".principal/plan.md")), expectedCandidate: observeCandidate(root) };
+  assert.deepEqual(validateToolArguments(tool, { name: tool.name, arguments: retention }), retention,
+    "the native host accepts returned historical-retention arguments; validating them does not grant producer authority");
 });
 
 test("documented direct argument transfer dispatches the prepared phase once without recopying identities", async t => {

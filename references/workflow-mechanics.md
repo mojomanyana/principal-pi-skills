@@ -61,6 +61,12 @@ If repeated preparation reports `PREPARED_OUTPUT_CHANGED`, inspect the native re
 That response proves neither start nor success and authorizes no retry. Keep partial delivery and
 reported-check limitations visible.
 
+If a child also wrote a different report, `complete` preserves it as `authoredReport` and retains
+the exact native final in a separate `phase.native-final.md`. Use the returned `report` reference
+for the canonical result; `reportPath` still identifies the original prepared destination. Neither
+prose similarity nor newline normalization substitutes for the native final's exact bytes. A changed
+or unsafe retained artifact still refuses; completion is not review approval.
+
 ### Transfer arguments directly
 
 For an already-authorized fresh handoff, this Codemode excerpt passes the prepared arguments and
@@ -105,6 +111,20 @@ replacement task. `recover` inspects read-only by default:
 
 Recall-only requests never continue. A recovered completed Build returns `sourceRecovery`; include it
 with the original `sourceOperationId` for an optional bound Review instead of rebuilding.
+
+If an older report collision prevented Principal result retention, a qualified producer can still
+provide its exact final and settled cleanup. Inspection returns that history and `retainArguments`
+without writing. For authorized continuation, pass those arguments unchanged (`mode: "retain"`):
+they bind the original request, producer artifact and current candidate, preserve both reports, and
+write an immutable `historical-result.json`. Repeats reuse it; no Build or successor is dispatched.
+Recall-only requests do not retain new records.
+
+`observedCandidate` is the tree seen during historical retention, **not** the missing original
+Build output. `currentCandidate` describes today's tree; `completionValid` remains false and
+`sourceRecovery` is absent. Reconcile current files and authority, then prepare a fresh independently
+scoped Review using the returned report references. This path cannot satisfy an existing bound
+work-map Build-completion gate or automatically settle that task. Keep partial-delivery limitations
+and any remaining required checks explicit.
 
 ### Read historical native results
 
