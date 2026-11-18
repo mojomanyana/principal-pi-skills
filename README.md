@@ -58,8 +58,8 @@ The tool uses the existing candidate snapshot implementation with the named
 paths and uncertain execution. It does not reconstruct historical fingerprint formulas.
 Inline work does not require a dummy delegation to complete a record. Pass relevant authority/
 evidence as `inputPaths` for tool-generated references and the returned candidate object as
-`expectedCandidate`; product-file hash lists are unnecessary. `complete`, `status` and `retry`
-accept `operationId` alone to locate the recorded task/step. See [mechanics](references/workflow-mechanics.md).
+`expectedCandidate`; product-file hash lists are unnecessary. Later actions take the task and
+step, or `operationId`. See [mechanics](references/workflow-mechanics.md).
 
 `principal_codemode` reuses the available native Pi Codemode factory with `models: false`.
 It batches tool calls through native hooks; no classifier/model API is exposed by this

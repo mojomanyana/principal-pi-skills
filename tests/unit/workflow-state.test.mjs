@@ -360,20 +360,23 @@ test("completion needs exact settled native result and unchanged read-only candi
   assert.throws(() => inspectOperation(root, review), /report changed/);
 });
 
-async function registeredWorkflow(root) {
+async function registeredWorkflow(root, { historyBridge = false } = {}) {
   const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
   let tool, native, sessionId = "original-parent";
   const queries = [];
   register({ registerTool: value => { tool = value; }, registerCommand: () => {}, on: () => {}, events: {
     on: () => () => {}, emit(name, query) {
-      assert.equal(name, "pi-daddy:operation-status:v1");
-      queries.push(query.operationId);
+      const history = historyBridge && name === "pi-daddy:operation-history:v1";
+      if (!history) assert.equal(name, "pi-daddy:operation-status:v1");
+      queries.push(history ? `history:${query.operationId}` : query.operationId);
+      const operation = history ? historical(query.operationId, { sessionId, cwd: root }) : native;
       query.reply({ version: 1, requestId: query.requestId, sessionId: query.sessionId, cwd: query.cwd,
-        operationId: query.operationId, qualified: true, operation: native, final: native?.finalObservation });
+        operationId: query.operationId, qualified: !history, operation, final: operation?.finalObservation,
+        ...(history ? { history, artifact: operation.artifact } : {}) });
     },
   } });
   const ctx = { cwd: root, sessionManager: { getSessionId: () => sessionId } };
-  return { queries, ctx, setNative: value => { native = value; }, setSession: value => { sessionId = value; },
+  return { tool, queries, ctx, setNative: value => { native = value; }, setSession: value => { sessionId = value; },
     run: args => tool.execute("fixture", args, undefined, () => {}, ctx) };
 }
 
@@ -405,7 +408,10 @@ test("registered changed Build completion retains the original partial result wi
       assert.deepEqual(recovery.statusArguments, prepared.statusArguments);
       assert.deepEqual(recovery.requiredCompletionFields, ["disposition"]);
       assert.equal(recovery.completionArguments.disposition, undefined, "never supplies success or any guessed outcome");
-      assert.deepEqual(recovery.resultArguments, { action: "result", repo: root, operationId: prepared.operation_id });
+      const selected = { repo: root, task: request.task, step: request.step, attempt: 1 };
+      assert.deepEqual(recovery.statusArguments, { action: "status", ...selected });
+      assert.deepEqual(recovery.resultArguments, { action: "result", ...selected });
+      assert.deepEqual(recovery.completionArguments, { action: "complete", ...selected });
       const inspected = (await h.run(recovery.resultArguments)).structuredContent;
       assert.equal(inspected.state, "observed"); assert.equal(inspected.final.text, text);
       assert.deepEqual(readdirSync(store), ["request.json"], "result inspection is read-only");
@@ -897,6 +903,284 @@ test("operationId resolves exact completion and retry identity without bypassing
   assert.throws(() => inspectOperation(other.root, selected), /missing or ambiguous/);
 });
 
+// Selection by name: the store carries the operation ID, the caller names what it prepared.
+const claimDirectory = (root, name, attempt) => join(root, ".principal/workflow",
+  createHash("sha256").update(JSON.stringify({ attempt, step: name.step, task: name.task })).digest("hex"));
+const laterActions = root => [["status", {}], ["complete", { disposition: "succeeded" }],
+  ["retry", { reason: "accepted finding", expectedCandidate: observeCandidate(root) }], ["history", {}], ["result", {}]];
+const recoverGuidance = "Inspect this original operation with recover. Reuse verified delivered work; continue only when the producer proves it never started. No replacement has been authorized by this refusal.";
+// The stub Type keeps every constraint this suite relies on; unknown shapes are rejected, never assumed valid.
+function schemaAccepts(schema, value) {
+  if (schema.anyOf) return schema.anyOf.some(option => schemaAccepts(option, value));
+  if ("const" in schema) return value === schema.const;
+  if (schema.type === "string") return typeof value === "string" && (schema.minLength === undefined || value.length >= schema.minLength) &&
+    (schema.maxLength === undefined || value.length <= schema.maxLength) && (schema.pattern === undefined || new RegExp(schema.pattern).test(value));
+  if (schema.type === "integer") return Number.isSafeInteger(value) && (schema.minimum === undefined || value >= schema.minimum);
+  if (schema.type === "boolean") return typeof value === "boolean";
+  if (schema.type === "array") return Array.isArray(value) && (schema.maxItems === undefined || value.length <= schema.maxItems) && value.every(item => schemaAccepts(schema.items, item));
+  if (schema.type === "object") return value !== null && typeof value === "object" && !Array.isArray(value) &&
+    Object.entries(value).every(([key, item]) => key in schema.properties ? schemaAccepts(schema.properties[key], item) : schema.additionalProperties !== false);
+  return false;
+}
+
+test("task and step select the prepared operation for every later action without an operation ID", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root, { historyBridge: true });
+  const name = { task: request.task, step: request.step };
+  const prepared = (await h.run({ action: "prepare", ...request })).structuredContent;
+  assert.deepEqual(prepared.statusArguments, { action: "status", repo: root, ...name, attempt: 1 });
+  assert.deepEqual(prepared.delegationArguments, { agent: "build", operation_id: prepared.operation_id });
+  const status = (await h.run({ action: "status", ...name })).structuredContent;
+  assert.equal(status.state, "prepared"); assert.equal(status.operation_id, prepared.operation_id); assert.equal(status.attempt, 1);
+  assert.deepEqual(status, (await h.run(prepared.statusArguments)).structuredContent, "returned arguments pass straight back");
+  assert.deepEqual(status, (await h.run({ action: "status", operationId: prepared.operation_id })).structuredContent, "the ID path selects the same record");
+  assert.deepEqual(h.queries, [], "status never asks the runtime");
+
+  const text = "Named native final.\n";
+  h.setNative(settled(prepared.operation_id, root, text));
+  const observed = (await h.run({ action: "result", ...name })).structuredContent;
+  assert.equal(observed.state, "observed"); assert.equal(observed.storage, "none");
+  assert.equal(observed.runtime.operationId, prepared.operation_id); assert.equal(observed.final.text, text);
+  assert.deepEqual(observed, (await h.run({ action: "result", operationId: prepared.operation_id })).structuredContent);
+  const history = (await h.run({ action: "history", ...name })).structuredContent;
+  assert.equal(history.state, "historical"); assert.equal(history.operation_id, prepared.operation_id); assert.equal(history.attempt, 1);
+  assert.deepEqual(history, (await h.run({ action: "history", operationId: prepared.operation_id })).structuredContent);
+  const store = join(root, ".principal/workflow");
+  assert.deepEqual(readdirSync(join(store, readdirSync(store)[0])), ["request.json"], "status, result and history are read-only");
+
+  const complete = (await h.run({ action: "complete", ...name, disposition: "succeeded" })).structuredContent;
+  assert.equal(complete.state, "complete"); assert.equal(complete.completionValid, true);
+  assert.equal(complete.operation_id, prepared.operation_id); assert.equal(complete.approval, false);
+  assert.deepEqual(complete.statusArguments, prepared.statusArguments);
+  assert.equal(readFileSync(complete.report.path, "utf8"), text);
+
+  const retried = (await h.run({ action: "retry", ...name, reason: "accepted review finding", expectedCandidate: observeCandidate(root) })).structuredContent;
+  assert.equal(retried.state, "prepared"); assert.equal(retried.attempt, 2); assert.equal(retried.reused, false);
+  assert.notEqual(retried.operation_id, prepared.operation_id);
+  assert.deepEqual(retried.statusArguments, { action: "status", repo: root, ...name, attempt: 2 });
+  assert.deepEqual(retried.delegationArguments, { agent: "build", operation_id: retried.operation_id });
+
+  const latest = (await h.run({ action: "status", ...name })).structuredContent;
+  assert.equal(latest.attempt, 2, "an omitted attempt means the latest one"); assert.equal(latest.operation_id, retried.operation_id);
+  const first = (await h.run({ action: "status", ...name, attempt: 1 })).structuredContent;
+  assert.equal(first.operation_id, prepared.operation_id); assert.equal(first.state, "complete");
+  h.setNative(settled(retried.operation_id, root, "Second native final.\n"));
+  const second = (await h.run({ action: "complete", ...name, disposition: "unverified" })).structuredContent;
+  assert.equal(second.attempt, 2); assert.equal(second.operation_id, retried.operation_id);
+  assert.equal(second.state, "complete"); assert.equal(second.disposition, "unverified");
+  assert.equal(readFileSync(second.report.path, "utf8"), "Second native final.\n");
+  assert.deepEqual((await h.run({ action: "status", ...name, attempt: 1 })).structuredContent, first, "the earlier attempt is untouched");
+  assert.deepEqual(h.queries, [prepared.operation_id, prepared.operation_id, `history:${prepared.operation_id}`, `history:${prepared.operation_id}`,
+    prepared.operation_id, prepared.operation_id, retried.operation_id], "every runtime query used the stored ID of the named operation");
+  assert.equal(readdirSync(store).length, 2);
+});
+
+test("an uncertain latest attempt is refused with its choices for every action, and a named attempt proceeds", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root, { historyBridge: true });
+  const name = { task: request.task, step: request.step }, store = join(root, ".principal/workflow");
+  const prepared = (await h.run({ action: "prepare", ...request })).structuredContent;
+  h.setNative(settled(prepared.operation_id, root));
+  await h.run({ action: "complete", ...name, disposition: "succeeded" });
+  const retried = (await h.run({ action: "retry", ...name, reason: "accepted finding", expectedCandidate: observeCandidate(root) })).structuredContent;
+  const queries = h.queries.length, claim = claimDirectory(root, name, 3);
+  mkdirSync(claim);
+  const listing = () => readdirSync(store).sort().map(entry => [entry, readdirSync(join(store, entry)).sort()]);
+  const refusal = { version: 1, state: "refused", approval: false, administrativeWrites: false,
+    error: "attempt 3 has incomplete or unreadable stored state, so the latest attempt is uncertain; name an attempt from choices",
+    code: "OPERATION_NOT_SELECTED", diagnostic: { kind: "operation-selection", reason: "latest-attempt-uncertain" },
+    choices: [{ ...name, attempt: 1, state: "complete", owned: true }, { ...name, attempt: 2, state: "prepared", owned: true }] };
+  for (const damage of ["an interrupted claim without a record", "an unreadable record"]) {
+    if (damage === "an unreadable record") writeFileSync(join(claim, "request.json"), "{");
+    const before = listing();
+    for (const [action, extra] of laterActions(root)) {
+      const result = await h.run({ action, ...name, ...extra });
+      assert.equal(result.isError, true, `${action} must not guess past ${damage}`);
+      assert.deepEqual(result.structuredContent, refusal);
+      assert.deepEqual(result.details, result.structuredContent);
+      assert.deepEqual(JSON.parse(result.content[0].text), result.structuredContent);
+    }
+    assert.deepEqual(listing(), before, "a refused selection writes nothing");
+    assert.equal(h.queries.length, queries, "a refused selection never asks the runtime");
+  }
+  const { state: _state, owned: _owned, ...selection } = refusal.choices[1];
+  const selected = (await h.run({ action: "status", ...selection })).structuredContent;
+  assert.equal(selected.operation_id, retried.operation_id); assert.equal(selected.state, "prepared");
+  h.setNative(settled(retried.operation_id, root, "Named attempt.\n"));
+  const complete = (await h.run({ action: "complete", ...selection, disposition: "succeeded" })).structuredContent;
+  assert.equal(complete.operation_id, retried.operation_id); assert.equal(complete.state, "complete");
+});
+
+test("a latest attempt owned by another coordinator is refused with choices and recovery arguments", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root, { historyBridge: true });
+  const name = { task: request.task, step: request.step }, store = join(root, ".principal/workflow");
+  const prepared = (await h.run({ action: "prepare", ...request })).structuredContent;
+  h.setNative(settled(prepared.operation_id, root));
+  const foreign = (attempt, choices) => ({ version: 1, state: "refused", approval: false, administrativeWrites: false,
+    error: `operation belongs to another coordinator session or workspace: latest attempt ${attempt}; recover it, or name an owned attempt from choices`,
+    recoverArguments: { action: "recover", ...name, attempt }, nextAction: recoverGuidance,
+    code: "OPERATION_NOT_SELECTED", diagnostic: { kind: "operation-selection", reason: "latest-attempt-foreign" }, choices });
+  h.setSession("new-parent");
+  for (const [action, extra] of laterActions(root)) {
+    const result = await h.run({ action, ...name, ...extra });
+    assert.equal(result.isError, true, `${action} must not adopt another coordinator's operation`);
+    assert.deepEqual(result.structuredContent, foreign(1, [{ ...name, attempt: 1, state: "prepared", owned: false }]));
+  }
+  // Naming the attempt applies exactly the ID path's checks: status stays inspectable, the rest stay owner-bound.
+  const inspected = (await h.run({ action: "status", ...name, attempt: 1 })).structuredContent;
+  assert.equal(inspected.operation_id, prepared.operation_id); assert.equal(inspected.owner.sessionId, "original-parent");
+  assert.deepEqual(inspected, (await h.run({ action: "status", operationId: prepared.operation_id })).structuredContent);
+  for (const [action, extra] of laterActions(root).filter(([action]) => action !== "status")) {
+    const byName = await h.run({ action, ...name, attempt: 1, ...extra });
+    assert.equal(byName.isError, true);
+    assert.equal(byName.structuredContent.error, "operation belongs to another coordinator session or workspace");
+    assert.deepEqual(byName.structuredContent.recoverArguments, { action: "recover", ...name, attempt: 1 });
+    if (action === "result") continue; // A bare ID given to result is a generic native identity, as before.
+    const byId = await h.run({ action, operationId: prepared.operation_id, ...extra });
+    assert.equal(byId.structuredContent.error, byName.structuredContent.error);
+    assert.deepEqual(byId.structuredContent.recoverArguments, { action: "recover", operationId: prepared.operation_id });
+  }
+  assert.deepEqual(h.queries, [], "no refused selection asked the runtime");
+  assert.deepEqual(readdirSync(join(store, readdirSync(store)[0])), ["request.json"]);
+
+  // The original coordinator keeps its own earlier attempt after another coordinator owns a later one.
+  h.setSession("original-parent");
+  await h.run({ action: "complete", ...name, disposition: "succeeded" });
+  const retried = (await h.run({ action: "retry", ...name, reason: "accepted finding", expectedCandidate: observeCandidate(root) })).structuredContent;
+  const path = join(claimDirectory(root, name, 2), "request.json"), record = JSON.parse(readFileSync(path, "utf8"));
+  assert.equal(record.operationId, retried.operation_id);
+  record.owner.sessionId = "new-parent"; writeFileSync(path, JSON.stringify(record));
+  const mixed = await h.run({ action: "complete", ...name, disposition: "succeeded" });
+  assert.deepEqual(mixed.structuredContent, foreign(2, [{ ...name, attempt: 1, state: "complete", owned: true }, { ...name, attempt: 2, state: "prepared", owned: false }]));
+  const own = (await h.run({ action: "complete", ...name, attempt: 1 })).structuredContent;
+  assert.equal(own.operation_id, prepared.operation_id); assert.equal(own.reused, true);
+  h.setSession("new-parent");
+  const theirs = (await h.run({ action: "status", ...name })).structuredContent;
+  assert.equal(theirs.attempt, 2); assert.equal(theirs.operation_id, retried.operation_id);
+  for (const owner of [null, { sessionId: "new-parent", cwd: root, extra: true }, { sessionId: "new-parent", cwd: join(root, "elsewhere") }]) {
+    record.owner = owner; writeFileSync(path, JSON.stringify(record));
+    const refused = (await h.run({ action: "status", ...name })).structuredContent;
+    assert.equal(refused.diagnostic?.reason, "latest-attempt-foreign", "only an exact session and workspace match is this coordinator's own");
+    assert.deepEqual(refused.choices.map(choice => choice.owned), [false, false]);
+  }
+});
+
+test("an operation ID that disagrees with the supplied task, step or attempt is refused for every action", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root, { historyBridge: true });
+  const name = { task: request.task, step: request.step };
+  const prepared = (await h.run({ action: "prepare", ...request })).structuredContent;
+  const other = (await h.run({ action: "prepare", ...request, step: "second-step" })).structuredContent;
+  h.setNative(settled(prepared.operation_id, root));
+  for (const [action, extra] of laterActions(root)) {
+    for (const mismatch of [{ step: "second-step" }, { task: "elsewhere" }, { attempt: 2 }, { operationId: other.operation_id }]) {
+      const result = await h.run({ action, operationId: prepared.operation_id, ...name, ...mismatch, ...extra });
+      assert.equal(result.isError, true, `${action} must refuse ${JSON.stringify(mismatch)}`);
+      assert.equal(result.structuredContent.error, "operationId conflicts with supplied task/step/attempt");
+      assert.equal(result.structuredContent.choices, undefined, "a disagreement is never resolved by choosing");
+    }
+  }
+  const generic = await h.run({ action: "result", operationId: "investigate:no-files", ...name });
+  assert.equal(generic.isError, true);
+  assert.equal(generic.structuredContent.error, "invalid Principal operationId", "a generic native ID is not this named prepared operation");
+  assert.deepEqual(h.queries, [], "no disagreement reached the runtime");
+  const agreed = (await h.run({ action: "status", operationId: prepared.operation_id, ...name, attempt: 1 })).structuredContent;
+  assert.deepEqual(agreed, (await h.run({ action: "status", operationId: prepared.operation_id })).structuredContent);
+  const observed = (await h.run({ action: "result", operationId: prepared.operation_id, ...name })).structuredContent;
+  assert.equal(observed.runtime.operationId, prepared.operation_id);
+  assert.equal(readdirSync(join(root, ".principal/workflow")).length, 2);
+});
+
+test("an unrecorded task or step is refused without guessing, listing or writing", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root, { historyBridge: true });
+  const unrecorded = { version: 1, state: "refused", approval: false, administrativeWrites: false,
+    error: "no prepared operation is recorded for this task and step in this workspace; name the task and step given to prepare. This does not show whether earlier work started and does not call for a replacement",
+    code: "OPERATION_NOT_SELECTED", diagnostic: { kind: "operation-selection", reason: "not-recorded" }, choices: [] };
+  const all = async selection => { for (const [action, extra] of laterActions(root)) {
+    const result = await h.run({ action, ...selection, ...extra });
+    assert.equal(result.isError, true); assert.deepEqual(result.structuredContent, unrecorded);
+  } };
+  await all({ task: request.task, step: request.step });
+  assert.equal(existsSync(join(root, ".principal/workflow")), false);
+  await h.run({ action: "prepare", ...request });
+  await all({ task: request.task, step: "implementations" });
+  await all({ task: "fixtures", step: request.step });
+  for (const [action, extra] of laterActions(root)) {
+    const missing = await h.run({ action, task: request.task, ...extra });
+    assert.equal(missing.structuredContent.error, "step must be a stable nonempty name (at most 200 characters)");
+    assert.equal(missing.structuredContent.code, undefined);
+  }
+  const neither = await h.run({ action: "result" });
+  assert.equal(neither.structuredContent.error, "result requires task and step, or the actual native operationId");
+  assert.deepEqual(h.queries, []);
+  assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+});
+
+test("registered schema accepts task and step in place of an operation ID and every returned argument object", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root), { parameters, outputSchema } = h.tool;
+  const name = { task: request.task, step: request.step };
+  const valid = args => typeof args.action === "string" && schemaAccepts(parameters, args);
+  assert.equal(parameters.additionalProperties, false);
+  for (const [action, extra] of laterActions(root)) {
+    assert.equal(valid({ action, ...name, ...extra }), true, `${action} by task and step`);
+    assert.equal(valid({ action, ...name, attempt: 2, ...extra }), true, `${action} by task, step and attempt`);
+    assert.equal(valid({ action, operationId: "principal:" + "a".repeat(64), ...extra }), true, `${action} by operation ID`);
+  }
+  for (const invalid of [{ ...name, attempt: 0 }, { ...name, attempt: "1" }, { ...name, task: "two words" }, { ...name, step: " " }, { ...name, state: "prepared" }])
+    assert.equal(valid({ action: "status", ...invalid }), false, `schema must reject ${JSON.stringify(invalid)}`);
+  assert.equal(parameters.properties.operationId.type, "string");
+  assert.doesNotMatch(parameters.properties.operationId.description, /copy|unchanged|complete operation_id/);
+
+  const prepared = (await h.run({ action: "prepare", ...request })).structuredContent;
+  const status = outputSchema.properties.statusArguments;
+  assert.deepEqual(Object.keys(status.properties).sort(), ["action", "attempt", "repo", "step", "task"]);
+  assert.equal(status.additionalProperties, false);
+  assert.equal(schemaAccepts(status, prepared.statusArguments), true);
+  assert.equal(schemaAccepts(outputSchema.properties.delegationArguments, prepared.delegationArguments), true);
+  writeFileSync(join(root, "product.txt"), "changed by the build\n");
+  const changed = (await h.run({ action: "prepare", ...request, expectedCandidate: observeCandidate(root) })).structuredContent;
+  assert.equal(changed.code, "PREPARED_OUTPUT_CHANGED"); assert.equal(changed.operation_id, prepared.operation_id);
+  const malformed = (await h.run({ action: "complete", operationId: "fixture", ...name })).structuredContent;
+  assert.deepEqual(malformed.recovery.statusArguments, { action: "status", ...name }, "an omitted attempt is not invented");
+  h.setSession("new-parent");
+  const foreign = (await h.run({ action: "status", ...name })).structuredContent;
+  h.setSession("original-parent");
+  const returned = [prepared.statusArguments, changed.recovery.statusArguments, changed.recovery.resultArguments,
+    { ...changed.recovery.completionArguments, disposition: "unverified" }, malformed.recovery.statusArguments, foreign.recoverArguments,
+    ...foreign.choices.map(({ task, step, attempt }) => ({ action: "status", task, step, attempt }))];
+  for (const args of returned) {
+    assert.equal(valid(args), true, `returned ${args.action} arguments are valid input`);
+    assert.equal("operationId" in args, false, "a follow-up never needs the stored ID");
+  }
+  h.setNative(settled(prepared.operation_id, root));
+  for (const args of returned.filter(args => args.action !== "recover")) {
+    const result = await h.run(args);
+    assert.equal(result.isError, undefined, `returned ${args.action} arguments execute`);
+    assert.equal(result.structuredContent.operation_id ?? result.structuredContent.runtime.operationId, prepared.operation_id);
+  }
+});
+
+test("actual Pi argument validation accepts task and step in place of an operation ID", { skip: !process.env.PRINCIPAL_PI_SDK_ROOT }, async t => {
+  const sdk = process.env.PRINCIPAL_PI_SDK_ROOT, require = createRequire(join(sdk, "package.json"));
+  t.diagnostic(`Pi ${JSON.parse(readFileSync(join(sdk, "package.json"), "utf8")).version}: actual TypeBox and native argument validator; no model calls`);
+  const aiRoot = require.resolve.paths("@earendil-works/pi-ai").map(path => join(path, "@earendil-works/pi-ai"))
+    .find(path => existsSync(join(path, "package.json")));
+  assert.ok(aiRoot, "selected Pi SDK must supply its native argument validator");
+  const { validateToolArguments } = await import(pathToFileURL(join(aiRoot, "dist/utils/validation.js")).href);
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url), pathToFileURL(require.resolve("typebox")).href));
+  const { root, request } = fixture(t), name = { task: request.task, step: request.step };
+  let tool;
+  register({ registerTool: value => { tool = value; }, registerCommand: () => {}, on: () => {},
+    events: { on: () => () => {}, emit: () => { throw Error("Selection by name never dispatches native work"); } } });
+  const ctx = { cwd: root, sessionManager: { getSessionId: () => "original-parent" } };
+  const call = async args => (await tool.execute("fixture", validateToolArguments(tool, { name: tool.name, arguments: args }), undefined, () => {}, ctx)).structuredContent;
+  const prepared = await call({ action: "prepare", ...request });
+  for (const args of [{ action: "status", ...name }, { action: "status", ...name, attempt: 1 }, prepared.statusArguments]) {
+    const status = await call(args);
+    assert.equal(status.operation_id, prepared.operation_id); assert.equal(status.attempt, 1);
+    assert.deepEqual(status.statusArguments, prepared.statusArguments);
+  }
+  for (const args of [{ action: "status", ...name, attempt: 0 }, { action: "status", ...name, state: "prepared" }, { action: "status", task: "two words", step: name.step }])
+    assert.throws(() => validateToolArguments(tool, { name: tool.name, arguments: args }), /Validation failed for tool "principal_workflow"/);
+});
+
 test("documented direct argument transfer dispatches the prepared phase once without recopying identities", async t => {
   const source = readFileSync(new URL("../../references/workflow-mechanics.md", import.meta.url), "utf8");
   const example = source.match(/```js\n([\s\S]*?function prepareAndDelegate[\s\S]*?)\n```/u)?.[1];
@@ -1017,7 +1301,8 @@ test("additive tool arguments preserve an existing core-prepared record and its 
   const current = await call({ action: "status", operationId: original.operation_id });
   assert.equal(current.state, "prepared");
   assert.deepEqual(current.delegationArguments, { agent: request.phase, operation_id: original.operation_id });
-  assert.equal(current.statusArguments.operationId, original.operation_id);
+  assert.deepEqual(current.statusArguments, { action: "status", repo: root, task: request.task, step: request.step, attempt: 1 });
+  assert.equal(current.operation_id, original.operation_id, "the stored ID stays in the output for consumers that record it");
   assert.deepEqual(readFileSync(record), originalBytes, "presenting argument objects does not rewrite the prior record");
   const complete = await call({ ...current.statusArguments, action: "complete", disposition: "succeeded" });
   assert.equal(complete.state, "complete");

@@ -25,7 +25,7 @@ for independent batches, never overlapping calls; writers need separate worktree
 
 Verify authority/settlement, including reviewers. Use
 `principal_workflow` snapshot/reference; prepare/complete/retry track native work; status revalidates it.
-Pass operation_id unchanged; complete retains settled finals before repairs.
+Complete retains settled finals before repairs.
 After updates or /new, recover: reuse outputs; continue only proven unstarted work.
 Never infer approval or delegate for bookkeeping.
 

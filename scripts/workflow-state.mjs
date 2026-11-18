@@ -43,7 +43,7 @@ export class PreparedOutputChangedError extends Error {
     this.administrativeWrites = "possible";
     this.existingOperation = { operation_id: operation.operation_id, phase: operation.phase,
       candidateMatches: false, resultRetained: false };
-    const selected = { repo: operation.root, operationId: operation.operation_id };
+    const selected = { repo: operation.root, task: operation.task, step: operation.step, attempt: operation.attempt };
     this.recovery = { action: "retain-existing-result",
       message: "Files changed since this Build/Debug operation was prepared. Inspect its original native result with resultArguments. After exact settlement and a complete final, retain it with completionArguments plus the actual disposition. Changed files alone do not prove execution or success. Do not prepare a replacement, retry execution or choose succeeded merely to finish bookkeeping; preserve unfinished requirements and reported-check limitations.",
       statusArguments: { action: "status", ...selected }, resultArguments: { action: "result", ...selected },

@@ -118,10 +118,10 @@ helper is mandatory. It is not a native engineering phase or integrated product 
 
 Use `principal_workflow` snapshot/reference for canonical workspace/candidate and exact-file
 observations, including inline/evidence work; status revalidates a prior native operation.
-Prepare/complete/retry are native-delegation bookkeeping. Pass the returned `operation_id`
-unchanged to delegate alongside its `definitionId`. Complete immediately after native settlement,
-before repairs: it retains the exact captured final and actual disposition. `resultRetained`
-preserves history; `completionValid` checks freshness, never approval. Stale results and failed
+Prepare/complete/retry are native-delegation bookkeeping. Pass the returned `delegationArguments`
+to delegate alongside its `definitionId`; later calls name the task and step. Complete
+immediately after native settlement, before repairs: it retains the exact captured final
+and actual disposition. `resultRetained` preserves history; `completionValid` checks freshness, never approval. Stale results and failed
 completion stay visible. Prepared directories already exist; consume
 provided helper locations and references rather than rediscovering them. Failed or blocked results never approve work.
 Inline work retains the existing private report mechanism; do not dispatch merely to close
@@ -136,10 +136,8 @@ or replaces the operation. Preserve partial delivery and reported-check limitati
 recorded completion is not product acceptance.
 Use the returned `delegationArguments` and `statusArguments` directly, preferably through
 Codemode, instead of recopying opaque IDs. They preserve identity, not dispatch permission.
-`OPERATION_ID_INVALID` calls for the original response or read-only status using the exact
-known task/step/attempt, never a guessed ID or replacement operation. If the native result
-explicitly confirms a current call was refused before admission, correct its named arguments
-and reuse the same prepared operation and current binding. This says nothing about earlier
+If the native result explicitly confirms a current call was refused before admission, correct
+its named arguments and reuse the same prepared operation and current binding. This says nothing about earlier
 attempts; running work, uncertain cleanup, ownership and actual permission blocks remain.
 After an update or `/new`, follow returned `recoverArguments` for an old operation instead
 of rebuilding or asking the user to reconstruct IDs. Recovery inspection is read-only:

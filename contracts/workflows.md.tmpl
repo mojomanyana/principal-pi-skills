@@ -80,10 +80,9 @@ prepare/complete: dispatch with a unique operation_id and use `result` to verify
 the exact settled native final without retaining a file. Do not silently create bookkeeping. For native work, `prepare` returns operation_id, canonical workspace,
 reportPath and handoff metadata; pass them unchanged alongside definitionId. Use its
 returned `delegationArguments`/`statusArguments` for direct transfer; prefer those objects
-over recopying IDs. They preserve identity, not dispatch authority. `OPERATION_ID_INVALID`
-requires the original response or exact read-only task/step/attempt lookup, never a guessed
-digest or replacement operation. A native argument refusal explicitly confirmed before
-admission may be corrected with the same operation/current binding; earlier attempts and
+over recopying IDs. They preserve identity, not dispatch authority. A native argument
+refusal explicitly confirmed before admission may be corrected with the same
+operation/current binding; earlier attempts and
 real ownership, permission and cleanup gates still require reconciliation. It may create
 ignored administrative files. Its prepared directory is expected to exist; do not assert
 that it is absent or rediscover helpers. Use `status` before repeating/resuming an operation;
@@ -103,8 +102,8 @@ Each child returns its complete final report; Plan also writes its actual plan. 
 child returns, the coordinator checks the full native result and identity-bound
 `cleanup.state=settled` receipt before dependent work, including consuming Review's verdict.
 Missing evidence due now blocks; later coordinator-owned terminal/cleanup gates retain their
-owner and due stage. Call `complete` immediately after settlement, before repairs, using
-`operationId: prepared.operation_id` and the actual disposition. It retains the exact captured final automatically;
+owner and due stage. Call `complete` immediately after settlement, before repairs, by
+task/step with the actual disposition. It retains the exact captured final automatically;
 `resultRetained` preserves history, while `completionValid` checks freshness. Stale results
 never approve a changed candidate. Read every successful report and blocked report. A
 completion failure remains incomplete and visible; never hand-write success. This tool does not execute phases, grant permission, infer approval or

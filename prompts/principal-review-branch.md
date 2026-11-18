@@ -15,7 +15,7 @@ authority. Keep handoffs to current references, not copied history.
    writes are prohibited, skip prepare/complete: dispatch with a unique operation_id and use
    `result` to verify and read the exact settled native final without retaining a file.
    Otherwise use prepare/status for the native review operation and pass its returned
-   `operation_id` unchanged to delegate. Preparation never authorizes execution or approval;
+   `delegationArguments` to delegate. Preparation never authorizes execution or approval;
    inline work needs no delegation solely to close bookkeeping.
 2. Apply this artifact retention step only when writes are allowed. Before any artifact write,
    create if absent `.principal/.gitignore` containing `*`; never overwrite an existing ignore file.
