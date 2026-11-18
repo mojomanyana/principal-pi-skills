@@ -219,11 +219,10 @@ test('per-request tool text keeps the decisions only the model can make',()=>{
     // A blind model comparison (Sonnet, scenario S7) completed an operation with uncertain cleanup 4 of 4 times
     // without this clause and 0 of 4 with it; keep it in the per-request text.
     /cleanup is settled \(uncertain is not settled\), call complete/,
-    // Owner decision 2026-11-17, "Principal retries once": pi-daddy never retries under an operation; it marks a
-    // failure it would otherwise have retried "replayable":true. Retry that phase once, by task and step, and
-    // nothing else on the coordinator's own initiative. (The source escapes the quotes the model sees.)
-    /When a phase's delegate result shows \\"replayable\\":true, call retry once for that task and step, with a reason and expectedCandidate, and delegate its new delegationArguments/,
-    /any other failure, including the retried attempt's, still stops and asks/]);
+    /retryMode automatic.*owner proof and persisted budget allow one automatic successor/,
+    /delegationArguments unchanged, including definitionId/,
+    /Unsafe or exhausted replay stops only that phase; continue independent authorized work/,
+    /retryMode manual only for a separately authorized retry/]);
   clauses(normalized(read('extensions/handoff.ts')),[/Never (?:omit|drop) a required source to (?:obtain|reach) ready/]);
 });
 

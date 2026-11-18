@@ -58,7 +58,7 @@ For probes that alter or execute the dirty working state, use the coordinator-pr
 `node <helper> remove <path> --repo <caller-repo>`; never mutate the caller checkout. Without the
 helper, assess read-only; report UNVERIFIED only when a required deciding check stays unavailable.
 Reuse verified command/results for matching code, tests, configuration and environment; a docs-only
-change does not invalidate unrelated behavior evidence.
+change preserves unrelated evidence unless a changed contract, relevant input or required fresh check makes it inapplicable.
 
 ## Output
 Return one compact report. Include actual source locations and consequences for findings;

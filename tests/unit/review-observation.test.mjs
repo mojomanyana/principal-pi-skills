@@ -5,7 +5,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, writeFileSync, rmSync, realpathSync, readFileSync, mkdirSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
-import { observeCandidate, prepareOperation, completeOperation, inspectOperation, inspectRecoveryRecord, inspectRecoveryOperation } from "../../scripts/workflow-state.mjs";
+import { observeCandidate, prepareOperation, completeOperation, inspectOperation, inspectRecoveryRecord, inspectRecoveryOperation, retryOperation } from "../../scripts/workflow-state.mjs";
 import { observeGitResource, resolveGitResource, observeIntegrationSubject, resolveIntegrationSubject, registerGitResourceObserver } from "../../scripts/continuity.mjs";
 import { observeReviewReference, resolveReviewReference } from "../../scripts/review-observation.mjs";
 
@@ -67,6 +67,19 @@ test("existing native storage binds independent review to exact task/output; cal
   assert.equal(f.resolve(ref, { ...f.purpose, reviewScope: "integrated" }).status, "unverified");
   writeFileSync(join(f.repo, "product.txt"), "Changed after independent review.\n");
   assert.equal(f.resolve(ref).status, "unverified"); await assert.rejects(result.assertCurrent());
+});
+test("automatic retry preserves the exact review authority and output binding", t => {
+  const f = fixture(t), operationId = f.prepared.operation_id, executionId = "failed-review";
+  const runtime = { operationId, cwd: f.repo, executionId, state: "settled", runtime: {
+    work: "failed", final: { state: "unavailable" }, cleanup: { state: "settled", executionId },
+    automaticRetryEligibility: { version: 1, eligible: true, operationId, executionId, definitionId: "a".repeat(64) },
+  } };
+  const retried = retryOperation(f.repo, { task: f.reviewRequest.task, step: f.reviewRequest.step,
+    retryMode: "automatic", reason: "Unanswered read-only review", expectedCandidate: observeCandidate(f.repo) }, runtime);
+  assert.equal(retried.attempt, 2);
+  assert.deepEqual(retried.reviewBinding, f.prepared.reviewBinding);
+  assert.deepEqual(retried.inputs, f.prepared.inputs);
+  assert.equal(retried.reviewBinding.sourceOperationId, f.reviewRequest.reviewBinding.sourceOperationId);
 });
 test("a current bound Review can judge an unchanged recovered old Build without rerunning it", async t => {
   const f = fixture(t, { recoverBuild: true }), { ref } = f.finish();

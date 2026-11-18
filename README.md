@@ -100,7 +100,7 @@ claims of measured model compliance. Common ceilings remain unchanged.
 Tool text has its own ceilings because it is paid for more often. A skill is read when its
 role is used; a registered tool's description and prompt guidelines go to the model with
 every request while the tool is active, whether or not it is called. Ceilings in words:
-`principal_workflow` 428, `principal_handoff` 114, `principal_codemode` 28. Each counts the
+`principal_workflow` 459, `principal_handoff` 114, `principal_codemode` 28. Each counts the
 description, guidelines and parameter descriptions written in the tool's own extension file;
 parameter descriptions imported from `scripts/` and text Pi itself supplies are outside it.
 The ceilings are the counts after the 2026-11-17 rewrite for weaker models (from 861, 147 and 52), so
@@ -116,8 +116,8 @@ script counts it and prints the current figures.
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
 | `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1183) or inline | 1114 |
 | `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1543) or inline | 1524 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1331) or inline | 1279 |
-| `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 755) or inline | 734 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1341) or inline | 1289 |
+| `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 765) or inline | 744 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1469) or inline | 1288 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 478) or inline | 479 |
 | `artifact-review` | Quality, intent alignment and evidence for plans, decisions, architecture or custom artifacts | standalone Pi skill; no native phase | 947 |

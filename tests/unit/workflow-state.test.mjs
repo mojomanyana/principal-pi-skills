@@ -362,10 +362,16 @@ test("completion needs exact settled native result and unchanged read-only candi
 
 async function registeredWorkflow(root, { historyBridge = false } = {}) {
   const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
-  let tool, native, sessionId = "original-parent";
+  let tool, native, recovery, sessionId = "original-parent";
   const queries = [];
   register({ registerTool: value => { tool = value; }, registerCommand: () => {}, on: () => {}, events: {
     on: () => () => {}, emit(name, query) {
+      if (name === "pi-daddy:operation-recovery:v1" && recovery) {
+        queries.push(`recover:${query.source.operationId}`);
+        query.reply({ version: 1, requestId: query.requestId, sessionId: query.sessionId, cwd: query.cwd,
+          source: query.source, qualified: true, observation: recovery });
+        return;
+      }
       const history = historyBridge && name === "pi-daddy:operation-history:v1";
       if (!history) assert.equal(name, "pi-daddy:operation-status:v1");
       queries.push(history ? `history:${query.operationId}` : query.operationId);
@@ -376,8 +382,8 @@ async function registeredWorkflow(root, { historyBridge = false } = {}) {
     },
   } });
   const ctx = { cwd: root, sessionManager: { getSessionId: () => sessionId } };
-  return { tool, queries, ctx, setNative: value => { native = value; }, setSession: value => { sessionId = value; },
-    run: args => tool.execute("fixture", args, undefined, () => {}, ctx) };
+  return { tool, queries, ctx, setNative: value => { native = value; }, setRecovery: value => { recovery = value; }, setSession: value => { sessionId = value; },
+    run: (args, signal) => tool.execute("fixture", args, signal, () => {}, ctx) };
 }
 
 test("registered changed Build completion retains the original partial result with or without mistaken reprepare", async t => {
@@ -997,6 +1003,118 @@ test("a replayable native failure can be retried by task and step: settled-faile
     const first = (await h.run({ action: "status", ...name, attempt: 1 })).structuredContent;
     assert.equal(first.operation_id, prepared.operation_id); assert.equal(first.state, "prepared", "the failed attempt is kept");
   });
+});
+
+function replayableNative(operationId, cwd) {
+  return { operationId, cwd, executionId: `execution:${operationId}`, state: "settled", runtime: {
+    work: "failed", final: { state: "unavailable" }, cleanup: { state: "settled", executionId: `execution:${operationId}` },
+    automaticRetryEligibility: { version: 1, eligible: true, operationId, executionId: `execution:${operationId}`, definitionId: "c".repeat(64) },
+  } };
+}
+
+test("automatic retry consumes one durable allowance, binds the original definition and survives new-session inspection", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root);
+  const names = { task: request.task, step: request.step };
+  const first = (await h.run({ action: "prepare", ...request, phase: "investigate" })).structuredContent;
+  h.setNative(replayableNative(first.operation_id, root));
+  const retry = { action: "retry", ...names, attempt: 1, retryMode: "automatic", reason: "Unanswered read-only child", expectedCandidate: observeCandidate(root) };
+  const second = (await h.run(retry)).structuredContent;
+  assert.equal(second.attempt, 2); assert.equal(second.automaticRetryBudget.used, 1);
+  assert.deepEqual(second.delegationArguments, { agent: "investigate", operation_id: second.operation_id, definitionId: "c".repeat(64) });
+  const repeated = (await h.run(retry)).structuredContent;
+  assert.equal(repeated.operation_id, second.operation_id); assert.equal(repeated.reused, true);
+  h.setNative(replayableNative(second.operation_id, root));
+  const refused = await h.run({ ...retry, attempt: 2, retryMode: undefined });
+  assert.equal(refused.isError, true); assert.match(refused.structuredContent.error, /allowance is exhausted/);
+  const store = join(root, ".principal/workflow"), before = readdirSync(store).sort();
+  assert.equal(before.length, 2);
+  h.setSession("after-new");
+  h.setRecovery({ operation: replayableNative(second.operation_id, root), cleanup: { state: "settled" } });
+  const restored = (await h.run({ action: "recover", ...names, attempt: 2 })).structuredContent;
+  assert.equal(restored.state, "historical"); assert.equal(restored.automaticRetryBudget.remaining, 0);
+  assert.equal(restored.automaticRetryBudget.sourceOperationId, first.operation_id);
+  assert.deepEqual(readdirSync(store).sort(), before);
+  assert.equal((await h.run({ ...retry, attempt: 2 })).isError, true, "a new session cannot adopt the prior owner");
+  h.setSession("original-parent");
+  const manual = (await h.run({ ...retry, attempt: 2, retryMode: "manual", reason: "User explicitly authorized another attempt" })).structuredContent;
+  assert.equal(manual.attempt, 3); assert.equal(manual.automaticRetryBudget.remaining, 0);
+  assert.equal(manual.delegationArguments.definitionId, undefined);
+});
+
+test("automatic retry requires qualified owner evidence and preserves completion, candidate and cancellation guards", async t => {
+  const cases = {
+    "missing proof on released Daddy": r => { delete r.runtime.automaticRetryEligibility; },
+    "foreign operation proof": r => { r.runtime.automaticRetryEligibility.operationId = "principal:" + "d".repeat(64); },
+    "foreign execution proof": r => { r.runtime.automaticRetryEligibility.executionId = "another-execution"; },
+    "missing original binding": r => { delete r.runtime.automaticRetryEligibility.definitionId; },
+    "complete answer despite failed work": r => { r.runtime.final = { state: "complete" }; },
+    "control failure": r => { r.runtime.control = { state: "failed" }; },
+    "uncertain cleanup": r => { r.runtime.cleanup.state = "uncertain"; },
+  };
+  for (const [label, alter] of Object.entries(cases)) await t.test(label, async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const first = (await h.run({ action: "prepare", ...request, phase: "investigate" })).structuredContent;
+    const runtime = replayableNative(first.operation_id, root); alter(runtime); h.setNative(runtime);
+    const result = await h.run({ action: "retry", task: request.task, step: request.step, retryMode: "automatic", reason: label, expectedCandidate: observeCandidate(root) });
+    assert.equal(result.isError, true);
+    const status = (await h.run({ action: "status", task: request.task, step: request.step })).structuredContent;
+    assert.equal(status.automaticRetryBudget.used, 0); assert.equal(status.attempt, 1);
+  });
+  const { root, request } = fixture(t), h = await registeredWorkflow(root);
+  const first = (await h.run({ action: "prepare", ...request, phase: "investigate" })).structuredContent;
+  h.setNative(replayableNative(first.operation_id, root));
+  const args = { action: "retry", task: request.task, step: request.step, retryMode: "automatic", reason: "guard", expectedCandidate: observeCandidate(root) };
+  assert.equal((await h.run(args, AbortSignal.abort())).isError, true);
+  writeFileSync(join(root, "product.txt"), "changed\n");
+  assert.equal((await h.run({ ...args, expectedCandidate: observeCandidate(root) })).isError, true);
+  assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+});
+
+test("automatic retry claims converge across processes and cannot adopt a separately prepared manual successor", async t => {
+  const { root, request } = fixture(t);
+  const first = prepareOperation(root, { ...request, phase: "investigate" });
+  const args = { task: request.task, step: request.step, retryMode: "automatic", reason: "Read-only retry", expectedCandidate: observeCandidate(root) };
+  const runtime = replayableNative(first.operation_id, root);
+  const moduleUrl = new URL("../../scripts/workflow-state.mjs", import.meta.url).href;
+  const code = `import { retryOperation } from ${JSON.stringify(moduleUrl)}; try { console.log(JSON.stringify(retryOperation(process.argv[1], JSON.parse(process.argv[2]), JSON.parse(process.argv[3])))); } catch(error) { console.log(JSON.stringify({error:error.message})); }`;
+  const run = () => new Promise((resolve, reject) => {
+    const child = spawn(process.execPath, ["--input-type=module", "-e", code, root, JSON.stringify(args), JSON.stringify(runtime)]);
+    let out = "", err = ""; child.stdout.on("data", part => { out += part; }); child.stderr.on("data", part => { err += part; });
+    child.on("error", reject); child.on("close", status => status === 0 ? resolve(JSON.parse(out)) : reject(Error(err)));
+  });
+  const results = await Promise.all([run(), run(), run()]);
+  const successes = results.filter(result => result.state === "prepared");
+  assert.ok(successes.length >= 1); assert.equal(new Set(successes.map(result => result.operation_id)).size, 1);
+  assert.equal(readdirSync(join(root, ".principal/workflow")).length, 2);
+  assert.equal(inspectOperation(root, { ...request, attempt: 2 }).automaticRetryBudget.remaining, 0);
+  const other = fixture(t), source = prepareOperation(other.root, { ...other.request, phase: "investigate" });
+  const sourceRuntime = replayableNative(source.operation_id, other.root);
+  retryOperation(other.root, { ...other.request, retryMode: "manual", reason: "User choice" }, sourceRuntime);
+  assert.throws(() => retryOperation(other.root, { task: other.request.task, step: other.request.step, expectedCandidate: other.request.expectedCandidate,
+    retryMode: "automatic", reason: "No adoption" }, sourceRuntime), /existing successor/);
+});
+
+test("a missing consumed allowance never resets an automatic retry lineage", t => {
+  const { root, request } = fixture(t);
+  const first = prepareOperation(root, { ...request, phase: "investigate" });
+  const args = { task: request.task, step: request.step, reason: "Read-only retry", expectedCandidate: observeCandidate(root) };
+  const second = retryOperation(root, args, replayableNative(first.operation_id, root));
+  assert.equal(second.attempt, 2, "owner proof chooses automatic mode even when omitted");
+  const store = join(root, ".principal/workflow");
+  const claimPath = readdirSync(store).map(name => join(store, name, "automatic-retry.json")).find(existsSync);
+  assert.ok(claimPath);
+  const originalClaim = JSON.parse(readFileSync(claimPath, "utf8"));
+  // A syntactically valid reassignment to a later failure must not turn the consumed claim into
+  // permission for another automatic successor under the same definition.
+  const nextIdentity = "principal:" + createHash("sha256").update(JSON.stringify({ attempt: 3, root, step: request.step, task: request.task })).digest("hex");
+  writeFileSync(claimPath, JSON.stringify({ ...originalClaim, sourceOperationId: second.operation_id, sourceAttempt: 2,
+    successorOperationId: nextIdentity, executionId: `execution:${second.operation_id}` }));
+  assert.equal(inspectOperation(root, { ...args, attempt: 2 }).automaticRetryBudget.state, "unknown");
+  assert.throws(() => retryOperation(root, { ...args, attempt: 2 }, replayableNative(second.operation_id, root)), /differs from its recorded successor/);
+  rmSync(claimPath);
+  assert.equal(inspectOperation(root, { ...args, attempt: 2 }).automaticRetryBudget.state, "unknown");
+  assert.throws(() => retryOperation(root, { ...args, attempt: 2 }, replayableNative(second.operation_id, root)), /allowance is missing/);
+  assert.equal(readdirSync(store).length, 2);
 });
 
 test("an uncertain latest attempt is refused with its choices for every action, and a named attempt proceeds", async t => {

@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { realpathSync } from "node:fs";
 import { isAbsolute } from "node:path";
 import { reference } from "./progress-artifacts.mjs";
-import { observeCandidate, inspectRecoveryRecord, inspectRecoveryOperation, inspectRecoverySuccessor, inspectOwnedOperation, prepareRecoverySuccessor } from "./workflow-state.mjs";
+import { observeCandidate, inspectRecoveryRecord, inspectRecoveryOperation, inspectRecoverySuccessor, inspectOwnedOperation, prepareRecoverySuccessor, automaticRetryBudget } from "./workflow-state.mjs";
 
 const canonical = value => JSON.stringify(value, (_key, item) => item && typeof item === "object" && !Array.isArray(item)
   ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
@@ -55,7 +55,8 @@ function producerNoStart(observation, source) {
     Number.isSafeInteger(artifact.manifest?.bytes) && artifact.manifest.bytes > 0;
 }
 function delegationArguments(result) {
-  return { agent: result.phase, operation_id: result.operation_id };
+  return { agent: result.phase, operation_id: result.operation_id,
+    ...(result.automaticRetryDefinitionId ? { definitionId: result.automaticRetryDefinitionId } : {}) };
 }
 // Follow-up arguments name the operation; its stored ID stays in operation_id for consumers that record it.
 const named = operation => ({ task: operation.task, step: operation.step, attempt: operation.attempt });
@@ -73,7 +74,7 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
   const selected = inspectRecoveryRecord(repo, request), record = selected.record, sourceReference = selected.sourceReference;
   const source = { owner: record.owner, operationId: record.operationId };
   const envelope = { version: 1, approval: false, administrativeWrites: false, operation_id: record.operationId,
-    sourceOwner: record.owner, requester, sourceReference };
+    sourceOwner: record.owner, requester, sourceReference, automaticRetryBudget: automaticRetryBudget(repo, request) };
   const outcome = (state, nextAction, extra = {}) => ({ ...envelope, state, nextAction,
     ...(["uncertain", "historical", "existing-successor"].includes(state) ? { suggestedOptions: [
       { action: "inspect-original-session", label: "Check the original run", detail: "Use the recorded session and operation to establish what started, finished or remains active." },

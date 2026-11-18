@@ -106,7 +106,7 @@ Read Verdict before Next:
 `Next: evidence` is coordinator work, not another phase. Resolve supplied paths in the named
 workspace; a wrong checkout or ignored-file search is not a permission refusal. Reuse evidence that
 matches source, tests, scope, configuration and environment; independent judgment does not need a
-fresh full suite, and a docs-only or metadata correction leaves unrelated behavior evidence valid. For
+fresh full suite. Reuse unrelated evidence after docs/metadata corrections unless a changed contract, relevant input or required fresh check makes it inapplicable. For
 a named doubt run the smallest deciding check or disposable probe; a demonstrated defect then goes to
 Build. Suspected baseline failures need matching evidence or a same-command/environment comparison in
 a disposable copy; equal failure names/counts prove neither equal causes nor harmlessness. Keep

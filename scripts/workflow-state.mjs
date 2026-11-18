@@ -239,6 +239,45 @@ function reviewBinding(request, inputs, current) {
   const body = { version: 1, ...structuredClone(input), inputs };
   return { ...body, id: `principal-review-binding:${hash(canonical(body))}` };
 }
+function retryLineage(record) {
+  let first = record;
+  const inherited = [];
+  while (first.previous) {
+    assert(first.attempt > 1 && typeof first.previous.operationId === "string", "automatic retry lineage is incomplete");
+    if (first.previous.automaticRetry) inherited.push({ marker: first.previous.automaticRetry,
+      sourceOperationId: first.previous.operationId, sourceAttempt: first.attempt - 1,
+      successorOperationId: first.operationId, executionId: first.previous.runtime?.executionId });
+    const prior = load(record.root, { task: record.task, step: record.step, attempt: first.attempt - 1 }, true).record;
+    assert(prior.operationId === first.previous.operationId && prior.phase === record.phase, "automatic retry lineage changed");
+    first = prior;
+  }
+  assert(first.attempt === 1, "automatic retry lineage has no original operation");
+  const where = location(record.root, first.task, first.step, first.attempt);
+  const path = join(where.path, "automatic-retry.json"), claim = optionalRecord(path);
+  const origin = inherited.at(-1);
+  assert(!origin || claim && inherited.every(({ marker }) => marker.lineageOperationId === first.operationId && marker.definitionId === claim.definitionId) &&
+    ["sourceOperationId", "sourceAttempt", "successorOperationId", "executionId"].every(key => claim[key] === origin[key]),
+    "automatic retry allowance is missing or differs from its recorded successor; preserve the lineage");
+  if (claim) {
+    assert(claim.lineageOperationId === first.operationId && Number.isSafeInteger(claim.sourceAttempt) && claim.sourceAttempt >= 1 &&
+      typeof claim.definitionId === "string" && /^[a-f0-9]{64}$/.test(claim.definitionId), "automatic retry allowance record is invalid");
+    assert(claim.sourceOperationId === location(record.root, record.task, record.step, claim.sourceAttempt).operationId &&
+      claim.successorOperationId === location(record.root, record.task, record.step, claim.sourceAttempt + 1).operationId &&
+      typeof claim.executionId === "string" && claim.executionId, "automatic retry allowance identity changed");
+  }
+  return { first, path, claim };
+}
+export function automaticRetryBudget(repo, request) {
+  const { record } = load(repo, request, true);
+  try {
+    const { first, claim } = retryLineage(record);
+    return { limit: 1, used: claim ? 1 : 0, remaining: claim ? 0 : 1, state: claim ? "consumed" : "unused",
+      lineageOperationId: first.operationId,
+      ...(claim ? { sourceOperationId: claim.sourceOperationId, successorOperationId: claim.successorOperationId } : {}) };
+  } catch {
+    return { limit: 1, remaining: 0, state: "unknown", reason: "Automatic retry history could not be verified; preserve the original records." };
+  }
+}
 function summary(record, state, extra = {}) {
   ordinary(dirname(record.reportPath), true);
   ordinary(record.artifactsPath, true);
@@ -251,7 +290,9 @@ function summary(record, state, extra = {}) {
       reviewReceiptInstruction: "The independent reviewer must read the bound inputs and copy this binding id into exactly one principal-review JSON fence described in references/continuity.md; do not reconstruct any digest.",
       ...(extra.report ? { reviewReference: { kind: "principal-review", repo: record.root, operationId: record.operationId,
         bindingId: record.reviewBinding.id, reportSha256: extra.report.sha256 } } : {}) } : {}),
-    inputs: record.inputs, owner: record.owner ?? null, approval: false, ...extra };
+    inputs: record.inputs, owner: record.owner ?? null, approval: false,
+    automaticRetryBudget: automaticRetryBudget(record.root, { task: record.task, step: record.step, attempt: record.attempt }),
+    ...(record.previous?.automaticRetry ? { automaticRetryDefinitionId: record.previous.automaticRetry.definitionId } : {}), ...extra };
 }
 function load(repo, request, historical = false) {
   let selected = request;
@@ -371,6 +412,7 @@ export function prepareRecoverySuccessor(repo, source, sourceReference, owner, e
   }
   const result = prepare(repo, { task: source.task, step: source.step, attempt: source.attempt + 1, phase: source.phase, reviewBinding: recoveredBinding,
     owner, expectedCandidate, inputs: source.inputs, previous: { operationId: source.operationId, reason: "Recovered proven unstarted operation",
+      ...(source.previous?.automaticRetry ? { automaticRetry: source.previous.automaticRetry } : {}),
       recovery: { sourceReference, sourceOwner: source.owner, artifact } } });
   const successor = inspectRecoveryRecord(repo, { operationId: result.operation_id });
   assert(successor.record.previous?.operationId === source.operationId && same(successor.record.previous?.recovery?.sourceReference, sourceReference), "next attempt belongs to another continuation; inspect it without dispatching");
@@ -395,6 +437,7 @@ export function inspectHistoricalOperation(repo, request, owner) {
     candidateMatches: current.algorithm === record.input?.algorithm && current.root === record.input?.root && current.id === record.input?.id,
     inputsMatch: !inputIssues.length,
     implementationMatches: same(record.implementation, implementation()), issues: inputIssues,
+    automaticRetryBudget: automaticRetryBudget(repo, request),
     approval: false, completionValid: false, administrativeWrites: false,
   };
 }
@@ -548,7 +591,60 @@ export function retryOperation(repo, request, runtime) {
   assert(neverStarted || settled, "prior operation is not settled or proven unstarted; retry refused");
   if (settled) assert(runtime.cwd === record.root, "native execution used a different workspace");
   assert(typeof request.reason === "string" && request.reason.trim(), "retry reason required");
-  return prepare(repo, { ...request, operationId: undefined, task: record.task, step: record.step, owner: record.owner,
+  assert(request.retryMode === undefined || ["automatic", "manual"].includes(request.retryMode), "unknown retry mode");
+  const eligibility = runtime.runtime?.automaticRetryEligibility;
+  const budget = automaticRetryBudget(repo, request);
+  // Existing callers with old Daddy keep their manual retry behavior. An owner proof or consumed
+  // lineage selects the bounded path even when a coordinator omits the new argument.
+  const automatic = request.retryMode === "automatic" || request.retryMode !== "manual" &&
+    (eligibility !== undefined || budget.state !== "unused");
+  let automaticRetry;
+  if (automatic) {
+    const lineage = retryLineage(record);
+    assert(!lineage.claim || lineage.claim.sourceOperationId === record.operationId,
+      "automatic retry allowance is exhausted for this phase; inspect its result and continue independent authorized work. A manual retry needs separate existing authorization");
+    assert(eligibility?.version === 1 && eligibility.eligible === true && eligibility.operationId === record.operationId &&
+      eligibility.executionId === runtime.executionId && typeof eligibility.definitionId === "string" && /^[a-f0-9]{64}$/.test(eligibility.definitionId),
+      "automatic retry needs the execution owner's replay-safety proof; this Daddy may not support it. Preserve the operation; use manual retry only when separately authorized");
+    assert(runtime.cwd === record.root && typeof runtime.executionId === "string" && runtime.executionId &&
+      (runtime.runtime.cleanup.executionId === runtime.executionId || neverStarted && runtime.runtime.cleanup.executionId === undefined) &&
+      !runtime.runtime?.control && runtime.runtime?.work !== "succeeded" && runtime.runtime?.final?.state !== "complete" && runtime.finalObservation?.state !== "complete",
+      "automatic retry cannot replace a completed answer, control failure or uncertain execution");
+    const current = inspectOperation(repo, request);
+    assert(current.candidateMatches && current.inputsMatch && !current.issues?.length && !current.resultRetained,
+      "automatic retry requires the unchanged original candidate and inputs, with no retained result");
+    assert(request.inputs === undefined && request.inputPaths === undefined, "automatic retry preserves the original inputs");
+    assert(request.reviewBinding === undefined, "automatic retry preserves the original review binding");
+    requireExpectedCandidate(observeCandidate(repo), request.expectedCandidate);
+    automaticRetry = { lineageOperationId: lineage.first.operationId, definitionId: eligibility.definitionId };
+    const existing = inspectRecoverySuccessor(repo, record);
+    if (existing) assert(existing.record.previous?.operationId === record.operationId && same(existing.record.previous?.automaticRetry, automaticRetry),
+      "an existing successor is not this automatic retry; inspect it without replacing work");
+    const claim = { version: 1, lineageOperationId: lineage.first.operationId, sourceOperationId: record.operationId,
+      sourceAttempt: record.attempt, successorOperationId: location(repo, record.task, record.step, record.attempt + 1).operationId,
+      executionId: runtime.executionId, definitionId: eligibility.definitionId };
+    assertIgnored(record.root, lineage.path);
+    if (!lineage.claim) {
+      try { writeNew(lineage.path, claim); }
+      catch (error) { if (error.code !== "EEXIST") throw error; }
+    }
+    // Exclusive creation consumes the allowance before successor preparation. Repetition can finish
+    // only this same claim; a crash or partial successor never authorizes a different attempt.
+    assert(same(readRecord(lineage.path), claim), "automatic retry allowance was consumed by another failure; inspect its successor");
+  }
+  let inheritedBinding;
+  if (record.reviewBinding) {
+    const { id: _id, version: _version, inputs: _inputs, ...binding } = record.reviewBinding;
+    inheritedBinding = binding;
+  }
+  const result = prepare(repo, { ...request, operationId: undefined, task: record.task, step: record.step, owner: record.owner,
+    reviewBinding: request.reviewBinding ?? inheritedBinding,
     inputs: request.inputs ?? (request.inputPaths ? [] : record.inputs), phase: record.phase, attempt: record.attempt + 1,
-    previous: { operationId: record.operationId, reason: request.reason, runtime } });
+    previous: { operationId: record.operationId, reason: request.reason, runtime, ...(automaticRetry ? { automaticRetry } : {}) } });
+  if (automaticRetry) {
+    const successor = load(repo, { task: record.task, step: record.step, attempt: record.attempt + 1 }).record;
+    assert(successor.previous?.operationId === record.operationId && same(successor.previous?.automaticRetry, automaticRetry),
+      "another retry owns this successor; inspect it without dispatching");
+  }
+  return result;
 }
