@@ -234,8 +234,8 @@ test('compact settlement guidance checks the visible summary without demanding h
     assert.doesNotMatch(text, /check.*native result and identity-bound `cleanup.state=settled` receipt|needs `cleanup.state=settled` with its matching identity-bound receipt/);
   }
   for (const path of ['AGENTS.md', 'README.md']) {
-    assert.match(read(path), /pi-daddy@0\.60\.0/);
-    assert.match(read(path), /skill-harness@0\.36\.0/);
+    assert.match(read(path), /pi-daddy@0\.61\.0/);
+    assert.match(read(path), /skill-harness@0\.36\.2/);
   }
 });
 
