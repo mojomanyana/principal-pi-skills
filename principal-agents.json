@@ -11,14 +11,14 @@
     "review": {
       "skill": "review/SKILL.md",
       "agent": "agents/principal-review.md",
-      "skillSha256": "5a251ba37a878aff5506626c5e30941f26bce72e408da3b445cc13fceb0639ef",
-      "agentSha256": "adc52f2964d57c5f2b439ceb3e694c5a331783ed04e075bdf94fda90cc5a046b"
+      "skillSha256": "a6d899020fc451d424920533fa6dbb6b21fc230b94a4e4ad21f91d30e80e4cf1",
+      "agentSha256": "c0ac620f2cd6ce9b21b4411d129ed47783db803dea8a3ed050cf7c74cc96ab35"
     },
     "test-review": {
       "skill": "test-review/SKILL.md",
       "agent": "agents/principal-test-review.md",
-      "skillSha256": "c4d21fbf20fa745d901f36adc3221ad64936c3d30146b26d96aef864f4b3a700",
-      "agentSha256": "cf4b94394178d6e8501720c54ba3cf9978718ce2c5304338ee2f26789d17e280"
+      "skillSha256": "4a05637ac1bde8dcbab411e7a34360681024f9f5dbefc2b37eef7255783f21cf",
+      "agentSha256": "a8ddf8a171846e8dc1a109763ea59f7f6183cce7fa77868fba52dddb25567abb"
     },
     "debug": {
       "skill": "debug/SKILL.md",

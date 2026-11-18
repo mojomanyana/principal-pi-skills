@@ -65,7 +65,7 @@ establish an audit fact.
 Use the coordinator's canonical candidate observation, exact source references and complete diff
 package; read the diff once and do not recreate identity formulas. Reuse evidence when the exact
 command/result and relevant candidate, scope, configuration and environment match; a metadata or
-docs-only change does not invalidate unrelated behavior evidence. Fresh reviewer judgment does not
+docs-only change preserves unrelated evidence unless a changed contract, relevant input or required fresh check makes it inapplicable. Fresh reviewer judgment does not
 require fresh suite execution. Do not reject matching evidence merely because you did not run it
 yourself. A green suite still does not prove omitted obligations.
 

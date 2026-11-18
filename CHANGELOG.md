@@ -1,10 +1,17 @@
 # Changelog
 
-## Unreleased
+## 4.16.0 — 2026-11-18
 
-- Tool text and the routing bootstrap are now rewritten as short imperative rules, each stated once; previously every request carried 812 words of `principal_workflow` text, 147 of `principal_handoff`, 52 of `principal_codemode` and a 296-word bootstrap, much of it repeating the same rule or describing refusals the tools already return. They are now 385, 114, 28 and 252 words, and the tool-text ceilings are lowered to those counts.
+- Prepared operations now accept stable task/step names and select an unambiguous owned attempt; previously callers had to copy opaque operation IDs. Internal identity, ownership and stale-state checks remain (#83).
+- Tool descriptions and guidelines now have checked word ceilings; previously growth was unbounded by the existing skill budgets (#82). Shorter contracts and preserved evidence exceptions are included from #84.
+- Automatic retries now use the durable, owner-qualified allowance described below; previously the once-only limit was an instruction without runtime enforcement (#85).
+- Repair garbled README punctuation without changing behavior (#81).
+
+- Tool text and the routing bootstrap use shorter imperative rules. Before the automatic-retry instruction, the shortened `principal_workflow` text was 392 words, `principal_handoff` 114, `principal_codemode` 28 and the bootstrap 252; current tool counts and ceilings are recorded in the README and budget check.
 - `AGENTS.md` (2925 to 1599 words), `references/workflow-mechanics.md` (1950 to 1155), the generated role contracts and workflow prompts are shorter for the same reason. Instructions that existed only to copy operation IDs are gone; safety, authority and evidence rules and every test-pinned rule are kept.
-- No tool behavior, schema, action name or test semantics change. No model was run for this change; the before/after comparison is prepared but not yet measured.
+- The shortening alone changes no tool behavior, schema or action names. Its historical Sonnet/Opus comparison was text-only, not a live Pi run or a measurement of speed; it exposed an uncertain-cleanup wording defect that was corrected. It does not establish equivalent behavior across models. No additional model experiment was run for the follow-up wording corrections.
+- Automatic retry now requires pi-daddy's qualified execution-owner proof and atomically consumes one durable allowance for the phase lineage. Repeated calls reuse the same successor; a second automatic retry is refused even after `/new`. The original definition, inputs, review binding and failed attempt are preserved. A model-supplied replayable flag is not proof. Explicit authorized manual retries remain available, and older Daddy versions keep their ordinary/manual behavior without needing an upgrade.
+- Unsafe or exhausted replay stops that phase; independent authorized work and ordinary pre-admission argument correction can continue. Ask only for a missing decision. Evidence reuse keeps the exception for changed contracts, relevant inputs and required fresh checks. No additional model experiments were run.
 
 ## 4.15.7 — 2026-11-16
 

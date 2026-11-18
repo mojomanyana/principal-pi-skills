@@ -43,6 +43,14 @@ before using a fresh snapshot; never reconstruct hashes or repeat prepare unchan
 
 Pass `prepared.delegationArguments` to native delegation. After settlement, immediately call
 `complete` with the prepared `task`, `step` and actual `disposition`, before repairing anything.
+`retryMode: "automatic"` requires the execution owner's safety proof and consumes one durable
+allowance per phase lineage. Pass its returned delegation arguments unchanged, including definitionId.
+Status and recovery retain the spent budget after `/new`; a repeated request can reuse only its same
+successor. An absent proof on older Daddy versions permits no automatic retry. Explicit authorized
+manual retries use `retryMode: "manual"`; never use it to evade an exhausted automatic allowance.
+Omitted mode selects the bounded path when proof or an automatic lineage exists, otherwise retaining
+legacy manual behavior. A denied retry blocks that phase, not unrelated authorized work.
+
 `status`, `retry`, `history` and `result` take the same names; without `attempt` they select the
 latest, refusing with `choices` when it is uncertain or another coordinator's. `resultRetained: true`
 is immutable history; `completionValid: true` is current bookkeeping freshness; neither is approval.
