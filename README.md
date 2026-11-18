@@ -97,6 +97,17 @@ disposable/applied states while making diagnosis sufficient for handoff and prot
 boundary evidence. These narrow increases retain the existing safeguards; they are not
 claims of measured model compliance. Common ceilings remain unchanged.
 
+Tool text has its own ceilings because it is paid for more often. A skill is read when its
+role is used; a registered tool's description and prompt guidelines go to the model with
+every request while the tool is active, whether or not it is called. Ceilings in words:
+`principal_workflow` 861, `principal_handoff` 147, `principal_codemode` 52. Each counts the
+description, guidelines and parameter descriptions written in the tool's own extension file;
+parameter descriptions imported from `scripts/` and text Pi itself supplies are outside it.
+The ceilings are the counts on the day the check was added, so this text shrinks freely and
+grows only by changing `TOOL_TEXT` in `scripts/check-word-budgets.mjs` and this paragraph
+together. The text lives inside `extensions/*.ts`, so `wc -w` cannot check it; the same
+script counts it and prints the current figures.
+
 ## The set
 
 | Skill | What it does | How it runs | Words |
