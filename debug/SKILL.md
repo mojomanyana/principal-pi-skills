@@ -26,30 +26,24 @@ unknown one; the harder the bug, the stricter the loop.
 3. **Hypothesize testably.** First read the error message word by word — it usually names
    the file, line, and cause. Then state a falsifiable hypothesis in the form "the bug is at
    file:line because <observed evidence> implies <cause>"; test the cheapest first.
-4. **Probe — in a workspace you own.** One smallest experiment per hypothesis; one change
-   at a time. Resolve `scripts/snapshot-workspace.mjs` from the actual selected Principal package
-   using selected source metadata, never a guessed path or download. Run
+4. **Probe — in a workspace you own.** One smallest experiment per hypothesis; one change at a
+   time. Resolve `scripts/snapshot-workspace.mjs` from the actual selected Principal package using
+   selected source metadata, never a guessed path or download. Run
    `node <resolved-helper> create --repo <caller-repo>` for a disposable working-state copy
-   (ignored files excluded). Probe only there, never the caller's checkout; then run
+   (ignored files excluded), probe only there, never in the caller's checkout, then run
    `node <resolved-helper> remove <path> --repo <caller-repo>`.
    Missing helper or creation failure → read-only diagnosis.
-5. **Hand off when the diagnosis is sufficient.** Distinguish a confirmed cause from a
-   hypothesis using actual observations. A complete trial fix and full suite are optional;
-   stop probing when they add no deciding evidence. Propose the minimal fix and regression
-   check, marking unrun proof explicitly. If a disposable trial is needed to distinguish
-   causes, record its actual red/green and relevant checks; do not repeat that implementation
-   merely to produce a Debug deliverable. Intermittent evidence needs enough observations
-   for the stated claim, not an arbitrary repetition count. For async behavior, wait on an
-   observable condition with a deadline; a fixed sleep is not condition-based evidence.
-   Debug proves only in the disposable workspace, never mutates the caller checkout and
-   never dispatches Build. A direct "diagnose and fix" request authorizes the orchestrator
-   to switch to Build when diagnosis is sufficient; inline, announce that switch before
-   applying anything. Build implements once in the user's tree and owns applied-fix evidence.
-   An invoked bugfix workflow still stops for approval after this note. Read source authority
-   and definitions; do not let a summary or a probe invent required behavior.
-   No workspace available → return a read-only diagnosis that says so, with the fix marked
-   unproven, or `BLOCKED` if nothing can be told apart without running code. Never run the
-   experiment in the caller's tree instead.
+5. **Hand off when the diagnosis is sufficient.** Separate a confirmed cause from a hypothesis by
+   actual observations. A complete trial fix and full suite are optional: stop probing when they add
+   no deciding evidence. Propose the minimal fix and regression check, marking unrun proof. If a
+   disposable trial is needed to tell causes apart, record its actual red/green. Intermittent
+   evidence needs enough observations for the claim; for async behavior, wait on an observable
+   condition with a deadline, not a fixed sleep. Debug proves only in the disposable workspace and
+   never dispatches Build. A direct "diagnose and fix" request lets the orchestrator switch to Build
+   once diagnosis is sufficient; inline, announce that switch before applying anything. An invoked
+   bugfix workflow still stops for approval after this note. Read source authority and definitions;
+   a summary or probe cannot invent required behavior. No workspace → a read-only diagnosis that says
+   so, fix marked unproven, or `BLOCKED` if nothing can be told apart without running code.
 
 ## Error-handling rule
 When the user says "make it not crash" / "stop it taking down the server", they are asking
@@ -92,18 +86,9 @@ timeouts are not diagnostics. If genuinely out of moves, stop: re-read the origi
 far as you verifiably got, ending with the one question that would branch the search.
 
 ## Right-sizing
-An obvious known cause needs only the evidence that distinguishes it. If probes stop
-reducing uncertainty, reassess the reproduction rather than accumulating speculative edits.
-
-## Several failures at once
-When a report names N failures with clearly different root causes and no shared files,
-each may justify an independent diagnosis. The orchestrator decides whether an approved
-read-only batch helps; distinct failures do not mandate more agents. Failures that might
-share a cause (one fix could clear several) stay with one diagnosis.
-
-## Delegated mode (running as a subagent)
-Run the loop with the tools you have; return the note in one response, filled to wherever
-you verifiably got. A confirmed root cause without a fix is a valid result — say so.
+An obvious known cause needs only the evidence that distinguishes it. Failures that might share a
+cause stay in one diagnosis; clearly separate failures may be diagnosed independently if the
+orchestrator chooses.
 
 ## Output — debugging note
 ```

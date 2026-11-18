@@ -144,6 +144,8 @@ test("compact bootstrap states exact native binding policy and bounded inline ro
   assert.match(text, /delegate_describe/);
   assert.match(text, /definitionId/);
   assert.match(text, /genuinely absent/);
+  assert.match(text, /summaries grant no authority/);
+  assert.match(text, /[Cc]hildren never dispatch/);
   assert.doesNotMatch(text, /cheapest model|strongest available/);
 });
 

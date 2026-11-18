@@ -7,118 +7,93 @@ Execute this workflow for: $@
 <!-- shared:start -->
 ## Coordinate the outcome
 
-Own the product result across the requested scope. Keep the user outcome distinct from
-the proposed method; prefer the simplest adequate design without weakening constraints.
-Resolve consequential tradeoffs and shared contracts before affected implementation.
-For multiple repositories, identify the consumers and verify their combined behavior.
-Use checks that expose plausible wrong behavior, accept equivalent sound solutions, and
-keep optional polish separate from defects. Continue authorized useful work; stop when
-the requested outcome is met. This is the coordinator's responsibility, not another phase.
+Own the product result across the requested scope. Keep the user outcome separate from the proposed
+method; prefer the simplest adequate design without weakening constraints. Resolve consequential
+tradeoffs and shared contracts before affected implementation; across repositories, verify the
+consumers' combined behavior. Accept equivalent sound solutions and keep polish separate from
+defects. Stop when the requested outcome is met. This is the coordinator's job, not another phase.
 
-Choose useful outputs, not a fixed ceremony. Decide resolves a consequential choice;
-Architect defines structure; Plan coordinates dependencies. A clear authorized change
-can go directly to Build and independent Review. Do not create a plan merely to satisfy a
-phase list. Preserve the user's exact task, source IDs/definitions and current authority
-once; pass references and relevant sections, not copied history or generic gate matrices.
-Read referenced authority before alleging it is missing. Existing explicit user authorization
-for this scope persists; do not ask again. Missing or conflicting normative meaning blocks
-affected work. Material scope/design changes and one-way actions retain applicable approval.
+Choose useful outputs, not a fixed ceremony: Decide resolves a consequential choice, Architect
+defines structure, Plan coordinates dependencies. A clear authorized change can go directly to Build
+and independent Review; never create a plan just to satisfy a phase list. Keep the user's exact task,
+source IDs/definitions and current authority once and pass references, not copied history or generic
+gate matrices. Read referenced authority before alleging it is missing. Existing explicit user
+authorization for this scope persists; do not ask again. Missing or conflicting normative meaning
+blocks affected work. Material scope/design changes and one-way actions keep their approval.
 
-Before asking or resuming, use the outcome, phase, non-goals, accepted verification
-fallbacks, standing authorization and open decisions already in context. Retrieve only a
-missing fact needed for the next action; Bookie's selected-project checkpoint may help,
-without it use supplied/local context. Summaries do not create authority. Keep source
-references, not another handoff
-narrative. Ask only for a missing material decision, with a recommendation and consequence
-in product terms; do not make the operator interpret internal receipts.
+Before asking or resuming, use the outcome, phase, non-goals, accepted verification fallbacks,
+standing authorization and open decisions already in context. Retrieve only a missing fact the next
+action needs: Bookie's selected-project checkpoint may help; without it use supplied/local context.
+Summaries do not create authority. Ask only for a missing material decision, with a recommendation
+and its consequence in product terms; never make the operator interpret internal receipts.
 
-Distinguish recall-only requests from continuation. Recall reports saved outcomes without
-new implementation, research or duplicate saves. For continuation, reconcile historical
-blockers with the latest authorized scope and amendments; saved summaries do not impose
-new prerequisites. Missing evidence blocks only dependent actions; continue independent
-authorized work within current permission, native settlement and explicit user gates.
+Distinguish recall-only requests from continuation. Recall reports saved outcomes without new
+implementation, research or duplicate saves. For continuation, reconcile historical blockers with the
+latest authorized scope and amendments; saved summaries impose no new prerequisites. Missing evidence
+blocks only dependent actions; continue independent authorized work within current permission, native
+settlement and explicit user gates.
 
-**Native execution.** Call `delegate_describe({agent:"phase"})`; require package
-`principal-pi-skills`, exact phase and captured `definitionId`. Native phases are `plan`,
-`build`, `review`, `test-review`, `debug`, `investigate`. Pass the ID to every child; reuse
-current selected bindings until reload/resource changes or runtime staleness. Preserve the
-unmodified describe response and selected skill/agent source references. Enabled public
-capture supplies them; never guess an installation path or reconstruct native JSON.
-When present, pass `selectedResources` unchanged: it identifies selected sources and the
-validated package root, not helper contents, extra permissions or product evidence.
-Missing/wrong/disabled/stale binding, permission/context refusal, unqualified backend,
-timeout, report gap or uncertain cleanup stops dependent work. No automatic inline/foreign
-runner fallback after failure. An already-authorized alternative stays within its recorded
-scope and prerequisites; it cannot clear uncertain admission/cleanup or waive a required gate.
-Only genuinely absent native tools permit an explicitly configured legacy runner.
-Honor authored model/effort policy; leaves never dispatch agents.
+**Native execution.** Call `delegate_describe({agent:"phase"})`; require package `principal-pi-skills`,
+the exact phase (`plan`, `build`, `review`, `test-review`, `debug` or `investigate`) and its captured
+`definitionId`, and pass that ID to every child. Reuse a current binding until reload, a resource
+change or runtime staleness. Keep the unmodified describe response and selected skill/agent source
+references available; pass `selectedResources` unchanged when present. Never guess an installation
+path or reconstruct native JSON. A missing/wrong/disabled/stale binding, permission/context refusal,
+unqualified backend, timeout, report gap or uncertain cleanup stops dependent work. No automatic
+inline/foreign runner fallback after failure. An already-authorized alternative stays within its
+recorded scope and prerequisites; it cannot clear uncertain admission/cleanup or waive a required
+gate. Only genuinely absent native tools permit an explicitly configured legacy runner. Honor authored
+model/effort policy; leaves never dispatch agents.
 
-**Mechanical handoff.** Use `principal_workflow` snapshot/reference for canonical candidate
-and exact file observations, including inline/evidence work. Pass `inputPaths` for relevant authority/evidence; the candidate already
-binds product files. Reuse returned objects, never copy product hash lists. Inline work needs no dummy
-delegation merely to close bookkeeping. If the task prohibits all filesystem writes, skip
-prepare/complete: dispatch with a unique operation_id and use `result` to verify and read
-the exact settled native final without retaining a file. Do not silently create bookkeeping. For native work, `prepare` returns operation_id, canonical workspace,
-reportPath and handoff metadata; pass them unchanged alongside definitionId. Use its
-returned `delegationArguments`/`statusArguments` for direct transfer; prefer those objects
-over recopying IDs. They preserve identity, not dispatch authority. A native argument
-refusal explicitly confirmed before admission may be corrected with the same
-operation/current binding; earlier attempts and
-real ownership, permission and cleanup gates still require reconciliation. It may create
-ignored administrative files. Its prepared directory is expected to exist; do not assert
-that it is absent or rediscover helpers. Use `status` before repeating/resuming an operation;
-after restart, use `history` for the original session/workspace.
-When implementation/owner changes prevent that path, follow returned `recoverArguments`.
-Inspection reuses verified delivered output across updates or `/new` without new execution.
-For ongoing authorized work, returned `continueArguments` require positive producer no-start
-proof and create one linked current-owner successor. Missing history never proves no start;
-uncertainty offers original-run/file inspection or independent work, not a replacement child.
-Recall-only requests stay in inspection mode. Distinguish refused-before-start,
-running/uncertain, settled history and current applicability. Missing history is not proof of
-no start; retry requires supported runtime evidence. `retry` preserves prior failed attempts;
-reuse current references, not another agent. Do not invent a fingerprint formula. Explain
-whether a tooling repair unblocks this task or only future runs; avoid unrelated tooling releases.
+**Mechanical handoff.** Use `principal_workflow` snapshot/reference for candidate and exact file
+observations, including inline/evidence work, and pass `inputPaths` for relevant authority/evidence;
+the candidate already binds product files. Inline work needs no dummy delegation merely to close
+bookkeeping. For native work, `prepare` returns operation_id, canonical workspace, reportPath and
+handoff metadata; pass its `delegationArguments` unchanged alongside definitionId. Its prepared
+directory already exists. If the task prohibits all filesystem writes, skip prepare/complete: dispatch
+with a unique operation_id and use `result` to read the exact settled native final. A native argument
+refusal confirmed before admission may be corrected with the same operation and binding. Use `status`
+before repeating or resuming an operation and `history` after a restart; when an owner or
+implementation change blocks that, follow the returned `recoverArguments`. Inspection reuses verified
+output; `continueArguments` need positive producer no-start proof. Missing history is not proof of no
+start, and retry requires supported runtime evidence; `retry` preserves prior attempts. Recall-only
+requests stay in inspection mode. Do not invent a fingerprint formula.
 
-Each child returns its complete final report; Plan also writes its actual plan. After the
-child returns, the coordinator checks the full native result and identity-bound
-`cleanup.state=settled` receipt before dependent work, including consuming Review's verdict.
-Missing evidence due now blocks; later coordinator-owned terminal/cleanup gates retain their
-owner and due stage. Call `complete` immediately after settlement, before repairs, by
-task/step with the actual disposition. It retains the exact captured final automatically;
-`resultRetained` preserves history, while `completionValid` checks freshness. Stale results
-never approve a changed candidate. Read every successful report and blocked report. A
-completion failure remains incomplete and visible; never hand-write success. This tool does not execute phases, grant permission, infer approval or
-interpret a semantic verdict. Correct authorized path/metadata errors with tools, preserving
-the original failure; never bypass a real authority or settlement gate.
+After a child returns, check its full native result and identity-bound `cleanup.state=settled`
+receipt before dependent work, including before consuming Review's verdict. Missing evidence due now
+blocks; later coordinator-owned gates keep their owner and due stage. Call `complete` immediately
+after settlement, before repairs, by task/step with the actual disposition: it retains the exact
+captured final automatically. `resultRetained` is history and `completionValid` is freshness; stale
+results never approve a changed candidate. Read every successful report and blocked report. A
+completion failure remains incomplete and visible; never hand-write success. This tool does not
+execute phases, grant permission, infer approval or interpret a verdict. Correct authorized
+path/metadata errors with the tools, keeping the original failure; never bypass a real authority or
+settlement gate.
 
-Before any artifact write outside tool-owned preparation, create if absent
-`.principal/.gitignore` containing `*`; never overwrite an existing ignore file. Use a new
-unused private ignored report path in the actual workspace; caller report paths must not
-overwrite evidence. Native task/run/candidate allocation belongs to prepare, not the child.
-Inline Build persists its complete implementation report before delegated Review. Plan
-writes only its plan/absent ignore; Investigate remains read-only. Distinguish no product
-changes from administrative writes. External copies and legacy reports use the conditional
-reference below; do not make another evidence package for every phase.
+Before any artifact write outside tool-owned preparation, create if absent `.principal/.gitignore`
+containing `*`; never overwrite an existing ignore file. Use a new unused private ignored report path
+in the actual workspace; a caller report path must never overwrite evidence. Native task/run/candidate
+allocation belongs to prepare, not the child. Inline Build persists its complete implementation report
+before delegated Review. Plan writes only its plan; Investigate stays read-only. Distinguish no
+product changes from administrative writes.
 
-**Build.** A coherent feature is one unit with implementation, behavioral tests and docs.
-Split for actual dependencies, risks or independent increments; one writer per working tree.
-Pass outcome, current authority, relevant plan sections (if any), accepted finding definitions
-and candidate references. For an approved independent batch use
-`delegate_all({children:[...]})`, with `agent:"build"` and captured build `definitionId` on
-each child; never overlapping single calls. Writers need distinct precreated registered Git
-worktrees and declared scopes/dependencies. Shared interfaces/resources may serialize them.
-Read all outcomes, preserve completed siblings after failure, review candidates and integrate
-serially with merged checks. Do not turn an evidence-only handoff failure into implementation.
+**Build.** A coherent feature is one unit with implementation, behavioral tests and docs; split for
+real dependencies, risks or independent increments, with one writer per working tree. Pass outcome,
+current authority, relevant plan sections, accepted finding definitions and candidate references. For
+an approved independent batch use `delegate_all({children:[...]})` with `agent:"build"` and the
+captured build `definitionId` on each child; never overlapping single calls. Writers need distinct
+precreated registered Git worktrees and declared scopes; shared interfaces/resources may serialize
+them. Read all outcomes, preserve completed siblings after failure, review candidates and integrate
+serially with merged checks. An evidence-only handoff failure is not implementation work.
 
 ## Review and convergence
 
 Review the complete candidate independently with `delegate({agent:"review",definitionId,...})`.
-Supply original authority, candidate-bound Build evidence and a complete diff once. Choose
-task, integrated or scoped-repair scope; keep the original review path, reviewed candidate,
-whole-change baseline and accepted finding definitions accessible through repair/resume.
-Only integrated approval plus all due gates supports finish. A focused test question may
-use the distinct `test-review` skill within Review, or a separate independent child when
-requested/useful. Report which occurred; neither mandates another whole-code review.
+Supply original authority, candidate-bound Build evidence and the complete diff once. Choose task,
+integrated or scoped-repair scope; keep the original review path, reviewed candidate, whole-change
+baseline and accepted finding definitions accessible through repair and resume. Only integrated
+approval plus all due gates supports finish. A test-quality question may use the distinct
+`test-review` skill within Review or a separate child when useful; report which occurred.
 
 Read Verdict before Next:
 | Review verdict | Next | Coordinator action |
@@ -128,62 +103,53 @@ Read Verdict before Next:
 | APPROVE | git-ops | Finish only for integrated scope with all required gates settled. |
 | APPROVE-WITH-NITS | git-ops | Same integrated-scope and gate requirements. |
 
-`Next: evidence` is coordinator work, not another phase or fallback. Resolve supplied paths
-in the named workspace; a wrong checkout/ignored-file search is not permission refusal.
-Record actual errors. Reuse matching relevant source, tests, scope, configuration and
-environment evidence; independent judgment does not require a fresh full suite. A docs-only
-or metadata correction does not invalidate unrelated behavior evidence unless the contract,
-relevant inputs or a required gate changes. For a named doubt run the smallest deciding
-check or disposable probe. A demonstrated defect can then go to Build. Suspected baseline
-failures need matching evidence or an authorized same-command/environment comparison in a
-disposable copy. Equal failure names/counts prove neither equal causes nor harmlessness.
-Preserve explicit STOP instructions and disclose unresolved failures.
+`Next: evidence` is coordinator work, not another phase. Resolve supplied paths in the named
+workspace; a wrong checkout or ignored-file search is not a permission refusal. Reuse evidence that
+matches source, tests, scope, configuration and environment; independent judgment does not need a
+fresh full suite, and a docs-only or metadata correction leaves unrelated behavior evidence valid. For
+a named doubt run the smallest deciding check or disposable probe; a demonstrated defect then goes to
+Build. Suspected baseline failures need matching evidence or a same-command/environment comparison in
+a disposable copy; equal failure names/counts prove neither equal causes nor harmlessness. Keep
+explicit STOP instructions and unresolved failures visible.
 
-Product repairs receive scoped re-review of accepted findings and new breakage; retain
-original evidence gaps/global gates. A reviewer may synthesize integrated judgment from the
-whole-change baseline and verified repairs without replaying unchanged checks; request that
-scope explicitly. A scoped approval alone never becomes integrated. Continue fixes; reassess when the same failure
-repeats without new evidence, material authority changes or runtime gates block. No arbitrary
-round quota. `Next: debug` requests diagnosis; `Next: blocked` stops affected work. A BLOCKED
-question needing authority goes to the user; deterministic handoff repair needs no repeat
-approval. Do not guess missing normative definitions.
+Product repairs get scoped re-review of accepted findings and new breakage, keeping original evidence
+gaps and global gates. A reviewer may synthesize integrated judgment from the whole-change baseline
+and verified repairs without replaying unchanged checks; request that scope explicitly. A scoped
+approval never becomes integrated. Continue fixes; reassess when the same failure
+repeats without new evidence, authority changes or runtime gates block. No arbitrary round quota. `Next: debug` requests
+diagnosis; `Next: blocked` stops affected work. A BLOCKED question needing authority goes to the user;
+deterministic handoff repair needs no repeat approval. Never guess missing normative definitions.
 
-**Before starting or resuming**, evidence-only work uses existing checks or a disposable
-probe, not restarting implementation. **Resume.** Revalidate actual candidate/operation and
-named reports; preserve completed evidenced work. Ambiguous task identity needs clarification,
-not a new invented task. For archive/progress/resume facilities consult
-`references/workflow-mechanics.md`; read only the section for a feature actually used.
-Copy originals mechanically; do not reconstruct reports or hand-write operation records.
+**Before starting or resuming**, evidence-only work uses existing checks or a disposable probe, not
+restarted implementation. **Resume.** Revalidate the actual candidate/operation and named reports and
+keep completed evidenced work. Ambiguous task identity needs clarification, not an invented task. For
+archive/progress/resume facilities consult `references/workflow-mechanics.md`; read only the section
+for a feature actually used. Copy originals mechanically; never reconstruct reports or hand-write
+operation records.
 
-**Optional JEV.** Check `jev_advice({action:"status"})`; only enabled workflow mode permits
-selected evaluations. Use only for a useful unresolved engineering judgment after deterministic
-gates, with current explicitly enabled workflow consent. Supply stage (`design`,
-`implementation` or `verification`), proposed nextAction, precise uncertainty, bounded candidate,
-requirements and evidence; reuse current verified file references where available. Do not
-ask global readiness before mandatory review or use a model to check missing files/hashes.
-No quota, implicit activation or CLI bypass. Disabled/manual/unavailable/error states leave
-otherwise permitted work proceeding. Optionally assess one proposed evidence/tool step:
-a needed Bookie reference, Scout public research or a deciding check. Prefer existing evidence;
-name the uncertainty the proposed action resolves. No mandatory stage or per-tool advice.
-Send only selected public or already-redacted facts; Bookie retrieval permission does not
-authorize sending its body to JEV. Advice cannot validate arguments, grant access, establish
-safe retry or change model/effort policy.
-Exclude prior predictions, reviewer verdicts, private
-transcripts and secrets; keep advice from cold review until its own verdict. Advice cannot
-approve, waive gates or establish defects. Storage consent and curation/training
-permission remain separate; predictions are not labels. OpenAI Decisions is excluded. With storage consent and a useful prior selection, optional
-`link-outcome` can freeze later independently obtained review/test file references for the
-same candidate. It makes no provider call and supplies neither a label nor training eligibility;
-omit it when it adds no useful learning evidence.
+**Optional JEV.** Check `jev_advice({action:"status"})`; only enabled workflow mode permits selected
+evaluations, for a useful unresolved engineering judgment after deterministic gates. Supply stage
+(`design`, `implementation` or `verification`), proposed nextAction, the precise uncertainty and a
+bounded candidate, requirements and evidence. Never ask global readiness before mandatory review or
+use a model to check files/hashes. No quota, implicit activation or CLI bypass; disabled, manual,
+unavailable or error states leave permitted work proceeding. You may assess one proposed evidence/tool
+step, such as a Bookie reference, Scout public research or a deciding check. No mandatory stage or
+per-tool advice. Send only selected public or already-redacted facts; Bookie retrieval permission does
+not authorize sending its body to JEV. Advice cannot validate arguments, grant access, establish safe
+retry or change model/effort policy. Exclude prior predictions, reviewer verdicts, private
+transcripts and secrets, and keep advice from cold review until its own verdict. Advice cannot
+approve, waive gates or establish defects. Storage consent and curation/training permission stay
+separate; predictions are not labels. OpenAI Decisions is excluded. With storage consent, optional
+`link-outcome` can freeze later independent review/test references for the same candidate; it is not
+a label or training eligibility.
 
-**Finish.** Git-Ops stays inline after integrated approval and all due gates. Run a
-source-required fresh final suite; otherwise reuse matching evidence. Honor the known finish
-preference, including keep uncommitted work; ask only when unspecified. No automatic commit,
-push, tag or cleanup without authority. Lead with what is usable, remaining gaps, the next
-useful action and any actual user decision. Return a concise Digest with Ref, optional Plan file,
-material Assumptions, Follow-ups, Evidence gaps and actual Execution contexts. Omit empty
-ceremonial fields; preserve actual review scope, limitations, failed bookkeeping and unmet gates.
-When JEV was enabled, say whether it was used; status checks are not evaluations.
+**Finish.** Git-Ops stays inline after integrated approval and all due gates. Run a source-required
+fresh final suite; otherwise reuse matching evidence. Honor the known finish preference, including
+keep uncommitted work; ask only when unspecified. No commit, push, tag or cleanup without authority.
+Lead with what is usable, remaining gaps, the next useful action and any actual user decision. Return
+a concise Digest with Ref, optional Plan file, material Assumptions, Follow-ups, Evidence gaps and
+actual Execution contexts; omit empty fields, but keep actual review scope, limitations, failed
+bookkeeping and unmet gates. When JEV was enabled, say whether it was used.
 <!-- shared:end -->
 
 ## Bugfix path

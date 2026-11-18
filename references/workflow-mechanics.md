@@ -1,100 +1,64 @@
 # Conditional coordinator mechanics
 
-Use only the section for an optional facility actually involved in the task. These helpers
-record/reconcile evidence; they do not execute a phase or supply semantic approval. The
-workflow entrypoint retains mandatory authority, binding, one-writer and settlement rules.
-`principal_workflow` snapshot/reference support inline work too; prepare/complete/retry bind
-native delegations only. Keep inline reports with the existing private artifact helper, and
-never dispatch an agent merely to obtain a bookkeeping completion record.
-An explicit retry reason is required. Native proof must show the prior attempt settled, or
-was authoritatively not-started with no execution. Active/uncertain attempts refuse. A retry
-does not bypass permission checks or reinterpret a dismissed prompt as approval.
+Read only the section for a facility the task actually uses. These helpers record and reconcile
+evidence; they never execute a phase or approve work. `principal_workflow` snapshot/reference
+serve inline work too; prepare/complete/retry bind native delegations only. Never dispatch an agent
+merely to obtain a bookkeeping record.
 
 ## Native result bookkeeping
 
 ### New folders and saved-note recaps
 
-`principal_workflow({action:"preflight"})` reports the current folder's readiness
-without creating files. A missing repository or initial commit is a setup prerequisite,
-not a product defect. `action:"setup"` or `/principal-setup` asks once in interactive Pi
-before creating one empty baseline. It leaves product files uncommitted, adds only local
-runtime exclusions, and uses no remote or global identity configuration. Existing committed
-projects are reused. Cancel, headless mode, parent repositories, unsafe metadata and
-changed confirmation state cannot silently initialize another folder. Partial failures
-report which setup steps completed; inspect them rather than blindly retrying.
+`principal_workflow({action:"preflight"})` reports the folder's readiness without writing. A missing
+repository or initial commit is a setup prerequisite, not a product defect. `action:"setup"` or
+`/principal-setup` asks once in interactive Pi, then creates one empty baseline commit, leaves
+product files uncommitted and adds only local runtime exclusions. Cancel, headless mode and parent
+repositories never initialize another folder. A partial failure reports which steps completed;
+inspect them instead of retrying blindly.
 
-Keep creation and recall requests separate. A request to recall a delivered task after
-`/new` retrieves the selected project's notes and reports historical results; it does not
-request Git setup, a new review, fresh tests or another saved handoff. A blocked or incomplete
-lookup is history unknown. The separate `history` operation below reads original-owner
-native records; it does not transfer execution ownership into a new session.
+Recalling delivered work after `/new` reads the selected project's notes and reports historical
+results; it requests no Git setup, review, tests or new saved handoff. A blocked lookup leaves
+history unknown.
 
 ### Preparation input corrections
 
-`task` is a stable identifier: 1-80 ASCII letters, digits, underscores or hyphens, beginning
-with a letter or digit, such as `workshop-desk-v1-stage1`. `step` is a nonblank stable name
-of at most 200 characters. Reuse established identities unchanged.
+`task` is 1-80 ASCII letters, digits, underscores or hyphens, starting with a letter or digit (for
+example `workshop-desk-v1-stage1`); `step` is a nonblank name of at most 200 characters.
 
 Host schema validation can reject malformed `prepare` task/step before the tool executes;
-that diagnostic is not a Principal operation receipt. The same correction below applies.
-`PREPARE_INPUT_INVALID` identifies a malformed task/step before any administrative writes;
-`operationAllocated: false` applies to that call. Correct the named field and repeat `prepare`
-for the same authorized work without asking permission again. Reuse established task/step
-identities; for a new task with no internal identity, choose a short valid ID, such as the
-example above. Keep attempt unchanged, preserve the refusal/correction, and never rename an
-existing operation to evade a refusal. No candidate, ownership or settlement check is waived.
-This is argument correction, not `retry` of an executed operation. Other failures retain
-their stated reconciliation; an absent operation in this call says nothing about earlier work.
+`PREPARE_INPUT_INVALID` reports the same before any administrative write, with
+`operationAllocated: false`. Correct the named field and repeat `prepare` for the same authorized
+work without asking permission again. Reuse established task/step identities; for a new task with
+no internal identity, choose a short valid ID. Keep attempt unchanged and never rename an existing
+operation to evade a refusal. This is argument correction, not `retry` of an executed operation;
+it says nothing about earlier work.
 
-### Candidate diagnostics
+### Candidates, completion and changed output
 
-Pass the returned `snapshot.candidate` directly as `expectedCandidate` to `prepare`. Supply
-`inputPaths` for authority/evidence files that matter to this handoff; the tool calculates
-references, while candidate identity already covers product files. Existing exact `inputs`
-references remain valid. Avoid another product-file hash inventory.
+Pass the returned `snapshot.candidate` directly as `expectedCandidate` and name relevant
+authority/evidence files in `inputPaths`; the candidate already covers product files. A refusal
+distinguishes missing or malformed identity from a different candidate or workspace; dimensions an
+older or ID-only snapshot cannot explain stay unknown. Understand why the expected input differs
+before using a fresh snapshot; never reconstruct hashes or repeat prepare unchanged.
 
-Missing or malformed expected identity is different from a different candidate or workspace.
-The tool explains those cases and refuses before handoff writes. Full snapshot objects may
-support HEAD/index/source comparisons; ID-only or older snapshots cannot explain every
-dimension, so those comparisons stay unknown. Passing HEAD for a dirty tree can be a stale
-observation or a wrong field, not proof of either. Keep the original record and use the exact
-current snapshot only after understanding why the expected input differs. Do not reconstruct
-hashes or repeat prepare unchanged. These diagnostics neither approve work nor authorize retry.
+Pass `prepared.delegationArguments` to native delegation. After settlement, immediately call
+`complete` with the prepared `task`, `step` and actual `disposition`, before repairing anything.
+`status`, `retry`, `history` and `result` take the same names; without `attempt` they select the
+latest, refusing with `choices` when it is uncertain or another coordinator's. `resultRetained: true`
+is immutable history; `completionValid: true` is current bookkeeping freshness; neither is approval.
 
-Pass `prepared.delegationArguments` to native delegation. After settlement, immediately
-call `complete` with the prepared `task`, `step` and actual `disposition`, before repairing
-anything. `status`, `retry`, `history` and `result` take the same names; without `attempt`
-they select the latest, refusing with `choices` when it is uncertain or another coordinator's.
-The immutable `result.json` retains the verified final and producer identity. `completion.json`
-requires matching current inputs/candidate. `resultRetained: true` is historical evidence;
-`completionValid: true` is bookkeeping freshness, and neither grants approval. A result already stale at first retention stays historical even if files are later restored.
-Reconcile the affected work, never rewrite history.
+Build/Debug normally changes the candidate: complete its original operation, never prepare again.
+If repeated preparation reports `PREPARED_OUTPUT_CHANGED`, inspect the native result with
+`recovery.resultArguments`, then call `recovery.completionArguments` with the actual `disposition`.
+That response proves neither start nor success and authorizes no retry. Keep partial delivery and
+reported-check limitations visible.
 
-Build/Debug normally changes the candidate. Keep its original operation and use `complete`
-after its native final and cleanup settle; do not call `prepare` again to save the result.
-If repeated preparation reports `PREPARED_OUTPUT_CHANGED`, use `recovery.resultArguments`
-to inspect that exact native result without writing. `recovery.statusArguments` observes
-its bookkeeping. Then use `recovery.completionArguments` with the actual `disposition`;
-`requiredCompletionFields` deliberately leaves that decision unset. This response does
-not prove that work started or succeeded and does not authorize a retry or replacement.
-For a partial delivery, preserve missing requirements and reported-check limitations.
-Fresh bookkeeping is not product acceptance. Changed required inputs, other owners,
-older implementations, read-only mutations and stale retained output keep their guards.
+### Transfer arguments directly
 
-### Transfer identities without recopying
-
-A current prepared response includes `delegationArguments` (`agent`, `operation_id`) and
-`statusArguments`. Use these objects directly. Completed/stale results do not offer new
-delegation arguments; prepared arguments still grant no permission and do not establish
-whether an earlier native call started. `status` observes Principal bookkeeping; it does
-not establish native admission or cleanup. Preserve the full native result separately.
-
-For an already-authorized fresh handoff, this Codemode excerpt accepts the original
-`prepareArguments` and current `taskText`; it never constructs an operation or definition
-digest. Resubmitting the same prepared identity uses Daddy's idempotent operation claim:
-existing work returns its reference rather than starting another child; conflicts refuse.
-Inspect the actual native outcome instead of assuming a new child ran. The caller must
-still verify the native final and cleanup before completion.
+For an already-authorized fresh handoff, this Codemode excerpt passes the prepared arguments and
+the current definition through without constructing an identity. Resubmitting the same prepared
+operation reuses Daddy's idempotent claim instead of starting another child. Still verify the
+native final and cleanup before completion.
 
 ```js
 async function prepareAndDelegate(prepareArguments, taskText) {
@@ -112,107 +76,67 @@ async function prepareAndDelegate(prepareArguments, taskText) {
 }
 ```
 
-`OPERATION_ID_INVALID` means a supplied prepared-operation ID has the wrong format; omit it
-and name the task and step. Wrong-owner, missing, ambiguous and conflicting records still
-refuse. Do not call `prepare` to replace an unknown operation.
-
-When a native result explicitly identifies a correctable argument error and confirms that
-call was refused before admission, preserve the result, correct only the named argument
-and use the same prepared operation/current binding. Earlier attempts and real permission,
-ownership, candidate, running-work or cleanup restrictions still need reconciliation.
+`OPERATION_ID_INVALID` means a supplied prepared-operation ID has the wrong format; omit it and name
+the task and step. When a native result confirms a call was refused before admission because of a
+named argument, correct only that argument and reuse the same prepared operation and binding.
 `result` also accepts a generic native operation ID.
 
 ### Recover after an update or a new session
 
-Normal mutation paths retain their implementation and coordinator checks. If those checks
-identify an older operation, use the returned `recoverArguments` rather than a replacement
-task name. `recover` defaults to read-only inspection and accepts the original operation ID
-or exact task/step/attempt. It separates the current requester from the original owner.
+When the normal checks identify an older operation, use the returned `recoverArguments`, never a
+replacement task. `recover` inspects read-only by default:
 
-- `reused`: exact retained output still matches the current candidate and inputs. Reuse the
-  report and historical checks; do not repeat completed work. This is not fresh approval.
-- `ready-to-continue`: the producer has an immutable terminal no-start result for the exact
-  original owner/operation. Its original claim cannot admit a later child. For currently
-  authorized continuation, pass `continueArguments` unchanged; they recheck source bytes,
-  current candidate/inputs and producer proof, then create one linked successor owned by the
-  current session. The old record remains immutable. Repetition returns the same successor.
-- `running`, `historical`, `uncertain` or `existing-successor`: read the reported outcome and
-  suggested options. Inspect the exact original run or delivered files; continue independent
-  authorized work where possible. Absence, an idle session or an empty checkout is not proof
-  that an operation never started. Missing or partial successor records are preserved.
+- `reused`: retained output still matches the current candidate and inputs. Reuse the report and
+  its historical checks; this is not fresh approval.
+- `ready-to-continue`: the producer holds an immutable no-start result for the original operation.
+  For currently authorized work, pass `continueArguments` unchanged; they create one linked
+  successor owned by this session and leave the original record intact.
+- `running`, `historical`, `uncertain` or `existing-successor`: read the outcome and offered options;
+  inspect the original run or delivered files, or continue independent work. Absence, an idle session
+  or an empty checkout does not prove an operation never started.
 
-`continue` requires the exact `sourceReference` and `expectedCandidate` from inspection.
-It does not dispatch or expand permissions; native delegation still checks its current
-definition and grants. Recall-only requests never continue. A recovered completed Build
-returns `sourceRecovery` for an optional bound Review: include it with the original
-`sourceOperationId`. Both preparation and later judgment revalidate that exact old output
-and its original child identity, without rerunning Build or inventing independent review.
+Recall-only requests never continue. A recovered completed Build returns `sourceRecovery`; include it
+with the original `sourceOperationId` for an optional bound Review instead of rebuilding.
+
+### Read historical native results
+
+After restarting the same Pi session, `action: "history"` with the task and step reads Daddy's
+durable result for the original coordinator session and workspace. It is read-only and returns
+`completionValid: false`, `approval: false` and `applicability: "not-established"`. Missing or
+changed producer bytes are an error, not evidence that the old dispatch never started. Older Daddy
+versions report the bridge unavailable.
 
 ## Archive exact evidence
 
-A caller's external evidence directory is an authorized private archive, not a child's
-primary write target. After native settlement, retain the original and copy complete bytes
-exclusively, recording original path, SHA-256 and copy path. Refuse overwrites and symlink
-redirects; verify matching bytes mechanically. Use producer public-capture references
-directly, without another handcrafted manifest or retranscribed receipt. An archive failure
-does not destroy primary evidence; it blocks only work that requires the copy.
-
-The selected package's `principal-pi-progress reference <file>` and
-`copy <run> <name> <source> <expected-sha256>` implement existing exact-byte operations.
-If its binary is not on PATH, use Node with the actual selected package's
-`scripts/progress-artifacts.mjs`; do not download a helper or guess its installation/schema.
+A caller's external evidence directory is an authorized private archive, not a child's primary write
+target. After native settlement, keep the original and copy complete bytes exclusively, recording
+original path, SHA-256 and copy path. Refuse overwrites and symlink redirects. Use producer
+public-capture references directly. An archive failure keeps the primary evidence and blocks only work
+that requires the copy. Use the selected package's `principal-pi-progress reference <file>` and
+`copy <run> <name> <source> <expected-sha256>`, or Node with its `scripts/progress-artifacts.mjs`;
+never download or guess a helper.
 
 ## Optional progress index
 
-Use `principal-pi-progress` for all writes: create a private ignored run, persist/reference
-complete evidence, then append phase facts. Never hand-write run.json or JSONL. V1 facts
-planned/implemented/reviewed/integrated/verified are separate claims, each unknown/incomplete/
-complete with evidence and note; a completed review can have CHANGES-REQUESTED. It is not approval.
+Use `principal-pi-progress` for all writes: create a private ignored run, persist or reference
+complete evidence, then append phase facts. Never hand-write run.json or JSONL. The v1 facts
+planned/implemented/reviewed/integrated/verified are separate claims, each unknown, incomplete or
+complete with evidence; a completed review can be CHANGES-REQUESTED.
 
-After append and before relying on resumed progress, run `check <run> <actual-current-candidate>`
-and inspect all issues. Diagnostic read alone is not a successful check. A passing check
-establishes index integrity, not completion; reconcile all required steps and actual verdicts.
-Changed candidate/plan/report refs invalidate affected claims. Preserve incomplete/corrupt
-history in place and start a new run; do not truncate it or promote saved role/title flags.
+After append and before relying on resumed progress, run `check <run> <actual-current-candidate>`.
+It proves integrity, not completion; reconcile required steps and actual verdicts separately.
+Preserve corrupt history in place and start a new run; do not truncate it.
 
-For full committed workflows, `check-completion <run> <full-commit> <required-step>...`
-checks exact HEAD, clean tracked/untracked state, required latest phase claims, historical
-evidence and unresolved findings. Masked index entries and indexed submodules refuse.
-Use the full explicit step set and same full commit for that run/records. Accepted or
-duplicate labels alone do not verify a finding. Partial/planless work never invents phases
-to pass. Source-required completion checks remain required; they still do not approve work.
+For full committed workflows, `check-completion <run> <full-commit> <required-step>...` checks exact
+HEAD, clean state, latest phase claims and unresolved findings. Supply the explicit step set. Masked
+index entries and indexed submodules refuse. Accepted or duplicate labels alone do not verify a
+finding. Partial work never invents phases to pass; a pass still approves nothing.
 
 ## Opt-in quiescent resume
 
-Offline `principal-pi-resume prepare/inspect` does not authorize continuation. Only interactive
-`/principal-resume arm <checkpoint>` with explicit operator confirmation arms one next phase
-at an idle boundary. It binds exact plan, scope, candidate, reports, package, model, session
-leaf and native owned-execution settlement. Same-session startup/resume/reload rechecks every
-binding and consumes durably before queuing the fixed continuation. Changed evidence,
-forks/new sessions, unknown/active children or uncertain dispatch refuse. No arbitrary
-nextAction execution, mid-execution recovery, approval reconstruction or silent re-arm.
-
-The finalized Pi resource receipt is readiness, not permission. The runtime waits for the
-exact per-pass inert prompt resource; a timer during discovery does not prove completion.
-Operator semantic gates still apply. Disarm preserves history; status explains state.
-Use the actual selected installation, since package location is part of checkpoint identity.
-This Linux x64 facility is not a filesystem sandbox and implies no JEV or retention consent.
-
-## Read historical native results
-
-After restarting the same Pi session, use `principal_workflow` with
-`action: "history"` and its task/step to inspect Daddy's durable
-result. The query checks the original coordinator session and canonical
-workspace. It accepts a supported historical record format even when Principal's
-implementation changed, without claiming the old implementation is compatible.
-
-This action is read-only: no report copy, completion record, retry or new child.
-It returns exact retained final bytes when available, candidate/input comparison,
-and `completionValid: false`, `approval: false`, `applicability: "not-established"`.
-An interrupted operation stays uncertain. Missing or changed producer bytes are
-an error, not evidence that the old dispatch never started. Reconcile current
-authority, settlement and candidate applicability before continuing work.
-
-Older Daddy versions without the history bridge report it unavailable. Ordinary
-live completion and existing retained reports keep their original checks; this
-is not a fallback runner or cross-session ownership transfer.
+Offline `principal-pi-resume prepare/inspect` authorizes nothing. Only interactive
+`/principal-resume arm <checkpoint>` with explicit operator confirmation arms one next phase at an idle
+boundary. Startup in the same session rechecks every binding and consumes durably before queuing the
+fixed continuation; changed evidence, new sessions, active children or uncertain dispatch refuse. No
+arbitrary nextAction execution, mid-execution recovery or silent re-arm. The finalized Pi resource
+receipt is readiness, not permission. Use the actual selected installation.

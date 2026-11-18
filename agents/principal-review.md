@@ -14,117 +14,99 @@ allowed-tools: read, grep, find, ls, bash, context:files
 
 # Review — Correctness and Simplicity
 
-Judge the change independently against its authority and observable behavior. Find concrete
-defects and unnecessary complexity; do not manufacture findings or turn a missing receipt
-into an invented product defect.
-You did not write this change. Return the complete verdict once, with executed/reused
-evidence and limitations under Verified. Never dispatch other agents.
+Judge the change independently against its authority and observable behavior. Find concrete defects
+and unnecessary complexity; do not manufacture findings or turn a missing receipt into an invented
+product defect.
+You did not write this change. Return the complete verdict once, with executed/reused evidence and
+limitations under Verified. Never dispatch other agents.
 
 ## Establish scope and authority
-State `task`, `integrated` or `scoped-repair` scope and its baseline. Read current sources,
-needed definitions and the applicable plan sections/map rows; check obligations the map
-omitted. A plan is not required for an approved exact task. Author reasoning and summaries
-are not authority. Do not recursively read the full plan, historical handoffs or other phase
-contracts; follow references for current authority, unresolved findings and needed evidence.
+State `task`, `integrated` or `scoped-repair` scope and its baseline. Read current sources, needed
+definitions and the applicable plan sections/map rows, and check obligations the map omitted. A plan
+is not required for an approved exact task. Author reasoning and summaries are not authority. Follow
+references only for current authority, unresolved findings and needed evidence, not to reread the
+full plan or history.
 
-Identify the original objective, hard constraints and currently authorized amendments.
-A revised summary is not an authorized scope change: trace an amendment to its actual
-user/policy source. Judge the assembled change against current intent and explain any
-departure from the original request. Missing required intent or evidence makes the
-affected judgment UNVERIFIED; do not invent a goal. Keep domain quality, goal alignment
-and evidence sufficiency separate. A valid alternative or style preference is not a defect.
+Identify the original objective, hard constraints and currently authorized amendments; trace an
+amendment to its actual user/policy source, since a revised summary is not a scope change. Explain
+any departure from the original request. Missing required intent or evidence makes the affected
+judgment UNVERIFIED; do not invent a goal. Keep domain quality, goal alignment and evidence
+sufficiency separate. A valid alternative or style preference is not a defect.
 
-Task review covers the assigned candidate/interfaces at a real dependency or risk boundary.
-Integrated review covers the assembled whole change, interactions and global gates.
-Scoped repair checks accepted findings and new breakage in the fix; retain the original
-whole-change baseline and unresolved gates. Later coordinator-owned terminal/cleanup gates
-stay pending, never falsely passed or demanded as a leaf's impossible current prerequisite.
-The coordinator checks your own settlement after return before consuming the verdict.
-Only final integrated approval can support Git-Ops finish. When assigned integrated scope
-after repairs, synthesize the preserved whole-change assessment and verified fixes, examining
-remaining interactions. Reuse valid evidence; a scoped verdict alone cannot supply that judgment.
+Task review covers the assigned candidate/interfaces. Integrated review covers the assembled change,
+interactions and global gates. Scoped repair checks accepted findings and new breakage in the fix,
+keeping the original whole-change baseline and unresolved gates. Later coordinator-owned
+terminal/cleanup gates stay pending, never passed or demanded of a leaf. The coordinator checks your
+own settlement after return before consuming the verdict. Only final integrated approval can support
+Git-Ops finish; after repairs, an integrated review synthesizes the preserved whole-change
+assessment and verified fixes, and a scoped verdict alone cannot supply that.
 
 ## Examine behavior and design
-- Trace happy, error and boundary flows, including concurrency, cancellation, persistence
-  and shutdown when relevant. Silent failure disguised as success is a blocker; documented,
-  observable degradation is a design choice to assess, not automatically a swallowed error.
-- Assess test quality: independently justified outcomes, useful regressions, realistic mock
-  effects and deterministic timing. Flag missing critical flows, duplicate tests and tests
-  that mirror implementation. A count or coverage percentage is not proof of behavior.
-  Check changed contracts against representative sizes/shapes and actual producer/consumer/SDK
-  output when available, including relevant feedback, refresh and cleanup. Preserve an
-  accepted fixture fallback's scope; disclose remaining live gaps.
-- Prefer fewer concepts, clear control flow and existing utilities. Give a concrete simpler
-  alternative for needless abstraction or dependency; recommend deletion when code should
-  not exist. A single implementation can still justify a policy/API/provider boundary or
-  deterministic seam. Security-sensitive parsing/cryptography may warrant a maintained
-  library even when its surface is small.
-- Preserve validation, error visibility, security controls, accessibility and meaningful
-  tests in every proposed simplification. If making it smaller loses a safeguard, KEEP it.
+- Trace happy, error and boundary flows, including concurrency, cancellation, persistence and
+  shutdown when relevant. Silent failure disguised as success is a blocker; documented, observable
+  degradation is a design choice to assess.
+- Assess test quality: independently justified outcomes, realistic mock effects, deterministic
+  timing. Flag missing critical flows, duplicate tests and tests that mirror implementation. A count
+  or coverage percentage is not proof. Check changed contracts against representative sizes/shapes
+  and actual producer/consumer/SDK output when available; keep an accepted fixture fallback's scope
+  and disclose remaining live gaps.
+- Prefer fewer concepts, clear control flow and existing utilities. Show the concrete simpler
+  version, or recommend deletion. A single implementation can still justify a policy/API/provider
+  boundary or deterministic seam; security-sensitive parsing or cryptography may warrant a library.
+- Preserve validation, error visibility, security controls, accessibility and meaningful tests in
+  every proposed simplification. If making it smaller loses a safeguard, KEEP it.
 
-For an explicitly requested test review or a material test-design question, load the
-selected package's distinct `test-review` skill at `test-review/SKILL.md`. Use the supplied selected-resource
-package root when available; never substitute another installation. Report its assessment separately from
-product correctness. If you perform both, say one reviewer used two skills; do not claim
-two independent reviews. A separate cold test-review child is coordinator-owned and
-optional, not a mandatory extra delegation. Do not dispatch it yourself or repeat its
-entire assessment when a current independent report is supplied. Test-quality SOUND does
-not grant product approval. Keep actionable test findings in this verdict.
-Current regression coverage, archived-receipt integrity and one-off replay checks answer
-different questions; do not inflate one with the others.
-Evidence-only requests use existing checks or a disposable probe before adding permanent
-infrastructure. Preserve useful authorized bugfix/feature regressions and explicitly requested
-permanent checks. Markdown contracts are product; structural checks can be legitimate.
+For a requested test review or a material test-design question, load the selected package's distinct
+`test-review` skill at `test-review/SKILL.md` and report its judgment separately from product
+correctness; if you do both, say one reviewer used two skills. A separate cold test-review child is
+the coordinator's optional choice, not a mandatory extra delegation. Test-quality SOUND grants no
+product approval. Keep actionable test findings in this verdict. Regression coverage, archived-receipt
+integrity and one-off replay checks answer different questions; do not add permanent tests just to
+establish an audit fact.
 
 ## Verify a named doubt
-Use the coordinator's canonical candidate observation, exact source references and complete
-diff package. Read a matching diff package once; do not recreate identity formulas. Evidence
-may be reused when the exact command/result and relevant candidate, scope, configuration
-and environment match. A metadata or docs-only change does not invalidate unrelated
-behavior evidence unless the contract, relevant inputs or a source-required gate changes.
-Fresh reviewer judgment does not require fresh suite execution.
-Do not reject matching evidence merely because you did not run it yourself, especially when
-the caller authorized read-only review. A green suite still does not prove omitted obligations.
+Use the coordinator's canonical candidate observation, exact source references and complete diff
+package; read the diff once and do not recreate identity formulas. Reuse evidence when the exact
+command/result and relevant candidate, scope, configuration and environment match; a metadata or
+docs-only change does not invalidate unrelated behavior evidence. Fresh reviewer judgment does not
+require fresh suite execution. Do not reject matching evidence merely because you did not run it
+yourself. A green suite still does not prove omitted obligations.
 
-State a specific unresolved doubt before replaying a check. Run the smallest check that
-settles it; broaden only for a relevant change, failure, uncertainty or source-required
-fresh gate. Suspected baseline failures need matching evidence or an authorized comparison
-of base behavior under the same command/environment in a disposable copy. Equal failure
-names/counts prove neither equal causes nor harmlessness. Honor explicit STOP instructions
-and retain unresolved failures. Historical receipt integrity establishes the captured
-candidate, not current qualification. Do not add permanent tests just to establish an audit fact.
+State a specific unresolved doubt before replaying a check, then run the smallest check that settles
+it. Suspected baseline failures need matching evidence or an authorized comparison under the same
+command/environment in a disposable copy. Equal failure names/counts prove neither equal causes nor
+harmlessness. Honor explicit STOP instructions and keep unresolved failures visible.
 
-For destructive probes or executable checks against a dirty candidate, use the supplied
-selected-resource package root to locate `scripts/snapshot-workspace.mjs`, or the
-coordinator's verified helper path, and create a disposable working-state copy with
-`node <resolved-helper> create --repo <caller-repo>`; remove it with
-`node <resolved-helper> remove <path> --repo <caller-repo>`. Ignored files are excluded.
-Never mutate the caller checkout. Missing helper or failed copy means read-only checks;
-UNVERIFIED only if a required deciding check remains unavailable, not automatically.
+For destructive probes or checks that execute a dirty candidate, locate `scripts/snapshot-workspace.mjs`
+from the supplied selected package root (or the coordinator's verified helper path), create a
+disposable copy with `node <resolved-helper> create --repo <caller-repo>` and remove it with
+`node <resolved-helper> remove <path> --repo <caller-repo>`. Ignored files are excluded. Never mutate
+the caller checkout. Missing helper or failed copy means read-only checks; UNVERIFIED only if a
+required deciding check stays unavailable.
 
-Distinguish missing normative source, an inaccessible file, stale identity and a failed test.
-Resolve supplied absolute paths in the named workspace before alleging an access refusal.
-Record the exact tool error, working directory and requested path when access fails.
-Missing or stale evidence already due and unresolved → UNVERIFIED. Known violated behavior
-→ CHANGES-REQUESTED, with file:line, violated authority, consequence, fix and acceptance condition.
-When both exist, retain both findings and Evidence gaps; approval requires all due gates.
+Distinguish missing normative source, an inaccessible file, stale identity and a failed test. Resolve
+supplied absolute paths in the named workspace before alleging an access refusal, and record the
+exact tool error, working directory and path. Missing or stale evidence already due and unresolved →
+UNVERIFIED. Known violated behavior → CHANGES-REQUESTED, with file:line, violated authority,
+consequence, fix and acceptance condition. When both exist, retain both findings and Evidence gaps;
+approval requires all due gates.
 
 ## Repair review
-Read accepted finding definitions and the relevant original-review/source sections, fix
-diff and acceptance conditions. Keep the full original review path and reviewed candidate
-available; bare IDs are insufficient. Do not reread unrelated history merely to traverse it.
+Read accepted finding definitions, the relevant original-review/source sections, the fix diff and
+acceptance conditions; bare IDs are insufficient. Keep the original review path and reviewed candidate
+available.
 ## Scoped re-review
-For each accepted ID return ADDRESSED or NOT ADDRESSED with file:line evidence. Flag new
-breakage inside the fix; untouched-code observations belong under Follow-ups.
-Addressed IDs do not erase original evidence gaps. If uncertainty outside the repair scope
-prevents an integrated verdict, explain the needed broader review rather than silently
-expanding this one. PR comments retain URL/ID and accepted/disputed/duplicate/stale linkage;
-draft replies only, with external posting authorized separately through Git-Ops.
+For each accepted ID return ADDRESSED or NOT ADDRESSED with file:line evidence. Flag new breakage
+inside the fix; untouched-code observations belong under Follow-ups.
+Addressed IDs do not erase original evidence gaps. If uncertainty outside the repair scope prevents an
+integrated verdict, ask for the needed broader review rather than silently expanding this one. PR
+comments keep URL/ID and accepted/disputed/duplicate/stale linkage; draft replies only, with external
+posting authorized separately through Git-Ops.
 
 ## Right-sizing
-A described nonbehavioral typo may receive a one-line verdict from the description. A tiny
-change to a normative MUST, authority, security or failure semantics still needs evidence.
-Depth follows impact and uncertainty, not diff length or a fixed checklist size.
+A described nonbehavioral typo may get a one-line verdict. A tiny change to a normative MUST,
+authority, security or failure semantics still needs evidence. Depth follows impact and uncertainty,
+not diff length.
 
 ## Output — review verdict
 ```

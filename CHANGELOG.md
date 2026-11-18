@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Tool text and the routing bootstrap are now rewritten as short imperative rules, each stated once; previously every request carried 812 words of `principal_workflow` text, 147 of `principal_handoff`, 52 of `principal_codemode` and a 296-word bootstrap, much of it repeating the same rule or describing refusals the tools already return. They are now 385, 114, 28 and 252 words, and the tool-text ceilings are lowered to those counts.
+- `AGENTS.md` (2925 to 1599 words), `references/workflow-mechanics.md` (1950 to 1155), the generated role contracts and workflow prompts are shorter for the same reason. Instructions that existed only to copy operation IDs are gone; safety, authority and evidence rules and every test-pinned rule are kept.
+- No tool behavior, schema, action name or test semantics change. No model was run for this change; the before/after comparison is prepared but not yet measured.
+
 ## 4.15.7 — 2026-11-16
 
 - Repeating preparation after an unretained Build/Debug changes files now points to the original operation's read-only result/status actions and completion template; previously it returned a generic candidate-change refusal. Completion requires the actual disposition and preserves partial-delivery limitations, without another child, attempt or implied success.
