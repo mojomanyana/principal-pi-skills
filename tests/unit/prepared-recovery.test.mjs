@@ -9,7 +9,7 @@ import { observeCandidate, prepareOperation, completeOperation, inspectOperation
 import { recoverPreparedOperation } from "../../scripts/prepared-recovery.mjs";
 import { reference } from "../../scripts/progress-artifacts.mjs";
 
-function fixture(t) {
+function fixture(t, contextPaths) {
   const root = mkdtempSync(join(tmpdir(), "principal-recovery-"));
   t.after(() => rmSync(root, { recursive: true, force: true }));
   const git = (...args) => execFileSync("git", ["-C", root, ...args], { stdio: "pipe" });
@@ -18,7 +18,7 @@ function fixture(t) {
   mkdirSync(join(root, ".principal")); writeFileSync(join(root, ".principal/.gitignore"), "*\n");
   const authority = join(root, ".principal/intent.md"); writeFileSync(authority, "Implement the selected task.\n");
   const owner = { sessionId: "old-parent", cwd: root };
-  const prepared = prepareOperation(root, { task: "workshop-desk", step: "backend", phase: "build", owner, expectedCandidate: observeCandidate(root), inputPaths: [authority] });
+  const prepared = prepareOperation(root, { task: "workshop-desk", step: "backend", phase: "build", owner, expectedCandidate: observeCandidate(root), inputPaths: [authority], contextPaths });
   const source = inspectRecoveryRecord(root, { operationId: prepared.operation_id });
   const legacy = () => { const record = JSON.parse(readFileSync(source.sourceReference.path, "utf8")); record.implementation[0].sha256 = "f".repeat(64); writeFileSync(source.sourceReference.path, JSON.stringify(record)); };
   let sessionId = "new-parent", queries = 0, observation;
@@ -176,6 +176,25 @@ test("completed successor is reused before comparing the original baseline or de
   const done = await f.call();
   assert.equal(done.state, "reused"); assert.equal(done.successor.operation_id, recovered.successor.operation_id);
   assert.equal(done.delegationArguments, undefined); assert.equal(f.queries(), count);
+  assert.equal(readdirSync(join(f.root, ".principal/workflow")).length, 2);
+});
+
+test("editable context survives old-generation no-start recovery without becoming a prerequisite", async t => {
+  const f = fixture(t, ["product.txt"]); f.legacy(); f.setObservation(f.noStart());
+  const before = readFileSync(f.source.sourceReference.path);
+  const inspected = await f.call(), continued = await f.call(inspected.continueArguments);
+  assert.equal(continued.state, "recovered");
+  assert.deepEqual(continued.successor.contextPaths, [join(f.root, "product.txt")]);
+  assert.deepEqual(continued.successor.inputs, f.prepared.inputs);
+  writeFileSync(join(f.root, "product.txt"), "completed implementation\n");
+  const done = completeOperation(f.root, { operationId: continued.successor.operation_id, disposition: "succeeded" }, native(continued.successor, f.root));
+  assert.equal(done.state, "complete"); assert.equal(done.inputsMatch, true); assert.equal(done.completionValid, true);
+  f.setSession("another-new-parent"); f.setObservation({ noStartProven: false, cleanup: { state: "uncertain" } });
+  const reused = await f.call();
+  assert.equal(reused.state, "reused"); assert.deepEqual(reused.report, done.report);
+  assert.deepEqual(reused.successor.contextPaths, continued.successor.contextPaths);
+  assert.equal(reused.delegationArguments, undefined);
+  assert.deepEqual(readFileSync(f.source.sourceReference.path), before);
   assert.equal(readdirSync(join(f.root, ".principal/workflow")).length, 2);
 });
 

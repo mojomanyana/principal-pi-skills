@@ -7,6 +7,8 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { pathToFileURL } from "node:url";
 import { createRequire } from "node:module";
+import { syncBuiltinESMExports } from "node:module";
+import fs from "node:fs";
 import { CandidateIdentityError, PrepareInputError, observeCandidate, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation } from "../../scripts/workflow-state.mjs";
 import { candidateSnapshot } from "../../scripts/resume-checkpoint.mjs";
 import { reference } from "../../scripts/progress-artifacts.mjs";
@@ -229,7 +231,7 @@ test("registered workflow schema exposes name rules and correction prepares one 
   const call = request => tool.execute("fixture", request, undefined, () => {}, ctx);
   const snapshot = (await call({ action: "snapshot" })).structuredContent;
   rmSync(join(root, ".principal"), { recursive: true });
-  const request = { action: "prepare", task: "workshop-desk-v1-stage1", step: "build", phase: "build", expectedCandidate: snapshot.candidate };
+  const request = { action: "prepare", task: "workshop-desk-v1-stage1", step: "build", phase: "build", expectedCandidate: snapshot.candidate, contextPaths: ["product.txt"] };
   const refused = await call({ ...request, task: "Workshop Desk / Stage 1" });
   assert.equal(refused.isError, true);
   assert.equal(refused.structuredContent.state, "refused");
@@ -301,7 +303,7 @@ test("actual Pi argument validation rejects malformed prepare names before execu
     executions++;
     return tool.execute("fixture", validated, undefined, () => {}, ctx);
   };
-  const request = { action: "prepare", task: "workshop-desk-v1-stage1", step: "build", phase: "build", expectedCandidate: snapshot.candidate };
+  const request = { action: "prepare", task: "workshop-desk-v1-stage1", step: "build", phase: "build", expectedCandidate: snapshot.candidate, contextPaths: ["product.txt"] };
   for (const [field, value] of [["task", "Workshop Desk / Stage 1"], ["step", " \t"]]) {
     await assert.rejects(call({ ...request, [field]: value }), error => {
       assert.match(error.message, /Validation failed for tool "principal_workflow"/);
@@ -319,6 +321,7 @@ test("actual Pi argument validation rejects malformed prepare names before execu
   assert.equal(existsSync(join(root, ".principal")), false);
   const first = (await call(request)).structuredContent, again = (await call(request)).structuredContent;
   assert.equal(first.state, "prepared");
+  assert.deepEqual(first.contextPaths, [join(root, "product.txt")], "the native host accepts optional editable context");
   assert.equal(first.attempt, 1);
   assert.equal(again.reused, true);
   assert.equal(again.operation_id, first.operation_id);
@@ -965,7 +968,7 @@ const claimDirectory = (root, name, attempt) => join(root, ".principal/workflow"
   createHash("sha256").update(JSON.stringify({ attempt, step: name.step, task: name.task })).digest("hex"));
 const laterActions = root => [["status", {}], ["complete", { disposition: "succeeded" }],
   ["retry", { reason: "accepted finding", expectedCandidate: observeCandidate(root) }], ["history", {}], ["result", {}]];
-const recoverGuidance = "Inspect this original operation with recover. Reuse verified delivered work; continue only when the producer proves it never started. No replacement has been authorized by this refusal.";
+const recoverGuidance = "Inspect this original operation with recover. Resuming that original execution requires producer proof it never started. Preserve completed output and reconcile remaining authorized scope; this refusal authorizes no replacement or replay.";
 // The stub Type keeps every constraint this suite relies on; unknown shapes are rejected, never assumed valid.
 function schemaAccepts(schema, value) {
   if (schema.anyOf) return schema.anyOf.some(option => schemaAccepts(option, value));
@@ -1561,6 +1564,160 @@ test("changed authority retains the exact settled review without marking the ope
   assert.equal(inspectOperation(root, { operationId: prepared.operation_id }).state, "stale");
 });
 
+
+test("editable context changes complete normally while immutable authority remains enforced", async t => {
+  for (const changedAuthority of [false, true]) await t.test(changedAuthority ? "changed authority" : "product edit", async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root), names = { task: request.task, step: request.step };
+    const args = { action: "prepare", ...request, contextPaths: ["product.txt"] };
+    const before = readdirSync(join(root, ".principal"));
+    const snapshot = (await h.run({ action: "snapshot", contextPaths: args.contextPaths, inputs: request.inputs })).structuredContent;
+    assert.deepEqual(snapshot.contextPaths, [join(root, "product.txt")]);
+    assert.deepEqual(snapshot.inputs, request.inputs);
+    assert.deepEqual(readdirSync(join(root, ".principal")), before, "snapshot stays read-only");
+    const prepared = (await h.run(args)).structuredContent;
+    assert.deepEqual(prepared.contextPaths, snapshot.contextPaths);
+    assert.deepEqual(prepared.inputs, request.inputs, "editable bytes are never prerequisite pins");
+    assert.equal((await h.run(args)).structuredContent.reused, true);
+    writeFileSync(join(root, "product.txt"), "implemented change\n");
+    if (changedAuthority) writeFileSync(join(root, ".principal/plan.md"), "Changed required behavior.\n");
+    const text = "Implemented the product change; independent review remains.\n";
+    h.setNative(settled(prepared.operation_id, root, text));
+    const done = (await h.run({ action: "complete", ...names, disposition: "succeeded" })).structuredContent;
+    assert.equal(done.state, changedAuthority ? "stale" : "complete");
+    assert.equal(done.completionValid, !changedAuthority); assert.equal(done.inputsMatch, !changedAuthority);
+    assert.equal(done.candidateMatches, true); assert.equal(done.resultRetained, true); assert.equal(done.approval, false);
+    assert.deepEqual(done.contextPaths, prepared.contextPaths);
+    assert.equal(readFileSync(done.report.path, "utf8"), text);
+    if (changedAuthority) assert.match(done.inputRecovery.message, /Immutable authority\/evidence changed/);
+    h.setSession("after-new");
+    const recalled = (await h.run({ action: "recover", ...names, attempt: 1 })).structuredContent;
+    assert.equal(recalled.state, changedAuthority ? "historical" : "reused");
+    assert.deepEqual(recalled.report, done.report); assert.equal(recalled.delegationArguments, undefined);
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  });
+});
+
+test("editable context checks readability without reading whole tracked assets again", t => {
+  const { root } = fixture(t), product = join(root, "product.txt"), originalRead = fs.readFileSync;
+  const candidate = observeCandidate(root);
+  fs.readFileSync = function(path, ...args) {
+    assert.notEqual(path, product, "context hints must not load/hash a tracked asset already covered by candidate observation");
+    return originalRead.call(this, path, ...args);
+  };
+  syncBuiltinESMExports();
+  try {
+    const observed = observeSnapshot(root, { contextPaths: ["product.txt"] });
+    assert.deepEqual(observed.candidate, candidate); assert.deepEqual(observed.contextPaths, [product]);
+    assert.throws(() => reference(product), /must not load\/hash/, "the guard rejects the former full-file reference path");
+  } finally { fs.readFileSync = originalRead; syncBuiltinESMExports(); }
+});
+
+test("context paths reject ambiguous or uncovered inputs before allocating an operation", async t => {
+  for (const kind of ["overlap", "normalized overlap", "duplicate", "outside", "ignored", "metadata", "missing"]) await t.test(kind, async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    let contextPaths = ["product.txt"], inputs = request.inputs;
+    if (kind.includes("overlap")) {
+      inputs = [...inputs, reference(join(root, "product.txt"))];
+      if (kind === "normalized overlap") contextPaths = ["./product.txt"];
+    }
+    if (kind === "duplicate") contextPaths.push("./product.txt");
+    if (kind === "outside") contextPaths = [join(root, "..", "outside.txt")];
+    if (kind === "ignored") {
+      writeFileSync(join(root, ".gitignore"), "private.txt\n"); writeFileSync(join(root, "private.txt"), "private\n"); contextPaths = ["private.txt"];
+    }
+    if (kind === "metadata") contextPaths = [".git/HEAD"];
+    if (kind === "missing") contextPaths = ["not-present.txt"];
+    const result = await h.run({ action: "prepare", ...request, inputs, contextPaths, expectedCandidate: observeCandidate(root) });
+    assert.equal(result.isError, true, kind); assert.equal(result.structuredContent.approval, false);
+    assert.equal(result.structuredContent.code, "CONTEXT_PATH_INVALID");
+    assert.equal(result.structuredContent.operationAllocated, false); assert.equal(result.structuredContent.administrativeWrites, false);
+    assert.equal(result.structuredContent.diagnostic.field, "contextPaths");
+    assert.match(result.structuredContent.recovery.message, /same authorized scope/);
+    if (kind.includes("overlap")) assert.match(result.structuredContent.error, /cannot also be immutable inputs/);
+    assert.equal(existsSync(join(root, ".principal/workflow")), false);
+    assert.equal(existsSync(join(root, ".principal/reports")), false);
+    assert.deepEqual(h.queries, []);
+  });
+});
+
+test("context declarations never reinterpret legacy pins or alter an existing operation", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root), names = { task: request.task, step: request.step };
+  const prepared = (await h.run({ action: "prepare", ...request, inputPaths: ["product.txt"] })).structuredContent;
+  assert.equal(prepared.contextPaths, undefined);
+  const store = join(root, ".principal/workflow"), recordPath = join(store, readdirSync(store)[0], "request.json");
+  const original = readFileSync(recordPath);
+  const changed = await h.run({ action: "prepare", ...request, contextPaths: ["product.txt"] });
+  assert.equal(changed.isError, true); assert.match(changed.structuredContent.error, /operation conflict/);
+  assert.deepEqual(readFileSync(recordPath), original);
+  writeFileSync(join(root, "product.txt"), "legitimate edit mistakenly pinned as authority\n");
+  h.setNative(settled(prepared.operation_id, root));
+  const done = (await h.run({ action: "complete", ...names, disposition: "unverified" })).structuredContent;
+  assert.equal(done.inputsMatch, false); assert.equal(done.completionValid, false); assert.equal(done.resultRetained, true);
+  assert.match(done.inputRecovery.message, /not proof of an edit after the child finished/);
+  assert.match(done.inputRecovery.message, /preserve this record as history/);
+  assert.equal(done.inputRecovery.grantsAuthority, false);
+  h.setSession("after-new");
+  const history = (await h.run({ action: "recover", ...names, attempt: 1 })).structuredContent;
+  assert.equal(history.state, "historical"); assert.equal(history.inputsMatch, false);
+  assert.deepEqual(readFileSync(recordPath), original); assert.equal(readdirSync(store).length, 1);
+});
+
+test("completed partial children get read-only continuation guidance before missing retry proof", async t => {
+  for (const retained of [false, true]) await t.test(retained ? "retained and stale" : "unretained", async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root), names = { task: request.task, step: request.step };
+    const prepared = (await h.run({ action: "prepare", ...request })).structuredContent;
+    writeFileSync(join(root, "product.txt"), "partial delivery\n");
+    h.setNative(settled(prepared.operation_id, root, "Settings placeholder implemented; collector still undone.\n"));
+    if (retained) {
+      writeFileSync(join(root, ".principal/plan.md"), "changed required authority\n");
+      await h.run({ action: "complete", ...names, disposition: "unverified" });
+    }
+    const store = join(root, ".principal/workflow"), operation = join(store, readdirSync(store)[0]);
+    const capture = () => Object.fromEntries(readdirSync(operation).sort().map(name => [name, readFileSync(join(operation, name), "utf8")]));
+    const before = capture(), report = existsSync(prepared.reportPath) ? readFileSync(prepared.reportPath) : undefined;
+    const response = await h.run({ action: "retry", ...names, retryMode: "automatic", reason: "finish product", expectedCandidate: observeCandidate(root) });
+    const result = response.structuredContent;
+    assert.equal(response.isError, true); assert.equal(result.code, "NATIVE_RESULT_ALREADY_COMPLETE");
+    assert.equal(result.administrativeWrites, false); assert.equal(result.approval, false);
+    assert.equal(result.diagnostic.resultRetained, retained); assert.equal(result.diagnostic.inputsMatch, !retained);
+    assert.equal(result.recovery.action, "reconcile-remaining-work");
+    assert.match(result.recovery.message, /standing authorization and current prerequisites/);
+    assert.match(result.recovery.message, /Reuse already delivered work/);
+    assert.doesNotMatch(result.error, /may not support|manual retry|separately authorized/);
+    assert.deepEqual(result.recovery.statusArguments, prepared.statusArguments);
+    assert.equal(!!result.recovery.completionArguments, !retained);
+    assert.equal(result.delegationArguments, undefined); assert.deepEqual(capture(), before);
+    if (report) assert.deepEqual(readFileSync(prepared.reportPath), report);
+    assert.equal(readdirSync(store).length, 1);
+    assert.equal((await h.run(prepared.statusArguments)).structuredContent.automaticRetryBudget.used, 0);
+  });
+});
+
+test("completed-result guidance retains identity, settlement and explicit manual-retry boundaries", async t => {
+  for (const kind of ["workspace", "execution", "final identity", "control", "running", "owner", "aborted"]) await t.test(kind, async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const prepared = (await h.run({ action: "prepare", ...request })).structuredContent, runtime = settled(prepared.operation_id, root);
+    if (kind === "workspace") runtime.cwd = "/different";
+    if (kind === "execution") runtime.runtime.cleanup.executionId = "different";
+    if (kind === "final identity") delete runtime.runtime.final.sessionId;
+    if (kind === "control") runtime.runtime.control = { state: "failed" };
+    if (kind === "running") runtime.state = "running";
+    if (kind === "owner") h.setSession("other-parent");
+    h.setNative(runtime);
+    const response = await h.run({ action: "retry", task: request.task, step: request.step, retryMode: "automatic", reason: kind, expectedCandidate: observeCandidate(root) },
+      kind === "aborted" ? AbortSignal.abort() : undefined);
+    assert.equal(response.isError, true); assert.notEqual(response.structuredContent.code, "NATIVE_RESULT_ALREADY_COMPLETE");
+    assert.equal(response.structuredContent.recovery?.action, undefined);
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  });
+  const { root, request } = fixture(t), h = await registeredWorkflow(root);
+  const prepared = (await h.run({ action: "prepare", ...request, contextPaths: ["product.txt"] })).structuredContent;
+  h.setNative(settled(prepared.operation_id, root));
+  const manual = (await h.run({ action: "retry", task: request.task, step: request.step, retryMode: "manual",
+    reason: "Explicit authorized revision", expectedCandidate: observeCandidate(root) })).structuredContent;
+  assert.equal(manual.attempt, 2); assert.deepEqual(manual.contextPaths, prepared.contextPaths);
+  assert.equal(manual.automaticRetryBudget.used, 0);
+});
 
 test("operationId lookup isolates an interrupted sibling without accepting duplicate valid identities", t => {
   const { root, request } = fixture(t), prepared = prepareOperation(root, request);

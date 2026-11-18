@@ -50,7 +50,9 @@ Distinguish recall-only requests from continuation. Recall reports saved outcome
 implementation, research or duplicate saves. For continuation, reconcile historical blockers with the
 latest authorized scope and amendments; saved summaries impose no new prerequisites. Missing evidence
 blocks only dependent actions; continue independent authorized work within current permission, native
-settlement and explicit user gates.
+settlement and explicit user gates. Keep missing optional observations scoped to the claims they
+support. Prepare authorized repository-local test dependencies once; a ban on global upgrades or
+model/service restarts is not a ban on local setup. Explicit no-install/network limits still apply.
 
 **Native execution.** Call `delegate_describe({agent:"phase"})`; require package `principal-pi-skills`,
 the exact phase (`plan`, `build`, `review`, `test-review`, `debug` or `investigate`) and its captured
@@ -62,11 +64,14 @@ unqualified backend, timeout, report gap or uncertain cleanup stops dependent wo
 inline/foreign runner fallback after failure. An already-authorized alternative stays within its
 recorded scope and prerequisites; it cannot clear uncertain admission/cleanup or waive a required
 gate. Only genuinely absent native tools permit an explicitly configured legacy runner. Honor authored
-model/effort policy; leaves never dispatch agents.
+model/effort policy; leaves never dispatch agents. Identify the child's admitted role and current
+workspace; historical parent routing warnings are not prerequisites for an already-running child.
 
 **Mechanical handoff.** Use `principal_workflow` snapshot/reference for candidate and exact file
-observations, including inline/evidence work, and pass `inputPaths` for relevant authority/evidence;
-the candidate already binds product files. Inline work needs no dummy delegation merely to close
+observations, including inline/evidence work. `inputPaths` pins immutable authority/evidence;
+`contextPaths` lists editable workspace paths. Never put an intended edit in both: the candidate
+already binds product files. Path hints grant no authority or automatic file-content delivery;
+supply relevant allowed references in the child handoff. Inline work needs no dummy delegation merely to close
 bookkeeping. For native work, `prepare` returns operation_id, canonical workspace, reportPath and
 handoff metadata; pass its `delegationArguments` unchanged alongside definitionId. Its prepared
 directory already exists. If the task prohibits all filesystem writes, skip prepare/complete: dispatch
@@ -78,8 +83,10 @@ output; `continueArguments` need positive producer no-start proof. Missing histo
 start, and retry requires supported runtime evidence; `retry` preserves prior attempts. Recall-only
 requests stay in inspection mode. Do not invent a fingerprint formula.
 
-After a child returns, check its full native result and identity-bound `cleanup.state=settled`
-receipt before dependent work, including before consuming Review's verdict. Missing evidence due now
+After a child returns, check its full native result and the runtime evidence summary's
+`cleanup.state=settled` before dependent work, including consuming Review's verdict. Daddy reports
+settled only after verifying an identity-bound receipt; `complete` rechecks the native execution
+identity. Receipt fields stay outside tool text. Missing evidence due now
 blocks; later coordinator-owned gates keep their owner and due stage. Call `complete` immediately
 after settlement, before repairs, by task/step with the actual disposition: it retains the exact
 captured final automatically. `resultRetained` is history and `completionValid` is freshness; stale
@@ -114,7 +121,12 @@ baseline and accepted finding definitions accessible through repair and resume. 
 approval plus all due gates supports finish. A test-quality question may use the distinct
 `test-review` skill within Review or a separate child when useful; report which occurred.
 
-Read Verdict before Next:
+A settled Build with a complete final but partial delivery is not a failed execution or a Review
+UNVERIFIED verdict. Retain its actual disposition and evidence, inspect current files, then continue
+only remaining authorized work in a new scoped unit or an already-authorized inline path. Preserve
+completed work; do not replay the old operation, ask again for the same scope, or waive a real gate.
+
+Read Review Verdict before Next:
 | Review verdict | Next | Coordinator action |
 |---|---|---|
 | CHANGES-REQUESTED | build | Repair accepted concrete product/test findings within authority. |

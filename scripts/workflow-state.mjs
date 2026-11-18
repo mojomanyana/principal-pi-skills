@@ -2,7 +2,7 @@
 import { execFileSync } from "node:child_process";
 import { createHash, randomUUID } from "node:crypto";
 import { constants, closeSync, fstatSync, fsyncSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, unlinkSync, writeSync } from "node:fs";
-import { dirname, isAbsolute, join, relative, resolve } from "node:path";
+import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 import { candidateSnapshot } from "./resume-checkpoint.mjs";
 import { resolveIntegrationSubject } from "./continuity.mjs";
@@ -48,6 +48,41 @@ export class PreparedOutputChangedError extends Error {
       message: "Files changed since this Build/Debug operation was prepared. Inspect its original native result with resultArguments. After exact settlement and a complete final, retain it with completionArguments plus the actual disposition. Changed files alone do not prove execution or success. Do not prepare a replacement, retry execution or choose succeeded merely to finish bookkeeping; preserve unfinished requirements and reported-check limitations.",
       statusArguments: { action: "status", ...selected }, resultArguments: { action: "result", ...selected },
       completionArguments: { action: "complete", ...selected }, requiredCompletionFields: ["disposition"] };
+  }
+}
+/** A complete child answer is retained delivery evidence, not an eligible automatic replay. */
+export class CompletedResultRetryError extends Error {
+  constructor(operation) {
+    super("This child already returned a complete native answer, so automatic replay does not apply. Preserve its result; if delivery remains incomplete, scope only the remaining authorized work.");
+    this.name = "CompletedResultRetryError";
+    this.code = "NATIVE_RESULT_ALREADY_COMPLETE";
+    this.administrativeWrites = false;
+    this.diagnostic = { kind: "completed-native-result", resultRetained: operation.resultRetained,
+      candidateMatches: operation.candidateMatches, inputsMatch: operation.inputsMatch, issues: operation.issues,
+      ...(operation.disposition ? { disposition: operation.disposition } : {}) };
+    const selected = { repo: operation.root, task: operation.task, step: operation.step, attempt: operation.attempt };
+    this.recovery = { action: "reconcile-remaining-work",
+      message: "Read the complete final and preserve its actual disposition. Reuse already delivered work; a complete answer alone does not prove full delivery. Reconcile current files, required inputs and any real blocker. If requirements remain unmet, continue only that work within standing authorization and current prerequisites, without replaying completed work or renaming this operation. Ask only for a new material decision or access genuinely needed. This response grants no execution or approval.",
+      statusArguments: { action: "status", ...selected }, resultArguments: { action: "result", ...selected },
+      ...(!operation.resultRetained ? { completionArguments: { action: "complete", ...selected }, requiredCompletionFields: ["disposition"] } : {}) };
+  }
+}
+/** Context validation precedes operation allocation and never relaxes required evidence. */
+export class ContextInputError extends Error {
+  constructor(error, action) {
+    const denied = ["EACCES", "EPERM"].includes(error.code);
+    super(error.message);
+    this.name = "ContextInputError";
+    this.code = denied ? "CONTEXT_ACCESS_DENIED" : "CONTEXT_PATH_INVALID";
+    this.administrativeWrites = false;
+    this.operationAllocated = false;
+    this.diagnostic = { kind: "context-paths", field: "contextPaths", accessDenied: denied };
+    this.recovery = {
+      action: denied ? "restore-required-access" : action === "snapshot" ? "correct-observation" : "correct-preparation",
+      message: denied
+        ? "The context file is not readable under current access. Restore genuinely required access before dependent work; do not drop required evidence or change paths to bypass denial. No operation was allocated."
+        : "Inspect contextPaths and correct the named location or category for the same authorized scope. Keep true immutable authority in inputPaths/inputs; editable product context is optional and grants no permission. Never remove an existing pin to clear staleness or rename an existing operation. This call allocated no operation and is not an execution retry.",
+    };
   }
 }
 const phases = ["plan", "build", "review", "test-review", "debug", "investigate"];
@@ -127,6 +162,37 @@ function requestedReferences(root, request) {
     "inputPaths must be at most 128 nonempty file paths, relative to the worktree or absolute");
   return references([...(request.inputs ?? []), ...paths.map(path => reference(resolve(root, path)))]);
 }
+/** Mutable context is only a location hint. It never becomes a prerequisite or a read grant. */
+function requestedContextPaths(root, request, inputs, action = "prepare") {
+  try {
+  const paths = request.contextPaths ?? [];
+  assert(Array.isArray(paths) && paths.length <= 128 && paths.every(path => typeof path === "string" && path.trim()),
+    "contextPaths must be at most 128 nonempty workspace file paths");
+  const inside = path => {
+    const name = relative(root, path);
+    return name && !isAbsolute(name) && name !== ".." && !name.startsWith(`..${sep}`) && ![".git", ".principal", ".pi"].includes(name.split(sep)[0]);
+  };
+  const result = paths.map(path => {
+    const absolute = resolve(root, path);
+    assert(inside(absolute), "contextPaths must stay inside the product workspace");
+    ordinary(absolute);
+    const canonical = realpathSync(absolute);
+    assert(inside(canonical), "contextPaths must stay inside the product workspace");
+    try {
+      execFileSync("git", ["--no-optional-locks", "-C", root, "check-ignore", "-q", "--", relative(root, canonical)], { stdio: "pipe" });
+      throw new Error("contextPaths cannot name Git-ignored files; they are not covered by the product candidate");
+    } catch (error) { if (error.status !== 1) throw error; }
+    assert(!inputs.some(input => input.path === canonical), "contextPaths cannot also be immutable inputs; preserve authority in inputPaths/inputs and list editable files only as context");
+    // Test readability without loading or hashing potentially large tracked assets.
+    const fd = openSync(canonical, constants.O_RDONLY | (constants.O_NOFOLLOW ?? 0) | (constants.O_NONBLOCK ?? 0));
+    try { assert(fstatSync(fd).isFile(), "contextPaths must name ordinary readable files"); }
+    finally { closeSync(fd); }
+    return canonical;
+  }).sort();
+  assert(new Set(result).size === result.length, "duplicate context path");
+  return result;
+  } catch (error) { throw new ContextInputError(error, action); }
+}
 const candidateId = value => typeof value === "string" && /^(?:[a-f0-9]{40}|[a-f0-9]{64}|dirty:[a-f0-9]{64})$/.test(value);
 const digest = value => typeof value === "string" && /^[a-f0-9]{64}$/.test(value);
 const commitId = value => typeof value === "string" && /^(?:[a-f0-9]{40}|[a-f0-9]{64})$/.test(value);
@@ -172,10 +238,12 @@ export function observeSnapshot(repo, request = {}) {
   const candidate = observeCandidate(repo);
   if (request.expectedCandidate !== undefined) requireExpectedCandidate(candidate, request.expectedCandidate);
   const inputs = requestedReferences(candidate.root, request);
+  const contextPaths = requestedContextPaths(candidate.root, request, inputs, "snapshot");
   const after = observeCandidate(repo);
   if (!same(after, candidate)) throw new CandidateIdentityError("CANDIDATE_OBSERVATION_CHANGED", "Candidate changed during snapshot; no handoff was prepared.",
     { reason: "observation-changed", comparisonBasis: "observed-candidate", comparison: candidateComparison(after, candidate) });
-  return { version: 1, state: "observed", approval: false, administrativeWrites: false, candidate, inputs };
+  return { version: 1, state: "observed", approval: false, administrativeWrites: false, candidate, inputs,
+    ...(contextPaths.length ? { contextPaths } : {}) };
 }
 export function observeCandidate(repo) {
   const c = candidateSnapshot(repo);
@@ -290,7 +358,7 @@ function summary(record, state, extra = {}) {
       reviewReceiptInstruction: "The independent reviewer must read the bound inputs and copy this binding id into exactly one principal-review JSON fence described in references/continuity.md; do not reconstruct any digest.",
       ...(extra.report ? { reviewReference: { kind: "principal-review", repo: record.root, operationId: record.operationId,
         bindingId: record.reviewBinding.id, reportSha256: extra.report.sha256 } } : {}) } : {}),
-    inputs: record.inputs, owner: record.owner ?? null, approval: false,
+    inputs: record.inputs, ...(record.contextPaths?.length ? { contextPaths: record.contextPaths } : {}), owner: record.owner ?? null, approval: false,
     automaticRetryBudget: automaticRetryBudget(record.root, { task: record.task, step: record.step, attempt: record.attempt }),
     ...(record.previous?.automaticRetry ? { automaticRetryDefinitionId: record.previous.automaticRetry.definitionId } : {}), ...extra };
 }
@@ -402,6 +470,10 @@ function inspectStoredOperation(repo, request, historical = false) {
   const valid = !!completion && !issues.length;
   return summary(record, valid ? "complete" : issues.length ? "stale" : "retained", {
     candidateMatches: matches, inputsMatch: !inputIssues.length, output: result.output,
+    ...(inputIssues.length ? { inputRecovery: {
+      message: "Immutable authority/evidence changed since preparation; this is not proof of an edit after the child finished. Reconcile the changed prerequisite before dependent work. If an editable product file was mistakenly pinned, preserve this record as history and use optional contextPaths for that file in separately scoped remaining work under existing authorization. Do not rewrite the original pins or replay completed work to make bookkeeping pass.",
+      grantsAuthority: false,
+    } } : {}),
     report: result.report, ...(result.authoredReport ? { authoredReport: result.authoredReport } : {}), evidence: completion?.evidence ?? [], runtime: result.runtime, disposition: result.disposition,
     productChanged: !same(result.output, record.input), resultRetained: true, completionValid: valid, issues: [...new Set(issues)],
   });
@@ -506,7 +578,7 @@ export function prepareRecoverySuccessor(repo, source, sourceReference, owner, e
     delete recoveredBinding.id; delete recoveredBinding.version; delete recoveredBinding.inputs;
   }
   const result = prepare(repo, { task: source.task, step: source.step, attempt: source.attempt + 1, phase: source.phase, reviewBinding: recoveredBinding,
-    owner, expectedCandidate, inputs: source.inputs, previous: { operationId: source.operationId, reason: "Recovered proven unstarted operation",
+    owner, expectedCandidate, inputs: source.inputs, contextPaths: source.contextPaths, previous: { operationId: source.operationId, reason: "Recovered proven unstarted operation",
       ...(source.previous?.automaticRetry ? { automaticRetry: source.previous.automaticRetry } : {}),
       recovery: { sourceReference, sourceOwner: source.owner, artifact } } });
   const successor = inspectRecoveryRecord(repo, { operationId: result.operation_id });
@@ -568,13 +640,14 @@ function prepare(repo, request) {
   assert(owner === null || (typeof owner.sessionId === "string" && owner.sessionId && typeof owner.cwd === "string" && isAbsolute(owner.cwd)), "invalid coordinator identity");
   const current = observeCandidate(repo);
   requireExpectedCandidate(current, expectedCandidate);
-  const checked = requestedReferences(current.root, request), binding = reviewBinding(request, checked, current), where = location(current.root, task, step, attempt, true);
+  const checked = requestedReferences(current.root, request), contextPaths = requestedContextPaths(current.root, request, checked);
+  const binding = reviewBinding(request, checked, current), where = location(current.root, task, step, attempt, true);
   try { mkdirSync(where.path, { mode: 0o700 }); }
   catch (error) {
     if (error.code !== "EEXIST") throw error;
     const existing = load(current.root, request).record;
     assert(same(existing.owner ?? null, owner), "operation belongs to another coordinator session; inspect and reconcile the original before a new attempt");
-    assert(existing.phase === phase && same(existing.inputs, checked) && same(existing.reviewBinding ?? null, binding), "operation conflict: stable task/step already has different phase or inputs");
+    assert(existing.phase === phase && same(existing.inputs, checked) && same(existing.contextPaths ?? [], contextPaths) && same(existing.reviewBinding ?? null, binding), "operation conflict: stable task/step already has different phase, inputs or context");
     const result = inspectOperation(current.root, request);
     if (!result.candidateMatches && !result.resultRetained && result.inputsMatch && !result.issues?.length && ["build", "debug"].includes(result.phase)) {
       throw new PreparedOutputChangedError(result);
@@ -585,7 +658,7 @@ function prepare(repo, request) {
   // A crash after the exclusive claim leaves an incomplete operation, never a silent retry.
   const run = createRun(current.root, task, current.id);
   const record = { version: 1, operationId: where.operationId, root: current.root, task, step, attempt, phase,
-    input: current, inputs: checked, ...(binding ? { reviewBinding: binding } : {}), owner, previous: request.previous ?? null, reportPath: join(run, `${phase}.md`), artifactsPath: join(run, "artifacts"), implementation: implementation() };
+    input: current, inputs: checked, ...(contextPaths.length ? { contextPaths } : {}), ...(binding ? { reviewBinding: binding } : {}), owner, previous: request.previous ?? null, reportPath: join(run, `${phase}.md`), artifactsPath: join(run, "artifacts"), implementation: implementation() };
   assert(same(observeCandidate(current.root), current), "candidate changed while preparing handoff; preserve incomplete claim");
   assertIgnored(current.root, record.reportPath);
   assertIgnored(current.root, join(record.artifactsPath, "unused-probe"));
@@ -687,6 +760,10 @@ export function retryOperation(repo, request, runtime) {
     (eligibility !== undefined || budget.state !== "unused");
   let automaticRetry;
   if (automatic) {
+    if (runtime.runtime?.work === "succeeded" && runtime.runtime?.final?.state === "complete") {
+      settledRuntime(runtime, record.operationId, record.root);
+      throw new CompletedResultRetryError(inspectOperation(repo, request));
+    }
     const lineage = retryLineage(record);
     assert(!lineage.claim || lineage.claim.sourceOperationId === record.operationId,
       "automatic retry allowance is exhausted for this phase; inspect its result and continue independent authorized work. A manual retry needs separate existing authorization");
@@ -701,6 +778,7 @@ export function retryOperation(repo, request, runtime) {
     assert(current.candidateMatches && current.inputsMatch && !current.issues?.length && !current.resultRetained,
       "automatic retry requires the unchanged original candidate and inputs, with no retained result");
     assert(request.inputs === undefined && request.inputPaths === undefined, "automatic retry preserves the original inputs");
+    assert(request.contextPaths === undefined, "automatic retry preserves the original context paths");
     assert(request.reviewBinding === undefined, "automatic retry preserves the original review binding");
     requireExpectedCandidate(observeCandidate(repo), request.expectedCandidate);
     automaticRetry = { lineageOperationId: lineage.first.operationId, definitionId: eligibility.definitionId };
@@ -724,10 +802,17 @@ export function retryOperation(repo, request, runtime) {
     const { id: _id, version: _version, inputs: _inputs, ...binding } = record.reviewBinding;
     inheritedBinding = binding;
   }
-  const result = prepare(repo, { ...request, operationId: undefined, task: record.task, step: record.step, owner: record.owner,
-    reviewBinding: request.reviewBinding ?? inheritedBinding,
-    inputs: request.inputs ?? (request.inputPaths ? [] : record.inputs), phase: record.phase, attempt: record.attempt + 1,
-    previous: { operationId: record.operationId, reason: request.reason, runtime, ...(automaticRetry ? { automaticRetry } : {}) } });
+  let result;
+  try {
+    result = prepare(repo, { ...request, operationId: undefined, task: record.task, step: record.step, owner: record.owner,
+      reviewBinding: request.reviewBinding ?? inheritedBinding,
+      inputs: request.inputs ?? (request.inputPaths ? [] : record.inputs), contextPaths: request.contextPaths ?? record.contextPaths, phase: record.phase, attempt: record.attempt + 1,
+      previous: { operationId: record.operationId, reason: request.reason, runtime, ...(automaticRetry ? { automaticRetry } : {}) } });
+  } catch (error) {
+    // An automatic allowance can already be consumed; never describe that call as write-free.
+    if (automaticRetry && error instanceof ContextInputError) error.administrativeWrites = "possible";
+    throw error;
+  }
   if (automaticRetry) {
     const successor = load(repo, { task: record.task, step: record.step, attempt: record.attempt + 1 }).record;
     assert(successor.previous?.operationId === record.operationId && same(successor.previous?.automaticRetry, automaticRetry),

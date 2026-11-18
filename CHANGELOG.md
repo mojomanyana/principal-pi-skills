@@ -1,5 +1,14 @@
 # Changelog
 
+## 4.18.0 — 2026-11-18
+
+- Separate mutable implementation context from immutable operation inputs so intended Build edits need not invalidate their own handoff. Existing immutable inputs, current access and candidate checks remain in force.
+- Clarify continuation after a settled but partial Build: retain its result and pursue the remaining authorized work without replaying completed work. Review UNVERIFIED still requires evidence reconciliation. Admitted children use their current role/workspace, and historical parent routing notes create no new launch prerequisite.
+- Keep optional evidence gaps scoped to their dependent claims and repository-local test setup scoped to the user's actual constraints. No new stage, permission, automatic dispatch or model/service restart is introduced.
+- Align settlement instructions with Daddy's visible runtime summary; native completion still verifies exact execution identity. Previously authorized fallback still requires settled cleanup and all due gates.
+- Update the documented installation recipe to Daddy 0.60.0 and Harness 0.36.0.
+- Validation uses local scripted and native-schema checks; no new model evaluation establishes broader delivery reliability.
+
 ## 4.17.0 — 2026-11-18
 
 - A differing child-authored report is now preserved while completion retains the exact native final separately; previously any report difference refused completion. It returns both references, allowing independent Review without repeating Build. Report publication is atomic and still exclusive; changed, unsafe or unrelated evidence is never overwritten.

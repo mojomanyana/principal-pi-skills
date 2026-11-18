@@ -35,7 +35,7 @@ for (const mode of ["skill", "agent"]) {
   });
   test(`build ${mode}: missing normative meaning blocks dependent mutations, not independent authorized work`, () => {
     clauses(contract("build",mode),[/needed by this Build unit blocks its dependent source\/test mutations, including newly authored tests/,
-      /Other authorized parts may continue within current permission, settlement and explicit user gates/,
+      /Continue independent authorized parts within current permission, settlement and explicit user gates/,
       /report writes are allowed/, /paths must be read before declaring.*missing/,
       /Task approval.*does not supply a missing definition/,
       /complete replacement definition plus explicit authorization to replace the source meaning/,
@@ -226,6 +226,24 @@ test('per-request tool text keeps the decisions only the model can make',()=>{
   clauses(normalized(read('extensions/handoff.ts')),[/Never (?:omit|drop) a required source to (?:obtain|reach) ready/]);
 });
 
+test('compact settlement guidance checks the visible summary without demanding hidden receipts',()=>{
+  for (const path of ['AGENTS.md', 'contracts/workflows.md.tmpl', 'prompts/principal-feature.md',
+    'prompts/principal-bugfix.md', 'prompts/principal-refactor.md', 'prompts/principal-review-branch.md', 'README.md']) {
+    const text=normalized(read(path));
+    clauses(text, [/runtime evidence summary/, /cleanup.state=settled/, /identity-bound receipt/, /complete.*rechecks/]);
+    assert.doesNotMatch(text, /check.*native result and identity-bound `cleanup.state=settled` receipt|needs `cleanup.state=settled` with its matching identity-bound receipt/);
+  }
+  for (const path of ['AGENTS.md', 'README.md']) {
+    assert.match(read(path), /pi-daddy@0\.60\.0/);
+    assert.match(read(path), /skill-harness@0\.36\.0/);
+  }
+});
+
+test('short bootstrap bounds an authorized fallback by cleanup and due gates',()=>{
+  clauses(normalized(read('bootstrap/BOOTSTRAP.md')), [/unless the user already authorized it/,
+    /never while cleanup is uncertain or to skip a gate/]);
+});
+
 test('later prepared-operation calls name task and step instead of copying an operation ID',()=>{
   const paths=['AGENTS.md','bootstrap/BOOTSTRAP.md','references/workflow-mechanics.md','contracts/workflows.md.tmpl',
     'prompts/principal-feature.md','prompts/principal-review-branch.md','extensions/workflow.ts'];
@@ -235,7 +253,8 @@ test('later prepared-operation calls name task and step instead of copying an op
   clauses(normalized(read('contracts/workflows.md.tmpl')),[/Call `complete` immediately after settlement, before repairs, by task\/step with the actual disposition/]);
   clauses(normalized(read('references/workflow-mechanics.md')),[/`status`, `retry`, `history` and `result` take the same names; without `attempt` they select the latest, refusing with `choices` when it is uncertain or another coordinator's/,
     /`OPERATION_ID_INVALID` means a supplied prepared-operation ID has the wrong format; omit it and name the task and step/]);
-  clauses(normalized(read('extensions/workflow.ts')),[/status\/complete\/retry\/history\/result take task and step, selecting the latest attempt unless attempt is given; an uncertain or foreign one refuses with choices/]);
+  clauses(normalized(read('extensions/workflow.ts')),[/status\/complete\/retry\/history\/result select task\/step's latest owned attempt unless attempt is given/,
+    /ambiguous or foreign selection refuses with choices/]);
 });
 
 test('finish reuses applicable verification without weakening source-required release checks',()=>{

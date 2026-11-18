@@ -291,3 +291,35 @@ test("review disposition table routes missing evidence away from Build in every 
     assert.doesNotMatch(read(path), /build\*\* if anything needs addressing/);
   }
 });
+
+
+test("settled partial Build continuation stays distinct from evidence-only Review", () => {
+  for (const path of ["contracts/workflows.md.tmpl", ...WORKFLOWS]) {
+    const text = read(path).replace(/\s+/g, " ");
+    assert.match(text, /settled Build.*complete final but partial delivery.*not.*failed execution or a Review UNVERIFIED verdict/i, path);
+    assert.match(text, /Retain its actual disposition.*inspect current files.*continue only remaining authorized work/i, path);
+    assert.match(text, /Preserve completed work.*do not replay the old operation.*waive a real gate/i, path);
+    assert.match(text, /\| UNVERIFIED \| evidence \|.*no automatic implementation/, path);
+  }
+  const policy = read("bootstrap/BOOTSTRAP.md").replace(/\s+/g, " ");
+  assert.match(policy, /settled Build's complete final can describe partial delivery/);
+  assert.match(policy, /Review UNVERIFIED needs evidence\/access reconciliation/);
+  assert.match(policy, /Recall-only requests report saved delivery without new work/);
+});
+
+test("admitted Build and optional evidence rules retain current authority and explicit limits", () => {
+  const child = read("agents/principal-build.md").replace(/\s+/g, " ");
+  assert.match(child, /admitted Build child in the supplied workspace.*do not seek another Build route/);
+  assert.match(child, /Earlier parent routing warnings are historical, not new launch prerequisites/);
+  assert.match(child, /Honor current access and authority errors/);
+  assert.match(child, /Missing optional observations limit their dependent claims/);
+  assert.match(child, /missing referenced source.*blocks its dependent source\/test mutations/i);
+  assert.match(child, /repository-local development dependencies within the task's authorization/);
+  assert.match(child, /explicit no-install, network and current access restrictions still apply/);
+  assert.match(child, /partial report names completed work, remaining work and the actual limitation/);
+  for (const path of ["review/SKILL.md", "agents/principal-review.md"]) {
+    const review = read(path).replace(/\s+/g, " ");
+    assert.match(review, /Missing optional observations limit their dependent claims/);
+    assert.match(review, /preserve any explicitly required live\/fresh check/);
+  }
+});

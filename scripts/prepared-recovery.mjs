@@ -124,7 +124,7 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
   if (retained.resultRetained) {
     return outcome(retained.candidateMatches && retained.inputsMatch && !retained.issues?.length ? "reused" : "historical",
       retained.candidateMatches && retained.inputsMatch && !retained.issues?.length
-        ? "Reuse the delivered output and historical checks. Review any remaining requirements without rebuilding completed work."
+        ? "Reuse delivered output and historical checks. Reconcile remaining requirements and continue only unmet authorized work without rebuilding completed parts. Obtain independent Review when the deliverable is ready."
         : "Preserve this delivered output. Reconcile the changed files or inputs and continue only the remaining authorized work.",
       { report: retained.report, ...(retained.authoredReport ? { authoredReport: retained.authoredReport } : {}), disposition: retained.disposition, candidateMatches: retained.candidateMatches, inputsMatch: retained.inputsMatch,
         issues: retained.issues, sourceRecovery: retained.sourceRecovery, completionValid: false, historical: true });
@@ -143,9 +143,9 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
     const history = historicalNativeResult(repo, request, observation, requester, request.mode === "retain");
     await check();
     return outcome("historical", history.resultRetained
-      ? "The exact prior final and any authored report are retained as history. Reconcile current files and authority, then prepare a fresh independently scoped Review with these report references. No original Build output snapshot was retained: this does not satisfy a bound work-map Build completion gate. Do not repeat the Build."
+      ? "The exact prior final and any authored report are retained as history, not proof of complete delivery. Reconcile current files, authority and remaining requirements; continue unmet authorized work without repeating completed parts. When ready, prepare a fresh independently scoped Review with these report references. No original Build output snapshot was retained: this does not satisfy a bound work-map Build completion gate."
       : history.retainArguments
-        ? "For authorized continuation, retain the exact historical final with retainArguments, then reconcile current files for fresh independent Review. Recall-only requests should read the supplied final without writing."
+        ? "For authorized continuation, retain the exact historical final with retainArguments, then reconcile current files and unfinished requirements. Continue unmet authorized work; fresh independent Review follows when ready. Recall-only requests should read the supplied final without writing."
         : "The exact prior final is historical evidence. Required inputs changed; reconcile current authority before retaining or reviewing it. Do not repeat completed work.",
       { ...base, ...history, final: observation.final });
   }

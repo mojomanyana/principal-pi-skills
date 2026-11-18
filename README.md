@@ -56,9 +56,11 @@ not review approval. Native result retention requires the compatible pi-daddy in
 The tool uses the existing candidate snapshot implementation with the named
 `principal-candidate-v1` format. It refuses stale inputs, conflicting requests, exposed report
 paths and uncertain execution. It does not reconstruct historical fingerprint formulas.
-Inline work does not require a dummy delegation to complete a record. Pass relevant authority/
-evidence as `inputPaths` for tool-generated references and the returned candidate object as
-`expectedCandidate`; product-file hash lists are unnecessary. Later actions take the task and
+Inline work does not require a dummy delegation to complete a record. Pass immutable authority/
+evidence as `inputPaths`; `contextPaths` lists editable workspace paths. A path cannot be both.
+Path hints are not immutable evidence, permission or automatic child file delivery: the handoff
+still supplies needed allowed references. Pass the returned candidate as `expectedCandidate`;
+product-file hash lists are unnecessary. Later actions take the task and
 step, or `operationId`. See [mechanics](references/workflow-mechanics.md).
 
 `principal_codemode` reuses the available native Pi Codemode factory with `models: false`.
@@ -115,8 +117,8 @@ script counts it and prints the current figures.
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
 | `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1183) or inline | 1114 |
-| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1543) or inline | 1524 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1341) or inline | 1289 |
+| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1672) or inline | 1619 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1358) or inline | 1306 |
 | `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 765) or inline | 744 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1469) or inline | 1288 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 478) or inline | 479 |
@@ -217,8 +219,10 @@ report contributes assumptions, follow-ups and evidence gaps to the Digest. Repa
 full review-report paths, finding definitions and acceptance conditions, not IDs alone;
 scoped re-review retains original whole-change evidence and gates. Independent work gets
 new report/diff paths; resuming the same prepared operation reuses its verified references.
-Repairs retain original review path and reviewed candidate. `UNVERIFIED` returns
-`Next: evidence` for coordinator reconciliation, not automatic Build. A concrete product/test
+A settled Build can return a complete final describing partial delivery. Preserve it, inspect current
+files and continue only remaining authorized work without replaying the completed operation or asking
+again for unchanged scope. Repairs retain original review path and reviewed candidate. Review
+`UNVERIFIED` returns `Next: evidence` for coordinator reconciliation, not automatic Build. A concrete product/test
 finding routes to Build only within repair authority. Reuse matching receipts; run a targeted
 check for a named doubt, not every suite merely to obtain a fresh reviewer. Stop/reassess
 repeated failures without new evidence rather than imposing a fixed repair-round quota.
@@ -281,9 +285,9 @@ history is unknown. Readiness and candidate diagnostics are explained in
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.17.0
-   pi install npm:pi-daddy@0.59.0
-   pi install npm:skill-harness@0.35.6
+   pi install npm:principal-pi-skills@4.18.0
+   pi install npm:pi-daddy@0.60.0
+   pi install npm:skill-harness@0.36.0
    ```
 
    Restart Pi after package changes. The `pi` manifest registers ten skills, four
@@ -320,8 +324,8 @@ history is unknown. Readiness and candidate diagnostics are explained in
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.17.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.17.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.18.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.18.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -402,10 +406,11 @@ Each gate records its owner and due stage. A typical assignment is:
 | Candidate review | Reviewer | Exact candidate, applicable source requirements, supplied evidence and verdict |
 | After reviewer return | Coordinator | Reviewer settlement, then authorized integration and final verification |
 
-Native process settlement needs `cleanup.state=settled` with its matching identity-bound receipt.
-An absent disposable workspace is not process-cleanup evidence. Retain the model-visible runtime
-evidence emitted by pi-daddy 0.44.4; missing evidence blocks dependent work and task completion even with
-passing tests or review.
+Native process settlement needs `cleanup.state=settled` in the runtime evidence summary emitted by
+pi-daddy 0.60.0. Daddy reports settled only after verifying an identity-bound receipt; `complete`
+rechecks the native execution identity. Do not look for receipt fields in tool text; full receipts
+stay in tool details. An absent disposable workspace is not process-cleanup evidence. Missing
+emitted evidence blocks dependent work and task completion even with passing tests or review.
 
 This example cannot change source-required ordering. A leaf reports later coordinator gates as
 pending and does not certify its future exit or call tools it lacks. Missing evidence required
