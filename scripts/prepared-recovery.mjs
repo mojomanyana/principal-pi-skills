@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { realpathSync } from "node:fs";
 import { isAbsolute } from "node:path";
 import { reference } from "./progress-artifacts.mjs";
-import { observeCandidate, inspectRecoveryRecord, inspectRecoveryOperation, inspectRecoverySuccessor, inspectOwnedOperation, prepareRecoverySuccessor, automaticRetryBudget, historicalNativeResult } from "./workflow-state.mjs";
+import { NativeWorkspaceMismatchError, observeCandidate, inspectRecoveryRecord, inspectRecoveryOperation, inspectRecoverySuccessor, inspectOwnedOperation, prepareRecoverySuccessor, automaticRetryBudget, historicalNativeResult } from "./workflow-state.mjs";
 
 const canonical = value => JSON.stringify(value, (_key, item) => item && typeof item === "object" && !Array.isArray(item)
   ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
@@ -69,7 +69,7 @@ const historicalView = result => ({ ...result, historical: true, completionValid
 /** The supplied authorize callback protects current selected context across every asynchronous boundary. */
 export async function recoverPreparedOperation(pi, ctx, request, signal, authorizeContext = () => {}) {
   const requester = identity(ctx), repo = request.repo ?? ctx.cwd;
-  assert(realpathSync(repo) === requester.cwd, "Recover work in its currently selected folder");
+  if (realpathSync(repo) !== requester.cwd) throw new NativeWorkspaceMismatchError(requester.cwd, realpathSync(repo));
   assert(request.mode === undefined || ["inspect", "continue", "retain"].includes(request.mode), "Unknown recovery mode");
   const selected = inspectRecoveryRecord(repo, request), record = selected.record, sourceReference = selected.sourceReference;
   const source = { owner: record.owner, operationId: record.operationId };
@@ -129,8 +129,13 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
       { report: retained.report, ...(retained.authoredReport ? { authoredReport: retained.authoredReport } : {}), disposition: retained.disposition, candidateMatches: retained.candidateMatches, inputsMatch: retained.inputsMatch,
         issues: retained.issues, sourceRecovery: retained.sourceRecovery, completionValid: false, historical: true });
   }
-  if (!record.owner || record.owner.cwd !== requester.cwd) {
+  if (!record.owner) {
     return outcome("uncertain", "The saved preparation has no matching original coordinator in this folder. Inspect its files and original session; no new attempt was created.");
+  }
+  if (record.owner.cwd !== requester.cwd || record.root !== requester.cwd) {
+    return outcome("uncertain", "The saved preparation has no matching original coordinator workspace. Preserve its output and exact producer references as historical evidence; inspect the original session and current files. Selecting another folder cannot repair a recorded native workspace mismatch or establish original completion. No new attempt was created.",
+      { code: "NATIVE_WORKSPACE_MISMATCH", diagnostic: { kind: "native-workspace", selectedFolder: requester.cwd,
+        repositoryRoot: record.root, originalOwnerFolder: record.owner?.cwd ?? null } });
   }
   let observation;
   try { observation = await queryOperationRecovery(pi, ctx, source, check, signal); }

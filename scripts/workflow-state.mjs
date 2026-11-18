@@ -67,6 +67,24 @@ export class CompletedResultRetryError extends Error {
       ...(!operation.resultRetained ? { completionArguments: { action: "complete", ...selected }, requiredCompletionFields: ["disposition"] } : {}) };
   }
 }
+/** The repo argument is bookkeeping selection, not a native execution destination. */
+export class NativeWorkspaceMismatchError extends Error {
+  constructor(selectedFolder, repositoryRoot) {
+    super(`Native workspace mismatch: Pi is selected in ${selectedFolder}, but the prepared repository is ${repositoryRoot}.`);
+    this.name = "NativeWorkspaceMismatchError";
+    this.code = "NATIVE_WORKSPACE_MISMATCH";
+    this.administrativeWrites = false;
+    this.operationAllocated = false;
+    this.diagnostic = { kind: "native-workspace", selectedFolder, repositoryRoot };
+    this.recovery = { action: "select-existing-workspace",
+      message: "The repo argument selects bookkeeping, not the native child's working folder. For future work, select or start Pi in the existing repositoryRoot shown here before preparing it; no Git setup or new permission is implied. This call allocated no operation. Preserve any existing operation and its output: changing folders cannot repair its recorded execution identity and does not authorize a replacement or replay. Read-only cross-folder snapshot/reference remains available." };
+  }
+}
+export function requireNativeWorkspace(selectedFolder, repositoryRoot) {
+  const selected = realpathSync(selectedFolder), root = realpathSync(repositoryRoot);
+  if (selected !== root) throw new NativeWorkspaceMismatchError(selected, root);
+}
+
 /** Context validation precedes operation allocation and never relaxes required evidence. */
 export class ContextInputError extends Error {
   constructor(error, action) {
@@ -744,6 +762,7 @@ export function completeOperation(repo, request, runtime) {
 export function retryOperation(repo, request, runtime) {
   assert(runtime?.historical !== true, "historical observation cannot authorize a retry");
   const { record } = load(repo, request);
+  if (record.owner) requireNativeWorkspace(record.owner.cwd, record.root);
   assert(runtime?.operationId === record.operationId, "prior operation identity mismatch");
   const neverStarted = runtime.state === "not-started" && runtime.runtime?.cleanup?.state === "not-started";
   const settled = runtime.state === "settled" && runtime.runtime?.cleanup?.state === "settled" &&

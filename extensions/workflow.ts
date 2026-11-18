@@ -1,7 +1,7 @@
 // Coordinator-only bookkeeping. Native execution and semantic approval remain separate.
 import { realpathSync } from "node:fs";
 import { Type } from "typebox";
-import { CandidateIdentityError, PrepareInputError, PreparedOutputChangedError, CompletedResultRetryError, ContextInputError, WORKFLOW_TASK_NAME, WORKFLOW_STEP_NAME, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation, inspectRecoveryRecord, inspectRecoverySuccessor, inspectRecoveryOperation } from "../scripts/workflow-state.mjs";
+import { CandidateIdentityError, PrepareInputError, PreparedOutputChangedError, CompletedResultRetryError, ContextInputError, NativeWorkspaceMismatchError, requireNativeWorkspace, WORKFLOW_TASK_NAME, WORKFLOW_STEP_NAME, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation, inspectRecoveryRecord, inspectRecoverySuccessor, inspectRecoveryOperation } from "../scripts/workflow-state.mjs";
 import { reference } from "../scripts/progress-artifacts.mjs";
 import { freezeSnapshot } from "../scripts/frozen-snapshot.mjs";
 import { observeGitResource, observeIntegrationSubject, observePackageRelease, packageReleaseEffectTarget } from "../scripts/continuity.mjs";
@@ -165,8 +165,12 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
             if (readiness.state !== "ready") result = readiness.state === "setup-required"
               ? { ...readiness, message: readiness.message + " Use principal_workflow setup or /principal-setup to request interactive confirmation. No setup was performed." }
               : readiness;
-            else result = request.action === "snapshot" ? observeSnapshot(repo, request)
-              : prepareOperation(repo, { ...request, owner: { sessionId: ctx.sessionManager.getSessionId(), cwd: realpathSync(ctx.cwd) } });
+            else if (request.action === "snapshot") result = observeSnapshot(repo, request);
+            else {
+              const owner = coordinator();
+              requireNativeWorkspace(owner.cwd, readiness.repositoryRoot);
+              result = prepareOperation(repo, { ...request, owner });
+            }
           }
           else if (request.action === "resource") {
             if (request.packageRelease && request.repositories) throw Error("Select one repository for a package release target");
@@ -208,6 +212,7 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
           else if (request.action === "status") result = inspectOperation(repo, request);
           else {
             const current = inspectOwnedOperation(repo, request, coordinator());
+            if (request.action === "retry") requireNativeWorkspace(coordinator().cwd, current.root);
             if (request.action === "complete" && current.resultRetained) result = completeOperation(repo, request);
             else if (request.action === "complete" && ["complete", "stale"].includes(current.state)) result = { ...current, reused: true };
             else {
@@ -227,6 +232,7 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
         const outputChanged = error instanceof PreparedOutputChangedError;
         const completedRetry = error instanceof CompletedResultRetryError;
         const contextError = error instanceof ContextInputError;
+        const workspaceError = error instanceof NativeWorkspaceMismatchError;
         const identityError = error instanceof OperationIdentityError;
         const selectionError = error instanceof OperationSelectionError;
         const setupError = error instanceof ProjectSetupError;
@@ -239,15 +245,16 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
               ...(request.operationId !== undefined ? { operationId: request.operationId }
                 : { task: request.task, step: request.step, attempt: (selectionError ? error.attempt : undefined) ?? request.attempt ?? 1 }) },
               nextAction: "Inspect this original operation with recover. Resuming that original execution requires producer proof it never started. Preserve completed output and reconcile remaining authorized scope; this refusal authorizes no replacement or replay." } : {}),
-          ...(candidateError || inputError || identityError || selectionError || completedRetry || contextError ? { code: error.code, diagnostic: error.diagnostic } : setupError || outputChanged ? { code: error.code } : {}),
+          ...(candidateError || inputError || identityError || selectionError || completedRetry || contextError || workspaceError ? { code: error.code, diagnostic: error.diagnostic } : setupError || outputChanged ? { code: error.code } : {}),
           ...(inputError ? { operationAllocated: error.operationAllocated, recovery: error.recovery } : {}),
           ...(identityError ? { recovery: error.recovery } : {}),
           ...(selectionError ? { choices: error.choices } : {}),
           ...(outputChanged ? { ...error.existingOperation, recovery: error.recovery } : {}),
           ...(completedRetry ? { recovery: error.recovery } : {}),
           ...(contextError ? { operationAllocated: error.operationAllocated, recovery: error.recovery } : {}),
+          ...(workspaceError ? { operationAllocated: error.operationAllocated, recovery: error.recovery } : {}),
           ...(setupSteps && Object.keys(setupSteps).length ? { setupSteps } : {}),
-          administrativeWrites: candidateError || inputError || identityError || selectionError || setupError || outputChanged || completedRetry || contextError ? error.administrativeWrites
+          administrativeWrites: candidateError || inputError || identityError || selectionError || setupError || outputChanged || completedRetry || contextError || workspaceError ? error.administrativeWrites
             : ["setup", "prepare", "complete", "retry", "freeze"].includes(request.action) || request.action === "recover" && ["continue", "retain"].includes(request.mode) ? "possible" : false };
         return { content: [{ type: "text", text: JSON.stringify(result) }], structuredContent: result, details: result, isError: true };
       }
