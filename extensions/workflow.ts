@@ -1,7 +1,7 @@
 // Coordinator-only bookkeeping. Native execution and semantic approval remain separate.
 import { realpathSync } from "node:fs";
 import { Type } from "typebox";
-import { CandidateIdentityError, PrepareInputError, PreparedOutputChangedError, WORKFLOW_TASK_NAME, WORKFLOW_STEP_NAME, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation, inspectRecoveryRecord, inspectRecoverySuccessor, inspectRecoveryOperation } from "../scripts/workflow-state.mjs";
+import { CandidateIdentityError, PrepareInputError, PreparedOutputChangedError, CompletedResultRetryError, ContextInputError, WORKFLOW_TASK_NAME, WORKFLOW_STEP_NAME, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation, inspectRecoveryRecord, inspectRecoverySuccessor, inspectRecoveryOperation } from "../scripts/workflow-state.mjs";
 import { reference } from "../scripts/progress-artifacts.mjs";
 import { freezeSnapshot } from "../scripts/frozen-snapshot.mjs";
 import { observeGitResource, observeIntegrationSubject, observePackageRelease, packageReleaseEffectTarget } from "../scripts/continuity.mjs";
@@ -26,7 +26,9 @@ const parameters = Type.Object({
   expectedCandidate: Type.Optional(Type.Union([Type.String(), Type.Object({
     algorithm: Type.Literal("principal-candidate-v1"), root: Type.String(), id: Type.String(),
   }, { additionalProperties: true })])),
-  inputPaths: Type.Optional(Type.Array(Type.String(), { maxItems: 128 })), inputs: Type.Optional(Type.Array(ref, { maxItems: 128 })),
+  inputPaths: Type.Optional(Type.Array(Type.String(), { maxItems: 128, description: "Immutable authority/evidence files. Edits invalidate completion. Put editable product files in contextPaths." })),
+  inputs: Type.Optional(Type.Array(ref, { maxItems: 128, description: "Exact immutable authority/evidence references; never editable context." })),
+  contextPaths: Type.Optional(Type.Array(Type.String(), { maxItems: 128, description: "Readable, nonignored workspace product files expected to change. Advisory paths, not prerequisite hashes or permission. Cannot overlap inputs." })),
   evidence: Type.Optional(Type.Array(ref, { maxItems: 128 })),
   reviewBinding: Type.Optional(Type.Object({
     initiativeId: Type.String(), taskId: Type.String(), taskRevision: Type.String(), outputId: Type.String(),
@@ -128,7 +130,7 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
   const bindCandidateObserver = registerCandidateObserver(pi);
   pi.registerTool({
     name: "principal_workflow", label: "Principal workflow", parameters, outputSchema,
-    description: "Principal coordinator bookkeeping. It never dispatches, executes, approves or grants permission. preflight: read-only project readiness. setup: one confirmed empty Git baseline in the current workspace. snapshot: a Git worktree's candidate identity, hashing named inputPaths. reference: one file's exact hash. prepare (native delegation only): stable task and step, phase, expectedCandidate and inputPaths for relevant authority/evidence; returns reportPath, delegationArguments and statusArguments. Repeating it reuses verified artifacts. status/complete/retry/history/result take task and step, selecting the latest attempt unless attempt is given; an uncertain or foreign one refuses with choices. status rechecks a prepared operation against current files. complete retains the exact settled native final with its disposition; resultRetained is history, completionValid is current freshness, and neither is approval. result reads a settled native final without writing. history reads the original owner's result after restart. recover inspects an older operation after an update or /new. retry keeps the previous attempt; automatic mode requires owner proof and a durable allowance, while manual mode requires an authorized retry. For resource/freeze (exact Git work-map references, evidence snapshots) and reviewBinding, see references/continuity.md.",
+    description: "Principal bookkeeping; never execution, permission or approval. preflight: project readiness. setup: one confirmed empty Git baseline. snapshot: current candidate and input references. reference: exact file hash. prepare: native task/step/phase plus expectedCandidate, immutable inputPaths and editable contextPaths; returns reportPath, delegationArguments and statusArguments. Repetition reuses verified artifacts. status/complete/retry/history/result select task/step's latest owned attempt unless attempt is given; ambiguous or foreign selection refuses with choices. status rechecks current files. complete retains the settled exact final and disposition; resultRetained is history, completionValid is current freshness, neither is approval. result reads without writing; history reads the original owner's result; recover inspects after updates or /new. retry preserves the predecessor; automatic mode needs owner proof and a durable allowance, manual mode an authorized retry. For resource/freeze and reviewBinding see references/continuity.md.",
     promptGuidelines: ["Use this tool, not shell recipes, for hashes, report paths and identity checks; never compute an ID or digest yourself. Pass snapshot.candidate unchanged as expectedCandidate; HEAD alone does not identify uncommitted files. Pass prepare's delegationArguments to delegate with the current delegate_describe definitionId. Only after the child's cleanup is settled (uncertain is not settled), call complete for that operation before any repair, with the disposition its final actually shows: never succeeded for partial or unverified delivery. For replayable failures, call retry with retryMode automatic, task/step, reason and expectedCandidate; the owner proof and persisted budget allow one automatic successor. Pass its delegationArguments unchanged, including definitionId. Unsafe or exhausted replay stops only that phase; continue independent authorized work and ask only for a missing decision. Use retryMode manual only for a separately authorized retry, never to evade the automatic limit. After Build/Debug changes files, call complete, not prepare; if prepare returns PREPARED_OUTPUT_CHANGED, use its recovery arguments. If host schema validation rejects prepare task/step before execution, or PREPARE_INPUT_INVALID reports operationAllocated=false, correct the named field and repeat prepare for the same authorized work without asking again. Reuse established task/step identities; for a new task with no internal identity, choose a short valid ID. Keep attempt unchanged and never rename an existing operation to evade a refusal; this is not retry of an executed operation. On other refusals, follow the returned recoverArguments or statusArguments instead of preparing a replacement. For authorized continuation, follow continueArguments or historical retainArguments unchanged; recall requests only inspect. prepare and complete write private ignored files: when all writes are forbidden, use result instead. Inline work needs no prepare."],
     async execute(_callId, input, signal, _update, ctx) {
       let request = input;
@@ -223,6 +225,8 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
         const candidateError = error instanceof CandidateIdentityError;
         const inputError = error instanceof PrepareInputError;
         const outputChanged = error instanceof PreparedOutputChangedError;
+        const completedRetry = error instanceof CompletedResultRetryError;
+        const contextError = error instanceof ContextInputError;
         const identityError = error instanceof OperationIdentityError;
         const selectionError = error instanceof OperationSelectionError;
         const setupError = error instanceof ProjectSetupError;
@@ -234,14 +238,16 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
             ? { recoverArguments: { action: "recover", ...(request.repo === undefined ? {} : { repo: request.repo }),
               ...(request.operationId !== undefined ? { operationId: request.operationId }
                 : { task: request.task, step: request.step, attempt: (selectionError ? error.attempt : undefined) ?? request.attempt ?? 1 }) },
-              nextAction: "Inspect this original operation with recover. Reuse verified delivered work; continue only when the producer proves it never started. No replacement has been authorized by this refusal." } : {}),
-          ...(candidateError || inputError || identityError || selectionError ? { code: error.code, diagnostic: error.diagnostic } : setupError || outputChanged ? { code: error.code } : {}),
+              nextAction: "Inspect this original operation with recover. Resuming that original execution requires producer proof it never started. Preserve completed output and reconcile remaining authorized scope; this refusal authorizes no replacement or replay." } : {}),
+          ...(candidateError || inputError || identityError || selectionError || completedRetry || contextError ? { code: error.code, diagnostic: error.diagnostic } : setupError || outputChanged ? { code: error.code } : {}),
           ...(inputError ? { operationAllocated: error.operationAllocated, recovery: error.recovery } : {}),
           ...(identityError ? { recovery: error.recovery } : {}),
           ...(selectionError ? { choices: error.choices } : {}),
           ...(outputChanged ? { ...error.existingOperation, recovery: error.recovery } : {}),
+          ...(completedRetry ? { recovery: error.recovery } : {}),
+          ...(contextError ? { operationAllocated: error.operationAllocated, recovery: error.recovery } : {}),
           ...(setupSteps && Object.keys(setupSteps).length ? { setupSteps } : {}),
-          administrativeWrites: candidateError || inputError || identityError || selectionError || setupError || outputChanged ? error.administrativeWrites
+          administrativeWrites: candidateError || inputError || identityError || selectionError || setupError || outputChanged || completedRetry || contextError ? error.administrativeWrites
             : ["setup", "prepare", "complete", "retry", "freeze"].includes(request.action) || request.action === "recover" && ["continue", "retain"].includes(request.mode) ? "possible" : false };
         return { content: [{ type: "text", text: JSON.stringify(result) }], structuredContent: result, details: result, isError: true };
       }

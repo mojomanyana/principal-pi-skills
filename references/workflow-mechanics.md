@@ -35,8 +35,11 @@ it says nothing about earlier work.
 
 ### Candidates, completion and changed output
 
-Pass the returned `snapshot.candidate` directly as `expectedCandidate` and name relevant
-authority/evidence files in `inputPaths`; the candidate already covers product files. A refusal
+Pass `snapshot.candidate` directly as `expectedCandidate`. `inputPaths` and exact `inputs` pin
+immutable authority/evidence for this operation. `contextPaths` lists existing readable workspace
+paths expected to change; these hints are not unchanged prerequisites or permission, and do not
+inject file contents. Supply needed allowed references in the child handoff. A path cannot serve
+both roles. The candidate already covers product files. A refusal
 distinguishes missing or malformed identity from a different candidate or workspace; dimensions an
 older or ID-only snapshot cannot explain stay unknown. Understand why the expected input differs
 before using a fresh snapshot; never reconstruct hashes or repeat prepare unchanged.
@@ -50,6 +53,12 @@ successor. An absent proof on older Daddy versions permits no automatic retry. E
 manual retries use `retryMode: "manual"`; never use it to evade an exhausted automatic allowance.
 Omitted mode selects the bounded path when proof or an automatic lineage exists, otherwise retaining
 legacy manual behavior. A denied retry blocks that phase, not unrelated authorized work.
+
+A settled complete final is not an automatic-retry candidate merely because its Build is partial.
+Retain the actual disposition and inspect the report/files. Continue only missing authorized work
+with a new scoped unit or already-authorized inline path, preserving the old operation and useful
+evidence. Review UNVERIFIED instead requires evidence reconciliation, not inferred product repair.
+Neither path clears uncertain execution, changed authority or required review gates.
 
 `status`, `retry`, `history` and `result` take the same names; without `attempt` they select the
 latest, refusing with `choices` when it is uncertain or another coordinator's. `resultRetained: true`
@@ -121,10 +130,10 @@ Recall-only requests do not retain new records.
 
 `observedCandidate` is the tree seen during historical retention, **not** the missing original
 Build output. `currentCandidate` describes today's tree; `completionValid` remains false and
-`sourceRecovery` is absent. Reconcile current files and authority, then prepare a fresh independently
-scoped Review using the returned report references. This path cannot satisfy an existing bound
-work-map Build-completion gate or automatically settle that task. Keep partial-delivery limitations
-and any remaining required checks explicit.
+`sourceRecovery` is absent. Reconcile current files and authority; continue any remaining authorized
+implementation before a fresh independently scoped Review using the preserved report references.
+This path cannot satisfy an existing bound work-map Build-completion gate or automatically settle
+that task. Keep partial-delivery limitations and remaining required checks explicit.
 
 ### Read historical native results
 

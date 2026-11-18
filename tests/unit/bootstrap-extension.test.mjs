@@ -94,6 +94,9 @@ test("continuation, recall and current-gate fixtures receive the actual scope po
     assert.match(policy, /Recall-only requests report saved delivery/);
     assert.match(policy, /Continuation reconciles historical blockers with the latest authorized scope and amendments/);
     assert.match(policy, /Missing evidence blocks only dependent actions; continue independent authorized work within current permission, native settlement and explicit user gates/);
+    assert.match(policy, /settled Build's complete final can describe partial delivery/);
+    assert.match(policy, /continue only remaining authorized work; do not replay completed work/);
+    assert.match(policy, /Review UNVERIFIED needs evidence\/access reconciliation/);
     assert.deepEqual(result.messages.filter(message => !bootstrap(message)), messages, scenario.name);
     assert.equal(result.messages.at(-1), messages.at(-1), "the latest user instruction remains intact and last");
     assert.deepEqual(messages, before, "historical notes and current gates are not rewritten or consumed");

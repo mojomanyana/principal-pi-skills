@@ -16,7 +16,10 @@ in product terms.
 Missing evidence blocks the next action that depends on it; continue independent authorized work
 within explicit user gates. When the missing fact changes that next action, offer concrete useful
 choices and their consequences instead of repeating a generic blocker. For continuation, reconcile
-historical blockers with the latest authorized scope and amendments.
+historical blockers with the latest authorized scope and amendments. Missing optional observations
+limit their dependent claims, not supported independent work. Prepare authorized repository-local
+test dependencies without turning a no-global-upgrade/model-restart rule into a no-local-setup ban;
+explicit no-install/network restrictions still apply.
 
 Prefer the simplest adequate use of existing parts and explain consequential tradeoffs. Choose
 checks that can expose plausible wrong behavior; passing checks or a stopped child do not by
@@ -50,7 +53,8 @@ every `delegate`, `delegate_all` child and `delegate_chain` step. Reuse a curren
 again after a reload or selected-resource change. Pass `selectedResources` from the response
 unchanged when present: its `package.root` locates this package's helpers, never another
 installation. Hand children current authority references, relevant plan sections, accepted
-finding definitions and due gates, not copied history or a full-plan reread.
+finding definitions and due gates, not copied history or a full-plan reread. State their already
+admitted role and workspace; historical parent routing warnings are not new child prerequisites.
 
 Missing, wrong, disabled or stale bindings, an unqualified backend, a permission or context refusal,
 a timeout, a report gap or uncertain cleanup stops dependent work. Never substitute inline or another
@@ -59,8 +63,10 @@ scope and prerequisites; it cannot clear uncertain admission/cleanup or waive a 
 legacy principal-* runner needs genuinely absent native tools and an explicitly configured runner.
 Follow authored model/effort policy.
 
-After a child returns, check its full native result and identity-bound `cleanup.state=settled`
-receipt before dependent work, including before consuming a Review verdict. Leaves report later
+After a child returns, check its full native result and the runtime evidence summary's
+`cleanup.state=settled` before dependent work, including consuming Review's verdict. Daddy reports
+settled only after verifying an identity-bound receipt; `complete` rechecks the native execution
+identity. Receipt fields stay outside tool text. Leaves report later
 coordinator gates as pending with their owner and due stage.
 
 Use one `delegate_all` for an approved independent batch, never overlapping single calls. Writers
@@ -75,8 +81,10 @@ inline included. Prepare/complete/retry are native-delegation bookkeeping; inlin
 dummy delegation. Pass the returned `delegationArguments` to delegate alongside its `definitionId`;
 later calls name the task and step. Call complete right after native settlement and before repairs;
 after Build/Debug changes files, complete the original operation instead of preparing again.
-Retention and completion are evidence, never approval. With all writes forbidden, skip
-prepare/complete and verify the native final with `result`.
+Retention and completion are evidence, never approval. `inputPaths` pins immutable authority/evidence;
+use `contextPaths` to list editable workspace paths, not as permission or required unchanged inputs.
+These hints do not inject file contents: supply needed allowed references in the handoff. With all
+writes forbidden, skip prepare/complete and verify the native final with `result`.
 
 When host schema validation rejects `prepare` task/step before execution, or `PREPARE_INPUT_INVALID`
 reports `operationAllocated: false`, correct the named field and repeat `prepare` for the same
@@ -111,7 +119,12 @@ evidence for authorized continuation, never for a recall-only request or as fres
 
 ## Convergence
 
-Read Review Verdict before Next. UNVERIFIED means evidence/access reconciliation or a caller
+A settled Build's complete final can report partial delivery. Preserve its result and actual
+disposition, inspect current files, then continue only remaining authorized work without replaying
+completed work or asking again for unchanged scope. Current access, settlement and explicit gates
+still govern the next action; a Build marked unverified is not a Review verdict.
+
+Read Review Verdict before Next. Review UNVERIFIED means evidence/access reconciliation or a caller
 question, not automatic implementation; its `Next: evidence` returns to the coordinator. A concrete
 product/test defect goes to Build, an unknown behavioral cause to Debug. Reuse matching candidate,
 scope and environment evidence; fresh judgment does not need a fresh suite run.
@@ -166,12 +179,12 @@ live here.
 
 ## Setup (pi)
 
-1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.17.0`,
-   `pi install npm:pi-daddy@0.59.0` and `pi install npm:skill-harness@0.35.6`. Enable `grep`,
+1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.18.0`,
+   `pi install npm:pi-daddy@0.60.0` and `pi install npm:skill-harness@0.36.0`. Enable `grep`,
    `find` and `ls` through Pi `settings.json` `defaultTools`; see [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent:
-   `npx -p principal-pi-skills@4.17.0 principal-pi-agents install`, then
-   `npx -p principal-pi-skills@4.17.0 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.18.0 principal-pi-agents install`, then
+   `npx -p principal-pi-skills@4.18.0 principal-pi-agents check`.
 3. Each skill's `allowed-tools` caps the context a delegated child may receive: `context:summary`
    for `architect`, `decide` and `plan`; `context:files` for `build`, `debug`, `review`,
    `test-review` and `investigate`; none for `git-ops`. The reasons are in each frontmatter and the

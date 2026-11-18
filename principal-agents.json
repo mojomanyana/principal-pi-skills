@@ -11,8 +11,8 @@
     "review": {
       "skill": "review/SKILL.md",
       "agent": "agents/principal-review.md",
-      "skillSha256": "a6d899020fc451d424920533fa6dbb6b21fc230b94a4e4ad21f91d30e80e4cf1",
-      "agentSha256": "c0ac620f2cd6ce9b21b4411d129ed47783db803dea8a3ed050cf7c74cc96ab35"
+      "skillSha256": "d4dab1d47c6a3373694aab7f600139c65584cf4e9e40a5d1442042e22f58cfc2",
+      "agentSha256": "b81d3dd4387ac2d16c24d2f97e1a55cbcc3ab9992e0cad6c17047b5ffce0ba32"
     },
     "test-review": {
       "skill": "test-review/SKILL.md",
@@ -29,8 +29,8 @@
     "build": {
       "skill": "build/SKILL.md",
       "agent": "agents/principal-build.md",
-      "skillSha256": "12c9f5649edd50091b1a9940281980419fb51191760cb02a7794b256481104d9",
-      "agentSha256": "0fa7f29b775078c9e4516aca44d1137a5feda9981c535f2fc1d704d76eeb041d"
+      "skillSha256": "7bb6d2cfe762cb83f1e356948dae395d37b52911748734dedf98f798a1973006",
+      "agentSha256": "4b3c4bfa6c7e8725386f7e9b48a746bb2a64e309841de7ae7caa05c71d0fd357"
     },
     "investigate": {
       "skill": "investigate/SKILL.md",
