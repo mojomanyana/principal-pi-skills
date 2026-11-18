@@ -166,12 +166,12 @@ live here.
 
 ## Setup (pi)
 
-1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.16.0`,
+1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.17.0`,
    `pi install npm:pi-daddy@0.59.0` and `pi install npm:skill-harness@0.35.6`. Enable `grep`,
    `find` and `ls` through Pi `settings.json` `defaultTools`; see [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent:
-   `npx -p principal-pi-skills@4.16.0 principal-pi-agents install`, then
-   `npx -p principal-pi-skills@4.16.0 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.17.0 principal-pi-agents install`, then
+   `npx -p principal-pi-skills@4.17.0 principal-pi-agents check`.
 3. Each skill's `allowed-tools` caps the context a delegated child may receive: `context:summary`
    for `architect`, `decide` and `plan`; `context:files` for `build`, `debug`, `review`,
    `test-review` and `investigate`; none for `git-ops`. The reasons are in each frontmatter and the

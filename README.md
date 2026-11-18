@@ -46,8 +46,8 @@ private report handoffs. `snapshot` and `reference` support any coordinator work
 phases, `prepare` allocates one ignored report path and stable operation ID; pass that ID to
 Daddy delegation. After settlement and before repairs, `complete` retains the exact captured final
 and producer identity in immutable `result.json`; `completion.json` requires current matching
-inputs/candidate. Stale results remain history, not current approval. A differing existing report is preserved and refused;
-an identical final may be reused. `result` verifies and returns a settled native final without
+inputs/candidate. Stale results remain history, not current approval. A differing existing report is preserved as authored evidence;
+the exact native final is retained separately. An identical final may be reused. `result` verifies and returns a settled native final without
 storage for strict no-files tasks; skip prepare/complete in that mode. `status` checks current bytes before reuse. Explicit `retry` preserves
 the old attempt and needs native settled or never-started proof. A new coordinator session
 cannot silently redispatch an old prepared operation; inspect and reconcile it first. These records are evidence,
@@ -281,7 +281,7 @@ history is unknown. Readiness and candidate diagnostics are explained in
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.16.0
+   pi install npm:principal-pi-skills@4.17.0
    pi install npm:pi-daddy@0.59.0
    pi install npm:skill-harness@0.35.6
    ```
@@ -320,8 +320,8 @@ history is unknown. Readiness and candidate diagnostics are explained in
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.16.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.16.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.17.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.17.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
