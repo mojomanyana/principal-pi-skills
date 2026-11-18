@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import { realpathSync } from "node:fs";
 import { isAbsolute } from "node:path";
 import { reference } from "./progress-artifacts.mjs";
-import { observeCandidate, inspectRecoveryRecord, inspectRecoveryOperation, inspectRecoverySuccessor, inspectOwnedOperation, prepareRecoverySuccessor, automaticRetryBudget } from "./workflow-state.mjs";
+import { observeCandidate, inspectRecoveryRecord, inspectRecoveryOperation, inspectRecoverySuccessor, inspectOwnedOperation, prepareRecoverySuccessor, automaticRetryBudget, historicalNativeResult } from "./workflow-state.mjs";
 
 const canonical = value => JSON.stringify(value, (_key, item) => item && typeof item === "object" && !Array.isArray(item)
   ? Object.fromEntries(Object.keys(item).sort().map(key => [key, item[key]])) : item);
@@ -70,7 +70,7 @@ const historicalView = result => ({ ...result, historical: true, completionValid
 export async function recoverPreparedOperation(pi, ctx, request, signal, authorizeContext = () => {}) {
   const requester = identity(ctx), repo = request.repo ?? ctx.cwd;
   assert(realpathSync(repo) === requester.cwd, "Recover work in its currently selected folder");
-  assert(request.mode === undefined || ["inspect", "continue"].includes(request.mode), "Unknown recovery mode");
+  assert(request.mode === undefined || ["inspect", "continue", "retain"].includes(request.mode), "Unknown recovery mode");
   const selected = inspectRecoveryRecord(repo, request), record = selected.record, sourceReference = selected.sourceReference;
   const source = { owner: record.owner, operationId: record.operationId };
   const envelope = { version: 1, approval: false, administrativeWrites: false, operation_id: record.operationId,
@@ -99,7 +99,8 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
     const successor = inspectRecoveryOperation(repo, { operationId: existing.record.operationId });
     const extra = { successor: historicalView(successor), recoverArguments: { action: "recover", ...named(successor) } };
     if (successor.resultRetained && successor.candidateMatches && successor.inputsMatch && !successor.issues?.length) {
-      return outcome("reused", "Reuse the successor's delivered output and recorded checks; do not repeat its work.", { ...extra, report: successor.report, sourceRecovery: successor.sourceRecovery });
+      return outcome("reused", "Reuse the successor's delivered output and recorded checks; do not repeat its work.", { ...extra, report: successor.report,
+        ...(successor.authoredReport ? { authoredReport: successor.authoredReport } : {}), sourceRecovery: successor.sourceRecovery });
     }
     try {
       assert(same(existing.record.previous?.recovery?.sourceReference, sourceReference), "successor has a different recovery lineage");
@@ -125,7 +126,7 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
       retained.candidateMatches && retained.inputsMatch && !retained.issues?.length
         ? "Reuse the delivered output and historical checks. Review any remaining requirements without rebuilding completed work."
         : "Preserve this delivered output. Reconcile the changed files or inputs and continue only the remaining authorized work.",
-      { report: retained.report, disposition: retained.disposition, candidateMatches: retained.candidateMatches, inputsMatch: retained.inputsMatch,
+      { report: retained.report, ...(retained.authoredReport ? { authoredReport: retained.authoredReport } : {}), disposition: retained.disposition, candidateMatches: retained.candidateMatches, inputsMatch: retained.inputsMatch,
         issues: retained.issues, sourceRecovery: retained.sourceRecovery, completionValid: false, historical: true });
   }
   if (!record.owner || record.owner.cwd !== requester.cwd) {
@@ -136,6 +137,19 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
   catch (error) { await check(); return outcome("uncertain", error.message); }
   await check();
   const base = { observation, candidateMatches: retained.candidateMatches, inputsMatch: retained.inputsMatch };
+  if (observation.final?.state === "complete" && observation.cleanup?.state === "settled" &&
+      observation.operation?.state === "settled" && observation.operation?.runtime?.work === "succeeded") {
+    await check();
+    const history = historicalNativeResult(repo, request, observation, requester, request.mode === "retain");
+    await check();
+    return outcome("historical", history.resultRetained
+      ? "The exact prior final and any authored report are retained as history. Reconcile current files and authority, then prepare a fresh independently scoped Review with these report references. No original Build output snapshot was retained: this does not satisfy a bound work-map Build completion gate. Do not repeat the Build."
+      : history.retainArguments
+        ? "For authorized continuation, retain the exact historical final with retainArguments, then reconcile current files for fresh independent Review. Recall-only requests should read the supplied final without writing."
+        : "The exact prior final is historical evidence. Required inputs changed; reconcile current authority before retaining or reviewing it. Do not repeat completed work.",
+      { ...base, ...history, final: observation.final });
+  }
+  assert(request.mode !== "retain", "Only a verified complete historical final with settled cleanup can be retained; inspect the original without repeating work");
   if (producerNoStart(observation, source)) {
     if (!retained.candidateMatches || !retained.inputsMatch || retained.issues?.length) {
       return outcome("historical", "The original operation never started, but its files or inputs changed. Reconcile the current scope before preparing remaining work.", base);

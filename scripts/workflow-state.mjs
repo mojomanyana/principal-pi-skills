@@ -1,7 +1,7 @@
 // Deterministic handoffs and exclusive operation records. Never executes work or grants approval.
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { constants, closeSync, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, writeSync } from "node:fs";
+import { createHash, randomUUID } from "node:crypto";
+import { constants, closeSync, fstatSync, fsyncSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, unlinkSync, writeSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { candidateSnapshot } from "./resume-checkpoint.mjs";
@@ -333,13 +333,51 @@ function load(repo, request, historical = false) {
 function optionalRecord(path) {
   try { return readRecord(path); } catch (error) { if (error.code === "ENOENT") return null; throw error; }
 }
+const nativeReportPath = record => join(dirname(record.reportPath), `${record.phase}.native-final.md`);
+function checkedReportReference(path) {
+  assert(realpathSync(dirname(path)) === dirname(path), "report directory was redirected; preserve the original evidence");
+  const ref = reference(path);
+  assert(ref.path === path, "report path was redirected; preserve the original evidence");
+  return ref;
+}
+function validateRetainedReport(record, result, finalSha256) {
+  assert([record.reportPath, nativeReportPath(record)].includes(result.report?.path) && result.report.sha256 === finalSha256,
+    "retained result report identity mismatch");
+  assert(same(checkedReportReference(result.report.path), result.report), "retained report changed");
+  if (result.authoredReport) {
+    assert(result.report.path === nativeReportPath(record) && result.authoredReport.path === record.reportPath,
+      "authored report identity mismatch");
+    assert(same(checkedReportReference(record.reportPath), result.authoredReport), "preserved authored report changed");
+  }
+}
+// A child-authored report is useful evidence, but only the exact native final is the canonical result.
+// Exclusive publication and an owner-derived sibling preserve both without guessing another path.
+function retainNativeReport(record, text, finalSha256) {
+  assert(hash(text) === finalSha256, "native final content or identity mismatch");
+  let authoredReport;
+  try {
+    const existing = checkedReportReference(record.reportPath);
+    if (existing.sha256 === finalSha256) return { report: existing };
+    authoredReport = existing;
+  } catch (error) { if (error.code !== "ENOENT") throw error; }
+  const destination = authoredReport ? nativeReportPath(record) : record.reportPath;
+  assertIgnored(record.root, destination);
+  let report;
+  try { report = saveReport(dirname(destination), destination.slice(dirname(destination).length + 1), text); }
+  catch (error) {
+    if (error.code !== "EEXIST") throw error;
+    report = checkedReportReference(destination);
+  }
+  const result = { report, ...(authoredReport ? { authoredReport } : {}) };
+  validateRetainedReport(record, result, finalSha256);
+  return result;
+}
 function retainedResult(path, record) {
   const result = optionalRecord(join(path, "result.json"));
   if (!result) return null;
   assert(result.operationId === record.operationId && Array.isArray(result.issues) && result.issues.every(issue => typeof issue === "string"), "retained result identity mismatch");
   const identity = settledRuntime(result.runtime, record.operationId, record.root);
-  assert(result.report.path === record.reportPath && result.report.sha256 === identity.runtime.final.sha256, "retained result report identity mismatch");
-  assert(reference(record.reportPath).sha256 === result.report.sha256, "retained report changed");
+  validateRetainedReport(record, result, identity.runtime.final.sha256);
   return result;
 }
 function inspectStoredOperation(repo, request, historical = false) {
@@ -352,9 +390,9 @@ function inspectStoredOperation(repo, request, historical = false) {
   });
   const result = completion ?? retained;
   assert(result.operationId === record.operationId, "completion operation mismatch");
-  assert(reference(record.reportPath).sha256 === result.report.sha256, "completed report changed");
+  validateRetainedReport(record, result, settledRuntime(result.runtime, record.operationId, record.root).runtime.final.sha256);
   if (completion && retained) {
-    for (const field of ["output", "report", "runtime", "disposition"]) assert(same(completion[field], retained[field]), "completion differs from retained native result");
+    for (const field of ["output", "report", "authoredReport", "runtime", "disposition"]) assert(same(completion[field], retained[field]), "completion differs from retained native result");
   }
   const readOnly = !["build", "debug"].includes(record.phase);
   const target = completion ? completion.output : readOnly ? record.input : retained.output;
@@ -364,7 +402,7 @@ function inspectStoredOperation(repo, request, historical = false) {
   const valid = !!completion && !issues.length;
   return summary(record, valid ? "complete" : issues.length ? "stale" : "retained", {
     candidateMatches: matches, inputsMatch: !inputIssues.length, output: result.output,
-    report: result.report, evidence: completion?.evidence ?? [], runtime: result.runtime, disposition: result.disposition,
+    report: result.report, ...(result.authoredReport ? { authoredReport: result.authoredReport } : {}), evidence: completion?.evidence ?? [], runtime: result.runtime, disposition: result.disposition,
     productChanged: !same(result.output, record.input), resultRetained: true, completionValid: valid, issues: [...new Set(issues)],
   });
 }
@@ -393,6 +431,63 @@ export function inspectRecoveryOperation(repo, request) {
     kind: "principal-completed-recovery", operationId: result.operation_id, request: sourceReference,
     result: optionalReference("result.json"), completion: optionalReference("completion.json"), report: result.report,
   } } : {}) };
+}
+/** Called only after the current coordinator's qualified producer recovery query.
+ * This retains history, never the missing original output candidate or a live completion. */
+export function historicalNativeResult(repo, request, observation, requester, write = false) {
+  const { path, record, sourceReference } = inspectRecoveryRecord(repo, request);
+  assert(same(requester.cwd, record.root) && record.owner?.cwd === record.root, "historical owner is outside the selected workspace");
+  assert(observation.admission === "present" && observation.result === "present" && observation.cleanup?.state === "settled",
+    "historical execution cleanup is not proven settled");
+  const runtime = { ...observation.operation, finalObservation: observation.final };
+  delete runtime.historical;
+  const identity = settledRuntime(runtime, record.operationId, record.root), text = finalText(runtime), artifact = observation.artifact;
+  assert(artifact?.version === 1 && artifact.producer === "pi-daddy" && same(artifact.owner, record.owner) &&
+    artifact.operationId === record.operationId && artifact.executionId === identity.executionId &&
+    isAbsolute(artifact.manifest?.path ?? "") && /^[a-f0-9]{64}$/.test(artifact.manifest?.sha256 ?? "") &&
+    Number.isSafeInteger(artifact.manifest?.bytes) && artifact.manifest.bytes > 0, "historical producer artifact identity mismatch");
+  const producerReference = { path: artifact.manifest.path, sha256: artifact.manifest.sha256 };
+  assert(same(reference(producerReference.path), producerReference) && lstatSync(producerReference.path).size === artifact.manifest.bytes,
+    "historical producer artifact changed");
+  const currentCandidate = observeCandidate(repo), issues = referenceIssues(record.inputs);
+  const destination = join(path, "historical-result.json");
+  let retained = optionalRecord(destination), wrote = false;
+  if (write) {
+    assert(same(request.sourceReference, sourceReference) && same(request.producerReference, producerReference), "Retain with the exact source and producer references returned by inspection");
+    requireExpectedCandidate(currentCandidate, request.expectedCandidate);
+    assert(!issues.length, "required historical inputs changed; reconcile current authority before retention");
+  }
+  if (!retained && write) {
+    assertIgnored(record.root, destination);
+    const reports = retainNativeReport(record, text, identity.runtime.final.sha256);
+    assert(same(reference(sourceReference.path), sourceReference) && same(reference(producerReference.path), producerReference), "historical source changed during retention");
+    assert(same(observeCandidate(repo), currentCandidate) && !referenceIssues(record.inputs).length, "current files or required inputs changed during historical retention");
+    const value = { version: 1, kind: "principal-historical-native-final", operationId: record.operationId,
+      sourceReference, sourceOwner: record.owner, producer: artifact, runtime: { ...identity, historical: true }, ...reports,
+      observedCandidate: currentCandidate, retainedBy: requester };
+    // Publish a complete immutable record: simultaneous inspectors never read a half-written JSON file.
+    const temporary = join(path, `historical-${randomUUID()}.tmp`);
+    assertIgnored(record.root, temporary);
+    writeNew(temporary, value);
+    try { linkSync(temporary, destination); wrote = true; }
+    catch (error) { if (error.code !== "EEXIST") throw error; }
+    finally { unlinkSync(temporary); }
+    retained = readRecord(destination);
+  }
+  if (retained) {
+    assert(retained.kind === "principal-historical-native-final" && retained.operationId === record.operationId &&
+      same(retained.sourceReference, sourceReference) && same(retained.sourceOwner, record.owner) && same(retained.producer, artifact) &&
+      same(retained.runtime, { ...identity, historical: true }), "retained historical identity changed");
+    validateRetainedReport(record, retained, identity.runtime.final.sha256);
+    assert(retained.observedCandidate?.algorithm === currentCandidate.algorithm && retained.observedCandidate.root === record.root &&
+      candidateId(retained.observedCandidate.id), "historical observation candidate is invalid");
+  }
+  return { historical: true, completionValid: false, applicability: "not-established", currentCandidate, inputsMatch: !issues.length, issues,
+    resultRetained: !!retained, administrativeWrites: wrote, reused: !!retained && !wrote,
+    ...(retained ? { report: retained.report, ...(retained.authoredReport ? { authoredReport: retained.authoredReport } : {}),
+      historicalRecord: reference(destination), observedCandidate: retained.observedCandidate }
+      : !issues.length ? { retainArguments: { action: "recover", mode: "retain", task: record.task, step: record.step, attempt: record.attempt,
+        sourceReference, producerReference, expectedCandidate: currentCandidate } } : {}) };
 }
 export function inspectRecoverySuccessor(repo, source) {
   const next = location(repo, source.task, source.step, source.attempt + 1);
@@ -549,18 +644,10 @@ export function completeOperation(repo, request, runtime) {
     const output = observeCandidate(repo), issues = referenceIssues(record.inputs);
     if (!["build", "debug"].includes(record.phase) && !same(output, record.input)) issues.push("read-only workflow phase changed candidate before native result retention");
     for (const destination of [record.reportPath, join(path, "result.json"), join(path, "completion.json")]) assertIgnored(record.root, destination);
-    let report;
-    try {
-      report = reference(record.reportPath);
-      assert(report.sha256 === identity.runtime.final.sha256, "existing report differs from the exact native final; preserve it and reconcile");
-    } catch (error) {
-      if (error.code !== "ENOENT") throw error;
-      report = saveReport(dirname(record.reportPath), `${record.phase}.md`, finalText(runtime));
-    }
-    assert(report.sha256 === identity.runtime.final.sha256, "retained native report failed integrity verification");
+    const reports = retainNativeReport(record, finalText(runtime), identity.runtime.final.sha256);
     if (!same(observeCandidate(repo), output)) issues.push("candidate changed while retaining native result");
     issues.push(...referenceIssues(record.inputs));
-    retained = { version: 1, operationId: record.operationId, output, report,
+    retained = { version: 1, operationId: record.operationId, output, ...reports,
       runtime: identity, disposition: request.disposition, issues: [...new Set(issues)] };
     // Preserve immutable producer evidence before deciding whether it applies to this tree.
     writeNew(join(path, "result.json"), retained);
@@ -576,7 +663,7 @@ export function completeOperation(repo, request, runtime) {
   const checked = inspectOperation(repo, request);
   if (checked.state === "stale") return { ...checked, reused: !wrote, administrativeWrites: wrote };
   writeNew(join(path, "completion.json"), { version: 1, operationId: record.operationId, output: retained.output,
-    report: retained.report, evidence, runtime: retained.runtime, disposition: retained.disposition });
+    report: retained.report, ...(retained.authoredReport ? { authoredReport: retained.authoredReport } : {}), evidence, runtime: retained.runtime, disposition: retained.disposition });
   return { ...inspectOperation(repo, request), reused: false, administrativeWrites: true };
 }
 

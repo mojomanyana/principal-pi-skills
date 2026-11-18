@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Coordinator-owned evidence files, not a scheduler, approval record or candidate-equivalence engine.
 import { execFileSync } from "node:child_process";
-import { createHash } from "node:crypto";
-import { closeSync, constants, fstatSync, fsyncSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, realpathSync, unlinkSync, writeSync } from "node:fs";
+import { createHash, randomUUID } from "node:crypto";
+import { closeSync, constants, fstatSync, fsyncSync, linkSync, lstatSync, mkdirSync, mkdtempSync, openSync, readFileSync, realpathSync, unlinkSync, writeSync } from "node:fs";
 import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
 
@@ -95,7 +95,13 @@ export function saveReport(run, name, contents) {
   if (typeof contents !== "string" || !contents.trim()) fail("report contents must be complete nonempty text");
   const destination = join(path, name);
   ignored(root, destination);
-  durableWrite(destination, contents);
+  // Publish only complete bytes. Concurrent retention must not mistake an in-flight
+  // native final for a different authored report and retain its transient hash.
+  const temporary = join(path, `report-${randomUUID()}.tmp`);
+  ignored(root, temporary);
+  durableWrite(temporary, contents);
+  try { linkSync(temporary, destination); }
+  finally { unlinkSync(temporary); }
   return reference(destination);
 }
 

@@ -203,8 +203,10 @@ replaces judgment. [Workflow mechanics](references/workflow-mechanics.md)
 contains conditional archive/progress/resume details, read only when that facility is used.
 
 Native children return their complete report once in the final message. After settlement,
-`principal_workflow complete` retains that exact captured final at its prepared private path;
-the child does not write another report. Plan still persists its actual executable plan.
+`principal_workflow complete` retains that exact captured final in its private report directory;
+the child does not write another report. If a different authored report already exists, it stays
+unchanged and the final uses a separate deterministic path. Follow the returned `report` reference;
+`authoredReport` identifies the preserved extra evidence. Plan still persists its actual executable plan.
 Failed completion stays incomplete and visible. This removes model-written report copies
 and repeated path checks. An explicitly configured legacy caller can request safe persistence.
 Delegated phases consume retained files;

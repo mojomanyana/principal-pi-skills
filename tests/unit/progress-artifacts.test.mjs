@@ -5,7 +5,8 @@ import assert from "node:assert/strict";
 import { mkdtempSync, readFileSync, writeFileSync, mkdirSync, rmSync, symlinkSync, statSync, existsSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { execFileSync, spawnSync } from "node:child_process";
+import { execFileSync, spawn, spawnSync } from "node:child_process";
+import { once } from "node:events";
 import { createRun, saveReport, copyArtifact, reference, appendProgress, readProgress, checkProgress, checkCompletion } from "../../scripts/progress-artifacts.mjs";
 
 function fixture(t) {
@@ -34,6 +35,43 @@ test("private unused runs and reports preserve complete bytes without overwrite"
     assert.equal(statSync(first).mode & 0o777, 0o700);
     assert.equal(statSync(report.path).mode & 0o777, 0o600);
   }
+});
+
+test("a concurrent reader never sees a partially published native report", async t => {
+  const repo = fixture(t), run = createRun(repo, "task", "candidate-A"), marker = join(repo, ".principal/release-writer");
+  const contents = "Exact native report.\n".repeat(1000), moduleUrl = new URL("../../scripts/progress-artifacts.mjs", import.meta.url).href;
+  const script = `import fs from 'node:fs'; import { syncBuiltinESMExports } from 'node:module';
+    const write = fs.writeSync; let paused = false;
+    fs.writeSync = function(fd, bytes, offset, length, ...rest) {
+      if (!paused && Buffer.isBuffer(bytes) && bytes.toString().startsWith('Exact native report.')) {
+        paused = true; const n = write.call(this, fd, bytes, offset, Math.floor(length / 2), ...rest);
+        process.send('writing'); const deadline = Date.now() + 10000;
+        while (!fs.existsSync(${JSON.stringify(marker)})) {
+          if (Date.now() > deadline) throw Error('writer barrier expired');
+          Atomics.wait(new Int32Array(new SharedArrayBuffer(4)), 0, 0, 10);
+        }
+        return n;
+      }
+      return write.call(this, fd, bytes, offset, length, ...rest);
+    }; syncBuiltinESMExports();
+    const { saveReport } = await import(${JSON.stringify(moduleUrl)});
+    try { saveReport(${JSON.stringify(run)}, 'build.md', ${JSON.stringify(contents)}); }
+    catch (error) { if (error.code !== 'EEXIST') throw error; }
+  `;
+  const child = spawn(process.execPath, ["--input-type=module", "-e", script], { stdio: ["ignore", "ignore", "pipe", "ipc"] });
+  let errors = ""; child.stderr.on("data", bytes => { errors += bytes; });
+  t.after(() => child.kill());
+  const exit = once(child, "exit"), timeout = AbortSignal.timeout(15000);
+  await once(child, "message", { signal: timeout });
+  assert.equal(existsSync(join(run, "build.md")), false, "half-written report must not be visible under its final name");
+  const other = spawnSync(process.execPath, ["--input-type=module", "-e",
+    `import {saveReport} from ${JSON.stringify(moduleUrl)}; saveReport(${JSON.stringify(run)}, 'build.md', ${JSON.stringify(contents)});`],
+    { encoding: "utf8", timeout: 10000 });
+  assert.equal(other.status, 0, other.stderr);
+  writeFileSync(marker, "continue");
+  assert.equal((await exit)[0], 0, errors);
+  assert.equal(readFileSync(join(run, "build.md"), "utf8"), contents);
+  assert.deepEqual(fs.readdirSync(run).sort(), ["build.md", "run.json"]);
 });
 
 

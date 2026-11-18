@@ -105,7 +105,9 @@ overwrite existing policy, and verify the destination is ignored. Native report 
 prepare in the actual child's workspace; never overwrite a referenced prior artifact. Native children
 return complete final reports and complete retains them. Plan writes only its plan; Investigate stays
 read-only. Inline Build saves a complete report before cold delegated Review. Do not hide a
-report-completion failure.
+report-completion failure. A different authored report is preserved separately from the exact native
+final; consume the returned `report` reference. Historical `retainArguments` explicitly save producer
+evidence for authorized continuation, never for a recall-only request or as fresh completion.
 
 ## Convergence
 
