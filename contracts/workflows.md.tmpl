@@ -78,8 +78,10 @@ output; `continueArguments` need positive producer no-start proof. Missing histo
 start, and retry requires supported runtime evidence; `retry` preserves prior attempts. Recall-only
 requests stay in inspection mode. Do not invent a fingerprint formula.
 
-After a child returns, check its full native result and identity-bound `cleanup.state=settled`
-receipt before dependent work, including before consuming Review's verdict. Missing evidence due now
+After a child returns, check its full native result and the runtime evidence summary's
+`cleanup.state=settled` before dependent work, including consuming Review's verdict. Daddy reports
+settled only after verifying an identity-bound receipt; `complete` rechecks the native execution
+identity. Receipt fields stay outside tool text. Missing evidence due now
 blocks; later coordinator-owned gates keep their owner and due stage. Call `complete` immediately
 after settlement, before repairs, by task/step with the actual disposition: it retains the exact
 captured final automatically. `resultRetained` is history and `completionValid` is freshness; stale

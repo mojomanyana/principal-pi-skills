@@ -226,6 +226,24 @@ test('per-request tool text keeps the decisions only the model can make',()=>{
   clauses(normalized(read('extensions/handoff.ts')),[/Never (?:omit|drop) a required source to (?:obtain|reach) ready/]);
 });
 
+test('compact settlement guidance checks the visible summary without demanding hidden receipts',()=>{
+  for (const path of ['AGENTS.md', 'contracts/workflows.md.tmpl', 'prompts/principal-feature.md',
+    'prompts/principal-bugfix.md', 'prompts/principal-refactor.md', 'prompts/principal-review-branch.md', 'README.md']) {
+    const text=normalized(read(path));
+    clauses(text, [/runtime evidence summary/, /cleanup.state=settled/, /identity-bound receipt/, /complete.*rechecks/]);
+    assert.doesNotMatch(text, /check.*native result and identity-bound `cleanup.state=settled` receipt|needs `cleanup.state=settled` with its matching identity-bound receipt/);
+  }
+  for (const path of ['AGENTS.md', 'README.md']) {
+    assert.match(read(path), /pi-daddy@0\.60\.0/);
+    assert.match(read(path), /skill-harness@0\.36\.0/);
+  }
+});
+
+test('short bootstrap bounds an authorized fallback by cleanup and due gates',()=>{
+  clauses(normalized(read('bootstrap/BOOTSTRAP.md')), [/unless the user already authorized it/,
+    /never while cleanup is uncertain or to skip a gate/]);
+});
+
 test('later prepared-operation calls name task and step instead of copying an operation ID',()=>{
   const paths=['AGENTS.md','bootstrap/BOOTSTRAP.md','references/workflow-mechanics.md','contracts/workflows.md.tmpl',
     'prompts/principal-feature.md','prompts/principal-review-branch.md','extensions/workflow.ts'];

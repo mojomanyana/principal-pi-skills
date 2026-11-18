@@ -59,8 +59,10 @@ scope and prerequisites; it cannot clear uncertain admission/cleanup or waive a 
 legacy principal-* runner needs genuinely absent native tools and an explicitly configured runner.
 Follow authored model/effort policy.
 
-After a child returns, check its full native result and identity-bound `cleanup.state=settled`
-receipt before dependent work, including before consuming a Review verdict. Leaves report later
+After a child returns, check its full native result and the runtime evidence summary's
+`cleanup.state=settled` before dependent work, including consuming Review's verdict. Daddy reports
+settled only after verifying an identity-bound receipt; `complete` rechecks the native execution
+identity. Receipt fields stay outside tool text. Leaves report later
 coordinator gates as pending with their owner and due stage.
 
 Use one `delegate_all` for an approved independent batch, never overlapping single calls. Writers
@@ -167,7 +169,7 @@ live here.
 ## Setup (pi)
 
 1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.17.0`,
-   `pi install npm:pi-daddy@0.59.0` and `pi install npm:skill-harness@0.35.6`. Enable `grep`,
+   `pi install npm:pi-daddy@0.60.0` and `pi install npm:skill-harness@0.36.0`. Enable `grep`,
    `find` and `ls` through Pi `settings.json` `defaultTools`; see [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent:
    `npx -p principal-pi-skills@4.17.0 principal-pi-agents install`, then

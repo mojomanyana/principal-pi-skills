@@ -1,5 +1,11 @@
 # Changelog
 
+## Unreleased
+
+- Check Daddy's visible settled runtime summary instead of asking the model for receipt fields hidden in tool details; native completion still revalidates the identity-bound receipt.
+- Bound even previously authorized inline fallbacks by settled cleanup and due gates. The short bootstrap now preserves the longer workflow's existing safety rule.
+- Qualify the installation recipe with Daddy 0.60.0 and Harness 0.36.0, including native prepared handoffs and fresh Pi 1.5.2 composition checks. No execution permission or automatic acceptance is added.
+
 ## 4.17.0 — 2026-11-18
 
 - A differing child-authored report is now preserved while completion retains the exact native final separately; previously any report difference refused completion. It returns both references, allowing independent Review without repeating Build. Report publication is atomic and still exclusive; changed, unsafe or unrelated evidence is never overwritten.

@@ -282,8 +282,8 @@ history is unknown. Readiness and candidate diagnostics are explained in
 
    ```sh
    pi install npm:principal-pi-skills@4.17.0
-   pi install npm:pi-daddy@0.59.0
-   pi install npm:skill-harness@0.35.6
+   pi install npm:pi-daddy@0.60.0
+   pi install npm:skill-harness@0.36.0
    ```
 
    Restart Pi after package changes. The `pi` manifest registers ten skills, four
@@ -402,10 +402,11 @@ Each gate records its owner and due stage. A typical assignment is:
 | Candidate review | Reviewer | Exact candidate, applicable source requirements, supplied evidence and verdict |
 | After reviewer return | Coordinator | Reviewer settlement, then authorized integration and final verification |
 
-Native process settlement needs `cleanup.state=settled` with its matching identity-bound receipt.
-An absent disposable workspace is not process-cleanup evidence. Retain the model-visible runtime
-evidence emitted by pi-daddy 0.44.4; missing evidence blocks dependent work and task completion even with
-passing tests or review.
+Native process settlement needs `cleanup.state=settled` in the runtime evidence summary emitted by
+pi-daddy 0.60.0. Daddy reports settled only after verifying an identity-bound receipt; `complete`
+rechecks the native execution identity. Do not look for receipt fields in tool text; full receipts
+stay in tool details. An absent disposable workspace is not process-cleanup evidence. Missing
+emitted evidence blocks dependent work and task completion even with passing tests or review.
 
 This example cannot change source-required ordering. A leaf reports later coordinator gates as
 pending and does not certify its future exit or call tools it lacks. Missing evidence required

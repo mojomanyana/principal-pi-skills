@@ -43,7 +43,9 @@ references, not copied history.
    explicitly configured legacy `principal-review` runner. Inline review is a deliberate choice, not a
    failure fallback. Follow authored model/effort policy.
    After return, check the full native result, complete report and settlement before consuming the
-   verdict: `cleanup.state=settled` with its matching identity-bound receipt. Missing emitted evidence
+   verdict: `cleanup.state=settled` in the runtime evidence summary. Daddy reports settled only after
+   verifying an identity-bound receipt; `complete` rechecks the native execution identity. Do not
+   look for receipt fields in tool text. Missing emitted evidence
    blocks finish. With writes allowed, complete the native workflow operation, which retains the exact
    captured final verdict; with writes prohibited, consume the verified `result` directly. A failure
    stays visible and incomplete. A blocked, unverified or changes-requested result never becomes approval.

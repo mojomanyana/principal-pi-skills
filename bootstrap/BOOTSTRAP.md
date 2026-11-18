@@ -16,7 +16,8 @@ Delegate: call `delegate_describe`, require package `principal-pi-skills` and th
 pass its `definitionId` to every `delegate`. Put independent children in one `delegate_all`,
 never overlapping calls; writers need separate worktrees. A refusal, unqualified backend, timeout,
 report gap or uncertain cleanup stops dependent work; never substitute inline or another runner
-unless the user already authorized it. Use a legacy runner only when native tools are
+unless the user already authorized it; even then, never while cleanup is uncertain or to skip a gate.
+Use a legacy runner only when native tools are
 genuinely absent and one is explicitly configured. Keep the authored model/effort policy. Check
 each child's result and settlement before dependent work.
 
