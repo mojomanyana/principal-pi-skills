@@ -40,7 +40,7 @@ the exact phase (`plan`, `build`, `review`, `test-review`, `debug` or `investiga
 `definitionId`, and pass that ID to every child. Reuse a current binding until reload, a resource
 change or runtime staleness. Keep the unmodified describe response and selected skill/agent source
 references available; pass `selectedResources` unchanged when present. Never guess an installation
-path or reconstruct native JSON. A missing/wrong/disabled/stale binding, permission/context refusal,
+path or reconstruct native JSON. A missing/wrong/disabled/stale binding, unresolved permission/context refusal,
 unqualified backend, timeout, report gap or uncertain cleanup stops dependent work. No automatic
 inline/foreign runner fallback after failure. An already-authorized alternative stays within its
 recorded scope and prerequisites; it cannot clear uncertain admission/cleanup or waive a required
@@ -57,7 +57,11 @@ bookkeeping. For native work, `prepare` returns operation_id, canonical workspac
 handoff metadata; pass its `delegationArguments` unchanged alongside definitionId. Its prepared
 directory already exists. If the task prohibits all filesystem writes, skip prepare/complete: dispatch
 with a unique operation_id and use `result` to read the exact settled native final. A native argument
-refusal confirmed before admission may be corrected with the same operation and binding. Use `status`
+refusal before tool entry may be corrected with the same operation and binding. Review accepts source
+files and evidence references, not a parent summary. Correct ordinary context mistakes within existing
+authorization without widening permissions or disguising summaries as files. A recorded terminal
+no-start refusal needs `recover` and its verified linked continuation, not changed arguments on the
+old ID. Preserve delivered Build work and obtain only the unfinished Review. Use `status`
 before repeating or resuming an operation and `history` after a restart; when an owner or
 implementation change blocks that, follow the returned `recoverArguments`. Inspection reuses verified
 output; `continueArguments` need positive producer no-start proof. Missing history is not proof of no

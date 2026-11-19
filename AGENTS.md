@@ -56,7 +56,13 @@ installation. Hand children current authority references, relevant plan sections
 finding definitions and due gates, not copied history or a full-plan reread. State their already
 admitted role and workspace; historical parent routing warnings are not new child prerequisites.
 
-Missing, wrong, disabled or stale bindings, an unqualified backend, a permission or context refusal,
+Use the selected definition's permitted context. Review receives source files and evidence references,
+not a parent-written summary. Correct ordinary argument mistakes within existing authorization;
+for a recorded terminal no-start result, inspect `recover` and follow its verified continuation
+instead of resubmitting changed arguments on the old ID. Never relabel a summary as files, widen a
+ceiling or drop required evidence. Preserve the completed Build while obtaining the missing Review.
+
+Missing, wrong, disabled or stale bindings, an unqualified backend, an unresolved permission or context refusal,
 a timeout, a report gap or uncertain cleanup stops dependent work. Never substitute inline or another
 runner automatically after a failure. An alternative the user already authorized keeps its recorded
 scope and prerequisites; it cannot clear uncertain admission/cleanup or waive a required gate. A
@@ -184,12 +190,12 @@ live here.
 
 ## Setup (pi)
 
-1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.18.1`,
-   `pi install npm:pi-daddy@0.61.0` and `pi install npm:skill-harness@0.36.2`. Enable `grep`,
+1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.18.2`,
+   `pi install npm:pi-daddy@0.62.1` and `pi install npm:skill-harness@0.36.2`. Enable `grep`,
    `find` and `ls` through Pi `settings.json` `defaultTools`; see [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent:
-   `npx -p principal-pi-skills@4.18.1 principal-pi-agents install`, then
-   `npx -p principal-pi-skills@4.18.1 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.18.2 principal-pi-agents install`, then
+   `npx -p principal-pi-skills@4.18.2 principal-pi-agents check`.
 3. Each skill's `allowed-tools` caps the context a delegated child may receive: `context:summary`
    for `architect`, `decide` and `plan`; `context:files` for `build`, `debug`, `review`,
    `test-review` and `investigate`; none for `git-ops`. The reasons are in each frontmatter and the

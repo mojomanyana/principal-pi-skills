@@ -389,6 +389,128 @@ async function registeredWorkflow(root, { historyBridge = false } = {}) {
     run: (args, signal) => tool.execute("fixture", args, signal, () => {}, ctx) };
 }
 
+function unstartedReview(prepared, root) {
+  const operation = { operationId: prepared.operation_id, cwd: root, executionId: "unstarted-review",
+    state: "not-started", runtime: { cleanup: { state: "not-started" } } };
+  return { operation, observation: { admission: "present", result: "present", noStartProven: true,
+    cleanup: { state: "not-started" }, operation,
+    artifact: { version: 1, producer: "pi-daddy", owner: prepared.owner,
+      operationId: prepared.operation_id, executionId: operation.executionId,
+      manifest: { path: join(root, ".principal/no-start-artifact.json"), sha256: "a".repeat(64), bytes: 123 } } } };
+}
+
+test("registered no-start review completion and automatic retry inspect recovery without creating another attempt", async t => {
+  for (const action of ["complete", "retry"]) await t.test(action, async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const prepared = (await h.run({ action: "prepare", ...request, phase: "review" })).structuredContent;
+    const source = join(root, ".principal/workflow", readdirSync(join(root, ".principal/workflow"))[0], "request.json");
+    const original = readFileSync(source), noStart = unstartedReview(prepared, root);
+    h.setNative({ ...noStart.operation, finalObservation: { state: "unavailable",
+      reason: "exact native final was not retained, expired from the 4 MiB session buffer, or belongs to an earlier session" } });
+    h.setRecovery(noStart.observation);
+    const inspected = await h.run({ action, operationId: prepared.operation_id, disposition: "blocked",
+      retryMode: "automatic", reason: "Correct the refused context argument", expectedCandidate: observeCandidate(root) });
+    assert.equal(inspected.isError, undefined);
+    assert.equal(inspected.structuredContent.state, "ready-to-continue");
+    assert.equal(inspected.structuredContent.administrativeWrites, false);
+    assert.equal(inspected.structuredContent.approval, false);
+    assert.equal(inspected.structuredContent.delegationArguments, undefined);
+    assert.equal(inspected.structuredContent.continueArguments.operationId, undefined, "use exact named continuation");
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+    assert.deepEqual(h.queries, [prepared.operation_id, `recover:${prepared.operation_id}`]);
+    assert.deepEqual(readFileSync(source), original);
+    const continued = (await h.run(inspected.structuredContent.continueArguments)).structuredContent;
+    assert.equal(continued.state, "recovered");
+    assert.equal(continued.successor.phase, "review");
+    assert.equal(continued.successor.attempt, 2);
+    assert.equal(continued.successor.automaticRetryBudget.used, 0, "correction inspection spends no execution retry");
+    assert.notEqual(continued.successor.operation_id, prepared.operation_id);
+    const again = (await h.run(inspected.structuredContent.continueArguments)).structuredContent;
+    assert.equal(again.successor.operation_id, continued.successor.operation_id);
+    assert.equal(again.reused, true);
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 2);
+    assert.deepEqual(readFileSync(source), original);
+  });
+});
+
+test("no-start status alone cannot grant continuation when the immutable recovery proof is missing or conflicting", async t => {
+  const changes = {
+    "absent record": proof => { proof.admission = "absent"; proof.result = "absent"; proof.noStartProven = false; },
+    "unconfirmed cleanup": proof => { proof.cleanup.state = "unknown"; },
+    "foreign artifact": proof => { proof.artifact.owner = { ...proof.artifact.owner, sessionId: "another-parent" }; },
+    "conflicting final": proof => { proof.final = { state: "complete", text: "A prior answer exists" }; },
+    "executed work": proof => { proof.operation.runtime.work = "failed"; },
+  };
+  for (const [label, change] of Object.entries(changes)) await t.test(label, async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const prepared = (await h.run({ action: "prepare", ...request, phase: "review" })).structuredContent;
+    const noStart = unstartedReview(prepared, root);
+    h.setNative(structuredClone(noStart.operation)); change(noStart.observation); h.setRecovery(noStart.observation);
+    const result = (await h.run({ action: "complete", operationId: prepared.operation_id, disposition: "blocked" })).structuredContent;
+    assert.equal(result.state, "uncertain");
+    assert.equal(result.continueArguments, undefined); assert.equal(result.delegationArguments, undefined);
+    assert.equal(result.administrativeWrites, false); assert.equal(result.approval, false);
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  });
+});
+
+test("no-start inspection does not replace authorized manual retries or an existing automatic retry proof", async t => {
+  for (const retryMode of [undefined, "manual", "automatic"]) await t.test(retryMode ?? "legacy manual", async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const prepared = (await h.run({ action: "prepare", ...request, phase: "review" })).structuredContent;
+    const noStart = unstartedReview(prepared, root);
+    if (retryMode === "automatic") noStart.operation.runtime.automaticRetryEligibility = {
+      version: 1, eligible: true, operationId: prepared.operation_id,
+      executionId: noStart.operation.executionId, definitionId: "c".repeat(64),
+    };
+    h.setNative(noStart.operation);
+    const retry = await h.run({ action: "retry", operationId: prepared.operation_id, retryMode,
+      reason: "Previously authorized retry", expectedCandidate: observeCandidate(root) });
+    assert.equal(retry.isError, undefined);
+    assert.equal(retry.structuredContent.state, "prepared");
+    assert.equal(retry.structuredContent.attempt, 2);
+    assert.equal(retry.structuredContent.automaticRetryBudget.used, retryMode === "automatic" ? 1 : 0);
+    assert.deepEqual(h.queries, [prepared.operation_id], "existing retry policy does not inspect recovery");
+  });
+});
+
+test("no-start correction keeps changed candidate and required input checks before any successor", async t => {
+  for (const changed of ["candidate", "input"]) await t.test(changed, async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const prepared = (await h.run({ action: "prepare", ...request, phase: "review" })).structuredContent;
+    const noStart = unstartedReview(prepared, root);
+    h.setNative(noStart.operation); h.setRecovery(noStart.observation);
+    writeFileSync(join(root, changed === "candidate" ? "product.txt" : ".principal/plan.md"), "changed\n");
+    const result = (await h.run({ action: "retry", operationId: prepared.operation_id, retryMode: "automatic",
+      reason: "argument correction", expectedCandidate: observeCandidate(root) })).structuredContent;
+    assert.equal(result.state, "historical");
+    assert.equal(result.continueArguments, undefined); assert.equal(result.delegationArguments, undefined);
+    assert.equal(result.administrativeWrites, false);
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  });
+});
+
+test("settlement and replay-proof errors offer exact read-only inspection without replacing permission or retry rules", async t => {
+  for (const action of ["complete", "retry"]) await t.test(action, async t => {
+    const { root, request } = fixture(t), h = await registeredWorkflow(root);
+    const prepared = (await h.run({ action: "prepare", ...request, phase: "review" })).structuredContent;
+    h.setNative(action === "complete"
+      ? { operationId: prepared.operation_id, cwd: root, executionId: "active-review", state: "running", runtime: { cleanup: { state: "unknown" } } }
+      : { operationId: prepared.operation_id, cwd: root, executionId: "failed-review", state: "settled",
+        runtime: { work: "failed", cleanup: { state: "settled", executionId: "failed-review" } } });
+    const refused = await h.run({ action, task: prepared.task, step: prepared.step, disposition: "blocked",
+      retryMode: "automatic", reason: "inspect this operation", expectedCandidate: observeCandidate(root) });
+    assert.equal(refused.isError, true);
+    assert.deepEqual(refused.structuredContent.recoverArguments, { action: "recover", mode: "inspect", repo: root,
+      task: prepared.task, step: prepared.step, attempt: 1 });
+    assert.match(refused.structuredContent.nextAction, /read-only/);
+    assert.equal(refused.structuredContent.continueArguments, undefined);
+    assert.equal(refused.structuredContent.approval, false);
+    assert.deepEqual(h.queries, [prepared.operation_id], "a failed action only offers inspection");
+    assert.equal(readdirSync(join(root, ".principal/workflow")).length, 1);
+  });
+});
+
 test("registered changed Build completion retains the original partial result with or without mistaken reprepare", async t => {
   for (const reprepare of [false, true]) await t.test(reprepare ? "correct repeated preparation" : "normal completion", async t => {
     const { root, request } = fixture(t), h = await registeredWorkflow(root);

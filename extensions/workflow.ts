@@ -119,6 +119,24 @@ function withOperationArguments(result) {
       ? { delegationArguments: { agent: result.phase, operation_id: result.operation_id,
         ...(result.automaticRetryDefinitionId ? { definitionId: result.automaticRetryDefinitionId } : {}) } } : {}) };
 }
+const recoveryInspection = operation => ({ action: "recover", mode: "inspect", repo: operation.root,
+  task: operation.task, step: operation.step, attempt: operation.attempt });
+// Status only selects the read-only recovery path. Its producer artifact, not this status,
+// must independently prove no start before recovery can offer an authorized successor.
+function needsNoStartInspection(operation, runtime) {
+  const evidence = runtime?.runtime;
+  return runtime?.historical !== true && runtime?.operationId === operation.operation_id && runtime.cwd === operation.root &&
+    typeof runtime.executionId === "string" && runtime.executionId.length > 0 && runtime.state === "not-started" &&
+    evidence?.cleanup?.state === "not-started" && (!evidence.cleanup.executionId || evidence.cleanup.executionId === runtime.executionId) &&
+    [undefined, "unknown"].includes(evidence.work) && !evidence.control && !evidence.final &&
+    (!runtime.finalObservation || runtime.finalObservation.state === "unavailable") && evidence.automaticRetryEligibility?.eligible !== true;
+}
+function offersRecoveryInspection(message) {
+  return message === "exact operation settlement is unavailable; preserve prepared operation" ||
+    message === "prior operation is not settled or proven unstarted; retry refused" ||
+    message === "pi-daddy operation status unavailable; operation stays unchanged" ||
+    message.startsWith("automatic retry needs the execution owner's replay-safety proof;");
+}
 
 export function operationStatus(pi, ctx, operationId, signal, includeFinal = false) {
   return queryRuntimeOperation(pi, ctx, operationId, signal, { includeFinal });
@@ -134,6 +152,7 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
     promptGuidelines: ["Use this tool, not shell recipes, for hashes, report paths and identity checks; never compute an ID or digest yourself. Pass snapshot.candidate unchanged as expectedCandidate; HEAD alone does not identify uncommitted files. Pass prepare's delegationArguments to delegate with the current delegate_describe definitionId. Only after the child's cleanup is settled (uncertain is not settled), call complete for that operation before any repair, with the disposition its final actually shows: never succeeded for partial or unverified delivery. For replayable failures, call retry with retryMode automatic, task/step, reason and expectedCandidate; the owner proof and persisted budget allow one automatic successor. Pass its delegationArguments unchanged, including definitionId. Unsafe or exhausted replay stops only that phase; continue independent authorized work and ask only for a missing decision. Use retryMode manual only for a separately authorized retry, never to evade the automatic limit. After Build/Debug changes files, call complete, not prepare; if prepare returns PREPARED_OUTPUT_CHANGED, use its recovery arguments. If host schema validation rejects prepare task/step before execution, or PREPARE_INPUT_INVALID reports operationAllocated=false, correct the named field and repeat prepare for the same authorized work without asking again. Reuse established task/step identities; for a new task with no internal identity, choose a short valid ID. Keep attempt unchanged and never rename an existing operation to evade a refusal; this is not retry of an executed operation. On other refusals, follow the returned recoverArguments or statusArguments instead of preparing a replacement. For authorized continuation, follow continueArguments or historical retainArguments unchanged; recall requests only inspect. prepare and complete write private ignored files: when all writes are forbidden, use result instead. Inline work needs no prepare."],
     async execute(_callId, input, signal, _update, ctx) {
       let request = input;
+      let queriedOperation;
       try {
         if (signal?.aborted) throw new Error("workflow operation aborted");
         requirePreparedOperationIdentity(request);
@@ -143,17 +162,18 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
         else {
           const repo = request.repo ?? ctx.cwd;
           const coordinator = () => ({ sessionId: ctx.sessionManager.getSessionId(), cwd: realpathSync(ctx.cwd) });
+          const recover = recoveryRequest => {
+            const epoch = freezeEpoch, sessionId = ctx.sessionManager.getSessionId(), cwd = realpathSync(ctx.cwd);
+            return recoverPreparedOperation(pi, ctx, recoveryRequest, signal, () => {
+              if (freezeEpoch !== epoch || ctx.sessionManager.getSessionId() !== sessionId || realpathSync(ctx.cwd) !== cwd) throw Error("Session changed during recovery");
+            });
+          };
           const named = request.task !== undefined || request.step !== undefined;
           if (selectableActions.has(request.action) && request.operationId === undefined && request.attempt === undefined && (named || request.action !== "result"))
             request = { ...request, attempt: latestAttempt(repo, request, coordinator()) };
           if (request.action === "preflight") result = inspectProject(repo);
           else if (request.action === "setup") result = await projectSetup(ctx, request.repo, signal);
-          else if (request.action === "recover") {
-            const epoch = freezeEpoch, sessionId = ctx.sessionManager.getSessionId(), cwd = realpathSync(ctx.cwd);
-            result = await recoverPreparedOperation(pi, ctx, request, signal, () => {
-              if (freezeEpoch !== epoch || ctx.sessionManager.getSessionId() !== sessionId || realpathSync(ctx.cwd) !== cwd) throw Error("Session changed during recovery");
-            });
-          }
+          else if (request.action === "recover") result = await recover(request);
           else if (request.action === "snapshot" || request.action === "prepare") {
             let readiness = inspectProject(repo);
             // Snapshot/prepare have always resolved a subdirectory's containing Git worktree.
@@ -216,9 +236,12 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
             if (request.action === "complete" && current.resultRetained) result = completeOperation(repo, request);
             else if (request.action === "complete" && ["complete", "stale"].includes(current.state)) result = { ...current, reused: true };
             else {
+              queriedOperation = current;
               const runtime = await operationStatus(pi, ctx, current.operation_id, signal, request.action === "complete");
               if (signal?.aborted) throw Error("Workflow operation was cancelled; no retry was prepared");
-              result = request.action === "complete" ? completeOperation(repo, request, runtime) : retryOperation(repo, request, runtime);
+              result = (request.action === "complete" || request.retryMode === "automatic") && needsNoStartInspection(current, runtime)
+                ? await recover(recoveryInspection(current))
+                : request.action === "complete" ? completeOperation(repo, request, runtime) : retryOperation(repo, request, runtime);
             }
           }
         }
@@ -245,6 +268,9 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
               ...(request.operationId !== undefined ? { operationId: request.operationId }
                 : { task: request.task, step: request.step, attempt: (selectionError ? error.attempt : undefined) ?? request.attempt ?? 1 }) },
               nextAction: "Inspect this original operation with recover. Resuming that original execution requires producer proof it never started. Preserve completed output and reconcile remaining authorized scope; this refusal authorizes no replacement or replay." } : {}),
+          ...(queriedOperation && (request.action === "complete" || request.action === "retry" && request.retryMode === "automatic") && offersRecoveryInspection(error.message)
+            ? { recoverArguments: recoveryInspection(queriedOperation),
+              nextAction: "Inspect this exact operation read-only with recover. Producer-confirmed no-start evidence can offer continuation; active or uncertain work remains unchanged. Inspection authorizes no execution and waives no permissions." } : {}),
           ...(candidateError || inputError || identityError || selectionError || completedRetry || contextError || workspaceError ? { code: error.code, diagnostic: error.diagnostic } : setupError || outputChanged ? { code: error.code } : {}),
           ...(inputError ? { operationAllocated: error.operationAllocated, recovery: error.recovery } : {}),
           ...(identityError ? { recovery: error.recovery } : {}),

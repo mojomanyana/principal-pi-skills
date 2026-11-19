@@ -107,9 +107,29 @@ async function prepareAndDelegate(prepareArguments, taskText) {
 ```
 
 `OPERATION_ID_INVALID` means a supplied prepared-operation ID has the wrong format; omit it and name
-the task and step. When a native result confirms a call was refused before admission because of a
-named argument, correct only that argument and reuse the same prepared operation and binding.
-`result` also accepts a generic native operation ID.
+the task and step. `result` also accepts a generic native operation ID.
+
+### Correct review context without restarting delivery
+
+Read the selected definition's context limits before delegation. Review accepts named files, not
+a parent-written summary or conversation history. Give it the review scope, acceptance criteria
+and exact source/evidence references in the task. Use permitted `context:files` for relevant existing
+files, or omit extra context when the child can read those references in the same workspace. Do not
+drop required evidence or write a summary into a file to bypass the ceiling.
+
+For a named argument refusal, correct only that input under the existing task authorization.
+Whether the rejected call created a terminal operation matters: host validation before tool entry
+can be corrected on the same prepared operation, but Daddy may record a durable `not-started` result
+for a preflight refusal. Do not resubmit that terminal ID with changed context. Inspect the original
+with `recover`; when producer proof permits it, follow `continueArguments` and delegate the corrected
+handoff using the linked successor. This continues unstarted work; it does not replay execution.
+No new user permission is needed for this ordinary correction within the authorized scope.
+
+Completion and automatic retry of a recorded unstarted operation return recovery inspection rather
+than treating it as a completed child or demanding execution replay proof. Missing recovery evidence
+remains unknown. Keep the original Build and its checks; obtain only the unfinished Review. Genuine
+access refusals, required evidence gaps, changed inputs and uncertain execution still block dependent
+work. Neither recovery nor successful cleanup supplies a review verdict.
 
 ### Recover after an update or a new session
 

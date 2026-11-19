@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.18.2 — 2026-11-19
+
+- Guide ordinary review-context corrections through the existing producer-verified recovery path. Completion or automatic retry of an unstarted operation inspects recovery and offers the exact continuation arguments instead of demanding a settled child or execution replay proof. Unavailable evidence still permits no replay.
+- Clarify file-based independent review and the difference between validation before tool entry and a saved terminal no-start result. Keep delivered Build work, required evidence and context permissions intact while obtaining the missing Review.
+
 ## 4.18.1 — 2026-11-18
 
 - Refuse a native preparation before allocating work when Pi's selected folder differs from the target repository root. The diagnostic shows both canonical paths and explains that `repo` selects bookkeeping, not the child's working folder; read-only cross-folder observation remains available.
