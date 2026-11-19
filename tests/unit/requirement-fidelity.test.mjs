@@ -234,14 +234,14 @@ test('compact settlement guidance checks the visible summary without demanding h
     assert.doesNotMatch(text, /check.*native result and identity-bound `cleanup.state=settled` receipt|needs `cleanup.state=settled` with its matching identity-bound receipt/);
   }
   for (const path of ['AGENTS.md', 'README.md']) {
-    assert.match(read(path), /pi-daddy@0\.61\.0/);
+    assert.match(read(path), /pi-daddy@0\.62\.1/);
     assert.match(read(path), /skill-harness@0\.36\.2/);
   }
 });
 
 test('short bootstrap bounds an authorized fallback by cleanup and due gates',()=>{
-  clauses(normalized(read('bootstrap/BOOTSTRAP.md')), [/unless the user already authorized it/,
-    /never while cleanup is uncertain or to skip a gate/]);
+  clauses(normalized(read('bootstrap/BOOTSTRAP.md')), [/No automatic fallback/,
+    /alternatives require existing authorization, settled cleanup and due gates/]);
 });
 
 test('later prepared-operation calls name task and step instead of copying an operation ID',()=>{

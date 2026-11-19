@@ -285,8 +285,8 @@ history is unknown. Readiness and candidate diagnostics are explained in
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.18.1
-   pi install npm:pi-daddy@0.61.0
+   pi install npm:principal-pi-skills@4.18.2
+   pi install npm:pi-daddy@0.62.1
    pi install npm:skill-harness@0.36.2
    ```
 
@@ -324,8 +324,8 @@ history is unknown. Readiness and candidate diagnostics are explained in
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.18.1 principal-pi-agents install
-   npx -p principal-pi-skills@4.18.1 principal-pi-agents check
+   npx -p principal-pi-skills@4.18.2 principal-pi-agents install
+   npx -p principal-pi-skills@4.18.2 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
