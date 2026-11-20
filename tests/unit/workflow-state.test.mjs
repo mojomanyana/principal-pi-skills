@@ -2169,3 +2169,37 @@ test("only bound exhaustive file scopes may support an independent later candida
   writeFileSync(join(root, "product.txt"), "changed artifact\n");
   assert.equal((await finish("changed input", criterion)).coverage.state, "unverified");
 });
+
+test("whole-worktree evidence retains its original requirement when a short criterion ID is reused", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root);
+  const criterion = { id: "stored", expected: true, requirement: "The current file contains the saved value" };
+  const prepare = async (step, requirement) => (await h.run({ ...request, action: "prepare", step,
+    expectedCandidate: observeCandidate(root), criteria: [{ ...criterion, requirement }] })).structuredContent;
+  const initial = await prepare("read value", criterion.requirement);
+  const command = { repo: root, task: request.task, command: process.execPath,
+    criteria: [{ id: "stored", expected: true }],
+    args: ["-e", 'const fs=require("node:fs"); fs.writeFileSync(process.env.PRINCIPAL_CHECK_OBSERVATIONS,JSON.stringify({version:1,observed:{stored:fs.readFileSync("product.txt","utf8")==="before\\n"}}))'] };
+  const bound = await runVerification({ ...command, step: "file observation", forOperationId: initial.operation_id });
+  const unbound = await runVerification({ ...command, step: "ad hoc observation" });
+  async function finish(step, requirement, check) {
+    const current = await prepare(step, requirement);
+    h.setNative(settled(current.operation_id, root));
+    return (await h.run({ action: "complete", operationId: current.operation_id, disposition: "succeeded", evidence: [check.reference] })).structuredContent;
+  }
+  assert.equal((await finish("same meaning", criterion.requirement, bound)).coverage.state, "supported");
+  assert.equal((await finish("stricter meaning", "The value survives a server restart", bound)).coverage.state, "unverified");
+  assert.equal((await finish("unbound meaning", criterion.requirement, unbound)).coverage.state, "unverified");
+
+  // Recreate the previous on-disk shape, which recorded the source operation
+  // and its intact check receipt but omitted per-criterion meaning digests.
+  const requestFile = join(dirname(bound.reference.path), "request.json");
+  const legacy = JSON.parse(readFileSync(requestFile, "utf8"));
+  delete legacy.contracts;
+  const result = JSON.parse(readFileSync(bound.reference.path, "utf8"));
+  result.requestDigest = createHash("sha256").update(JSON.stringify(legacy)).digest("hex");
+  writeFileSync(requestFile, JSON.stringify(legacy) + "\n");
+  writeFileSync(bound.reference.path, JSON.stringify(result) + "\n");
+  const previous = { reference: reference(bound.reference.path) };
+  assert.equal((await finish("same earlier record", criterion.requirement, previous)).coverage.state, "supported");
+  assert.equal((await finish("changed earlier meaning", "The value survives a server restart", previous)).coverage.state, "unverified");
+});

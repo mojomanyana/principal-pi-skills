@@ -197,7 +197,16 @@ function linkedChecks(operation) {
         receipt.inputsMatchAtEnd && request.inputs.every(ref => checkedInput(root, ref));
       const sourceMatches = [request.source, receipt.endSource].every(version => version && version.algorithm === target?.algorithm &&
         version.id === target.id && version.sourceSha256 === target.sourceSha256);
-      checks.push({ request, receipt, inputsMatch, sourceMatches });
+      // Older worktree receipts identify the prepared operation but did not copy
+      // its criterion digests. Recover their meaning only from that exact record.
+      let contracts = request.contracts;
+      if (!contracts && request.forOperationId) {
+        const original = request.forOperationId === operation.operation_id ? operation :
+          inspectRecoveryRecord(root, { operationId: request.forOperationId }).record;
+        if (original.task !== operation.task) continue;
+        contracts = original.criteria?.map(item => ({ id: item.id, sha256: digest(item) }));
+      }
+      checks.push({ request, receipt, inputsMatch, sourceMatches, contracts });
     } catch { /* A missing or unreadable receipt cannot contribute positive evidence. */ }
   }
   return checks;
@@ -207,12 +216,13 @@ export function criterionCoverage(operation) {
   const checks = linkedChecks(operation);
   const criteria = operation.criteria.map(criterion => {
     const statuses = new Set(), sources = [];
-    for (const { request, receipt, inputsMatch, sourceMatches } of checks) {
+    const criterionDigest = digest(criterion);
+    for (const { request, receipt, inputsMatch, sourceMatches, contracts } of checks) {
       if (!Object.hasOwn(criterion, "expected") || criterion.fresh && request.forOperationId !== operation.operation_id ||
           !request.criteria.some(item => item.id === criterion.id && Object.is(item.expected, criterion.expected))) continue;
       sources.push(receipt.operationId);
+      if (!request.forOperationId || !contracts?.some(contract => contract.id === criterion.id && contract.sha256 === criterionDigest)) continue;
       const inputScoped = criterion.scope === "declared-inputs" && request.scope === "declared-inputs" &&
-        request.contracts?.some(contract => contract.id === criterion.id && contract.sha256 === digest(criterion)) &&
         samePaths(criterion.dependencies, request.inputs.map(ref => relative(operation.root, ref.path).split(sep).join("/")).sort());
       const requiresInputScope = request.scope === "declared-inputs" || criterion.scope === "declared-inputs";
       if (!inputsMatch || (requiresInputScope ? !inputScoped : !sourceMatches)) continue;
@@ -342,6 +352,10 @@ export async function runVerification({ repo = process.cwd(), task, step, attemp
           samePaths(criterion.dependencies, declared), "declared check dependencies or expected outcome differ from the prepared criterion");
         return { id, sha256: digest(criterion) };
       });
+    } else {
+      contracts = (record.criteria ?? []).filter(item => expected.some(check =>
+        item.id === check.id && Object.is(item.expected, check.expected)))
+        .map(item => ({ id: item.id, sha256: digest(item) }));
     }
   } else requireValue(scope === "worktree", "input-scoped checks require the exact prepared operation");
   const intent = { task, step, attempt, ...(scope === "declared-inputs" ? { scope, contracts } : {}), ...(forOperationId ? { forOperationId } : {}), cwd, inputPaths: paths, commandDigest: digest([command, ...args]), criteria: expected, timeoutMs, outputLimit };
@@ -361,7 +375,7 @@ export async function runVerification({ repo = process.cwd(), task, step, attemp
       "the previous attempt has no confirmed cleanup; preserve its claim and reconcile it before another check");
     previous = { operationId: prior.operationId, reference: prior.reference };
   }
-  const request = { version: 1, operationId, ...intent, intentDigest, ...(previous ? { previous } : {}), source: snapshot(root), inputs: paths.map(path => inputReference(root, path)),
+  const request = { version: 1, operationId, ...intent, ...(contracts ? { contracts } : {}), intentDigest, ...(previous ? { previous } : {}), source: snapshot(root), inputs: paths.map(path => inputReference(root, path)),
     platform: process.platform, arch: process.arch, node: process.version, startedAt: new Date().toISOString() };
   requireValue(Buffer.byteLength(JSON.stringify(request)) < 65536, "check request exceeds 64 KiB");
   try { mkdirSync(dir, { mode: 0o700 }); syncDirectory(resolve(dir, "..")); }

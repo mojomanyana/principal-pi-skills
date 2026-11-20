@@ -32,8 +32,10 @@ criteria in `prepare.criteria`. Each entry has a stable `id` and
 for optional work, or `fresh:true` for execution bound to that operation.
 Qualitative criteria with no scalar expectation stay open for judgment.
 Criteria are retained with that attempt and inherited on retry. Changing scope
-uses a separate authorized operation. Checks with required freshness use the
-original operation ID with `--operation`. The workflow's `coverage` view
+uses a separate authorized operation. Provide the prepared operation ID with
+`--operation` to bind a check to the full criterion. A standalone check still
+has a readable receipt. A reused short criterion ID and value alone cannot
+establish coverage for a new requirement. Fresh checks need the current operation. The workflow's `coverage` view
 counts only applicable observed criteria from exact linked receipts, lists
 conflicting evidence, and keeps required independent or human judgment visible.
 

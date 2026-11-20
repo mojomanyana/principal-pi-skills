@@ -220,8 +220,9 @@ Derive material criteria from the agreed outcome, including any explicitly
 required fresh check. Ask only when an ambiguity would change delivery or
 acceptance. A routine task can keep its existing brief check. For measurable
 criteria, include the same ID and expected scalar in
-`prepare.criteria` and in the adapter check. Bind a freshness requirement to
-this prepared operation with `--operation`. The read projection lists
+`prepare.criteria` and the adapter check. Bind the check to the originating
+prepared operation with `--operation` so later reuse can compare the complete
+requirement. Freshness requires the current operation. The read projection lists
 supported, failed, missing and conflicting observations. Qualitative criteria
 can remain pending human or independent judgment. Missing criteria, partial
 delivery and inconclusive cleanup remain distinct.
