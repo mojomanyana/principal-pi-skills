@@ -21,6 +21,7 @@ Principal's coordinator consults this skill inline. Start with the decision that
 user. Look up the existing decision if available and follow it while its assumptions hold.
 For a planning or Build discovery, return the assumption, the evidence that changed it, and the
 smallest change to the affected plan or check. A design discussion can end with advice alone.
+When a documented platform constraint would decide the design, ask the coordinator for the source through Scout if available.
 
 ## Process
 1. **Find an observable driver.** A throughput target might be "5,000 requests/s at p99 < 200 ms".

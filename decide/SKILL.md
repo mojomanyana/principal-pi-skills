@@ -23,6 +23,8 @@ costly, contested or hard-to-reverse choices. Classification labels are optional
 routing or authority. Mark decision-blocking unknowns as
 `[NEEDS CLARIFICATION: <question>]` rather than answering them by assumption.
 
+When an external fact could reverse the choice, name it and ask the coordinator for sourced evidence through Scout if available.
+
 ## Binding inputs
 Separate binding requirements and definitions (with source references) from preferences.
 Read supplied authority; summaries and proposals are not implementation or measured evidence.

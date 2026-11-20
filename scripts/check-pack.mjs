@@ -52,6 +52,7 @@ const REQUIRED = [
   "scripts/compact-handoff.mjs",
   "scripts/learning-proposal.mjs",
   "references/learning.md",
+  "references/research.md",
   "scripts/continuity.mjs",
   "scripts/review-observation.mjs",
   "scripts/frozen-snapshot.mjs",

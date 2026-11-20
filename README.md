@@ -22,6 +22,10 @@ you can judge. You choose whether to adopt that revision. Architect also helps
 with consequential design choices during discussion, planning and implementation.
 See the [cross-task learning procedure](references/learning.md).
 
+Architect, Decide, Plan and Build can ask the coordinator to check a public fact that would
+change their work. Principal can reuse an authorized source or use optional Scout, then return
+the cited finding and its gaps within the role's permitted context. See [research routing](references/research.md).
+
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
 **delegable trust** — an output carries the evidence needed to verify it without redoing
@@ -227,10 +231,10 @@ script counts it and prints the current figures.
 
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
-| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
-| `architect` | Consult on shared boundaries, ownership or a design assumption challenged during Build. Tie the recommendation to the deciding constraint | inline | 1329 |
-| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1270) or inline | 1201 |
-| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1759) or inline | 1706 |
+| `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 996 |
+| `architect` | Consult on shared boundaries, ownership or a design assumption challenged during Build. Tie the recommendation to the deciding constraint | inline | 1348 |
+| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1293) or inline | 1224 |
+| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1783) or inline | 1730 |
 | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1453) or inline | 1401 |
 | `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 765) or inline | 744 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1469) or inline | 1288 |
@@ -398,7 +402,7 @@ history is unknown. Readiness and candidate diagnostics are explained in
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.20.0
+   pi install npm:principal-pi-skills@4.21.0
    ```
 
    Restart Pi after package changes. The `pi` manifest registers ten skills, four
@@ -436,8 +440,8 @@ history is unknown. Readiness and candidate diagnostics are explained in
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.20.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.20.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.21.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.21.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm

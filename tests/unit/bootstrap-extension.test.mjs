@@ -169,6 +169,7 @@ test("the request-local coordinator can consult selected Architect inline withou
     assert.match(policy, /Consult selected Architect inline when discussion, Plan or Build/);
     assert.match(policy, /actual outcome, reason, supporting evidence, limits and next action/);
     assert.ok(policy.includes(join(dirname(dirname(h.skill)), "references", "learning.md")));
+    assert.ok(policy.includes(join(dirname(dirname(h.skill)), "references", "research.md")));
     const names = selected.map(command => command.name.slice("skill:".length)).sort().join(", ");
     assert.ok(policy.includes(`Enabled Principal skills: ${names}. Use only these selected resources.`));
   }
