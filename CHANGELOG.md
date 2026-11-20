@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.19.0 — 2026-11-20
+
+- Record completion criteria on prepared operations. Checks can bind to the full requirement and its declared inputs, allowing later work to reuse applicable evidence and identify missing, conflicting or stale observations. A shared criterion name alone cannot transfer a passing result to a different requirement.
+- Add `principal-pi-check` for bounded local verification. Each attempt retains its receipt and distinguishes observed behavior, process exit and cleanup. Standalone Windows checks support declared input hashes and report the limits of source and child-process coverage.
+- Attach prepared work and review observations to the originating task when a compatible task-history owner is present. Preserve independent operation, read-only recall and partial Build follow-through when evidence for a different action is missing.
+
 ## 4.18.2 — 2026-11-19
 
 - Guide ordinary review-context corrections through the existing producer-verified recovery path. Completion or automatic retry of an unstarted operation inspects recovery and offers the exact continuation arguments instead of demanding a settled child or execution replay proof. Unavailable evidence still permits no replay.
