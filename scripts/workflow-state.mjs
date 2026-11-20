@@ -376,7 +376,7 @@ function summary(record, state, extra = {}) {
       reviewReceiptInstruction: "The independent reviewer must read the bound inputs and copy this binding id into exactly one principal-review JSON fence described in references/continuity.md; do not reconstruct any digest.",
       ...(extra.report ? { reviewReference: { kind: "principal-review", repo: record.root, operationId: record.operationId,
         bindingId: record.reviewBinding.id, reportSha256: extra.report.sha256 } } : {}) } : {}),
-    inputs: record.inputs, ...(record.contextPaths?.length ? { contextPaths: record.contextPaths } : {}), owner: record.owner ?? null, approval: false,
+    ...(record.criteria?.length ? { criteria: record.criteria } : {}), inputs: record.inputs, ...(record.contextPaths?.length ? { contextPaths: record.contextPaths } : {}), owner: record.owner ?? null, approval: false,
     automaticRetryBudget: automaticRetryBudget(record.root, { task: record.task, step: record.step, attempt: record.attempt }),
     ...(record.previous?.automaticRetry ? { automaticRetryDefinitionId: record.previous.automaticRetry.definitionId } : {}), ...extra };
 }
@@ -596,7 +596,7 @@ export function prepareRecoverySuccessor(repo, source, sourceReference, owner, e
     delete recoveredBinding.id; delete recoveredBinding.version; delete recoveredBinding.inputs;
   }
   const result = prepare(repo, { task: source.task, step: source.step, attempt: source.attempt + 1, phase: source.phase, reviewBinding: recoveredBinding,
-    owner, expectedCandidate, inputs: source.inputs, contextPaths: source.contextPaths, previous: { operationId: source.operationId, reason: "Recovered proven unstarted operation",
+    owner, expectedCandidate, inputs: source.inputs, contextPaths: source.contextPaths, criteria: source.criteria, previous: { operationId: source.operationId, reason: "Recovered proven unstarted operation",
       ...(source.previous?.automaticRetry ? { automaticRetry: source.previous.automaticRetry } : {}),
       recovery: { sourceReference, sourceOwner: source.owner, artifact } } });
   const successor = inspectRecoveryRecord(repo, { operationId: result.operation_id });
@@ -651,6 +651,36 @@ export function observeHistoricalOperation(repo, request, runtime, owner) {
     issues: [...current.issues, "Historical evidence does not establish current completion, approval or permission to retry."],
   };
 }
+function completionCriteria(value = []) {
+  assert(Array.isArray(value) && value.length <= 32, "provide at most 32 operation criteria");
+  const ids = new Set();
+  return value.map(item => {
+    assert(item && typeof item.id === "string" && validName(item.id, WORKFLOW_TASK_NAME) && !ids.has(item.id),
+      "criteria require unique stable IDs");
+    assert(typeof item.requirement === "string" && item.requirement.trim() && item.requirement.length <= 512,
+      "each criterion requires a short observable requirement");
+    assert(item.required === undefined || typeof item.required === "boolean", "criterion required must be boolean");
+    assert(item.fresh === undefined || typeof item.fresh === "boolean", "criterion fresh must be boolean");
+    assert(item.scope === undefined || ["worktree", "declared-inputs"].includes(item.scope), "invalid criterion dependency scope");
+    const hasExpected = Object.hasOwn(item, "expected");
+    assert(!hasExpected || typeof item.expected === "boolean" || Number.isSafeInteger(item.expected) ||
+      typeof item.expected === "string" && Buffer.byteLength(item.expected) <= 256 && !/[\x00-\x1f\x7f]/u.test(item.expected),
+      "criterion expected must be a bounded string, safe integer or boolean");
+    let dependencies;
+    if (item.scope === "declared-inputs") {
+      assert(hasExpected && Array.isArray(item.dependencies) && item.dependencies.length > 0 && item.dependencies.length <= 32 &&
+        item.dependencies.every(path => typeof path === "string" && path.length > 0 && path.length <= 1024 &&
+          !/[\x00-\x1f\x7f\\:]/u.test(path) &&
+          path.split("/").every(part => part && ![".", "..", ".git", ".pi", ".principal"].includes(part))),
+        "an input-scoped scalar criterion must name each dependency relative to the worktree");
+      dependencies = [...new Set(item.dependencies)].sort();
+    } else assert(item.dependencies === undefined, "dependency lists require declared-inputs scope");
+    ids.add(item.id);
+    return { id: item.id, requirement: item.requirement, required: item.required ?? true, fresh: item.fresh ?? false,
+      ...(item.scope === "declared-inputs" ? { scope: item.scope, dependencies } : {}), ...(hasExpected ? { expected: item.expected } : {}) };
+  }).sort((a, b) => a.id < b.id ? -1 : 1);
+}
+
 function prepare(repo, request) {
   const { task, step, phase, expectedCandidate, attempt = 1 } = request;
   assert(phases.includes(phase), "unsupported workflow phase");
@@ -659,12 +689,15 @@ function prepare(repo, request) {
   const current = observeCandidate(repo);
   requireExpectedCandidate(current, expectedCandidate);
   const checked = requestedReferences(current.root, request), contextPaths = requestedContextPaths(current.root, request, checked);
+  const criteria = completionCriteria(request.criteria);
   const binding = reviewBinding(request, checked, current), where = location(current.root, task, step, attempt, true);
   try { mkdirSync(where.path, { mode: 0o700 }); }
   catch (error) {
     if (error.code !== "EEXIST") throw error;
     const existing = load(current.root, request).record;
     assert(same(existing.owner ?? null, owner), "operation belongs to another coordinator session; inspect and reconcile the original before a new attempt");
+    assert(request.criteria === undefined || same(existing.criteria ?? [], criteria),
+      "operation criteria changed; preserve the original operation and record an authorized scope change separately");
     assert(existing.phase === phase && same(existing.inputs, checked) && same(existing.contextPaths ?? [], contextPaths) && same(existing.reviewBinding ?? null, binding), "operation conflict: stable task/step already has different phase, inputs or context");
     const result = inspectOperation(current.root, request);
     if (!result.candidateMatches && !result.resultRetained && result.inputsMatch && !result.issues?.length && ["build", "debug"].includes(result.phase)) {
@@ -676,7 +709,7 @@ function prepare(repo, request) {
   // A crash after the exclusive claim leaves an incomplete operation, never a silent retry.
   const run = createRun(current.root, task, current.id);
   const record = { version: 1, operationId: where.operationId, root: current.root, task, step, attempt, phase,
-    input: current, inputs: checked, ...(contextPaths.length ? { contextPaths } : {}), ...(binding ? { reviewBinding: binding } : {}), owner, previous: request.previous ?? null, reportPath: join(run, `${phase}.md`), artifactsPath: join(run, "artifacts"), implementation: implementation() };
+    input: current, inputs: checked, ...(criteria.length ? { criteria } : {}), ...(contextPaths.length ? { contextPaths } : {}), ...(binding ? { reviewBinding: binding } : {}), owner, previous: request.previous ?? null, reportPath: join(run, `${phase}.md`), artifactsPath: join(run, "artifacts"), implementation: implementation() };
   assert(same(observeCandidate(current.root), current), "candidate changed while preparing handoff; preserve incomplete claim");
   assertIgnored(current.root, record.reportPath);
   assertIgnored(current.root, join(record.artifactsPath, "unused-probe"));
@@ -763,6 +796,8 @@ export function retryOperation(repo, request, runtime) {
   assert(runtime?.historical !== true, "historical observation cannot authorize a retry");
   const { record } = load(repo, request);
   if (record.owner) requireNativeWorkspace(record.owner.cwd, record.root);
+  assert(request.criteria === undefined || same(completionCriteria(request.criteria), record.criteria ?? []),
+    "retry preserves the original operation criteria");
   assert(runtime?.operationId === record.operationId, "prior operation identity mismatch");
   const neverStarted = runtime.state === "not-started" && runtime.runtime?.cleanup?.state === "not-started";
   const settled = runtime.state === "settled" && runtime.runtime?.cleanup?.state === "settled" &&
@@ -824,7 +859,7 @@ export function retryOperation(repo, request, runtime) {
   let result;
   try {
     result = prepare(repo, { ...request, operationId: undefined, task: record.task, step: record.step, owner: record.owner,
-      reviewBinding: request.reviewBinding ?? inheritedBinding,
+      reviewBinding: request.reviewBinding ?? inheritedBinding, criteria: record.criteria,
       inputs: request.inputs ?? (request.inputPaths ? [] : record.inputs), contextPaths: request.contextPaths ?? record.contextPaths, phase: record.phase, attempt: record.attempt + 1,
       previous: { operationId: record.operationId, reason: request.reason, runtime, ...(automaticRetry ? { automaticRetry } : {}) } });
   } catch (error) {

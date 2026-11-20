@@ -53,7 +53,9 @@ reads; if discovery is essential, report the missing capability via BLOCKED.
 5. **Map requirements proportionally.** For a normative specification with IDs, keep one map row per
    stable source ID (`PR011` and `PR012` are two rows): clause, source/definition, step, acceptance
    test and status planned, not executed. An ordinary request needs only a compact source-located
-   checklist; do not manufacture a standards matrix from prose. No requirement may be dropped,
+   checklist; do not manufacture a standards matrix from prose. Give each material outcome an observable criterion for the coordinator's `prepare.criteria`.
+   Preserve fresh execution, required independent review and approval gates exactly where due.
+   Record the owner of a qualitative decision. Ask only about an ambiguity that changes acceptance. No requirement may be dropped,
    renamed or called covered without implementation and acceptance evidence. Keep generic
    coordinator gates as one referenced workflow block, not new product requirements in every map.
    Type task-specific gate rows `Gate`, each with its owner and due stage; later coordinator

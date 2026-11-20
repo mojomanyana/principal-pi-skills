@@ -156,8 +156,10 @@ runtime gate fails; there is no fixed repair-round quota.
 A clear authorized task can go directly to Build, Review and Git-Ops finish; plan only when
 sequencing, risks or dependencies need it; a coherent feature is one Build unit with its tests and
 docs. Bugfix diagnoses an unknown cause first. Existing explicit
-approval for the actual scope persists; urgency and self-written flags do not create it. Tiny
-low-risk inline work can finish with its actual checks and caveats.
+approval for the actual scope persists; urgency and self-written flags do not create it. For ordinary work, select independent review by impact on users, data, access and downstream consumers.
+Always honor explicitly requested review and source-required release gates. Tiny reversible inline work
+can finish with its actual checks and caveats. Derive observable criteria from the authorized outcome
+and record material ones in native `prepare.criteria`. Ask only when ambiguity changes acceptance.
 
 Use `artifact-review` when requested or when a material risk warrants it, not on every artifact. Use
 the distinct [test-review skill](test-review/SKILL.md) when test quality is in question, and say

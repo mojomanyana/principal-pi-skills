@@ -8,12 +8,13 @@ import { observeGitResource, observeIntegrationSubject, observePackageRelease, p
 import { queryRuntimeOperation } from "../scripts/runtime-operation-query.mjs";
 import { inspectProject, ProjectSetupError } from "../scripts/project-setup.mjs";
 import { createProjectSetup } from "./project-setup.ts";
+import { inspectVerification, criterionCoverage } from "../scripts/check-runner.mjs";
 import { recoverPreparedOperation } from "../scripts/prepared-recovery.mjs";
 
 const ref = Type.Object({ path: Type.String(), sha256: Type.String({ pattern: "^[a-f0-9]{64}$" }) }, { additionalProperties: false });
 const choice = values => Type.Union(values.map(value => Type.Literal(value)));
 const parameters = Type.Object({
-  action: choice(["preflight", "setup", "snapshot", "reference", "prepare", "status", "complete", "retry", "result", "history", "recover", "resource", "freeze"]),
+  action: choice(["preflight", "setup", "snapshot", "reference", "prepare", "status", "complete", "retry", "result", "history", "recover", "resource", "freeze", "verification"]),
   mode: Type.Optional(choice(["inspect", "continue", "retain"])), sourceReference: Type.Optional(ref), producerReference: Type.Optional(ref),
   expectedSubject: Type.Optional(Type.Object({ kind: Type.Literal("principal-integration") }, { additionalProperties: true })),
   packageRelease: Type.Optional(Type.Object({ packagePath: Type.String({ maxLength: 1024 }), registry: Type.String({ maxLength: 1024 }) }, { additionalProperties: false })),
@@ -30,6 +31,12 @@ const parameters = Type.Object({
   inputs: Type.Optional(Type.Array(ref, { maxItems: 128, description: "Exact immutable authority/evidence references; never editable context." })),
   contextPaths: Type.Optional(Type.Array(Type.String(), { maxItems: 128, description: "Readable, nonignored workspace product files expected to change. Advisory paths, not prerequisite hashes or permission. Cannot overlap inputs." })),
   evidence: Type.Optional(Type.Array(ref, { maxItems: 128 })),
+  criteria: Type.Optional(Type.Array(Type.Object({
+    id: Type.String({ pattern: WORKFLOW_TASK_NAME.pattern }), scope: Type.Optional(choice(["worktree", "declared-inputs"])),
+    dependencies: Type.Optional(Type.Array(Type.String({ minLength: 1, maxLength: 1024 }), { minItems: 1, maxItems: 32 })), requirement: Type.String({ minLength: 1, maxLength: 512 }),
+    expected: Type.Optional(Type.Union([Type.String({ maxLength: 256 }), Type.Integer(), Type.Boolean()])),
+    required: Type.Optional(Type.Boolean()), fresh: Type.Optional(Type.Boolean()),
+  }, { additionalProperties: false }), { maxItems: 32 })),
   reviewBinding: Type.Optional(Type.Object({
     initiativeId: Type.String(), taskId: Type.String(), taskRevision: Type.String(), outputId: Type.String(),
     outputReference: Type.Object({ owner: Type.Literal("principal"), reference: Type.Object({ kind: Type.Literal("principal-git") }, { additionalProperties: true }) }, { additionalProperties: false }),
@@ -138,6 +145,46 @@ function offersRecoveryInspection(message) {
     message.startsWith("automatic retry needs the execution owner's replay-safety proof;");
 }
 
+// Bind at command admission. A delayed completion must never attach itself to a
+// different task or a newly opened session. Read-only actions do not publish.
+function historyObserver(pi, ctx, request) {
+  if (!["prepare", "retry", "complete"].includes(request.action) &&
+      !(request.action === "recover" && ["continue", "retain"].includes(request.mode))) return;
+  let publish;
+  let binding = true, ambiguous = false;
+  try {
+    if (ctx.isProjectTrusted?.() !== true) return;
+    const cwd = realpathSync(ctx.cwd);
+    if (request.repo && realpathSync(request.repo) !== cwd) return;
+    pi.events?.emit?.("pi.task-history.v1.bind", {
+      version: 1, owner: "principal", cwd, sessionId: ctx.sessionManager?.getSessionId(),
+      accept(handler) {
+        if (!binding) return;
+        if (publish || typeof handler !== "function") ambiguous = true;
+        else publish = handler;
+      },
+    });
+  } catch { /* History is an optional projection. */ }
+  finally { binding = false; }
+  return result => {
+    if (ambiguous || !publish || result.administrativeWrites !== true || result.reused ||
+        !/^principal:[a-f0-9]{64}$/.test(result.operation_id)) return;
+    const labels = {
+      prepared: "Workflow operation prepared",
+      retained: "Native result retained",
+      complete: "Workflow completion recorded",
+      stale: "Retained result requires reconciliation",
+    };
+    const label = labels[result.state];
+    if (!label) return;
+    try {
+      const sent = publish({ version: 1, owner: "principal", kind: "workflow", operationId: result.operation_id,
+        state: result.state, label, evidence: { type: "operation", id: result.operation_id } });
+      if (sent && typeof sent.catch === "function") sent.catch(() => {});
+    } catch { /* Optional indexing cannot change an owner receipt. */ }
+  };
+}
+
 export function operationStatus(pi, ctx, operationId, signal, includeFinal = false) {
   return queryRuntimeOperation(pi, ctx, operationId, signal, { includeFinal });
 }
@@ -148,13 +195,14 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
   const bindCandidateObserver = registerCandidateObserver(pi);
   pi.registerTool({
     name: "principal_workflow", label: "Principal workflow", parameters, outputSchema,
-    description: "Principal bookkeeping; never execution, permission or approval. preflight: project readiness. setup: one confirmed empty Git baseline. snapshot: current candidate and input references. reference: exact file hash. prepare: native task/step/phase plus expectedCandidate, immutable inputPaths and editable contextPaths; returns reportPath, delegationArguments and statusArguments. Repetition reuses verified artifacts. status/complete/retry/history/result select task/step's latest owned attempt unless attempt is given; ambiguous or foreign selection refuses with choices. status rechecks current files. complete retains the settled exact final and disposition; resultRetained is history, completionValid is current freshness, neither is approval. result reads without writing; history reads the original owner's result; recover inspects after updates or /new. retry preserves the predecessor; automatic mode needs owner proof and a durable allowance, manual mode an authorized retry. For resource/freeze and reviewBinding see references/continuity.md.",
+    description: "Principal bookkeeping; never execution, permission or approval. preflight: project readiness. setup: one confirmed empty Git baseline. snapshot: current candidate and input references. reference: exact file hash. prepare: task/step/phase, expectedCandidate, observable criteria, immutable inputPaths and editable contextPaths; returns reportPath, delegationArguments and statusArguments. Repetition reuses verified artifacts. status/complete/retry/history/result select task/step's latest owned attempt unless attempt is given; ambiguous or foreign selection refuses with choices. status rechecks current files. complete retains the settled exact final and disposition; resultRetained is history, completionValid is current freshness, neither is approval. result reads without writing; history reads the original owner's result; recover inspects after updates or /new. retry preserves the predecessor; automatic mode needs owner proof and a durable allowance, manual mode an authorized retry. verification reads check receipts. See references/continuity.md.",
     promptGuidelines: ["Use this tool, not shell recipes, for hashes, report paths and identity checks; never compute an ID or digest yourself. Pass snapshot.candidate unchanged as expectedCandidate; HEAD alone does not identify uncommitted files. Pass prepare's delegationArguments to delegate with the current delegate_describe definitionId. Only after the child's cleanup is settled (uncertain is not settled), call complete for that operation before any repair, with the disposition its final actually shows: never succeeded for partial or unverified delivery. For replayable failures, call retry with retryMode automatic, task/step, reason and expectedCandidate; the owner proof and persisted budget allow one automatic successor. Pass its delegationArguments unchanged, including definitionId. Unsafe or exhausted replay stops only that phase; continue independent authorized work and ask only for a missing decision. Use retryMode manual only for a separately authorized retry, never to evade the automatic limit. After Build/Debug changes files, call complete, not prepare; if prepare returns PREPARED_OUTPUT_CHANGED, use its recovery arguments. If host schema validation rejects prepare task/step before execution, or PREPARE_INPUT_INVALID reports operationAllocated=false, correct the named field and repeat prepare for the same authorized work without asking again. Reuse established task/step identities; for a new task with no internal identity, choose a short valid ID. Keep attempt unchanged and never rename an existing operation to evade a refusal; this is not retry of an executed operation. On other refusals, follow the returned recoverArguments or statusArguments instead of preparing a replacement. For authorized continuation, follow continueArguments or historical retainArguments unchanged; recall requests only inspect. prepare and complete write private ignored files: when all writes are forbidden, use result instead. Inline work needs no prepare."],
     async execute(_callId, input, signal, _update, ctx) {
       let request = input;
       let queriedOperation;
       try {
         if (signal?.aborted) throw new Error("workflow operation aborted");
+        const observeHistory = historyObserver(pi, ctx, request);
         requirePreparedOperationIdentity(request);
         bindCandidateObserver(ctx);
         let result;
@@ -171,7 +219,8 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
           const named = request.task !== undefined || request.step !== undefined;
           if (selectableActions.has(request.action) && request.operationId === undefined && request.attempt === undefined && (named || request.action !== "result"))
             request = { ...request, attempt: latestAttempt(repo, request, coordinator()) };
-          if (request.action === "preflight") result = inspectProject(repo);
+          if (request.action === "verification") result = inspectVerification(repo, request);
+          else if (request.action === "preflight") result = inspectProject(repo);
           else if (request.action === "setup") result = await projectSetup(ctx, request.repo, signal);
           else if (request.action === "recover") result = await recover(request);
           else if (request.action === "snapshot" || request.action === "prepare") {
@@ -246,6 +295,8 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
           }
         }
         result = withOperationArguments(result);
+        if (result.criteria?.length) result = { ...result, coverage: criterionCoverage(result) };
+        observeHistory?.(result);
         return { content: [{ type: "text", text: JSON.stringify(result) }], structuredContent: result, details: result,
           ...(result.state === "setup-blocked" ||
             result.state === "setup-required" && ["snapshot", "prepare"].includes(request.action) ? { isError: true } : {}) };

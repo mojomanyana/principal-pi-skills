@@ -10,6 +10,7 @@ import { createRequire } from "node:module";
 import { syncBuiltinESMExports } from "node:module";
 import fs from "node:fs";
 import { CandidateIdentityError, PrepareInputError, observeCandidate, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation } from "../../scripts/workflow-state.mjs";
+import { runVerification, inspectVerification } from "../../scripts/check-runner.mjs";
 import { candidateSnapshot } from "../../scripts/resume-checkpoint.mjs";
 import { reference } from "../../scripts/progress-artifacts.mjs";
 
@@ -1940,4 +1941,156 @@ test("operationId lookup isolates an interrupted sibling without accepting dupli
   const duplicate = join(store, "e".repeat(64));
   mkdirSync(duplicate); writeFileSync(join(duplicate, "request.json"), readFileSync(join(store, original, "request.json")));
   assert.throws(() => inspectOperation(root, selected), /ambiguous/);
+});
+
+
+test("bounded check records required observations independently of process exit", async t => {
+  const { root } = fixture(t);
+  const check = { repo: root, task: "handoff", step: "delivered object", command: process.execPath,
+    criteria: [{ id: "editable", expected: true }], inputPaths: ["product.txt"] };
+  const writeObserved = value => ["-e", `require("node:fs").writeFileSync(process.env.PRINCIPAL_CHECK_OBSERVATIONS, ${JSON.stringify(JSON.stringify({ version: 1, observed: { editable: value } }))})`];
+  const missing = await runVerification({ ...check, args: ["-e", ""] });
+  assert.equal(missing.receipt.execution.reason, "exit-zero");
+  assert.equal(missing.receipt.outcome, "incomplete");
+  assert.equal(missing.receipt.observations[0].state, "unobserved");
+  const failed = await runVerification({ ...check, attempt: 2, args: writeObserved(false) });
+  assert.equal(failed.receipt.outcome, "failed");
+  const good = { ...check, attempt: 3, args: writeObserved(true) };
+  const saved = await runVerification(good);
+  assert.equal(saved.receipt.outcome, "passed");
+  assert.equal(saved.receipt.scope, "declared-observations");
+  assert.equal(saved.applicability.environment, "not-established");
+  assert.equal(saved.approval, false);
+  const original = readFileSync(saved.reference.path);
+  writeFileSync(join(root, "product.txt"), "new content\n");
+  const recalled = await runVerification(good);
+  assert.equal(recalled.reused, true);
+  assert.deepEqual(readFileSync(recalled.reference.path), original);
+  assert.equal(recalled.applicability.source, "changed-or-unobserved");
+  assert.equal(recalled.applicability.inputs, "changed-or-unobserved");
+  await assert.rejects(runVerification({ ...good, criteria: [] }), /different inputs/);
+  const h = await registeredWorkflow(root);
+  const view = (await h.run({ action: "verification", task: check.task, step: check.step, attempt: 3 })).structuredContent;
+  assert.deepEqual(view.reference, saved.reference);
+  assert.deepEqual(h.queries, []);
+  assert.equal(inspectVerification(root, { task: check.task, step: check.step }).receipt.outcome, "incomplete");
+});
+
+test("bounded check distinguishes terminal signals, oversized output and cancellation", async t => {
+  const { root } = fixture(t);
+  const run = (step, source, options = {}) => runVerification({ repo: root, task: "session", step,
+    command: process.execPath, args: ["-e", source], ...options });
+  const gui = await run("adapter failed", 'require("node:fs").writeFileSync(process.env.PRINCIPAL_CHECK_OBSERVATIONS, JSON.stringify({version:1,terminal:"failed",diagnosticCode:"fixture-unavailable",observed:{}}));process.stderr.write("private test fixture");setInterval(()=>{},1000)',
+    { timeoutMs: 10000 });
+  assert.equal(gui.receipt.execution.reason, "adapter-failed");
+  assert.equal(gui.receipt.execution.cleanup.state, "settled");
+  assert.equal(gui.receipt.outcome, "failed");
+  assert.equal(gui.receipt.diagnostic.adapterCode, "fixture-unavailable");
+  assert.equal(gui.receipt.diagnostic.output, "raw-output-withheld");
+  assert.equal(gui.receipt.execution.stderrBytes, 20);
+  assert.equal(JSON.stringify(gui).includes("private test fixture"), false);
+  const tooLarge = await run("flood", "process.stdout.write('x'.repeat(4096));setInterval(()=>{},1000)", { outputLimit: 512 });
+  assert.equal(tooLarge.receipt.execution.reason, "output-limit");
+  assert.equal(tooLarge.receipt.outcome, "incomplete");
+  const cancelled = await run("cancel", "process.exit(41)", { signal: AbortSignal.abort() });
+  assert.equal(cancelled.receipt.outcome, "cancelled");
+  assert.equal(cancelled.receipt.execution.started, false);
+  const timed = await run("timeout", "setInterval(()=>{},1000)", { timeoutMs: 100 });
+  assert.equal(timed.receipt.execution.reason, "timeout");
+  assert.equal(timed.receipt.outcome, "incomplete");
+});
+
+test("concurrent check admissions settle one existing claim and keep later attempts separate", async t => {
+  const { root } = fixture(t);
+  const request = { repo: root, task: "session", step: "one writer", command: process.execPath,
+    args: ["-e", "setTimeout(()=>{},200)"] };
+  const running = runVerification(request);
+  await assert.rejects(runVerification({ ...request, attempt: 2 }), /previous attempt has no confirmed cleanup/);
+  const [first, second] = await Promise.all([running, runVerification(request)]);
+  assert.equal(first.reused, false); assert.equal(second.reused, true);
+  assert.equal(second.state, "settlement-unconfirmed");
+  assert.equal(first.receipt.scope, "process-exit-only");
+  const next = await runVerification({ ...request, attempt: 2 });
+  assert.notEqual(next.reference.path, first.reference.path);
+  assert.deepEqual(inspectVerification(root, request).reference, first.reference);
+});
+
+test("workflow observers bind to their originating context and publish only new owner records", async t => {
+  const { root, request } = fixture(t);
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
+  const events = [], callbacks = [];
+  let tool;
+  register({ registerTool: value => { tool = value; }, registerCommand() {}, on() {}, events: {
+    on: () => () => {}, emit(name, binding) {
+      assert.equal(name, "pi.task-history.v1.bind");
+      assert.equal(binding.owner, "principal"); assert.equal(binding.cwd, root);
+      callbacks.push(binding.accept);
+      binding.accept(event => { events.push(event); throw Error("projection offline"); });
+    },
+  } });
+  const ctx = { cwd: root, isProjectTrusted: () => true, sessionManager: { getSessionId: () => "original" } };
+  const call = async args => (await tool.execute("fixture", args, undefined, () => {}, ctx)).structuredContent;
+  const prepared = await call({ ...request, action: "prepare" });
+  assert.equal(prepared.state, "prepared");
+  assert.deepEqual(events, [{ version: 1, owner: "principal", kind: "workflow", operationId: prepared.operation_id,
+    state: "prepared", label: "Workflow operation prepared", evidence: { type: "operation", id: prepared.operation_id } }]);
+  callbacks[0](() => { throw Error("late registration"); });
+  await call({ ...request, action: "prepare" });
+  await call({ action: "status", operationId: prepared.operation_id });
+  assert.equal(events.length, 1);
+  assert.equal(callbacks.length, 2);
+});
+
+test("native completion retains criteria, exact check references and unobserved judgments across recall", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root);
+  const criteria = [
+    { id: "editable", requirement: "The produced item can be edited", expected: true, fresh: true },
+    { id: "choice", requirement: "The user selected a presentation" },
+    { id: "extra", requirement: "Optional secondary output", expected: "ready", required: false },
+  ];
+  const prepared = (await h.run({ ...request, action: "prepare", criteria })).structuredContent;
+  assert.equal(prepared.coverage.state, "unverified");
+  const changed = await h.run({ ...request, action: "prepare", criteria: [] });
+  assert.equal(changed.isError, true);
+  const checked = await runVerification({ repo: root, task: request.task, step: "editable output", forOperationId: prepared.operation_id,
+    command: process.execPath, criteria: [{ id: "editable", expected: true }],
+    args: ["-e", 'require("node:fs").writeFileSync(process.env.PRINCIPAL_CHECK_OBSERVATIONS,JSON.stringify({version:1,observed:{editable:true}}))'] });
+  h.setNative(settled(prepared.operation_id, root));
+  const complete = (await h.run({ action: "complete", operationId: prepared.operation_id, disposition: "succeeded", evidence: [checked.reference] })).structuredContent;
+  assert.equal(complete.completionValid, true);
+  assert.equal(complete.coverage.state, "partial");
+  assert.equal(complete.coverage.required, 2);
+  assert.equal(complete.coverage.supported, 1);
+  assert.equal(complete.coverage.criteria.find(c => c.id === "choice").state, "judgment-needed");
+  assert.equal(complete.approval, false);
+  const history = (await h.run({ action: "status", operationId: prepared.operation_id })).structuredContent;
+  assert.deepEqual(history.coverage, complete.coverage);
+  writeFileSync(join(root, "product.txt"), "updated\n");
+  const stale = (await h.run({ action: "status", operationId: prepared.operation_id })).structuredContent;
+  assert.equal(stale.coverage.supported, 0);
+  assert.equal(stale.coverage.criteria.find(c => c.id === "editable").state, "inconclusive");
+});
+
+test("only bound exhaustive file scopes may support an independent later candidate", async t => {
+  const { root, request } = fixture(t), h = await registeredWorkflow(root);
+  const criterion = { id: "stored", requirement: "The saved artifact contains the recorded value", expected: true,
+    scope: "declared-inputs", dependencies: ["product.txt"] };
+  const first = (await h.run({ ...request, action: "prepare", criteria: [criterion] })).structuredContent;
+  const check = { repo: root, task: request.task, step: "read artifact", forOperationId: first.operation_id,
+    scope: "declared-inputs", command: process.execPath, criteria: [{ id: "stored", expected: true }],
+    args: ["-e", 'const fs=require("node:fs"); fs.writeFileSync(process.env.PRINCIPAL_CHECK_OBSERVATIONS, JSON.stringify({version:1,observed:{stored:fs.readFileSync("product.txt","utf8")==="before\\n"}}))'] };
+  await assert.rejects(runVerification({ ...check, inputPaths: ["other.txt"] }), /dependencies/);
+  const saved = await runVerification({ ...check, inputPaths: ["product.txt"] });
+  assert.equal(saved.receipt.outcome, "passed");
+  writeFileSync(join(root, "unrelated.txt"), "An unrelated file changed.\n");
+  const finish = async (step, item) => {
+    const current = (await h.run({ action: "prepare", ...request, step, expectedCandidate: observeCandidate(root),
+      criteria: [item] })).structuredContent;
+    h.setNative(settled(current.operation_id, root));
+    return (await h.run({ action: "complete", operationId: current.operation_id, disposition: "succeeded", evidence: [saved.reference] })).structuredContent;
+  };
+  assert.equal((await finish("current scoped criterion", criterion)).coverage.state, "supported");
+  assert.equal((await finish("different requirement", { ...criterion, requirement: "The artifact survived restart" })).coverage.state, "unverified");
+  writeFileSync(join(root, "product.txt"), "changed artifact\n");
+  assert.equal((await finish("changed input", criterion)).coverage.state, "unverified");
 });

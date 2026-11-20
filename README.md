@@ -24,6 +24,75 @@ It is self-contained: copy its directory to use it with Pi without Principal, Da
 Bookie or Harness. It has no native phase binding and does not activate Principal
 routing by itself. Review is chosen for a concrete need, never a mandatory extra stage.
 
+## Bounded verification attempts
+
+When preparing substantial native work, include the requested observable
+criteria in `prepare.criteria`. Each entry has a stable `id` and
+`requirement`. Supply `expected` for a measurable scalar, `required:false`
+for optional work, or `fresh:true` for execution bound to that operation.
+Qualitative criteria with no scalar expectation stay open for judgment.
+Criteria are retained with that attempt and inherited on retry. Changing scope
+uses a separate authorized operation. Checks with required freshness use the
+original operation ID with `--operation`. The workflow's `coverage` view
+counts only applicable observed criteria from exact linked receipts, lists
+conflicting evidence, and keeps required independent or human judgment visible.
+
+Use `principal-pi-check` for an authorized local check that needs a durable
+attempt record, bounded execution and explicit observations. It runs an
+executable directly in the selected Git worktree. Each task, step and attempt
+has its own private, Git-ignored directory. Repeating the same request reads the
+existing result. Starting the next numbered attempt requires a settled previous
+attempt or a recorded no-start. An interrupted claim remains visible as
+unconfirmed and cannot silently launch another copy.
+
+```sh
+principal-pi-check run --task catalog --step import --attempt 1 --timeout-ms 30000 --criterion editable=true -- node verify-import.js
+principal-pi-check show --task catalog --step import --attempt 1
+```
+
+The existing check script or its adapter writes measured values as JSON to
+`process.env.PRINCIPAL_CHECK_OBSERVATIONS`. For the example, write
+`{"version":1,"observed":{"editable":true}}` after actually exercising the
+requested behavior. Each named criterion compares a bounded JSON scalar to its
+declared expectation. A missing required observation yields incomplete coverage.
+With no declared criteria the recorded pass covers process exit only. A GUI
+adapter can atomically write an explicit terminal marker in the same object:
+`"terminal":"failed"` or `"terminal":"complete"`. The runner settles the owned
+process after that signal. Ordinary diagnostic text cannot trigger that action.
+
+Timeout, cancellation, output limit, launch failure and exit are distinct in
+the receipt. The default limit is 60 seconds and 1 MiB combined output. Pass
+`--timeout-ms` and `--max-output-bytes` to set the bounds. POSIX cleanup
+reports on the owned process group. On Windows it covers the direct child.
+The receipt records byte counts by stream, the launch error code when
+available, and missing or mismatched criterion IDs. Raw streams, unexpected
+string values and command arguments are withheld. An adapter can set one
+`diagnosticCode` from `missing-dependency`, `access-denied`, `invalid-input`,
+`fixture-unavailable`, `service-unavailable`, `unsupported-feature`,
+`assertion-failed`, `unreadable-artifact`, `invalid-output` or
+`unexpected-state`. Other diagnostic text stays private. The runner discards
+its temporary adapter report after recording a settled attempt. A process
+outside the owned group or Windows child requires its own cleanup evidence.
+A check adapter can retain separate evidence in the attempt directory when
+authorized; only the explicitly declared scalar observations enter the result.
+
+Use `--input relative/path` for an exact configuration or fixture dependency
+in the worktree (at most 32 files, 16 MiB each). The default scope binds the whole candidate. For an isolated
+criterion with a known, exhaustive set of dependencies, declare
+`scope: "declared-inputs"` and list every relevant source, adapter,
+configuration and fixture in the prepared criterion's `dependencies` list,
+using worktree-relative paths. Pass that exact operation with `--operation`,
+`--scope declared-inputs` and one matching `--input` per file. A matching scoped check can then support a new
+current operation despite unrelated edits. Changes to a dependency require
+new evidence. Scope describes measured files and behavior only.
+Read the original receipt and current applicability through
+`principal_workflow({action:"verification",task,step,attempt})`. It compares
+the observed source versions and declared input hashes. External services,
+cache state and required fresh execution still need separate evidence. This
+action is a read. Pass its returned `reference` in the existing
+`principal_workflow complete` evidence list to bind the exact result to a
+native operation. Running a check uses the ordinary shell's authorization.
+
 ## Deterministic workflow tools
 
 `principal_handoff` optionally prepares a compact task, caveats and exact required/optional
@@ -116,7 +185,7 @@ script counts it and prints the current figures.
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
-| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1183) or inline | 1114 |
+| `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1221) or inline | 1152 |
 | `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1672) or inline | 1619 |
 | `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1358) or inline | 1306 |
 | `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 765) or inline | 744 |
