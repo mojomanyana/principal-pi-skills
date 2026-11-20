@@ -59,7 +59,8 @@ export default function bootstrapExtension(pi) {
       }
       if (!selected.size) return;
       if (cached === undefined) {
-        cached = readFileSync(resolve(root, "bootstrap", "BOOTSTRAP.md"), "utf8").trim();
+        cached = readFileSync(resolve(root, "bootstrap", "BOOTSTRAP.md"), "utf8").trim()
+          .replace(/references\/(learning|research)\.md/g, (path) => resolve(root, path));
         if (!cached) throw new Error("bootstrap file is empty");
       }
       enabled = [...selected].sort();

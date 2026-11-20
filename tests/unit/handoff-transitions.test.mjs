@@ -43,6 +43,22 @@ const ARTIFACT_WORKFLOWS = ["contracts/workflows.md.tmpl", "prompts/principal-re
 
 const WORKFLOWS = ["prompts/principal-feature.md", "prompts/principal-bugfix.md", "prompts/principal-refactor.md"];
 
+test("design decisions carry across a workflow and children return discoveries to the coordinator", () => {
+  for (const path of WORKFLOWS) {
+    const workflow = read(path).replace(/\s+/g, " ");
+    assert.match(workflow, /Consult Architect inline when discussion or planning.*Build discovers/);
+    assert.match(workflow, /decision, reason and observable check into the affected step/);
+    assert.match(workflow, /clear authorized change can go directly to Build/i);
+    assert.match(workflow, /design discussion may finish with advice alone/);
+  }
+  const plan = read("agents/principal-plan.md").replace(/\s+/g, " ");
+  assert.match(plan, /delegated planner returns the question and its consequences to the coordinator/);
+  const build = read("agents/principal-build.md").replace(/\s+/g, " ");
+  assert.match(build, /implementation disproves a design assumption.*cite the observation/);
+  assert.match(build, /child returns the discovery in its report.*routine implementation decisions local/i);
+  assert.match(build, /cannot ask questions or dispatch subagents/);
+});
+
 test("independent runs and resumed repairs preserve original candidate artifacts and baseline", () => {
   for (const p of ARTIFACT_WORKFLOWS) {
     const text = read(p).replace(/\s+/g, " ");

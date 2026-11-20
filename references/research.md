@@ -1,0 +1,8 @@
+# Research during a Principal task
+
+Use public research when a specific fact could change the task. Architect may need a platform constraint, Decide a fact that changes the choice, Plan a version or migration prerequisite, and Build a documented API behavior that installed code leaves unclear. Review, Test Review, Debug and Investigate can request evidence in the same way. Routine work proceeds directly.
+
+1. Use applicable evidence already available within the task's permissions. A role needing more returns one focused question, the decision it affects, and any work that can proceed. A delegated role stays within its actual tool and context permissions.
+2. When Scout is available and public research is authorized, the coordinator can call `scout_research` with the question, relevant versions and any known official URLs. Keep private project data out of the request. If using Daddy's one-hop `scout-public` child, verify the requested research tool is available to that child on the same provider and model. A parent tool listing does not establish child access. Brave requires operator opt-in.
+3. Read the relevant original passage. Return the supported finding, citation, material gaps and exact brief reference. A search hit alone is insufficient. For a file-only role, use an authorized readable evidence file containing the passage and source, or a reference the child can resolve within its scope. Never pass a parent summary through a file to evade the context limit.
+4. If a source or Scout is unavailable, carry the gap on the dependent conclusion and continue independent work. Bring a changed design assumption back to Architect. Reuse the authorized evidence across roles to avoid repeating research.

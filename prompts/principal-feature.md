@@ -21,6 +21,12 @@ gate matrices. Read referenced authority before alleging it is missing. Existing
 authorization for this scope persists; do not ask again. Missing or conflicting normative meaning
 blocks affected work. Material scope/design changes and one-way actions keep their approval.
 
+Consult Architect inline when discussion or planning must settle ownership, an interface or a
+migration, or Build discovers that the accepted assumption fails. Carry the decision, reason
+and observable check into the affected step. Reuse a decision while its assumptions hold.
+Explain a material change in the user's terms as it happens. Say which observation changed the
+decision and what you will do next. A design discussion may finish with advice alone.
+
 Before asking or resuming, use the outcome, phase, non-goals, accepted verification fallbacks,
 standing authorization and open decisions already in context. Derive observable completion criteria from
 that authority. Record material criteria in native `prepare.criteria` with stable IDs; mark explicit

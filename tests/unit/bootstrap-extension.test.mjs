@@ -152,6 +152,31 @@ test("compact bootstrap states exact native binding policy and bounded inline ro
   assert.doesNotMatch(text, /cheapest model|strongest available/);
 });
 
+test("the request-local coordinator can consult selected Architect inline without enabling a child or unselected skill", async t => {
+  const h = await load(t);
+  const path = join(dirname(dirname(h.skill)), "architect/SKILL.md");
+  mkdirSync(dirname(path));
+  writeFileSync(path, readFileSync(join(ROOT, "architect/SKILL.md"), "utf8"));
+  const plan = { name: "skill:plan", source: "skill", sourceInfo: { path: h.skill } };
+  const architect = { name: "skill:architect", source: "skill", sourceInfo: { path } };
+  const request = user("We found a second writer while building. Who owns conflict detection?");
+  for (const selected of [[plan, architect], [plan]]) {
+    h.setSelected(selected);
+    await h.activate();
+    const { messages } = await h.fire("context", { messages: [request] });
+    assert.equal(messages.at(-1), request);
+    const policy = messages.find(bootstrap).content[0].text;
+    assert.match(policy, /Consult selected Architect inline when discussion, Plan or Build/);
+    assert.match(policy, /actual outcome, reason, supporting evidence, limits and next action/);
+    assert.ok(policy.includes(join(dirname(dirname(h.skill)), "references", "learning.md")));
+    assert.ok(policy.includes(join(dirname(dirname(h.skill)), "references", "research.md")));
+    const names = selected.map(command => command.name.slice("skill:".length)).sort().join(", ");
+    assert.ok(policy.includes(`Enabled Principal skills: ${names}. Use only these selected resources.`));
+  }
+  const { bindings } = JSON.parse(readFileSync(join(ROOT, "principal-agents.json"), "utf8"));
+  assert.equal(Object.hasOwn(bindings, "architect"), false);
+});
+
 test("missing foreign selected paths cannot latch unrelated Principal routing off", async t => {
   const h = await load(t);
   h.setSelected([
