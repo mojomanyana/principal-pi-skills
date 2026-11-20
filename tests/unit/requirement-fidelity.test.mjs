@@ -233,9 +233,15 @@ test('compact settlement guidance checks the visible summary without demanding h
     clauses(text, [/runtime evidence summary/, /cleanup.state=settled/, /identity-bound receipt/, /complete.*rechecks/]);
     assert.doesNotMatch(text, /check.*native result and identity-bound `cleanup.state=settled` receipt|needs `cleanup.state=settled` with its matching identity-bound receipt/);
   }
+});
+
+test('installation guidance identifies the Principal release and links to the tested ecosystem', () => {
+  const { version } = JSON.parse(read('package.json'));
   for (const path of ['AGENTS.md', 'README.md']) {
-    assert.match(read(path), /pi-daddy@0\.62\.1/);
-    assert.match(read(path), /skill-harness@0\.36\.2/);
+    const text = read(path);
+    assert.ok(text.includes(`pi install npm:principal-pi-skills@${version}`), path);
+    assert.ok(text.includes('https://github.com/mojomanyana/pi-daddy#start-here'), path);
+    assert.doesNotMatch(text, /pi install npm:(?:pi-daddy|skill-harness)@/, path);
   }
 });
 

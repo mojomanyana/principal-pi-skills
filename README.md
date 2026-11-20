@@ -12,6 +12,9 @@ layer over the nine skills, with the risk-adaptive
 assurance controller and broad model qualification kept on a separate track (see
 [Validation](#validation)).
 
+Use the [standalone installation](#package-installation) for Principal, or follow the
+[Pi ecosystem quickstart](https://github.com/mojomanyana/pi-daddy#start-here) to build and resume a task with the other packages.
+
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
 **delegable trust** — an output carries the evidence needed to verify it without redoing
@@ -360,13 +363,12 @@ history is unknown. Readiness and candidate diagnostics are explained in
 
    ```sh
    pi install npm:principal-pi-skills@4.19.0
-   pi install npm:pi-daddy@0.62.1
-   pi install npm:skill-harness@0.36.2
    ```
 
    Restart Pi after package changes. The `pi` manifest registers ten skills, four
    `/principal-*` commands and six extensions automatically. Exact npm pins keep
-   the installed source version identifiable.
+   the installed source version identifiable. For native delegation, add pi-daddy using
+   the [ecosystem quickstart](https://github.com/mojomanyana/pi-daddy#start-here).
 
    For planning or review that needs repository discovery, merge this setting into your Pi
    `settings.json` (preserving its other fields), then restart Pi:
