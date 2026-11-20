@@ -1976,6 +1976,43 @@ test("bounded check records required observations independently of process exit"
   assert.equal(inspectVerification(root, { task: check.task, step: check.step }).receipt.outcome, "incomplete");
 });
 
+test("a successful export can still fail the required content check; retries preserve earlier observations", async t => {
+  const { root } = fixture(t);
+  const exportPath = join(root, "delivery.json");
+  const check = { repo: root, task: "noticeboard", step: "public export", command: process.execPath,
+    inputPaths: ["delivery.json"], criteria: [{ id: "public-items-only", expected: true }],
+    args: ["-e", `
+      const fs = require("node:fs");
+      const delivery = JSON.parse(fs.readFileSync("delivery.json", "utf8"));
+      const actual = delivery.items.map(item => item.id).sort();
+      const matches = JSON.stringify(actual) === JSON.stringify(["hours", "menu"]);
+      fs.writeFileSync(process.env.PRINCIPAL_CHECK_OBSERVATIONS, JSON.stringify({
+        version: 1, observed: { "public-items-only": matches },
+      }));
+    `] };
+  // The exporter reports success even when it includes a private draft.
+  const deliver = ids => writeFileSync(exportPath, JSON.stringify({
+    status: "success", items: ids.map(id => ({ id })),
+  }));
+  deliver(["hours", "menu", "draft"]);
+  const failed = await runVerification(check);
+  assert.equal(failed.receipt.execution.reason, "exit-zero");
+  assert.equal(failed.receipt.outcome, "failed");
+  const original = readFileSync(failed.reference.path);
+  // A late report sent to the first adapter's directory cannot satisfy a later check.
+  writeFileSync(join(dirname(failed.reference.path), "observations.json"), JSON.stringify({
+    version: 1, observed: { "public-items-only": true },
+  }));
+  const missing = await runVerification({ ...check, attempt: 2, args: ["-e", ""] });
+  assert.equal(missing.receipt.outcome, "incomplete");
+  deliver(["menu", "hours"]);
+  const passed = await runVerification({ ...check, attempt: 3 });
+  assert.equal(passed.receipt.outcome, "passed");
+  assert.equal(passed.approval, false);
+  assert.notEqual(passed.reference.path, failed.reference.path);
+  assert.deepEqual(readFileSync(failed.reference.path), original);
+});
+
 test("bounded check distinguishes terminal signals, oversized output and cancellation", async t => {
   const { root } = fixture(t);
   const run = (step, source, options = {}) => runVerification({ repo: root, task: "session", step,
