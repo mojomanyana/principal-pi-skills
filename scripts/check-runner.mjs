@@ -232,7 +232,11 @@ export function criterionCoverage(operation) {
       if (!inputsMatch || (requiresInputScope ? !inputScoped : !sourceMatches)) continue;
       const item = receipt.observations.find(item => item.id === criterion.id);
       if (item?.state === "failed") statuses.add("failed");
-      if (["exit-zero", "adapter-complete"].includes(receipt.execution?.reason) && receipt.execution?.cleanup?.state === "settled" &&
+      // A short-lived checker can report terminal failure and still exit zero.
+      // Older failed receipts cannot distinguish that case from a sibling mismatch.
+      const usableObservation = receipt.outcome === "passed" || receipt.outcome === "incomplete" ||
+        (receipt.outcome === "failed" && receipt.adapterReportedFailure === false);
+      if (usableObservation && ["exit-zero", "adapter-complete"].includes(receipt.execution?.reason) && receipt.execution?.cleanup?.state === "settled" &&
           item?.state === "satisfied" && Object.is(item.observed, criterion.expected)) statuses.add("supported");
     }
     const state = statuses.size > 1 ? "conflicting" : statuses.values().next().value ??
@@ -403,6 +407,7 @@ export async function runVerification({ repo = process.cwd(), task, step, attemp
       observations.every(item => item.state === "satisfied")) outcome = "passed";
   const receipt = { version: 1, operationId, requestDigest: digest(request), observedAt: new Date().toISOString(),
     scope: expected.length ? "declared-observations" : "process-exit-only", outcome, execution, observations, endSource,
+    ...(outcome === "failed" ? { adapterReportedFailure: report?.terminal === "failed" || execution.reason === "adapter-failed" } : {}),
     diagnostic: { output: execution.outputBytes ? "raw-output-withheld" : "no-output",
       ...(adapterCodes.has(report?.diagnosticCode) ? { adapterCode: report.diagnosticCode } : {}),
       missing: observations.filter(item => item.state === "unobserved").map(item => item.id),

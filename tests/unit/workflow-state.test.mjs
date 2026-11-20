@@ -917,6 +917,63 @@ test("candidate input refusals distinguish missing, malformed and foreign identi
   assert.equal(observeSnapshot(root).candidate.id, snapshot.candidate.id, "snapshot needs no expected identity");
 });
 
+test("Git review evidence distinguishes a clean sample, untracked deliverables and staged or unstaged paths", t => {
+  const { root, request } = fixture(t);
+  const git = (...args) => execFileSync("git", ["-C", root, ...args], { encoding: "utf8" });
+  const clean = observeSnapshot(root);
+  assert.equal(clean.workingTree.state, "clean");
+  assert.equal(clean.candidate.id, clean.candidate.head);
+  assert.equal(clean.workingTree.untracked.count, 0);
+
+  writeFileSync(join(root, "new product.txt"), "new delivery\n");
+  assert.equal(git("diff", "HEAD", "--"), "");
+  const untracked = observeSnapshot(root);
+  assert.equal(untracked.workingTree.state, "changed");
+  assert.equal(untracked.workingTree.staged.count, 0);
+  assert.equal(untracked.workingTree.unstaged.count, 0);
+  assert.deepEqual(untracked.workingTree.untracked, { count: 1, paths: ["new product.txt"] });
+  const review = prepareOperation(root, { ...request, phase: "review", expectedCandidate: untracked.candidate });
+  assert.deepEqual(review.handoff.inputWorkingTree, untracked.workingTree);
+
+  writeFileSync(join(root, "product.txt"), "index\n");
+  git("add", "product.txt");
+  writeFileSync(join(root, "product.txt"), "worktree\n");
+  const mixed = observeSnapshot(root);
+  assert.deepEqual(mixed.workingTree.staged, { count: 1, paths: ["product.txt"] });
+  assert.deepEqual(mixed.workingTree.unstaged, { count: 1, paths: ["product.txt"] });
+  assert.deepEqual(mixed.workingTree.untracked, untracked.workingTree.untracked);
+  const status = inspectOperation(root, { ...request, phase: "review" });
+  assert.equal(status.candidateMatches, false);
+  assert.deepEqual(status.handoff.inputWorkingTree, untracked.workingTree, "the handoff describes the original Review input");
+
+  // The legacy resume digest hashes exactly these fields in this order. Presentation metadata must stay outside it.
+  const full = candidateSnapshot(root);
+  const legacy = Object.fromEntries(["root", "commonDir", "gitDir", "worktreeIdentity", "head", "branch", "indexSha256",
+    "stagedSha256", "unstagedSha256", "tracked", "untracked", "changedPaths"].map(key => [key, full[key]]));
+  assert.equal(mixed.candidate.id, "dirty:" + createHash("sha256").update(JSON.stringify(legacy)).digest("hex"));
+  assert.deepEqual(full, { ...legacy, id: mixed.candidate.id });
+});
+
+test("Git review evidence bounds path samples and retains the full count", t => {
+  const { root } = fixture(t);
+  for (let i = 0; i < 24; i++) writeFileSync(join(root, `item-${i}.txt`), "");
+  const { workingTree, candidate } = observeSnapshot(root);
+  assert.equal(candidate.changedPathCount, 24);
+  assert.equal(workingTree.untracked.count, 24);
+  assert.ok(workingTree.untracked.paths.length > 0 && workingTree.untracked.paths.length < 24);
+  assert.ok(workingTree.untracked.paths.every(path => candidate.changedPaths.includes(path)));
+});
+
+test("Git review evidence keeps normalized raw edits distinct from an unstaged Git diff", t => {
+  const { root } = fixture(t);
+  execFileSync("git", ["-C", root, "config", "core.autocrlf", "true"]);
+  writeFileSync(join(root, "product.txt"), "before\r\n");
+  const { workingTree } = observeSnapshot(root);
+  assert.equal(workingTree.state, "changed");
+  assert.equal(workingTree.unstaged.count, 0);
+  assert.deepEqual(workingTree.rawDifferencesOutsideUnstagedDiff, { count: 1, paths: ["product.txt"] });
+});
+
 test("candidate diagnostics separate source, index and HEAD comparisons without changing identity", async t => {
   const scenarios = [
     { name: "tracked content", mutate: root => writeFileSync(join(root, "product.txt"), "after\n"), comparison: { head: "same", index: "same", source: "different" } },
@@ -2230,4 +2287,46 @@ test("standalone checks retain declared file evidence on the current platform", 
   assert.equal(recalled.reused, true);
   assert.equal(recalled.applicability.inputs, "changed-or-unobserved");
   assert.deepEqual(recalled.reference, result.reference);
+});
+
+test("declared evidence keeps checker failure separate from a successful observation", async t => {
+  const criterion = { id: "public", requirement: "The notice was presented to the public", expected: true };
+  const secondary = { id: "format", requirement: "The optional format matches", expected: true, required: false };
+  const cases = [
+    { label: "fast checker reports terminal failure", terminal: "failed", format: true, supported: 0 },
+    { label: "missing sibling observation", supported: 1 },
+    { label: "ordinary sibling mismatch", format: false, supported: 1 },
+    { label: "older failed receipt with ambiguous termination", legacy: true, terminal: "failed", format: false, supported: 0 },
+    { label: "older passing receipt", legacy: true, format: true, supported: 1 },
+  ];
+  for (const { label, terminal, format, legacy, supported } of cases) await t.test(label, async sub => {
+    const { root, request } = fixture(sub);
+    const host = await registeredWorkflow(root);
+    const prepared = (await host.run({ ...request, action: "prepare", criteria: [criterion, secondary] })).structuredContent;
+    const report = { version: 1, observed: { public: true, format }, terminal };
+    const checked = await runVerification({
+      repo: root, task: request.task, step: "inspect published notice", forOperationId: prepared.operation_id,
+      command: process.execPath, criteria: [criterion, secondary],
+      args: ["-e", 'require("node:fs").writeFileSync(process.env.PRINCIPAL_CHECK_OBSERVATIONS, process.argv[1])', JSON.stringify(report)],
+    });
+    const file = checked.reference.path;
+    if (legacy) {
+      // v1 receipts from quickly exiting adapters retained the native exit and outcome, but no failure marker.
+      const record = JSON.parse(readFileSync(file, "utf8"));
+      delete record.adapterReportedFailure;
+      record.execution.reason = "exit-zero";
+      writeFileSync(file, JSON.stringify(record) + "\n");
+    }
+    const bytesBefore = readFileSync(file);
+    host.setNative(settled(prepared.operation_id, root));
+    const completion = (await host.run({ action: "complete", operationId: prepared.operation_id,
+      disposition: "succeeded", evidence: [reference(file)] })).structuredContent;
+    assert.equal(completion.coverage.supported, supported);
+    assert.equal(completion.coverage.criteria.find(row => row.id === "public").state,
+      supported ? "supported" : "inconclusive");
+    if (format === false) assert.equal(completion.coverage.criteria.find(row => row.id === "format").state, "failed");
+    const readBack = (await host.run({ action: "status", operationId: prepared.operation_id })).structuredContent;
+    assert.deepEqual(readBack.coverage, completion.coverage);
+    assert.deepEqual(readFileSync(file), bytesBefore);
+  });
 });

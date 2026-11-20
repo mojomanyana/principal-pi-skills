@@ -4,7 +4,7 @@ import { createHash, randomUUID } from "node:crypto";
 import { constants, closeSync, fstatSync, fsyncSync, linkSync, lstatSync, mkdirSync, openSync, readFileSync, readdirSync, realpathSync, unlinkSync, writeSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 import { fileURLToPath } from "node:url";
-import { candidateSnapshot } from "./resume-checkpoint.mjs";
+import { inspectCandidateWorktree } from "./resume-checkpoint.mjs";
 import { resolveIntegrationSubject } from "./continuity.mjs";
 import { createRun, privateRoot, reference, saveReport } from "./progress-artifacts.mjs";
 
@@ -267,26 +267,30 @@ function referenceIssues(refs) {
 }
 /** Observe product identity and named authority/evidence bytes without caller-computed hashes. */
 export function observeSnapshot(repo, request = {}) {
-  const candidate = observeCandidate(repo);
+  const { candidate, workingTree } = observeCandidateWithTree(repo);
   if (request.expectedCandidate !== undefined) requireExpectedCandidate(candidate, request.expectedCandidate);
   const inputs = requestedReferences(candidate.root, request);
   const contextPaths = requestedContextPaths(candidate.root, request, inputs, "snapshot");
   const after = observeCandidate(repo);
   if (!same(after, candidate)) throw new CandidateIdentityError("CANDIDATE_OBSERVATION_CHANGED", "Candidate changed during snapshot; no handoff was prepared.",
     { reason: "observation-changed", comparisonBasis: "observed-candidate", comparison: candidateComparison(after, candidate) });
-  return { version: 1, state: "observed", approval: false, administrativeWrites: false, candidate, inputs,
+  return { version: 1, state: "observed", approval: false, administrativeWrites: false, candidate, workingTree, inputs,
     ...(contextPaths.length ? { contextPaths } : {}) };
 }
 export function observeCandidate(repo) {
-  const c = candidateSnapshot(repo);
+  return observeCandidateWithTree(repo).candidate;
+}
+function observeCandidateWithTree(repo) {
+  const { candidate: c, workingTree } = inspectCandidateWorktree(repo);
   // Index membership is deliberately absent: staging unchanged bytes changes the index, not the source.
   const sources = [...c.tracked, ...c.untracked].filter(file => !file.missing)
     .map(({ path, sha256, mode }) => ({ path, sha256, mode }))
     .sort((a, b) => a.path < b.path ? -1 : a.path > b.path ? 1 : 0);
-  return { algorithm: CANDIDATE_ALGORITHM, root: c.root, id: c.id, head: c.head,
+  const candidate = { algorithm: CANDIDATE_ALGORITHM, root: c.root, id: c.id, head: c.head,
     indexSha256: c.indexSha256, stagedSha256: c.stagedSha256, unstagedSha256: c.unstagedSha256,
     sourceSha256: hash(canonical(sources)),
     changedPaths: c.changedPaths.slice(0, 100), changedPathCount: c.changedPaths.length };
+  return { candidate, workingTree };
 }
 /** Optional in-process advisory observation. The caller cannot select another workspace. */
 export function registerCandidateObserver(pi) {
@@ -384,7 +388,8 @@ function summary(record, state, extra = {}) {
   return { version: 1, state, operation_id: record.operationId, task: record.task, step: record.step, attempt: record.attempt,
     phase: record.phase, root: record.root, candidate: record.input, reportPath: record.reportPath,
     handoff: { cwd: record.root, reportPath: record.reportPath, artifactsPath: record.artifactsPath,
-      directoriesExist: true, reportWriter: "coordinator", candidateObserver: "coordinator" },
+      directoriesExist: true, reportWriter: "coordinator", candidateObserver: "coordinator",
+      ...(record.inputWorkingTree ? { inputWorkingTree: record.inputWorkingTree } : {}) },
     storage: "private-files", administrativeWrites: false,
     ...(record.reviewBinding ? { reviewBinding: record.reviewBinding,
       reviewReceiptInstruction: "The independent reviewer must read the bound inputs and copy this binding id into exactly one principal-review JSON fence described in references/continuity.md; do not reconstruct any digest.",
@@ -700,7 +705,7 @@ function prepare(repo, request) {
   assert(phases.includes(phase), "unsupported workflow phase");
   const owner = request.owner ?? null;
   assert(owner === null || (typeof owner.sessionId === "string" && owner.sessionId && typeof owner.cwd === "string" && isAbsolute(owner.cwd)), "invalid coordinator identity");
-  const current = observeCandidate(repo);
+  const { candidate: current, workingTree } = observeCandidateWithTree(repo);
   requireExpectedCandidate(current, expectedCandidate);
   const checked = requestedReferences(current.root, request), contextPaths = requestedContextPaths(current.root, request, checked);
   const criteria = completionCriteria(request.criteria);
@@ -723,7 +728,7 @@ function prepare(repo, request) {
   // A crash after the exclusive claim leaves an incomplete operation, never a silent retry.
   const run = createRun(current.root, task, current.id);
   const record = { version: 1, operationId: where.operationId, root: current.root, task, step, attempt, phase,
-    input: current, inputs: checked, ...(criteria.length ? { criteria } : {}), ...(contextPaths.length ? { contextPaths } : {}), ...(binding ? { reviewBinding: binding } : {}), owner, previous: request.previous ?? null, reportPath: join(run, `${phase}.md`), artifactsPath: join(run, "artifacts"), implementation: implementation() };
+    input: current, ...(phase === "review" ? { inputWorkingTree: workingTree } : {}), inputs: checked, ...(criteria.length ? { criteria } : {}), ...(contextPaths.length ? { contextPaths } : {}), ...(binding ? { reviewBinding: binding } : {}), owner, previous: request.previous ?? null, reportPath: join(run, `${phase}.md`), artifactsPath: join(run, "artifacts"), implementation: implementation() };
   assert(same(observeCandidate(current.root), current), "candidate changed while preparing handoff; preserve incomplete claim");
   assertIgnored(current.root, record.reportPath);
   assertIgnored(current.root, join(record.artifactsPath, "unused-probe"));

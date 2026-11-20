@@ -5,6 +5,16 @@ evidence; they never execute a phase or approve work. `principal_workflow` snaps
 serve inline work too; prepare/complete/retry bind native delegations only. Never dispatch an agent
 merely to obtain a bookkeeping record.
 
+## Reading the working tree
+
+A snapshot reports the Git root in `candidate.root` and the sampled file changes in `workingTree`.
+Each group gives a total count and up to 12 relative paths. Staged paths compare HEAD with the
+index. Unstaged paths compare the index with the working tree. An edited staged file can appear
+in both groups. Untracked paths exclude ignored files. When raw bytes or mode differ from the index
+but Git's unstaged diff omits that difference, a separate group records it. The sample describes this
+worktree at observation time. A prepared Review keeps that original observation under
+`handoff.inputWorkingTree`. Older operations can lack it.
+
 ## Native result bookkeeping
 
 ### New folders and saved-note recaps
@@ -223,7 +233,11 @@ criteria, include the same ID and expected scalar in
 `prepare.criteria` and the adapter check. Bind the check to the originating
 prepared operation with `--operation` so later reuse can compare the complete
 requirement. Freshness requires the current operation. The read projection lists
-supported, failed, missing and conflicting observations. Qualitative criteria
+supported, failed, missing and conflicting observations. A checker's terminal failure withholds positive
+credit even when its process exits successfully. An older failed receipt without
+the terminal signal can still explain a mismatch. Its positive observations remain
+inconclusive. A settled check with an ordinary mismatch can support an independently
+satisfied sibling criterion. Qualitative criteria
 can remain pending human or independent judgment. Missing criteria, partial
 delivery and inconclusive cleanup remain distinct.
 Repeated inspection never executes a command. The README describes the adapter

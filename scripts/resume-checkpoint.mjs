@@ -97,6 +97,15 @@ function safeScope(scope) {
 
 /** Observational fingerprint, not a worktree lock. Ignored material is deliberately excluded. */
 export function candidateSnapshot(repo) {
+  return inspectCandidateWorktree(repo).candidate;
+}
+
+// A path may have both staged and unstaged changes. Samples are relative to the Git root.
+function pathSample(paths) {
+  return { count: paths.length, paths: paths.slice(0, 12) };
+}
+
+export function inspectCandidateWorktree(repo) {
   if (process.platform !== "linux") fail("automatic resume currently requires Linux");
   const root = realpathSync(gitPath(git(repo, ["rev-parse", "--show-toplevel"])));
   const commonDir = realpathSync(resolve(root, gitPath(git(root, ["rev-parse", "--git-common-dir"]))));
@@ -137,17 +146,25 @@ export function candidateSnapshot(repo) {
     });
     const staged = git(root, ["diff", "--cached", "--binary", "--no-ext-diff", "--no-textconv", "--no-renames", "HEAD", "--"]);
     const unstaged = git(root, ["diff", "--binary", "--no-ext-diff", "--no-textconv", "--no-renames", "--"]);
-    const changed = [...git(root, ["diff", "--name-only", "--no-ext-diff", "--no-textconv", "--no-renames", "-z", "--"]).split("\0"), ...git(root, ["diff", "--cached", "--name-only", "--no-ext-diff", "--no-textconv", "--no-renames", "-z", "HEAD", "--"]).split("\0")].filter(Boolean);
+    const unstagedPaths = git(root, ["diff", "--name-only", "--no-ext-diff", "--no-textconv", "--no-renames", "-z", "--"]).split("\0").filter(Boolean);
+    const stagedPaths = git(root, ["diff", "--cached", "--name-only", "--no-ext-diff", "--no-textconv", "--no-renames", "-z", "HEAD", "--"]).split("\0").filter(Boolean);
     const untracked = git(root, ["ls-files", "--others", "--exclude-standard", "-z"]).split("\0").filter(Boolean).sort();
     if (untracked.length > 256) fail("too many untracked files for a resume checkpoint");
     let total = 0;
     const files = untracked.map(path => { const full = join(root, path), data = bytes(full); total += data.length; if (total > 64 * 1024 * 1024) fail("untracked byte limit exceeded"); return { path, sha256: hash(data), mode: plain(full).mode & 0o777 }; });
-    return { head, branch: git(root, ["rev-parse", "--abbrev-ref", "HEAD"]).trim(), indexSha256: hash(index), stagedSha256: hash(staged), unstagedSha256: hash(unstaged), tracked, untracked: files, changedPaths: [...new Set([...changed, ...rawChanged, ...untracked])].sort() };
+    const unstagedSet = new Set(unstagedPaths);
+    const rawOnly = rawChanged.filter(path => !unstagedSet.has(path));
+    // Keep the persisted v1 record and its field order exact. Git evidence is descriptive.
+    const snapshot = { head, branch: git(root, ["rev-parse", "--abbrev-ref", "HEAD"]).trim(), indexSha256: hash(index), stagedSha256: hash(staged), unstagedSha256: hash(unstaged), tracked, untracked: files, changedPaths: [...new Set([...unstagedPaths, ...stagedPaths, ...rawChanged, ...untracked])].sort() };
+    return { snapshot, changes: { staged: pathSample(stagedPaths), unstaged: pathSample(unstagedPaths), untracked: pathSample(untracked),
+      ...(rawOnly.length ? { rawDifferencesOutsideUnstagedDiff: pathSample(rawOnly) } : {}) } };
   };
   const before = read(), after = read();
   if (!equal(before, after)) fail("candidate changed during observation");
-  const state = { root, commonDir, gitDir, worktreeIdentity: [rootStat.dev, rootStat.ino, gitStat.dev, gitStat.ino].join(":"), ...after };
-  return { ...state, id: after.changedPaths.length === 0 && after.stagedSha256 === hash("") && after.unstagedSha256 === hash("") ? after.head : `dirty:${hash(json(state))}` };
+  const state = { root, commonDir, gitDir, worktreeIdentity: [rootStat.dev, rootStat.ino, gitStat.dev, gitStat.ino].join(":"), ...after.snapshot };
+  const clean = state.changedPaths.length === 0 && state.stagedSha256 === hash("") && state.unstagedSha256 === hash("");
+  return { candidate: { ...state, id: clean ? state.head : `dirty:${hash(json(state))}` },
+    workingTree: { state: clean ? "clean" : "changed", ...after.changes } };
 }
 function resumeRoot(root, create = false) {
   const principal = join(root, ".principal"), path = join(principal, "resume");
