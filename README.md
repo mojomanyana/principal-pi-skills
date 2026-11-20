@@ -55,6 +55,35 @@ principal-pi-check run --task catalog --step import --attempt 1 --timeout-ms 300
 principal-pi-check show --task catalog --step import --attempt 1
 ```
 
+After a correction or a new session, omit `--attempt` on `show` to read
+the latest claim for that task and step. Give its number to inspect an older
+attempt. The Pi tool's `verification` action uses the same selectors. A new
+claim awaiting a result stays visible. Each read includes a short `nextAction`
+that explains what the evidence supports and which part needs attention.
+Continue within the user's existing authority. Preserve unrelated results.
+
+For a consequential check that could pass for the wrong reason, a prepared
+scalar criterion can also specify `counterexample: {scenario, expected}`.
+For example, to check a public export, open the delivered file and check its
+contents. Apply the same checker to a disposable copy containing a private
+item. With a boolean criterion, the expected results are `true` for the real
+export and `false` for the copy. The adapter reports the real value under
+`observed` and the control value under `counterexamples`, keyed by criterion
+ID. Principal compares these values to the prepared expectations. The adapter
+is responsible for actually exercising both cases.
+
+For that export, a measured pair would look like this.
+
+```json
+{"version":1,"observed":{"publicOnly":true},"counterexamples":{"publicOnly":false}}
+```
+
+If the checker returns `true` for both files, the positive result is
+inconclusive. Repair the checker and reuse the export. If the original file
+actually contains the private item, inspect the exporter. When the task asks
+only what supplied evidence supports, cite the relevant observation and its
+limits. A previously supplied observation can answer that question directly.
+
 The existing check script or its adapter writes measured values as JSON to
 `process.env.PRINCIPAL_CHECK_OBSERVATIONS`. For the example, write
 `{"version":1,"observed":{"editable":true}}` after actually exercising the
@@ -194,8 +223,8 @@ script counts it and prints the current figures.
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 975 |
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
 | `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1221) or inline | 1152 |
-| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1672) or inline | 1619 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1405) or inline | 1353 |
+| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1717) or inline | 1664 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1453) or inline | 1401 |
 | `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 765) or inline | 744 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1469) or inline | 1288 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 478) or inline | 479 |
@@ -362,7 +391,7 @@ history is unknown. Readiness and candidate diagnostics are explained in
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.19.1
+   pi install npm:principal-pi-skills@4.20.0
    ```
 
    Restart Pi after package changes. The `pi` manifest registers ten skills, four
@@ -400,8 +429,8 @@ history is unknown. Readiness and candidate diagnostics are explained in
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.19.1 principal-pi-agents install
-   npx -p principal-pi-skills@4.19.1 principal-pi-agents check
+   npx -p principal-pi-skills@4.20.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.20.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm

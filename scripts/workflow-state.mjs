@@ -670,6 +670,18 @@ export function observeHistoricalOperation(repo, request, runtime, owner) {
     issues: [...current.issues, "Historical evidence does not establish current completion, approval or permission to retry."],
   };
 }
+const criterionScalar = value => typeof value === "boolean" || Number.isSafeInteger(value) ||
+  typeof value === "string" && Buffer.byteLength(value) <= 256 && !/[\x00-\x1f\x7f]/u.test(value);
+
+export function normalizeCounterexample(value, expected) {
+  assert(value && typeof value.scenario === "string" && value.scenario.trim() &&
+    Buffer.byteLength(value.scenario) <= 256 && !/[\x00-\x1f\x7f]/u.test(value.scenario),
+    "name the counterexample in at most 256 bytes of plain text");
+  assert(criterionScalar(expected) && criterionScalar(value.expected) && value.expected !== expected,
+    "a counterexample requires a bounded scalar outcome different from the real case");
+  return { scenario: value.scenario.trim(), expected: value.expected };
+}
+
 function completionCriteria(value = []) {
   assert(Array.isArray(value) && value.length <= 32, "provide at most 32 operation criteria");
   const ids = new Set();
@@ -682,9 +694,10 @@ function completionCriteria(value = []) {
     assert(item.fresh === undefined || typeof item.fresh === "boolean", "criterion fresh must be boolean");
     assert(item.scope === undefined || ["worktree", "declared-inputs"].includes(item.scope), "invalid criterion dependency scope");
     const hasExpected = Object.hasOwn(item, "expected");
-    assert(!hasExpected || typeof item.expected === "boolean" || Number.isSafeInteger(item.expected) ||
-      typeof item.expected === "string" && Buffer.byteLength(item.expected) <= 256 && !/[\x00-\x1f\x7f]/u.test(item.expected),
+    assert(!hasExpected || criterionScalar(item.expected),
       "criterion expected must be a bounded string, safe integer or boolean");
+    const counterexample = item.counterexample === undefined ? undefined :
+      normalizeCounterexample(item.counterexample, item.expected);
     let dependencies;
     if (item.scope === "declared-inputs") {
       assert(hasExpected && Array.isArray(item.dependencies) && item.dependencies.length > 0 && item.dependencies.length <= 32 &&
@@ -696,7 +709,8 @@ function completionCriteria(value = []) {
     } else assert(item.dependencies === undefined, "dependency lists require declared-inputs scope");
     ids.add(item.id);
     return { id: item.id, requirement: item.requirement, required: item.required ?? true, fresh: item.fresh ?? false,
-      ...(item.scope === "declared-inputs" ? { scope: item.scope, dependencies } : {}), ...(hasExpected ? { expected: item.expected } : {}) };
+      ...(item.scope === "declared-inputs" ? { scope: item.scope, dependencies } : {}), ...(hasExpected ? { expected: item.expected } : {}),
+      ...(counterexample ? { counterexample } : {}) };
   }).sort((a, b) => a.id < b.id ? -1 : 1);
 }
 

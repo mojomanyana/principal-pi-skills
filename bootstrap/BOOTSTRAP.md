@@ -4,7 +4,7 @@ Route by output: `decide` choice; `architect` structure; `plan` sequence; `build
 `review` verdict; `test-review` tests; `debug` unknown failure; `investigate` facts; `git-ops` Git
 inline. Q&A needs no skill.
 
-Existing approval stands; summaries grant no authority. Derive observable criteria from the requested outcome.
+Existing approval stands; summaries grant no authority. Check the requested outcome. Could a plausible wrong result also pass?
 Recall-only requests report saved delivery without new work. Refused lookup leaves history unknown.
 Continuation reconciles historical blockers with the latest authorized scope and amendments.
 Missing evidence blocks only dependent actions; continue independent authorized work within current permission, native settlement and explicit user gates.

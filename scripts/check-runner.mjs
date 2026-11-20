@@ -8,7 +8,7 @@ import { isAbsolute, join, relative, resolve, sep } from "node:path";
 import { pathToFileURL } from "node:url";
 import { parseArgs } from "node:util";
 import { privateRoot } from "./progress-artifacts.mjs";
-import { inspectRecoveryRecord, observeCandidate } from "./workflow-state.mjs";
+import { inspectRecoveryRecord, normalizeCounterexample, observeCandidate } from "./workflow-state.mjs";
 
 const digest = value => createHash("sha256").update(JSON.stringify(value)).digest("hex");
 const token = /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/;
@@ -21,10 +21,10 @@ const smallScalar = value => value === null || typeof value === "boolean" ||
 function criteriaOf(entries) {
   requireValue(Array.isArray(entries) && entries.length <= 32, "provide at most 32 required observations");
   const ids = new Set();
-  return entries.map(({ id, expected }) => {
+  return entries.map(({ id, expected, counterexample }) => {
     requireValue(typeof id === "string" && token.test(id) && !ids.has(id) && smallScalar(expected), "criteria require unique stable IDs and bounded JSON scalar expectations");
     ids.add(id);
-    return { id, expected };
+    return { id, expected, ...(counterexample === undefined ? {} : { counterexample: normalizeCounterexample(counterexample, expected) }) };
   }).sort((a, b) => a.id < b.id ? -1 : 1);
 }
 
@@ -136,16 +136,95 @@ function adapterReport(path) {
   } catch { /* Missing, partial or invalid adapter evidence remains unobserved. */ }
 }
 
+function compareValue(values, id, expected) {
+  if (!values || typeof values !== "object" || Array.isArray(values) || !Object.hasOwn(values, id) || !smallScalar(values[id])) {
+    return { state: "unobserved" };
+  }
+  const value = values[id], matches = Object.is(value, expected);
+  // Unexpected adapter strings may contain credentials or private text.
+  return { state: matches ? "satisfied" : "failed",
+    ...(typeof value === "string" && !matches ? { observedWithheld: true } : { observed: value }) };
+}
+
 function compareObservations(report, criteria) {
-  const values = report?.observed;
-  return criteria.map(({ id, expected }) => {
-    const value = values && Object.hasOwn(values, id) ? values[id] : undefined;
-    if (!smallScalar(value)) return { id, state: "unobserved" };
-    const matches = Object.is(value, expected);
-    // Unexpected adapter strings may contain credentials or private text.
-    return { id, state: matches ? "satisfied" : "failed",
-      ...(typeof value === "string" && !matches ? { observedWithheld: true } : { observed: value }) };
+  return criteria.map(({ id, expected, counterexample }) => {
+    const real = compareValue(report?.observed, id, expected);
+    if (!counterexample) return { id, ...real };
+    const contrast = compareValue(report?.counterexamples, id, counterexample.expected);
+    // An ineffective check leaves the positive case inconclusive. An observed
+    // real-case mismatch is still a mismatch, even with a missing control.
+    const state = real.state === "satisfied" && contrast.state !== "satisfied" ? "unobserved" : real.state;
+    return { id, ...real, state, counterexample: contrast };
   });
+}
+
+function checkNextAction(receipt, applicability, root, selector) {
+  const execution = receipt?.execution;
+  if (!["settled", "not-started"].includes(execution?.cleanup?.state)) {
+    return { kind: "hold", message: "Preserve this claim and its partial evidence. Reconcile settlement with the check owner before another attempt." };
+  }
+  // A later claim may already exist after /new or a concurrent request. Read
+  // its exact selector before suggesting a correction to this older check.
+  const { task, step, attempt } = selector;
+  const next = attempt + 1;
+  if (!Number.isSafeInteger(next)) return { kind: "inspect-result", message: "Inspect the retained result at this exact attempt." };
+  try {
+    const claimed = lstatSync(join(root, ".principal", "verification", digest([task, step, next])), { throwIfNoEntry: false });
+    if (claimed && !claimed.isDirectory()) return { kind: "hold", message: "The next claim has an unexpected file type. Preserve both attempts for inspection." };
+    if (claimed) return { kind: "inspect-existing", attempt: next,
+      inspectionArguments: { action: "verification", repo: root, task, step, attempt: next },
+      message: "Read the existing next attempt for this task and step before doing more work." };
+  } catch {
+    return { kind: "hold", message: "Preserve this result until the existing attempts are readable." };
+  }
+  const code = receipt.diagnostic?.adapterCode;
+  if (receipt.outcome === "cancelled" || execution.reason === "cancelled") {
+    return { kind: "hold", message: "The check was cancelled. Await a request to resume." };
+  }
+  if (["EACCES", "EPERM"].includes(execution.launchError) || (receipt.outcome !== "passed" && code === "access-denied")) {
+    return { kind: "hold", message: "The check was denied access. Keep its evidence and report the access needed." };
+  }
+  if (receipt.outcome !== "passed" && code === "unsupported-feature") {
+    return { kind: "hold", message: "Report which requirement could not be checked with the available capability." };
+  }
+  const mismatch = receipt.observations?.some(item => item.state === "failed");
+  if (receipt.outcome === "passed" && receipt.scope === "process-exit-only") {
+    return { kind: "inspect-result", message: "Reuse this as a process-exit check. A product outcome needs an observation from the requested user path." };
+  }
+  if (receipt.outcome === "passed" || mismatch) {
+    const needsWorktree = applicability.scope !== "declared-inputs";
+    if (applicability.inputs === "changed-or-unobserved" || (needsWorktree && applicability.source === "changed-or-unobserved")) {
+      return { kind: "recheck-affected", attempt: next, message: "Compare the recorded inputs and worktree with the current ones. Recheck only affected requirements within the task's authority." };
+    }
+    if (applicability.inputs !== "matching" || (needsWorktree && applicability.source !== "matching")) {
+      return { kind: "inspect-result", message: "Use the observations as historical evidence. Current applicability could not be established." };
+    }
+    if (receipt.outcome === "passed") {
+      return { kind: "reuse", message: "Reuse these observations if the requirement permits historical evidence and the relevant environment still matches. If a fresh check is required, run only that authorized check." };
+    }
+  }
+  if (["fixture-unavailable", "service-unavailable", "missing-dependency"].includes(code) || execution.reason === "spawn-error") {
+    return { kind: "prepare-prerequisite", message: "Check the required executable, fixture or service. Resume the affected check when its prerequisite is available within existing permissions." };
+  }
+  if (["timeout", "output-limit"].includes(execution.reason)) {
+    return { kind: "repair-check", attempt: next, message: "Narrow the check to the missing observable within the existing time and output limits before another authorized attempt." };
+  }
+  if (receipt.adapterReportedFailure || ["exit-failure", "adapter-failed"].includes(execution.reason)) {
+    return { kind: "inspect-result", message: "Inspect the checker's recorded failure before changing the product. Positive observations alone cannot clear that failure." };
+  }
+  if (receipt.outcome === "failed" && receipt.adapterReportedFailure === undefined) {
+    return { kind: "inspect-result", message: "This older result does not distinguish a checker failure from a product mismatch. Inspect the retained evidence before changing either." };
+  }
+  if (mismatch) {
+    return { kind: "inspect-outcome", message: "Compare the mismatched observation with its requirement on the normal user path. Correct the cause before rechecking the affected outcome." };
+  }
+  if (receipt.observations?.some(item => item.counterexample && item.counterexample.state !== "satisfied")) {
+    return { kind: "repair-check", attempt: next, message: "Make the check distinguish the working case from its counterexample and observe both before another authorized attempt." };
+  }
+  if (receipt.observations?.some(item => item.state === "unobserved")) {
+    return { kind: "repair-check", attempt: next, message: "Have the checker exercise the requested path and record the missing observation IDs before another authorized attempt." };
+  }
+  return { kind: "inspect-result", message: "Use the saved diagnostic and report which requirement still lacks reliable evidence." };
 }
 
 export function inspectVerification(repo, { task, step, attempt = 1 }) {
@@ -156,25 +235,43 @@ export function inspectVerification(repo, { task, step, attempt = 1 }) {
   try { request = readRecord(join(dir, "request.json")); }
   catch (error) {
     if (error.code !== "ENOENT") throw error;
-    return { ...common, state: "claim-unconfirmed", replaySafe: false };
+    return { ...common, state: "claim-unconfirmed", replaySafe: false, nextAction: checkNextAction() };
   }
   requireValue(request.version === 1 && request.operationId === operationId &&
     request.task === task && request.step === step && request.attempt === attempt, "verification request identity differs");
   let record;
   try { record = readFileRecord(join(dir, "result.json")); }
   catch (error) { if (error.code !== "ENOENT") throw error; }
-  if (!record) return { ...common, request, state: "settlement-unconfirmed", replaySafe: false };
+  if (!record) return { ...common, request, state: "settlement-unconfirmed", replaySafe: false, nextAction: checkNextAction() };
   const receipt = record.value;
   requireValue(receipt.version === 1 && receipt.operationId === operationId && receipt.requestDigest === digest(request), "verification result identity differs");
   let current;
   try { current = snapshot(root); } catch { /* Historical receipts remain readable. */ }
   const sameSource = current && [request.source, receipt.endSource].every(source => source?.algorithm === current.algorithm && source.id === current.id && source.sourceSha256 === current.sourceSha256);
-  return { ...common, state: "recorded", request, receipt,
-    applicability: { scope: request.scope ?? "worktree", source: sameSource ? "matching" :
+  const applicability = { scope: request.scope ?? "worktree", source: sameSource ? "matching" :
       request.source === null && request.platform !== "linux" ? "unavailable-on-platform" : "changed-or-unobserved",
       inputs: !request.inputs.length && request.source === null ? "not-declared" : receipt.inputsMatchAtEnd && request.inputs.every(ref => checkedInput(root, ref)) ? "matching" : "changed-or-unobserved",
-      environment: "not-established", requirements: "as-recorded" },
+      environment: "not-established", requirements: "as-recorded" };
+  return { ...common, state: "recorded", request, receipt, applicability, nextAction: checkNextAction(receipt, applicability, root, common),
     reference: { path: join(dir, "result.json"), sha256: record.sha256 } };
+}
+
+// Runs address an exact attempt. For read-only recall, follow the same task's
+// numbered claims, including a successor that has not yet recorded its result.
+export function inspectSelectedVerification(repo, { task, step, attempt }) {
+  if (attempt !== undefined) return inspectVerification(repo, { task, step, attempt });
+  const first = where(repo, { task, step, attempt: 1 }, false);
+  exactDir(first.dir, false);
+  const base = resolve(first.dir, "..");
+  let latest = 1;
+  for (;;) {
+    const next = join(base, digest([task, step, latest + 1]));
+    const entry = lstatSync(next, { throwIfNoEntry: false });
+    if (!entry) break;
+    requireValue(entry.isDirectory() && !entry.isSymbolicLink(), "unexpected verification claim; inspect the named attempt");
+    latest++;
+  }
+  return inspectVerification(repo, { task, step, attempt: latest });
 }
 
 // Inspect exact retained check references only. Other evidence types can
@@ -219,29 +316,32 @@ function linkedChecks(operation) {
 export function criterionCoverage(operation) {
   const checks = linkedChecks(operation);
   const criteria = operation.criteria.map(criterion => {
-    const statuses = new Set(), sources = [];
+    const statuses = new Set(), sources = [], verificationReads = [];
     const criterionDigest = digest(criterion);
     for (const { request, receipt, inputsMatch, sourceMatches, contracts } of checks) {
       if (!Object.hasOwn(criterion, "expected") || criterion.fresh && request.forOperationId !== operation.operation_id ||
           !request.criteria.some(item => item.id === criterion.id && Object.is(item.expected, criterion.expected))) continue;
       sources.push(receipt.operationId);
       if (!request.forOperationId || !contracts?.some(contract => contract.id === criterion.id && contract.sha256 === criterionDigest)) continue;
+      verificationReads.push({ action: "verification", repo: operation.root, task: request.task, step: request.step, attempt: request.attempt });
       const inputScoped = criterion.scope === "declared-inputs" && request.scope === "declared-inputs" &&
         samePaths(criterion.dependencies, request.inputs.map(ref => relative(operation.root, ref.path).split(sep).join("/")).sort());
       const requiresInputScope = request.scope === "declared-inputs" || criterion.scope === "declared-inputs";
       if (!inputsMatch || (requiresInputScope ? !inputScoped : !sourceMatches)) continue;
       const item = receipt.observations.find(item => item.id === criterion.id);
       if (item?.state === "failed") statuses.add("failed");
+      const contrastMatches = !criterion.counterexample || item?.counterexample?.state === "satisfied" &&
+        Object.is(item.counterexample.observed, criterion.counterexample.expected);
       // A short-lived checker can report terminal failure and still exit zero.
       // Older failed receipts cannot distinguish that case from a sibling mismatch.
       const usableObservation = receipt.outcome === "passed" || receipt.outcome === "incomplete" ||
         (receipt.outcome === "failed" && receipt.adapterReportedFailure === false);
       if (usableObservation && ["exit-zero", "adapter-complete"].includes(receipt.execution?.reason) && receipt.execution?.cleanup?.state === "settled" &&
-          item?.state === "satisfied" && Object.is(item.observed, criterion.expected)) statuses.add("supported");
+          item?.state === "satisfied" && Object.is(item.observed, criterion.expected) && contrastMatches) statuses.add("supported");
     }
     const state = statuses.size > 1 ? "conflicting" : statuses.values().next().value ??
       (!Object.hasOwn(criterion, "expected") ? "judgment-needed" : sources.length ? "inconclusive" : "unobserved");
-    return { id: criterion.id, state, sources };
+    return { id: criterion.id, state, sources, ...(state !== "supported" && verificationReads.length ? { verificationReads } : {}) };
   });
   const required = criteria.filter((item, i) => operation.criteria[i].required);
   const covered = required.filter(item => item.state === "supported").length;
@@ -354,18 +454,17 @@ export async function runVerification({ repo = process.cwd(), task, step, attemp
     requireValue(typeof forOperationId === "string" && /^principal:[a-f0-9]{64}$/.test(forOperationId), "use an exact prepared Principal operation ID");
     const { record } = inspectRecoveryRecord(root, { operationId: forOperationId });
     requireValue(record.task === task, "the check belongs to a different logical task");
-    if (scope === "declared-inputs") {
-      const declared = paths.map(path => relative(root, path).split(sep).join("/")).sort();
-      contracts = expected.map(({ id, expected }) => {
-        const criterion = record.criteria?.find(item => item.id === id);
-        requireValue(criterion?.scope === scope && Object.is(criterion.expected, expected) &&
-          samePaths(criterion.dependencies, declared), "declared check dependencies or expected outcome differ from the prepared criterion");
-        return { id, sha256: digest(criterion) };
-      });
-    } else {
-      contracts = (record.criteria ?? []).filter(item => expected.some(check =>
-        item.id === check.id && Object.is(item.expected, check.expected)))
-        .map(item => ({ id: item.id, sha256: digest(item) }));
+    const declared = scope === "declared-inputs" ? paths.map(path => relative(root, path).split(sep).join("/")).sort() : undefined;
+    contracts = [];
+    for (const check of expected) {
+      const criterion = record.criteria?.find(item => item.id === check.id && Object.is(item.expected, check.expected));
+      if (declared) requireValue(criterion?.scope === scope && samePaths(criterion.dependencies, declared),
+        "declared check dependencies or expected outcome differ from the prepared criterion");
+      if (!criterion) continue;
+      if (check.counterexample) requireValue(check.counterexample.scenario === criterion.counterexample?.scenario &&
+        Object.is(check.counterexample.expected, criterion.counterexample?.expected), "counterexample differs from the prepared criterion");
+      if (criterion.counterexample) check.counterexample = criterion.counterexample;
+      contracts.push({ id: check.id, sha256: digest(criterion) });
     }
   } else requireValue(scope === "worktree", "input-scoped checks require the exact prepared operation");
   const intent = { task, step, attempt, ...(scope === "declared-inputs" ? { scope, contracts } : {}), ...(forOperationId ? { forOperationId } : {}), cwd, inputPaths: paths, commandDigest: digest([command, ...args]), criteria: expected, timeoutMs, outputLimit };
@@ -373,7 +472,12 @@ export async function runVerification({ repo = process.cwd(), task, step, attemp
   function existing() {
     exactDir(dir, false);
     const prior = inspectVerification(root, { task, step, attempt });
-    if (prior.request) requireValue(prior.request.intentDigest === intentDigest, "attempt already claimed with different inputs");
+    if (prior.request && prior.request.intentDigest !== intentDigest) {
+      const guidance = prior.nextAction.kind === "reuse"
+        ? "The saved observations cover the original request. Use a separate authorized check only for the changed requirement."
+        : prior.nextAction.message;
+      throw new Error(`attempt already claimed with different inputs. Inspect the saved verification for this task and step at attempt ${attempt}. ${guidance}`);
+    }
     return { ...prior, reused: true };
   }
   try { return existing(); }
@@ -431,9 +535,10 @@ if (invokedDirectly) {
       repo: { type: "string" }, task: { type: "string" }, step: { type: "string" }, attempt: { type: "string" },
       operation: { type: "string" }, scope: { type: "string" }, input: { type: "string", multiple: true }, criterion: { type: "string", multiple: true }, "timeout-ms": { type: "string" }, "max-output-bytes": { type: "string" },
     } });
-    const selector = { repo: values.repo ?? process.cwd(), task: values.task, step: values.step, attempt: Number(values.attempt ?? 1) };
+    const selector = { repo: values.repo ?? process.cwd(), task: values.task, step: values.step,
+      attempt: values.attempt === undefined ? undefined : Number(values.attempt) };
     let result;
-    if (action === "show" && split < 0) result = inspectVerification(selector.repo, selector);
+    if (action === "show" && split < 0) result = inspectSelectedVerification(selector.repo, selector);
     else if (action === "run" && split >= 0 && raw[split + 1]) {
       const controller = new AbortController(), cancel = () => controller.abort();
       process.on("SIGINT", cancel); process.on("SIGTERM", cancel);

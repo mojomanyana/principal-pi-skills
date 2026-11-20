@@ -1,5 +1,11 @@
 # Changelog
 
+## 4.20.0 — 2026-11-20
+
+- Prepared criteria can include a known-wrong example. When a checker accepts both the real output and that example, the requirement remains unverified. Build and Review guidance applies this to the requested user-visible outcome.
+- Verification receipts indicate whether to inspect the delivered result, repair the checker, address a prerequisite, or reuse earlier evidence. Existing permissions and cancellation still govern execution.
+- After a correction or a new session, looking up a check by task and step returns its latest attempt, including one still in progress. An explicit attempt number reads the original receipt. The packaged Pi 1.5.2 scripted journey recovered the corrected result without rerunning the check.
+
 ## 4.19.1 — 2026-11-20
 
 - A checker can report terminal failure and still exit successfully. Principal now withholds positive requirement credit from those checks. A failed historical receipt with ambiguous termination remains readable and preserves its negative observations. Ordinary checks with mixed results can still support independently satisfied criteria.

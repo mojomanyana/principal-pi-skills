@@ -78,6 +78,9 @@ network and current access restrictions still apply. Report a real setup failure
    output against the consumer/SDK when available, and protect that seam with a sanitized example;
    mocks may omit headers or optional fields. Missing real inputs are a stated limitation, not a
    reason to drop an accepted fixture fallback.
+   Check where the user sees the outcome: read the exported file, reopen saved state, or use the
+   visible control. If a plausible wrong result could pass, name a safe counterexample and apply the
+   same check to both cases. Reuse matching observations. A counterexample is optional.
 4. Run affected checks, then the declared full suite when scope or a source-required final gate
    calls for it; one run can supply both. Reuse exact command/results only when candidate, relevant
    scope and configuration/environment match. Relevant edits, failures or a named doubt need affected
