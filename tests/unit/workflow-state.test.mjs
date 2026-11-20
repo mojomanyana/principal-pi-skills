@@ -1986,6 +1986,8 @@ test("a successful export can still fail the required content check; retries pre
       const delivery = JSON.parse(fs.readFileSync("delivery.json", "utf8"));
       const actual = delivery.items.map(item => item.id).sort();
       const matches = JSON.stringify(actual) === JSON.stringify(["hours", "menu"]);
+      const attempt = require("node:path").dirname(process.env.PRINCIPAL_CHECK_OBSERVATIONS);
+      fs.writeFileSync(require("node:path").join(attempt, "sample.json"), JSON.stringify(actual));
       fs.writeFileSync(process.env.PRINCIPAL_CHECK_OBSERVATIONS, JSON.stringify({
         version: 1, observed: { "public-items-only": matches },
       }));
@@ -2011,6 +2013,10 @@ test("a successful export can still fail the required content check; retries pre
   assert.equal(passed.approval, false);
   assert.notEqual(passed.reference.path, failed.reference.path);
   assert.deepEqual(readFileSync(failed.reference.path), original);
+  assert.equal(readFileSync(join(dirname(failed.reference.path), "sample.json"), "utf8"),
+    JSON.stringify(["draft", "hours", "menu"]));
+  assert.equal(readFileSync(join(dirname(passed.reference.path), "sample.json"), "utf8"),
+    JSON.stringify(["hours", "menu"]));
 });
 
 test("bounded check distinguishes terminal signals, oversized output and cancellation", async t => {
