@@ -151,6 +151,20 @@ function assertIgnored(root, path) {
   try { execFileSync("git", ["--no-optional-locks", "-C", root, "check-ignore", "-q", "--", relative(root, path)], { stdio: "pipe" }); }
   catch { throw new Error("workflow destination must be Git-ignored; preserve the existing ignore policy"); }
 }
+const nativeOperationId = (root, task, step, attempt) => `principal:${hash(canonical({ root, task, step, attempt }))}`;
+
+// This optional index hint neither allocates nor validates a workflow request.
+// The normal exclusive writer still checks the caller, inputs and destination.
+export function newPreparationOperationId(root, { task, step }, attempt) {
+  let name;
+  try { name = key(task, step, attempt); } catch { return; }
+  try {
+    const principal = join(root, ".principal"), store = join(principal, "workflow");
+    for (const path of [principal, store, join(store, name)]) ordinary(path, true);
+  } catch (error) {
+    if (error.code === "ENOENT") return nativeOperationId(root, task, step, attempt);
+  }
+}
 function location(repo, task, step, attempt, create = false) {
   const root = create ? privateRoot(repo) : realpathSync(execFileSync("git", ["--no-optional-locks", "-C", repo, "rev-parse", "--show-toplevel"], { encoding: "utf8" }).trim());
   const principal = join(root, ".principal"), store = join(principal, "workflow");
@@ -161,7 +175,7 @@ function location(repo, task, step, attempt, create = false) {
     directory(store);
   }
   ordinary(principal, true); ordinary(store, true);
-  return { root, path, operationId: `principal:${hash(canonical({ root, task, step, attempt }))}` };
+  return { root, path, operationId: nativeOperationId(root, task, step, attempt) };
 }
 function references(inputs) {
   assert(Array.isArray(inputs) && inputs.length <= 128, "inputs must be at most 128 exact file references");

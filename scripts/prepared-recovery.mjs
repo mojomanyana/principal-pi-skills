@@ -67,7 +67,7 @@ const historicalView = result => ({ ...result, historical: true, completionValid
   applicability: result.sourceRecovery ? "current-output" : "not-established" });
 
 /** The supplied authorize callback protects current selected context across every asynchronous boundary. */
-export async function recoverPreparedOperation(pi, ctx, request, signal, authorizeContext = () => {}) {
+export async function recoverPreparedOperation(pi, ctx, request, signal, authorizeContext = () => {}, observeRequest) {
   const requester = identity(ctx), repo = request.repo ?? ctx.cwd;
   if (realpathSync(repo) !== requester.cwd) throw new NativeWorkspaceMismatchError(requester.cwd, realpathSync(repo));
   assert(request.mode === undefined || ["inspect", "continue", "retain"].includes(request.mode), "Unknown recovery mode");
@@ -87,6 +87,7 @@ export async function recoverPreparedOperation(pi, ctx, request, signal, authori
     assert(same(identity(ctx), requester), "Session changed during recovery");
     assert(refMatches(sourceReference), "Recovery source changed; inspect the original again");
   };
+  if (observeRequest) await observeRequest(record);
   await check();
   if (request.sourceReference !== undefined) assert(same(request.sourceReference, sourceReference), "Recovery source changed since inspection");
 

@@ -2033,12 +2033,44 @@ test("workflow observers bind to their originating context and publish only new 
   const prepared = await call({ ...request, action: "prepare" });
   assert.equal(prepared.state, "prepared");
   assert.deepEqual(events, [{ version: 1, owner: "principal", kind: "workflow", operationId: prepared.operation_id,
+    state: "observed", label: "Workflow bookkeeping requested" },
+    { version: 1, owner: "principal", kind: "workflow", operationId: prepared.operation_id,
     state: "prepared", label: "Workflow operation prepared", evidence: { type: "operation", id: prepared.operation_id } }]);
   callbacks[0](() => { throw Error("late registration"); });
   await call({ ...request, action: "prepare" });
   await call({ action: "status", operationId: prepared.operation_id });
-  assert.equal(events.length, 1);
+  assert.equal(events.length, 2);
   assert.equal(callbacks.length, 2);
+});
+
+test("a task change after admission cannot move an in-flight prepared receipt to the newly selected task", async t => {
+  const { root, request } = fixture(t);
+  const { default: register } = await import(extensionFixtureUrl(new URL("../../extensions/workflow.ts", import.meta.url)));
+  const original = [], other = [];
+  let selected = original, tool, release, sawOpening;
+  const opening = new Promise(resolve => { sawOpening = resolve; });
+  const persisted = new Promise(resolve => { release = resolve; });
+  register({ registerTool: value => { tool = value; }, registerCommand() {}, on() {}, events: {
+    on: () => () => {}, emit(name, binding) {
+      assert.equal(name, "pi.task-history.v1.bind");
+      const target = selected;
+      binding.accept(event => {
+        target.push(event);
+        if (event.state === "observed") { sawOpening(event.operationId); return persisted; }
+      });
+    },
+  } });
+  const ctx = { cwd: root, isProjectTrusted: () => true, sessionManager: { getSessionId: () => "session" } };
+  const operation = tool.execute("attempt", { ...request, action: "prepare" }, undefined, () => {}, ctx);
+  const id = await opening;
+  try {
+    assert.throws(() => inspectOperation(root, { operationId: id }));
+    selected = other;
+  } finally { release(); }
+  const response = await operation;
+  assert.equal(response.structuredContent.operation_id, id);
+  assert.deepEqual(original.map(({ operationId, state }) => [operationId, state]), [[id, "observed"], [id, "prepared"]]);
+  assert.deepEqual(other, []);
 });
 
 test("native completion retains criteria, exact check references and unobserved judgments across recall", async t => {

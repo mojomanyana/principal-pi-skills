@@ -1,7 +1,7 @@
 // Coordinator-only bookkeeping. Native execution and semantic approval remain separate.
 import { realpathSync } from "node:fs";
 import { Type } from "typebox";
-import { CandidateIdentityError, PrepareInputError, PreparedOutputChangedError, CompletedResultRetryError, ContextInputError, NativeWorkspaceMismatchError, requireNativeWorkspace, WORKFLOW_TASK_NAME, WORKFLOW_STEP_NAME, observeSnapshot, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation, inspectRecoveryRecord, inspectRecoverySuccessor, inspectRecoveryOperation } from "../scripts/workflow-state.mjs";
+import { CandidateIdentityError, PrepareInputError, PreparedOutputChangedError, CompletedResultRetryError, ContextInputError, NativeWorkspaceMismatchError, requireNativeWorkspace, WORKFLOW_TASK_NAME, WORKFLOW_STEP_NAME, observeSnapshot, newPreparationOperationId, prepareOperation, inspectOperation, completeOperation, retryOperation, observeOperationResult, registerCandidateObserver, inspectOwnedOperation, inspectHistoricalOperation, observeHistoricalOperation, inspectRecoveryRecord, inspectRecoverySuccessor, inspectRecoveryOperation } from "../scripts/workflow-state.mjs";
 import { reference } from "../scripts/progress-artifacts.mjs";
 import { freezeSnapshot } from "../scripts/frozen-snapshot.mjs";
 import { observeGitResource, observeIntegrationSubject, observePackageRelease, packageReleaseEffectTarget } from "../scripts/continuity.mjs";
@@ -166,22 +166,35 @@ function historyObserver(pi, ctx, request) {
     });
   } catch { /* History is an optional projection. */ }
   finally { binding = false; }
-  return result => {
-    if (ambiguous || !publish || result.administrativeWrites !== true || result.reused ||
-        !/^principal:[a-f0-9]{64}$/.test(result.operation_id)) return;
-    const labels = {
-      prepared: "Workflow operation prepared",
-      retained: "Native result retained",
-      complete: "Workflow completion recorded",
-      stale: "Retained result requires reconciliation",
-    };
-    const label = labels[result.state];
-    if (!label) return;
+  if (ambiguous || !publish) return;
+  let opening;
+  const send = async (operationId, state, label, retained = false) => {
+    if (!/^principal:[a-f0-9]{64}$/.test(operationId)) return;
+    let timer;
     try {
-      const sent = publish({ version: 1, owner: "principal", kind: "workflow", operationId: result.operation_id,
-        state: result.state, label, evidence: { type: "operation", id: result.operation_id } });
-      if (sent && typeof sent.catch === "function") sent.catch(() => {});
+      const delivery = publish({ version: 1, owner: "principal", kind: "workflow", operationId, state, label,
+        ...(retained ? { evidence: { type: "operation", id: operationId } } : {}) });
+      if (delivery) await Promise.race([delivery, new Promise(resolve => { timer = setTimeout(resolve, 250); })]);
     } catch { /* Optional indexing cannot change an owner receipt. */ }
+    finally { if (timer) clearTimeout(timer); }
+  };
+  return {
+    async begin(id) {
+      if (!id || opening) return;
+      opening = id;
+      await send(id, "observed", "Workflow bookkeeping requested");
+    },
+    async finish(result) {
+      const labels = { prepared: "Workflow operation prepared", retained: "Native result retained",
+        complete: "Workflow completion recorded", stale: "Retained result requires reconciliation",
+        historical: "Historical result retained" };
+      const saved = result.state === "recovered" ? result.successor : result;
+      if (saved?.administrativeWrites === true && !saved.reused && labels[saved.state]) {
+        await send(saved.operation_id, saved.state, labels[saved.state], true);
+      } else if (opening) {
+        await send(opening, "unconfirmed", "No new workflow receipt confirmed by this request");
+      }
+    },
   };
 }
 
@@ -199,10 +212,10 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
     promptGuidelines: ["Use this tool, not shell recipes, for hashes, report paths and identity checks; never compute an ID or digest yourself. Pass snapshot.candidate unchanged as expectedCandidate; HEAD alone does not identify uncommitted files. Pass prepare's delegationArguments to delegate with the current delegate_describe definitionId. Only after the child's cleanup is settled (uncertain is not settled), call complete for that operation before any repair, with the disposition its final actually shows: never succeeded for partial or unverified delivery. For replayable failures, call retry with retryMode automatic, task/step, reason and expectedCandidate; the owner proof and persisted budget allow one automatic successor. Pass its delegationArguments unchanged, including definitionId. Unsafe or exhausted replay stops only that phase; continue independent authorized work and ask only for a missing decision. Use retryMode manual only for a separately authorized retry, never to evade the automatic limit. After Build/Debug changes files, call complete, not prepare; if prepare returns PREPARED_OUTPUT_CHANGED, use its recovery arguments. If host schema validation rejects prepare task/step before execution, or PREPARE_INPUT_INVALID reports operationAllocated=false, correct the named field and repeat prepare for the same authorized work without asking again. Reuse established task/step identities; for a new task with no internal identity, choose a short valid ID. Keep attempt unchanged and never rename an existing operation to evade a refusal; this is not retry of an executed operation. On other refusals, follow the returned recoverArguments or statusArguments instead of preparing a replacement. For authorized continuation, follow continueArguments or historical retainArguments unchanged; recall requests only inspect. prepare and complete write private ignored files: when all writes are forbidden, use result instead. Inline work needs no prepare."],
     async execute(_callId, input, signal, _update, ctx) {
       let request = input;
-      let queriedOperation;
+      let queriedOperation, observeHistory;
       try {
         if (signal?.aborted) throw new Error("workflow operation aborted");
-        const observeHistory = historyObserver(pi, ctx, request);
+        observeHistory = historyObserver(pi, ctx, request);
         requirePreparedOperationIdentity(request);
         bindCandidateObserver(ctx);
         let result;
@@ -210,11 +223,21 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
         else {
           const repo = request.repo ?? ctx.cwd;
           const coordinator = () => ({ sessionId: ctx.sessionManager.getSessionId(), cwd: realpathSync(ctx.cwd) });
-          const recover = recoveryRequest => {
+          const beginObserved = async id => {
+            if (!observeHistory || !id) return;
+            const epoch = freezeEpoch, before = coordinator();
+            await observeHistory.begin(id);
+            const after = coordinator();
+            if (signal?.aborted || before.sessionId !== after.sessionId || before.cwd !== after.cwd || epoch !== freezeEpoch ||
+                ctx.isProjectTrusted?.() !== true) throw Error("Workflow context changed before work began");
+          };
+          const recover = async recoveryRequest => {
             const epoch = freezeEpoch, sessionId = ctx.sessionManager.getSessionId(), cwd = realpathSync(ctx.cwd);
             return recoverPreparedOperation(pi, ctx, recoveryRequest, signal, () => {
               if (freezeEpoch !== epoch || ctx.sessionManager.getSessionId() !== sessionId || realpathSync(ctx.cwd) !== cwd) throw Error("Session changed during recovery");
-            });
+            }, observeHistory && ["continue", "retain"].includes(recoveryRequest.mode) ? record => beginObserved(
+              recoveryRequest.mode === "continue" ? newPreparationOperationId(record.root, record, record.attempt + 1) : record.operationId
+            ) : undefined);
           };
           const named = request.task !== undefined || request.step !== undefined;
           if (selectableActions.has(request.action) && request.operationId === undefined && request.attempt === undefined && (named || request.action !== "result"))
@@ -238,6 +261,7 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
             else {
               const owner = coordinator();
               requireNativeWorkspace(owner.cwd, readiness.repositoryRoot);
+              if (observeHistory) await beginObserved(newPreparationOperationId(readiness.repositoryRoot, request, request.attempt ?? 1));
               result = prepareOperation(repo, { ...request, owner });
             }
           }
@@ -286,6 +310,10 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
             else if (request.action === "complete" && ["complete", "stale"].includes(current.state)) result = { ...current, reused: true };
             else {
               queriedOperation = current;
+              if (observeHistory) {
+                const id = request.action === "retry" ? newPreparationOperationId(current.root, current, current.attempt + 1) : current.operation_id;
+                await beginObserved(id);
+              }
               const runtime = await operationStatus(pi, ctx, current.operation_id, signal, request.action === "complete");
               if (signal?.aborted) throw Error("Workflow operation was cancelled; no retry was prepared");
               result = (request.action === "complete" || request.retryMode === "automatic") && needsNoStartInspection(current, runtime)
@@ -296,11 +324,12 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
         }
         result = withOperationArguments(result);
         if (result.criteria?.length) result = { ...result, coverage: criterionCoverage(result) };
-        observeHistory?.(result);
+        await observeHistory?.finish(result);
         return { content: [{ type: "text", text: JSON.stringify(result) }], structuredContent: result, details: result,
           ...(result.state === "setup-blocked" ||
             result.state === "setup-required" && ["snapshot", "prepare"].includes(request.action) ? { isError: true } : {}) };
       } catch (error) {
+        await observeHistory?.finish({ state: "refused" });
         const candidateError = error instanceof CandidateIdentityError;
         const inputError = error instanceof PrepareInputError;
         const outputChanged = error instanceof PreparedOutputChangedError;
