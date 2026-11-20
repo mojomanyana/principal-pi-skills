@@ -222,8 +222,10 @@ For a bounded local verification, `principal-pi-check run` executes the
 approved command in the selected worktree and records the named criteria,
 per-attempt result and cleanup. Supply explicit expected scalar observations
 for user-visible effects. The process alone establishes only what it measured.
-Use `principal_workflow` action `verification` with `task`, `step` and
-`attempt` for a read-only receipt. Compare its source and input applicability
+Use `principal_workflow` action `verification` with `task` and `step` for the
+latest claim, or add `attempt` to read an exact earlier one. Follow the returned
+`nextAction` within existing authority. An inconclusive check can call for
+repairing the checker while the delivered work stays intact. Compare the receipt's source and input applicability
 and independently reconcile relevant environment assumptions or required fresh
 execution. Pass the returned exact `reference` in `complete.evidence`.
 Derive material criteria from the agreed outcome, including any explicitly

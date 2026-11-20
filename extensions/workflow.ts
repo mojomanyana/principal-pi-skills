@@ -8,7 +8,7 @@ import { observeGitResource, observeIntegrationSubject, observePackageRelease, p
 import { queryRuntimeOperation } from "../scripts/runtime-operation-query.mjs";
 import { inspectProject, ProjectSetupError } from "../scripts/project-setup.mjs";
 import { createProjectSetup } from "./project-setup.ts";
-import { inspectVerification, criterionCoverage } from "../scripts/check-runner.mjs";
+import { inspectSelectedVerification, criterionCoverage } from "../scripts/check-runner.mjs";
 import { recoverPreparedOperation } from "../scripts/prepared-recovery.mjs";
 
 const ref = Type.Object({ path: Type.String(), sha256: Type.String({ pattern: "^[a-f0-9]{64}$" }) }, { additionalProperties: false });
@@ -35,6 +35,10 @@ const parameters = Type.Object({
     id: Type.String({ pattern: WORKFLOW_TASK_NAME.pattern }), scope: Type.Optional(choice(["worktree", "declared-inputs"])),
     dependencies: Type.Optional(Type.Array(Type.String({ minLength: 1, maxLength: 1024 }), { minItems: 1, maxItems: 32 })), requirement: Type.String({ minLength: 1, maxLength: 512 }),
     expected: Type.Optional(Type.Union([Type.String({ maxLength: 256 }), Type.Integer(), Type.Boolean()])),
+    counterexample: Type.Optional(Type.Object({
+      scenario: Type.String({ minLength: 1, maxLength: 256 }),
+      expected: Type.Union([Type.String({ maxLength: 256 }), Type.Integer(), Type.Boolean()]),
+    }, { additionalProperties: false })),
     required: Type.Optional(Type.Boolean()), fresh: Type.Optional(Type.Boolean()),
   }, { additionalProperties: false }), { maxItems: 32 })),
   reviewBinding: Type.Optional(Type.Object({
@@ -208,7 +212,7 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
   const bindCandidateObserver = registerCandidateObserver(pi);
   pi.registerTool({
     name: "principal_workflow", label: "Principal workflow", parameters, outputSchema,
-    description: "Principal bookkeeping; never execution, permission or approval. preflight: project readiness. setup: one confirmed empty Git baseline. snapshot: current candidate and input references. reference: exact file hash. prepare: task/step/phase, expectedCandidate, observable criteria, immutable inputPaths and editable contextPaths; returns reportPath, delegationArguments and statusArguments. Repetition reuses verified artifacts. status/complete/retry/history/result select task/step's latest owned attempt unless attempt is given; ambiguous or foreign selection refuses with choices. status rechecks current files. complete retains the settled exact final and disposition; resultRetained is history, completionValid is current freshness, neither is approval. result reads without writing; history reads the original owner's result; recover inspects after updates or /new. retry preserves the predecessor; automatic mode needs owner proof and a durable allowance, manual mode an authorized retry. verification reads check receipts. See references/continuity.md.",
+    description: "Principal bookkeeping; never execution, permission or approval. preflight: project readiness. setup: one confirmed empty Git baseline. snapshot: current candidate and input references. reference: exact file hash. prepare: task/step/phase, expectedCandidate, observable criteria, immutable inputPaths and editable contextPaths; returns reportPath, delegationArguments and statusArguments. Repetition reuses verified artifacts. status/complete/retry/history/result select task/step's latest owned attempt unless attempt is given; ambiguous or foreign selection refuses with choices. status rechecks current files. complete retains the settled exact final and disposition; resultRetained is history, completionValid is current freshness, neither is approval. result reads without writing; history reads the original owner's result; recover inspects after updates or /new. retry preserves the predecessor; automatic mode needs owner proof and a durable allowance, manual mode an authorized retry. verification reads latest/named receipts. See references/continuity.md.",
     promptGuidelines: ["Use this tool, not shell recipes, for hashes, report paths and identity checks; never compute an ID or digest yourself. Pass snapshot.candidate unchanged as expectedCandidate; HEAD alone does not identify uncommitted files. Pass prepare's delegationArguments to delegate with the current delegate_describe definitionId. Only after the child's cleanup is settled (uncertain is not settled), call complete for that operation before any repair, with the disposition its final actually shows: never succeeded for partial or unverified delivery. For replayable failures, call retry with retryMode automatic, task/step, reason and expectedCandidate; the owner proof and persisted budget allow one automatic successor. Pass its delegationArguments unchanged, including definitionId. Unsafe or exhausted replay stops only that phase; continue independent authorized work and ask only for a missing decision. Use retryMode manual only for a separately authorized retry, never to evade the automatic limit. After Build/Debug changes files, call complete, not prepare; if prepare returns PREPARED_OUTPUT_CHANGED, use its recovery arguments. If host schema validation rejects prepare task/step before execution, or PREPARE_INPUT_INVALID reports operationAllocated=false, correct the named field and repeat prepare for the same authorized work without asking again. Reuse established task/step identities; for a new task with no internal identity, choose a short valid ID. Keep attempt unchanged and never rename an existing operation to evade a refusal; this is not retry of an executed operation. On other refusals, follow the returned recoverArguments or statusArguments instead of preparing a replacement. For authorized continuation, follow continueArguments or historical retainArguments unchanged; recall requests only inspect. prepare and complete write private ignored files: when all writes are forbidden, use result instead. Inline work needs no prepare."],
     async execute(_callId, input, signal, _update, ctx) {
       let request = input;
@@ -242,7 +246,7 @@ export default function workflowExtension(pi, { repositories = ctx => [ctx.cwd] 
           const named = request.task !== undefined || request.step !== undefined;
           if (selectableActions.has(request.action) && request.operationId === undefined && request.attempt === undefined && (named || request.action !== "result"))
             request = { ...request, attempt: latestAttempt(repo, request, coordinator()) };
-          if (request.action === "verification") result = inspectVerification(repo, request);
+          if (request.action === "verification") result = inspectSelectedVerification(repo, request);
           else if (request.action === "preflight") result = inspectProject(repo);
           else if (request.action === "setup") result = await projectSetup(ctx, request.repo, signal);
           else if (request.action === "recover") result = await recover(request);
