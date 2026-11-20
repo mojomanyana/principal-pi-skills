@@ -75,6 +75,9 @@ string values and command arguments are withheld. An adapter can set one
 `unexpected-state`. Other diagnostic text stays private. The runner discards
 its temporary adapter report after recording a settled attempt. A process
 outside the owned group or Windows child requires its own cleanup evidence.
+On Windows, standalone runs retain their observed results and exact hashes
+for declared input files. Whole-worktree identity is unavailable. Use Linux
+when binding a check to a prepared Principal operation.
 A check adapter can retain separate evidence in the attempt directory when
 authorized; only the explicitly declared scalar observations enter the result.
 

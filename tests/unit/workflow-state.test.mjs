@@ -2203,3 +2203,31 @@ test("whole-worktree evidence retains its original requirement when a short crit
   assert.equal((await finish("same earlier record", criterion.requirement, previous)).coverage.state, "supported");
   assert.equal((await finish("changed earlier meaning", "The value survives a server restart", previous)).coverage.state, "unverified");
 });
+
+test("standalone checks retain declared file evidence on the current platform", async t => {
+  const root = mkdtempSync(join(tmpdir(), "principal-standalone-"));
+  t.after(() => rmSync(root, { recursive: true, force: true }));
+  execFileSync("git", ["-C", root, "init", "-q"]);
+  const path = join(root, "product.txt");
+  writeFileSync(path, "value");
+  execFileSync("git", ["-C", root, "add", "."]);
+  execFileSync("git", ["-C", root, "-c", "user.name=Fixture", "-c", "user.email=fixture@example.invalid", "commit", "-qm", "base"]);
+  const check = { repo: root, task: "portable", step: "read value",
+    command: process.execPath, inputPaths: ["product.txt"], criteria: [{ id: "stored", expected: true }],
+    args: ["-e", 'const fs=require("node:fs");fs.writeFileSync(process.env.PRINCIPAL_CHECK_OBSERVATIONS,JSON.stringify({version:1,observed:{stored:fs.readFileSync("product.txt","utf8")==="value"}}))'] };
+  if (process.platform !== "linux") {
+    await assert.rejects(runVerification({ ...check, forOperationId: "principal:" + "a".repeat(64) }), /requires Linux candidate identity/);
+    assert.equal(existsSync(join(root, ".principal", "verification")), false);
+  }
+  const result = await runVerification(check);
+  assert.equal(result.receipt.outcome, "passed");
+  assert.equal(result.applicability.source, process.platform === "linux" ? "matching" : "unavailable-on-platform");
+  assert.equal(result.request.inputs[0].sha256, createHash("sha256").update("value").digest("hex"));
+  assert.equal(result.applicability.inputs, "matching");
+  assert.equal(result.receipt.execution.cleanup.scope, process.platform === "win32" ? "direct-child" : "owned-process-group");
+  writeFileSync(path, "changed");
+  const recalled = await runVerification(check);
+  assert.equal(recalled.reused, true);
+  assert.equal(recalled.applicability.inputs, "changed-or-unobserved");
+  assert.deepEqual(recalled.reference, result.reference);
+});

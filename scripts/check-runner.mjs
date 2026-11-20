@@ -122,6 +122,9 @@ function checkedInput(root, ref) {
 }
 
 function snapshot(root) {
+  // Native candidate identity is Linux-only. A standalone check can still
+  // bind exact declared files and record the direct process outcome elsewhere.
+  if (process.platform !== "linux") return null;
   const { id, algorithm, sourceSha256 } = observeCandidate(root);
   return { id, algorithm, sourceSha256 };
 }
@@ -167,8 +170,9 @@ export function inspectVerification(repo, { task, step, attempt = 1 }) {
   try { current = snapshot(root); } catch { /* Historical receipts remain readable. */ }
   const sameSource = current && [request.source, receipt.endSource].every(source => source?.algorithm === current.algorithm && source.id === current.id && source.sourceSha256 === current.sourceSha256);
   return { ...common, state: "recorded", request, receipt,
-    applicability: { scope: request.scope ?? "worktree", source: sameSource ? "matching" : "changed-or-unobserved",
-      inputs: receipt.inputsMatchAtEnd && request.inputs.every(ref => checkedInput(root, ref)) ? "matching" : "changed-or-unobserved",
+    applicability: { scope: request.scope ?? "worktree", source: sameSource ? "matching" :
+      request.source === null && request.platform !== "linux" ? "unavailable-on-platform" : "changed-or-unobserved",
+      inputs: !request.inputs.length && request.source === null ? "not-declared" : receipt.inputsMatchAtEnd && request.inputs.every(ref => checkedInput(root, ref)) ? "matching" : "changed-or-unobserved",
       environment: "not-established", requirements: "as-recorded" },
     reference: { path: join(dir, "result.json"), sha256: record.sha256 } };
 }
@@ -331,6 +335,8 @@ export async function runVerification({ repo = process.cwd(), task, step, attemp
     "supply an executable and bounded string arguments");
   requireValue(Number.isSafeInteger(timeoutMs) && timeoutMs > 0 && timeoutMs <= 2147483647 &&
     Number.isSafeInteger(outputLimit) && outputLimit > 0, "time and output limits must be positive and supported");
+  if (forOperationId !== undefined && process.platform !== "linux")
+    throw new Error("A prepared-operation check requires Linux candidate identity. A standalone check can record process observations and declared file hashes.");
   const expected = criteriaOf(criteria);
   const cwd = realpathSync(repo);
   const { root, dir, operationId } = where(cwd, { task, step, attempt }, true);
