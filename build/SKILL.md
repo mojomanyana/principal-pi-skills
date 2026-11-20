@@ -17,6 +17,11 @@ code and the standard library, fewer concepts and clear control flow. A plan con
 interfaces, not every local choice. Challenge unnecessary complexity; escalate a material scope/API
 tradeoff or contradiction. Passing tests does not establish a good design.
 
+When implementation disproves a design assumption, identify the affected behavior, cite the
+observation and say which work can proceed. The coordinator consults Architect inline before
+changing the shared contract. A child returns the discovery in its report. Keep routine
+implementation decisions local.
+
 
 ## Establish the task
 Read the assigned Build unit and relevant plan sections, current authoritative sources, needed

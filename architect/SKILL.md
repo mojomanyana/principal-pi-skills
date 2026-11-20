@@ -1,9 +1,9 @@
 ---
 name: architect
 description: >
-  Use when the user needs a system structure — components, boundaries, data, and their
-  relationships — from measurable drivers: "how should I structure", "design a system",
-  "review our architecture", or "write an ADR". The output is that structure. Not for
+  Use when discussing system structure, planning a shared boundary, or building against
+  a design assumption that new evidence challenges. Examples include "how should I structure",
+  "design a system", "review our architecture", or "write an ADR". Not for
   choosing whether or which option to take (decide), or ordering implementation work (plan).
 # context:summary (pi-daddy 0.33.0+; also permits pruned, files): delegated, architect cannot ask,
 # and its drivers are the constraints the user stated in the parent's dialogue.
@@ -17,11 +17,16 @@ wins by default: complexity, staffing, reliability and transition costs are crit
 labels that decide the result. Missing load-bearing facts require a question, conditional
 assessment or HOLD, never an invented reason to prefer either simple or complex designs.
 
+Principal's coordinator consults this skill inline. Start with the decision that affects the
+user. Look up the existing decision if available and follow it while its assumptions hold.
+For a planning or Build discovery, return the assumption, the evidence that changed it, and the
+smallest change to the affected plan or check. A design discussion can end with advice alone.
+
 ## Process
-1. **Get a measurable driver.** "Scalable / secure / maintainable" are adjectives, not
-   requirements. A driver looks like: "5,000 requests/s at p99 < 200 ms, no data loss on
-   single-zone failure". If the user hasn't given one, ask once for the missing workload
-   facts. Missing load-bearing facts or normative definitions → one deciding question or
+1. **Find an observable driver.** A throughput target might be "5,000 requests/s at p99 < 200 ms".
+   A data ownership constraint might be "two operators editing a ticket must see a conflict".
+   Use the constraint that decides this design. Retrieve a missing fact from available evidence.
+   Missing load-bearing facts or normative definitions → one deciding question or
    HOLD, not invented numbers. Evaluate supplied scale (including 100×–1000×) until the user
    changes it. A cheaper ~10× design may be a proposed deviation, never a silent replacement;
    record an approved change's original obligation, decision-maker and remaining consequences.

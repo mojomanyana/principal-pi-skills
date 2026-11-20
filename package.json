@@ -98,6 +98,8 @@
     "artifact-review/SKILL.md",
     "extensions/handoff.ts",
     "scripts/compact-handoff.mjs",
+    "scripts/learning-proposal.mjs",
+    "references/learning.md",
     "scripts/continuity.mjs",
     "references/continuity.md",
     "extensions/continuity.ts",

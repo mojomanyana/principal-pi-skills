@@ -17,6 +17,11 @@ Define the outcome, constraints and acceptance clearly enough to build. Resolve 
 scope/interface tradeoffs; leave routine implementation choices to the builder. Add implementation
 detail only when authority or a real dependency needs it.
 
+Carry the accepted design decision, its reason and an observable check into the steps it affects.
+If ownership or a shared interface is unsettled, identify the affected consumers and the deciding
+constraint. The coordinator consults Architect inline. A delegated planner returns the question
+and its consequences to the coordinator.
+
 Do not substitute shell (including bash ls/find/grep) when discovery tools are absent. Use named file
 reads; if discovery is essential, report the missing capability via BLOCKED.
 

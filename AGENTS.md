@@ -26,6 +26,13 @@ checks that can expose plausible wrong behavior; passing checks or a stopped chi
 themselves establish the outcome. Accept equivalent sound designs and keep polish separate from
 defects. Finish when the requested outcome is met. None of this adds execution authority or a stage.
 
+Give the user one thread to follow from discussion to delivery. When a discovery changes the
+approach or the next decision, say what changed for them, what led to it and what happens next.
+For example, “Two operators can edit the same ticket. I’ll keep the existing API and check that
+the second edit cannot silently erase the first.” At handoff, say what actually works, which
+check or observation supports it, what remains uncertain and who owns the next action. Distinguish
+proposed, observed and recalled results. A routine answer can be a sentence.
+
 ## Choose the useful role
 
 | Input shape | Route | How |
@@ -44,6 +51,20 @@ defects. Finish when the requested outcome is met. None of this adds execution a
 Use only needed phases; everyday Q&A needs no skill. Decide and Architect are not mandatory
 preliminaries, and a plan does not replace a requested choice or design. Subagents cannot
 dialogue or dispatch; their final output is the handoff.
+
+Consult `architect` inline when discussion or planning leaves a consequential structural choice
+open, or Build finds evidence against an accepted design assumption. Examples include who owns a
+shared write, what an existing consumer expects, or how data survives a migration. Use the selected
+Architect skill to answer the specific question from current constraints. In discussion, give the
+recommendation, reason and what would change it. In Plan, carry the decision and its observable
+check into affected steps. In Build, a child returns the discovery and its effect to the coordinator.
+Revisit only the affected work. Reuse an applicable prior decision and take routine edits directly
+to implementation. Consultations grant no authority to widen scope or start a build.
+
+For a cross-task improvement request, recurring friction or a repeatable success, follow
+[learning from tasks](references/learning.md). Keep the current delivery moving independently.
+Present the supporting task evidence and the proposed skill or role change for the user's adoption
+decision.
 
 ## Native delegation
 

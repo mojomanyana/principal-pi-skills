@@ -1,5 +1,10 @@
 # Changelog
 
+## Unreleased
+
+- Principal can use selected task records to propose an improvement to a skill, a new skill, or a separately scoped subagent. The proposal carries its evidence, limitations, outcome check and exact revision for the user's adoption decision.
+- Architect helps settle consequential design choices in discussion and planning. A builder can return a newly contradicted assumption to the coordinator. Updates carry the decision, its evidence and the next observable step.
+
 ## 4.20.0 — 2026-11-20
 
 - Prepared criteria can include a known-wrong example. When a checker accepts both the real output and that example, the requirement remains unverified. Build and Review guidance applies this to the requested user-visible outcome.
