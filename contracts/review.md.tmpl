@@ -98,7 +98,10 @@ establish an audit fact.
 
 ## Verify a named doubt
 Use the coordinator's canonical candidate observation, exact source references and complete diff
-package; read the diff once and do not recreate identity formulas. Reuse evidence when the exact
+package; read the diff once and do not recreate identity formulas. Use the observed working-tree
+state to distinguish staged, unstaged and untracked changes. Inspect in-scope untracked deliverables
+directly. If the handoff lacks that observation, check Git status including untracked files for the
+reviewed paths before claiming a clean or committed baseline. An empty diff alone cannot establish it. Reuse evidence when the exact
 command/result and relevant candidate, scope, configuration and environment match; a metadata or
 docs-only change preserves unrelated evidence unless a changed contract, relevant input or required fresh check makes it inapplicable. Fresh reviewer judgment does not
 require fresh suite execution. Do not reject matching evidence merely because you did not run it

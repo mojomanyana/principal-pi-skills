@@ -195,7 +195,7 @@ script counts it and prints the current figures.
 | `architect` | System structure from measurable drivers; components, boundaries and data. The decision record is a section of the output, not a separate artifact | inline | 1270 |
 | `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1221) or inline | 1152 |
 | `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1672) or inline | 1619 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1358) or inline | 1306 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1405) or inline | 1353 |
 | `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 765) or inline | 744 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1469) or inline | 1288 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 478) or inline | 479 |
@@ -362,7 +362,7 @@ history is unknown. Readiness and candidate diagnostics are explained in
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.19.0
+   pi install npm:principal-pi-skills@4.19.1
    ```
 
    Restart Pi after package changes. The `pi` manifest registers ten skills, four
@@ -400,8 +400,8 @@ history is unknown. Readiness and candidate diagnostics are explained in
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.19.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.19.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.19.1 principal-pi-agents install
+   npx -p principal-pi-skills@4.19.1 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
