@@ -156,8 +156,10 @@ runtime gate fails; there is no fixed repair-round quota.
 A clear authorized task can go directly to Build, Review and Git-Ops finish; plan only when
 sequencing, risks or dependencies need it; a coherent feature is one Build unit with its tests and
 docs. Bugfix diagnoses an unknown cause first. Existing explicit
-approval for the actual scope persists; urgency and self-written flags do not create it. Tiny
-low-risk inline work can finish with its actual checks and caveats.
+approval for the actual scope persists; urgency and self-written flags do not create it. For ordinary work, select independent review by impact on users, data, access and downstream consumers.
+Always honor explicitly requested review and source-required release gates. Tiny reversible inline work
+can finish with its actual checks and caveats. Derive observable criteria from the authorized outcome
+and record material ones in native `prepare.criteria`. Ask only when ambiguity changes acceptance.
 
 Use `artifact-review` when requested or when a material risk warrants it, not on every artifact. Use
 the distinct [test-review skill](test-review/SKILL.md) when test quality is in question, and say
@@ -190,12 +192,12 @@ live here.
 
 ## Setup (pi)
 
-1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.18.2`,
+1. Install exact npm releases, then restart Pi: `pi install npm:principal-pi-skills@4.19.0`,
    `pi install npm:pi-daddy@0.62.1` and `pi install npm:skill-harness@0.36.2`. Enable `grep`,
    `find` and `ls` through Pi `settings.json` `defaultTools`; see [README Install](README.md#install-pi).
 2. Legacy subagents are optional and usable only when native tools are genuinely absent:
-   `npx -p principal-pi-skills@4.18.2 principal-pi-agents install`, then
-   `npx -p principal-pi-skills@4.18.2 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.19.0 principal-pi-agents install`, then
+   `npx -p principal-pi-skills@4.19.0 principal-pi-agents check`.
 3. Each skill's `allowed-tools` caps the context a delegated child may receive: `context:summary`
    for `architect`, `decide` and `plan`; `context:files` for `build`, `debug`, `review`,
    `test-review` and `investigate`; none for `git-ops`. The reasons are in each frontmatter and the

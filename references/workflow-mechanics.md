@@ -204,3 +204,27 @@ boundary. Startup in the same session rechecks every binding and consumes durabl
 fixed continuation; changed evidence, new sessions, active children or uncertain dispatch refuse. No
 arbitrary nextAction execution, mid-execution recovery or silent re-arm. The finalized Pi resource
 receipt is readiness, not permission. Use the actual selected installation.
+
+
+## Check evidence from an authorized verification attempt
+
+For a bounded local verification, `principal-pi-check run` executes the
+approved command in the selected worktree and records the named criteria,
+per-attempt result and cleanup. Supply explicit expected scalar observations
+for user-visible effects. The process alone establishes only what it measured.
+Use `principal_workflow` action `verification` with `task`, `step` and
+`attempt` for a read-only receipt. Compare its source and input applicability
+and independently reconcile relevant environment assumptions or required fresh
+execution. Pass the returned exact `reference` in `complete.evidence`.
+Derive material criteria from the agreed outcome, including any explicitly
+required fresh check. Ask only when an ambiguity would change delivery or
+acceptance. A routine task can keep its existing brief check. For measurable
+criteria, include the same ID and expected scalar in
+`prepare.criteria` and the adapter check. Bind the check to the originating
+prepared operation with `--operation` so later reuse can compare the complete
+requirement. Freshness requires the current operation. The read projection lists
+supported, failed, missing and conflicting observations. Qualitative criteria
+can remain pending human or independent judgment. Missing criteria, partial
+delivery and inconclusive cleanup remain distinct.
+Repeated inspection never executes a command. The README describes the adapter
+protocol and how to preserve a separate attempt under existing authority.

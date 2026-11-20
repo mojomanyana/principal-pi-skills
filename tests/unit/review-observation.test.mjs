@@ -16,7 +16,7 @@ function native(operationId, cwd, sessionId, text) {
   return { operationId, cwd, executionId, state: "settled", finalObservation: { ...final, text },
     runtime: { work: "succeeded", final, cleanup: { state: "settled", executionId } } };
 }
-function fixture(t, { reviewScope = "task", additionalRepositories = [], recoverBuild = false } = {}) {
+function fixture(t, { reviewScope = "task", additionalRepositories = [], recoverBuild = false, buildCriteria } = {}) {
   const repo = realpathSync(mkdtempSync(join(tmpdir(), "principal-review-binding-")));
   t.after(() => rmSync(repo, { recursive: true, force: true }));
   const git = (...args) => execFileSync("git", ["-C", repo, ...args], { stdio: "pipe" });
@@ -26,7 +26,7 @@ function fixture(t, { reviewScope = "task", additionalRepositories = [], recover
   const authority = join(repo, ".principal/intent.txt"); writeFileSync(authority, "Original and current objective: synthetic output. No external side effects.\n");
   const owner = { sessionId: "coordinator", cwd: repo };
   const input = { task: "fixture", phase: "build", step: "build", expectedCandidate: observeCandidate(repo).id, inputPaths: [authority], owner };
-  const build = prepareOperation(repo, input);
+  const build = prepareOperation(repo, { ...input, criteria: buildCriteria });
   completeOperation(repo, { operationId: build.operation_id, disposition: "succeeded" }, native(build.operation_id, repo, "build-child", "Synthetic build output.\n"));
   const outputReference = { owner: "principal", reference: observeGitResource(repo) };
   const reviewBinding = { initiativeId: "initiative", taskId: "task", taskRevision: "sha256:" + "a".repeat(64), outputId: "output", outputReference, sourceOperationId: build.operation_id, reviewScope, ...(additionalRepositories.length ? { integrationSubject: observeIntegrationSubject([repo, ...additionalRepositories]) } : {}) };
@@ -201,5 +201,32 @@ test("retained Review rechecks exact receipt, prepared inputs and members after 
     const refused = assert.rejects(pending);
     release();
     await refused;
+  });
+});
+
+test("bound Review projects requirement evidence separately from its native verdict", async t => {
+  const qualitative = { id: "intent", requirement: "The result meets the agreed project purpose" };
+  const scalar = { id: "visible", requirement: "The completed result is visible through its user path", expected: true };
+  await t.test("a favorable general verdict preserves unmet criteria", t => {
+    const f = fixture(t, { buildCriteria: [qualitative, scalar] });
+    const { ref } = f.finish(), current = f.resolve(ref);
+    assert.equal(current.judgment.verdict, "unverified");
+    assert.equal(current.observed.recordedVerdict, "accepted");
+    assert.equal(current.observed.requiredCriterionCoverage[0].supported, 0);
+  });
+  await t.test("scoped qualitative review needs the exact prepared evidence", t => {
+    const f = fixture(t, { buildCriteria: [qualitative] });
+    const judgment = { operationId: f.reviewRequest.reviewBinding.sourceOperationId, id: "intent", status: "pass",
+      evidence: f.prepared.inputs[0] };
+    const current = f.resolve(f.finish({ criterionJudgments: [judgment] }).ref);
+    assert.equal(current.judgment.verdict, "accepted");
+    assert.equal(current.observed.requiredCriterionCoverage[0].independentlyJudged, 1);
+    assert.equal(current.observed.requiredCriterionCoverage[0].observed, 0);
+  });
+  await t.test("a reviewer cannot mark the missing scalar measurement as observed", t => {
+    const f = fixture(t, { buildCriteria: [scalar] });
+    const claim = { operationId: f.reviewRequest.reviewBinding.sourceOperationId, id: "visible", status: "pass",
+      evidence: f.prepared.inputs[0] };
+    assert.equal(f.resolve(f.finish({ criterionJudgments: [claim] }).ref).status, "unverified");
   });
 });

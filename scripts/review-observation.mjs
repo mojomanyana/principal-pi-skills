@@ -1,6 +1,7 @@
 // An exact native Review can judge its bound task output. Bookkeeping alone never approves.
 import { createHash } from "node:crypto";
 import { constants, openSync, closeSync, fstatSync, readSync, realpathSync } from "node:fs";
+import { criterionCoverage } from "./check-runner.mjs";
 import { inspectOperation, inspectRecoveryOperation } from "./workflow-state.mjs";
 
 const canonical = value => JSON.stringify(value, (_key, item) => item && typeof item === "object" && !Array.isArray(item)
@@ -27,7 +28,7 @@ function receipt(text, binding) {
   assert(matches.length === 1 && Buffer.byteLength(matches[0][1]) <= 12000, "one explicit review receipt required");
   const parsed = JSON.parse(matches[0][1]);
   const keys = ["version", "bindingId", "scope", "verdict", "quality", "alignment", "evidence"];
-  assert(parsed && Object.keys(parsed).length === keys.length && Object.keys(parsed).every(key => keys.includes(key)) && parsed.version === 1 && parsed.bindingId === binding.id,
+  assert(parsed && keys.every(key => Object.hasOwn(parsed, key)) && Object.keys(parsed).every(key => keys.includes(key) || key === "criterionJudgments") && parsed.version === 1 && parsed.bindingId === binding.id,
     "review receipt binding mismatch");
   assert(["task", "integrated"].includes(binding.reviewScope) && parsed.scope === binding.reviewScope && ["APPROVE", "APPROVE-WITH-NITS", "CHANGES-REQUESTED", "UNVERIFIED"].includes(parsed.verdict), "review receipt scope or verdict unsupported");
   for (const key of ["quality", "alignment", "evidence"]) {
@@ -41,6 +42,19 @@ function receipt(text, binding) {
   const statuses = [parsed.quality.status, parsed.alignment.status, parsed.evidence.status];
   if (["APPROVE", "APPROVE-WITH-NITS"].includes(parsed.verdict)) assert(statuses.every(value => value === "pass"), "approval contradicts dimension judgments");
   if (parsed.verdict === "CHANGES-REQUESTED") assert(statuses.includes("fail"), "changes requested needs a substantive failed dimension");
+  if (parsed.criterionJudgments !== undefined) {
+    assert(Array.isArray(parsed.criterionJudgments) && parsed.criterionJudgments.length <= 32, "bounded criterion judgments required");
+    const seen = new Set();
+    for (const row of parsed.criterionJudgments) {
+      assert(row && Object.keys(row).length === 4 && ["operationId", "id", "status", "evidence"].every(key => Object.hasOwn(row, key)) &&
+        /^principal:[a-f0-9]{64}$/.test(row.operationId) && typeof row.id === "string" && /^[a-zA-Z0-9][a-zA-Z0-9_-]{0,79}$/.test(row.id) &&
+        ["pass", "fail", "unverified"].includes(row.status) &&
+        binding.inputs.some(input => same(input, row.evidence)), "judgment requires an exact prepared review input");
+      const key = row.operationId + "/" + row.id;
+      assert(!seen.has(key), "duplicate criterion judgment");
+      seen.add(key);
+    }
+  }
   return parsed;
 }
 
@@ -94,15 +108,37 @@ export function resolveReviewReference(reference, purpose, { repositories, resol
         typeof resolveIntegration === "function" ? resolveIntegration(binding.integrationSubject, { repositories }) : undefined;
       assert(binding.integrationSubject === undefined || (binding.reviewScope === "integrated" && integration?.status === "current"), "integrated review member changed or is not selected");
       const parsed = receipt(reportText(review.report.path, exact.reportSha256), binding);
+      for (const row of parsed.criterionJudgments ?? []) {
+        const owner = [source, review].find(operation => operation.operation_id === row.operationId);
+        assert(owner?.criteria?.some(criterion => criterion.id === row.id && !Object.hasOwn(criterion, "expected")),
+          "independent criterion judgment must name a declared qualitative criterion");
+      }
       const verdict = parsed.verdict === "CHANGES-REQUESTED" ? "rejected" : parsed.verdict === "UNVERIFIED" ? "unverified" : "accepted";
       assert((verdict === "accepted" && review.disposition === "succeeded") || (verdict === "rejected" && review.disposition === "changes-requested") || (verdict === "unverified" && ["unverified", "blocked"].includes(review.disposition)), "review disposition contradicts its explicit judgment");
-      return { binding, parsed, verdict, output, integration, report: review.report };
+      const coverage = [];
+      if (verdict === "accepted") {
+        for (const operation of [source, review]) {
+          if (!operation.criteria?.length) continue;
+          // The reviewer may validate current evidence acquired after Build.
+          // The source candidate and task identity still govern its applicability.
+          const evidence = [...new Map([...(operation.evidence ?? []), ...review.inputs, ...(review.evidence ?? [])]
+            .map(ref => [ref.path + ":" + ref.sha256, ref])).values()];
+          const scoped = criterionCoverage({ ...operation, evidence });
+          const judgments = operation.criteria.filter(criterion => criterion.required && !Object.hasOwn(criterion, "expected") &&
+            parsed.criterionJudgments?.some(row => row.operationId === operation.operation_id && row.id === criterion.id && row.status === "pass"));
+          coverage.push({ operationId: operation.operation_id, required: scoped.required,
+            supported: scoped.supported + judgments.length, observed: scoped.supported, independentlyJudged: judgments.length });
+        }
+      }
+      const openCriteria = coverage.some(item => item.supported < item.required);
+      return { binding, parsed, verdict: openCriteria ? "unverified" : verdict, recordedVerdict: verdict, coverage, output, integration, report: review.report };
     };
     const value = checked();
     return { status: "current", reference: structuredClone(exact),
       judgment: { subjectRevision: value.binding.taskRevision, outputId: value.binding.outputId,
         outputReference: structuredClone(value.binding.outputReference), reviewScope: value.binding.reviewScope, verdict: value.verdict },
-      observed: { scope: value.parsed.scope, quality: value.parsed.quality.status, alignment: value.parsed.alignment.status, evidence: value.parsed.evidence.status,
+      observed: { ...(value.coverage.length ? { recordedVerdict: value.recordedVerdict, requiredCriterionCoverage: value.coverage } : {}),
+        scope: value.parsed.scope, quality: value.parsed.quality.status, alignment: value.parsed.alignment.status, evidence: value.parsed.evidence.status,
         ...(value.binding.integrationSubject ? { integrationSubjectId: value.binding.integrationSubject.id, integrationMembers: value.binding.integrationSubject.resources.length } : {}),
         report: value.report, sourceOperationId: value.binding.sourceOperationId, reviewOperationId: exact.operationId,
         independence: "distinct-native-child-sessions", inputEvidence: "prepared-exact-references-and-explicit-review-judgment", approval: false },
@@ -111,7 +147,8 @@ export function resolveReviewReference(reference, purpose, { repositories, resol
         await value.output.assertCurrent();
         await value.integration?.assertCurrent();
         // Recheck native identity, inputs, binding, all members and receipt after awaits.
-        checked();
+        const fresh = checked();
+        assert(fresh.verdict === value.verdict && same(fresh.coverage, value.coverage), "criterion evidence changed after review observation");
       } };
   } catch {
     return { status: "unverified", reference: exact ?? reference };

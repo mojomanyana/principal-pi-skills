@@ -64,3 +64,18 @@ consuming a frozen artifact instead of a live-task prerequisite changes intent
 and task revision; amend/reselect normally and keep the original map/history.
 The successor retains its own live resources and required review. Do not use a
 snapshot to award completed state or bypass a required acceptance dependency.
+
+
+When a prepared operation has explicit required criteria, the bound review
+lookup also inspects exact check receipts attached to the source, review inputs
+or review completion. A broadly favorable review remains recorded. Its
+projected work-map judgment stays unverified while required criteria lack
+applicable observations. For a qualitative criterion the reviewer may supply `criterionJudgments` in its
+existing review JSON fence. Each entry has the exact `operationId`, criterion
+`id`, `status` (pass, fail or unverified) and `evidence` matching one prepared
+review input by path and SHA-256. Read that input and state what supports the
+judgment. A user-owned decision needs its actual authorized answer as evidence.
+This records what the independent reviewer judged. A reviewer-authored verdict
+cannot replace a missing scalar check or answer a user's pending choice.
+Retain human decision receipts in project memory. Existing operations with no
+declared per-criterion requirements retain their original review protocol.

@@ -1,6 +1,6 @@
 {
   "name": "principal-pi-skills",
-  "version": "4.18.2",
+  "version": "4.19.0",
   "description": "Nine principal engineering skills, a portable artifact-review skill, and optional Pi coordination tools.",
   "license": "MIT",
   "author": "Nemanja Alavanja",
@@ -60,7 +60,8 @@
     "principal-pi-agents": "./scripts/install-agents.mjs",
     "principal-pi-workspace": "./scripts/snapshot-workspace.mjs",
     "principal-pi-progress": "./scripts/progress-artifacts.mjs",
-    "principal-pi-resume": "./scripts/resume-checkpoint.mjs"
+    "principal-pi-resume": "./scripts/resume-checkpoint.mjs",
+    "principal-pi-check": "./scripts/check-runner.mjs"
   },
   "files": [
     "AGENTS.md",
@@ -85,6 +86,7 @@
     "scripts/resume-checkpoint.mjs",
     "extensions/resume.ts",
     "scripts/workflow-state.mjs",
+    "scripts/check-runner.mjs",
     "scripts/project-setup.mjs",
     "extensions/project-setup.ts",
     "scripts/runtime-operation-query.mjs",

@@ -5,8 +5,8 @@
     "plan": {
       "skill": "plan/SKILL.md",
       "agent": "agents/principal-plan.md",
-      "skillSha256": "673f21bae5cd7afbc7662ca5e8c80e15bd3b87c3a754a054d763ac46cb26a290",
-      "agentSha256": "6d2408c06c9954cf6d678146133c2b3c1447fc253983bf3251d592953716b2a5"
+      "skillSha256": "c4058f34edf3a80dbe1a4b503e88d32ce20ae69ae6513ef810c74411315f82a7",
+      "agentSha256": "1ee7f8d89eaa1a82d682652bd62573f43f9dcbcc2cc490746df44dc5553eb857"
     },
     "review": {
       "skill": "review/SKILL.md",
