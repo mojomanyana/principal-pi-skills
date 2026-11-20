@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.19.1 — 2026-11-20
+
+- A checker can report terminal failure and still exit successfully. Principal now withholds positive requirement credit from those checks. A failed historical receipt with ambiguous termination remains readable and preserves its negative observations. Ordinary checks with mixed results can still support independently satisfied criteria.
+- Review handoffs for new operations record the staged, unstaged and untracked changes seen in the original snapshot. This gives reviewers evidence about new files that a plain Git diff can miss. Existing operation and file identities remain compatible.
+
 ## 4.19.0 — 2026-11-20
 
 - Record completion criteria on prepared operations. Checks can bind to the full requirement and its declared inputs, allowing later work to reuse applicable evidence and identify missing, conflicting or stale observations. A shared criterion name alone cannot transfer a passing result to a different requirement.
