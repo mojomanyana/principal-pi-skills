@@ -223,7 +223,7 @@ claims of measured model compliance. Common ceilings remain unchanged.
 Tool text has its own ceilings because it is paid for more often. A skill is read when its
 role is used; a registered tool's description and prompt guidelines go to the model with
 every request while the tool is active, whether or not it is called. Ceilings in words:
-`principal_workflow` 459, `principal_handoff` 114, `principal_codemode` 28. Each counts the
+`principal_workflow` 459, `principal_handoff` 114, `principal_codemode` 28 and `principal_delivery` 100. Each counts the
 description, guidelines and parameter descriptions written in the tool's own extension file;
 parameter descriptions imported from `scripts/` and text Pi itself supplies are outside it.
 The ceilings are the counts after the 2026-11-17 rewrite for weaker models (from 861, 147 and 52), so
@@ -236,14 +236,14 @@ script counts it and prints the current figures.
 | Skill | What it does | How it runs | Words |
 |---|---|---|---|
 | `decide` | Options and stress-tests for a decision that isn't settled — "should I", "what are my options", "I'm stuck" | inline | 996 |
-| `architect` | Consult on shared boundaries, ownership or a design assumption challenged during Build. Tie the recommendation to the deciding constraint | inline | 1348 |
+| `architect` | Consult on shared boundaries, ownership or a design assumption challenged during Build. Tie the recommendation to the deciding constraint | inline | 1357 |
 | `plan` | Outcomes, constraints and acceptance, with essential interfaces pinned and routine design left to Build. Writes no code | subagent (`agents/principal-plan.md`, 1293) or inline | 1224 |
-| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1783) or inline | 1730 |
-| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1453) or inline | 1401 |
+| `build` | Implementation with meaningful behavior and regression evidence | subagent (`agents/principal-build.md`, 1792) or inline | 1739 |
+| `review` | One pass, two axes — correctness and simplicity — ending in one severity-ranked verdict | subagent (`agents/principal-review.md`, 1450) or inline | 1398 |
 | `test-review` | Test assertions, missing behavioral cases, realistic mocks and justified consolidation; no product integration approval | subagent (`agents/principal-test-review.md`, 765) or inline | 744 |
 | `debug` | Hypothesis before fix: a diagnosis loop ending in a note with root cause and a regression test | subagent (`agents/principal-debug.md`, 1469) or inline | 1288 |
 | `investigate` | A factual report of how code, data, runtime, or history currently behaves, with file-and-line citations | subagent (`agents/principal-investigate.md`, 478) or inline | 479 |
-| `artifact-review` | Quality, intent alignment and evidence for plans, decisions, architecture or custom artifacts | standalone Pi skill; no native phase | 947 |
+| `artifact-review` | Quality, intent alignment and evidence for plans, decisions, architecture or custom artifacts | standalone Pi skill; no native phase | 986 |
 | `git-ops` | Safe version-control operator — reads state before writing it, keeps published history immutable, scans for secrets before committing | inline, never delegated | 2536 |
 
 Routing between them belongs to the orchestrator, not to a skill — there is deliberately no
@@ -507,6 +507,37 @@ history is unknown. Readiness and candidate diagnostics are explained in
    provider. The matching pi-daddy candidate no longer uses an external advisor to choose
    those turns. Forwarded context still reaches the child and its provider; raising another
    skill's ceiling extends that exposure to it.
+
+## Reconcile a delivery
+
+On a substantial request, `principal_delivery set` records the user outcome and a few named
+criteria before setup, editing or delegation. Keep the same criterion IDs in native `prepare`
+when applicable. `status` inspects the current state. `amend` cites the current user's exact
+change and retains the earlier criteria and evidence. `finish` reconciles the actual delivery.
+Routine edits can use Pi tools directly. No child runs automatically.
+
+- **Artifact and handoff.** Declare the workspace-relative file. Presence or nonempty handoff
+  establishes only that observation. Add a separate endpoint or judgment criterion for content
+  requirements. Pi's direct file edits may contribute a tool reference.
+- **Endpoint.** Name the starting state, normal action, required observation and expected value.
+  `principal-pi-check run --criterion id=true --journey 'id={"startingState":"…","action":"…","observation":"…"}'`
+  records that contract with the existing check receipt. Use `--task` with the delivery's
+  `checkTask` or its linked workflow task. A journey may supply a `counterexample` with `scenario`
+  and a different `expected` value. `evidence` reads an exact task, step and attempt. A missing
+  or failed endpoint, failed checker, or inapplicable source stays open. An input-scoped check
+  can survive unrelated edits when the exact declared files still match.
+- **Judgment and design.** Cite supplied sources and the limitation. `design` records one
+  consequential decision and the observed inline or independently settled consultation.
+  An architect decision carries an invariant into Build and a case that could disprove it.
+
+Current Pi can give a single follow-up for a missing handoff that the user explicitly named.
+The follow-up is confined to writing that file and reconciling delivery. If it cannot proceed,
+the displayed handoff lists confirmed facts and open gaps. Older Pi can display the fallback
+without starting a follow-up. Save the returned `checkpoint` values and approved evidence
+references when the user wants later recall. In a fresh same-workspace session, `status` with that
+checkpoint supports an explicit recall request. `resume` requires an explicit resume request,
+takes one resume claim for the selected revision, and preserves finished criteria. Bookie can
+carry the checkpoint and exact evidence references when it is available and authorized.
 
 ## Coordinator evidence handoffs
 

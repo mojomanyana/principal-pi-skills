@@ -682,7 +682,7 @@ export function normalizeCounterexample(value, expected) {
   return { scenario: value.scenario.trim(), expected: value.expected };
 }
 
-function completionCriteria(value = []) {
+export function completionCriteria(value = []) {
   assert(Array.isArray(value) && value.length <= 32, "provide at most 32 operation criteria");
   const ids = new Set();
   return value.map(item => {

@@ -91,6 +91,7 @@ const TOOL_TEXT = {
   principal_handoff: ["extensions/handoff.ts", 114, 1],
   // Two mentions: the method Pi's code-mode extension calls, and the call it makes.
   principal_codemode: ["extensions/codemode.ts", 28, 2],
+  principal_delivery: ["extensions/delivery.ts", 100, 1],
 };
 
 const count = (t) => {

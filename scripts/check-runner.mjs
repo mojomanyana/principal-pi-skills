@@ -18,13 +18,22 @@ const smallScalar = value => value === null || typeof value === "boolean" ||
   (typeof value === "number" && Number.isFinite(value)) ||
   (typeof value === "string" && Buffer.byteLength(value) <= 256 && !/[\x00-\x1f\x7f]/u.test(value));
 
+function journeyOf(value) {
+  const keys = ["startingState", "action", "observation"];
+  requireValue(value && Object.keys(value).length === keys.length && keys.every(key =>
+    typeof value[key] === "string" && value[key].trim() && value[key].length <= 240 && !/[\x00-\x1f\x7f]/u.test(value[key])),
+  "a journey needs a short starting state, normal user action and required observation");
+  return Object.fromEntries(keys.map(key => [key, value[key]]));
+}
+
 function criteriaOf(entries) {
   requireValue(Array.isArray(entries) && entries.length <= 32, "provide at most 32 required observations");
   const ids = new Set();
-  return entries.map(({ id, expected, counterexample }) => {
+  return entries.map(({ id, expected, counterexample, journey }) => {
     requireValue(typeof id === "string" && token.test(id) && !ids.has(id) && smallScalar(expected), "criteria require unique stable IDs and bounded JSON scalar expectations");
     ids.add(id);
-    return { id, expected, ...(counterexample === undefined ? {} : { counterexample: normalizeCounterexample(counterexample, expected) }) };
+    return { id, expected, ...(counterexample === undefined ? {} : { counterexample: normalizeCounterexample(counterexample, expected) }),
+      ...(journey === undefined ? {} : { journey: journeyOf(journey) }) };
   }).sort((a, b) => a.id < b.id ? -1 : 1);
 }
 
@@ -466,7 +475,8 @@ export async function runVerification({ repo = process.cwd(), task, step, attemp
       if (criterion.counterexample) check.counterexample = criterion.counterexample;
       contracts.push({ id: check.id, sha256: digest(criterion) });
     }
-  } else requireValue(scope === "worktree", "input-scoped checks require the exact prepared operation");
+  } else requireValue(scope === "worktree" || expected.every(item => item.journey),
+    "input-scoped checks require the exact prepared operation or an explicit delivery journey for every criterion");
   const intent = { task, step, attempt, ...(scope === "declared-inputs" ? { scope, contracts } : {}), ...(forOperationId ? { forOperationId } : {}), cwd, inputPaths: paths, commandDigest: digest([command, ...args]), criteria: expected, timeoutMs, outputLimit };
   const intentDigest = digest(intent);
   function existing() {
@@ -533,7 +543,7 @@ if (invokedDirectly) {
     const split = raw.indexOf("--");
     const { values } = parseArgs({ args: split < 0 ? raw : raw.slice(0, split), options: {
       repo: { type: "string" }, task: { type: "string" }, step: { type: "string" }, attempt: { type: "string" },
-      operation: { type: "string" }, scope: { type: "string" }, input: { type: "string", multiple: true }, criterion: { type: "string", multiple: true }, "timeout-ms": { type: "string" }, "max-output-bytes": { type: "string" },
+      operation: { type: "string" }, scope: { type: "string" }, input: { type: "string", multiple: true }, criterion: { type: "string", multiple: true }, journey: { type: "string", multiple: true }, "timeout-ms": { type: "string" }, "max-output-bytes": { type: "string" },
     } });
     const selector = { repo: values.repo ?? process.cwd(), task: values.task, step: values.step,
       attempt: values.attempt === undefined ? undefined : Number(values.attempt) };
@@ -548,6 +558,14 @@ if (invokedDirectly) {
           requireValue(idx > 0, "criterion syntax is id=JSON-scalar");
           return { id: arg.slice(0, idx), expected: JSON.parse(arg.slice(idx + 1)) };
         });
+        for (const arg of values.journey ?? []) {
+          const idx = arg.indexOf("=");
+          const criterion = idx > 0 && criteria.find(item => item.id === arg.slice(0, idx));
+          requireValue(criterion && !criterion.journey, "each journey must match one criterion using id=JSON-object");
+          const { counterexample, ...journey } = JSON.parse(arg.slice(idx + 1));
+          criterion.journey = journey;
+          if (counterexample !== undefined) criterion.counterexample = counterexample;
+        }
         result = await runVerification({ ...selector, command: raw[split + 1], args: raw.slice(split + 2), criteria, inputPaths: values.input, scope: values.scope, forOperationId: values.operation,
           timeoutMs: Number(values["timeout-ms"] ?? 60000), outputLimit: Number(values["max-output-bytes"] ?? 1048576),
           signal: controller.signal });
