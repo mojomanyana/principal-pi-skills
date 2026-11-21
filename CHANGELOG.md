@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.24.0 — 2026-11-21
+
+- Track the Bookie checkpoint, independent review, and measured behavior as separate delivery requirements. A saved checkpoint can identify the original delivery after a fresh Pi launch.
+- Review credit checks the retained native final and its applicability to the current files.
+
 ## 4.23.0 — 2026-11-21
 
 - Principal carries measurable requirements through setup and delivery, records consulted design decisions, and checks for a missing handoff before finishing. A resumed task can reuse its existing evidence.
