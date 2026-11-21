@@ -1,5 +1,9 @@
 # Changelog
 
+## 4.24.1 — 2026-11-21
+
+- During recall or resume, delivery status can use the checkpoint already read in that request to recover its original delivery under current workspace and task checks.
+
 ## 4.24.0 — 2026-11-21
 
 - Track the Bookie checkpoint, independent review, and measured behavior as separate delivery requirements. A saved checkpoint can identify the original delivery after a fresh Pi launch.

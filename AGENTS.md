@@ -216,12 +216,12 @@ live here.
 
 ## Setup (pi)
 
-1. Install Principal with `pi install npm:principal-pi-skills@4.24.0` and restart Pi.
+1. Install Principal with `pi install npm:principal-pi-skills@4.24.1` and restart Pi.
    For the tested combination with native delegation, use the [Pi ecosystem quickstart](https://github.com/mojomanyana/pi-daddy#start-here).
    See [README Install](README.md#install-pi) for Pi's `defaultTools` settings for `grep`, `find` and `ls`.
 2. Legacy subagents are optional and usable only when native tools are genuinely absent:
-   `npx -p principal-pi-skills@4.24.0 principal-pi-agents install`, then
-   `npx -p principal-pi-skills@4.24.0 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.24.1 principal-pi-agents install`, then
+   `npx -p principal-pi-skills@4.24.1 principal-pi-agents check`.
 3. Each skill's `allowed-tools` caps the context a delegated child may receive: `context:summary`
    for `architect`, `decide` and `plan`; `context:files` for `build`, `debug`, `review`,
    `test-review` and `investigate`; none for `git-ops`. The reasons are in each frontmatter and the
