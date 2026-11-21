@@ -526,6 +526,8 @@ Routine edits can use Pi tools directly. No child runs automatically.
   and a different `expected` value. `evidence` reads an exact task, step and attempt. A missing
   or failed endpoint, failed checker, or inapplicable source stays open. An input-scoped check
   can survive unrelated edits when the exact declared files still match.
+- **Checkpoint.** Supply the exact Bookie note title. Principal records the observed save and read-back. A later exact read returns the arguments for historical delivery status.
+- **Review.** Link the native reviewer call using `sourceToolCallId`. Principal checks the retained final, verdict and candidate. Keep runtime observations in their own endpoint criteria.
 - **Judgment and design.** Cite supplied sources and the limitation. `design` records one
   consequential decision and the observed inline or independently settled consultation.
   An architect decision carries an invariant into Build and a case that could disprove it.

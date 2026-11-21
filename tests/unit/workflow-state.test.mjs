@@ -2550,3 +2550,19 @@ test("declared evidence keeps checker failure separate from a successful observa
     assert.deepEqual(readFileSync(file), bytesBefore);
   });
 });
+
+test("current independent review requires the matching retained native final and candidate", async t => {
+  const { reviewEvidence } = await import("../../scripts/delivery-state.mjs");
+  const { root, request } = fixture(t);
+  const review = { ...request, phase: "review" };
+  const op = prepareOperation(root, review);
+  const text = "Verdict: APPROVE\nScope: source review.\n";
+  const runtime = settled(op.operation_id, root, text);
+  writeFileSync(op.reportPath, text);
+  completeOperation(root, { ...review, disposition: "succeeded" }, runtime);
+  const inspect = (hash = runtime.runtime.final.sha256) => reviewEvidence(root, op.operation_id, "APPROVE", hash);
+  assert.equal(inspect().state, "supported");
+  assert.equal(inspect("0".repeat(64)).state, "unverified");
+  writeFileSync(join(root, "product.txt"), "new candidate");
+  assert.equal(inspect().state, "unverified");
+});
