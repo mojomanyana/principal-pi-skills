@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.23.0 — 2026-11-21
+
+- Principal carries measurable requirements through setup and delivery, records consulted design decisions, and checks for a missing handoff before finishing. A resumed task can reuse its existing evidence.
+- Compatible dashboards can show the observed delivery outcome and the next action. Routine edits and standalone use remain supported.
+
 ## 4.22.0 — 2026-11-21
 
 - Delivery checkpoints can link a design decision, a verification receipt and a Scout brief to the sources that produced them. Principal also guides an agent through saving a lightweight handoff with earlier Bookie versions.
