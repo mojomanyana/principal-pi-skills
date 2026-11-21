@@ -265,3 +265,22 @@ test("a Bookie read-back only satisfies its own delivery criterion", async t => 
   assert.deepEqual(Object.fromEntries((await h.call("status")).criteria.map(c => [c.id, c.state])), { product: "present", memory: "supported", review: "unobserved", race: "unobserved" });
   assert.equal((await h.call("evidence", { criterionId: "review", source: "APPROVE", limitation: "Source only" })).state, "refused");
 });
+
+test("recall resolves a read checkpoint without asking for its session again", async t => {
+  const { make } = fixture(t), prior = make();
+  prior.start("Create the product.");
+  const { checkpoint } = await prior.call("set", { outcome: "Create the product", criteria: [artifact] });
+  const next = make();
+  next.start("Recall the delivery.");
+  const path = "/projects/workspace/activities/note-" + "a".repeat(32) + ".md";
+  const observed = { toolName: "bookie_read", toolCallId: "r", input: { selector: "path", value: path },
+    content: [{ type: "text", text: JSON.stringify({ tool: "bookie_read", result: { ok: true, type: "Activity",
+      source: { path }, deliveryStatus: { action: "status", ...checkpoint } } }) }] };
+  next.fire("tool_result", observed);
+  assert.deepEqual((await next.call("status", { deliveryId: checkpoint.deliveryId })).checkpoint, checkpoint);
+  assert.deepEqual((await next.call("status")).checkpoint, checkpoint);
+  assert.equal(next.branch.length, 0);
+  next.start("Recall another task.");
+  next.fire("tool_result", { ...observed, isError: true });
+  assert.equal((await next.call("status")).state, "untracked");
+});
