@@ -24,7 +24,7 @@ function fixture(t) {
   const cwd = mkdtempSync(join(tmpdir(), "principal-delivery-")), sessionDir = join(cwd, "sessions");
   mkdirSync(sessionDir);
   t.after(() => rmSync(cwd, { recursive: true, force: true }));
-  function make({ sessionId = randomUUID(), selectedTask, peer } = {}) {
+  function make({ sessionId = randomUUID(), selectedTask, peer, modernDashboard = false } = {}) {
     const handlers = new Map(), messages = [], branch = [], sessionFile = join(sessionDir, `2026-11-21T00-00-00-000Z_${sessionId}.jsonl`);
     const header = { type: "session", id: sessionId, cwd };
     const flush = () => writeFileSync(sessionFile, [header, ...branch].map(item => JSON.stringify(item)).join("\n") + "\n");
@@ -40,6 +40,8 @@ function fixture(t) {
       getActiveTools() { return ["read", "write", "principal_delivery"]; },
       events: { emit(channel, request) {
         if (channel === "pi-daddy:delivery-task:v1" && peer) request.reply({ ...request, taskId: selectedTask, assertMayContinue: peer });
+        if (channel === "pi-daddy:dashboard-source:v1" && modernDashboard) request.reply({ version: 1, ok: true,
+          capabilities: { taskDelivery: 1 }, publish: () => true, close: () => {} });
       } },
     };
     const ctx = { cwd, sessionManager: { getSessionId: () => sessionId, getSessionFile: () => sessionFile, getSessionDir: () => sessionDir, getBranch: () => branch } };
@@ -119,6 +121,16 @@ test("lookup finds a later clear handoff instruction in a long line and respects
   assert.equal(userNamedArtifact(`${first} Keep summary.md missing.`, "summary.md"), false);
   assert.equal(userNamedArtifact(`${first} Save summary.md if I approve.`, "summary.md"), false);
   assert.equal(userNamedArtifact(`${first} Do not write summary.md. Save the other report.`, "summary.md"), false);
+});
+
+test("a known delivery-capable dashboard without task control permits bookkeeping and withholds automatic recovery", async t => {
+  const { make } = fixture(t), h = make({ modernDashboard: true });
+  h.start("Write the summary to summary.md.");
+  assert.equal((await h.call("set", { outcome: "Summarize the result", criteria: [summary] })).state, "open");
+  const boundary = await h.settle();
+  assert.equal(boundary.continue, undefined);
+  assert.match(boundary.entries.at(-1).content, /Confirm the active task's continuation state/u);
+  assert.equal(boundary.entries.at(-1).customType, HANDOFF_MESSAGE);
 });
 
 test("fresh recall is read-only and two current sessions cannot consume one earlier delivery", async t => {

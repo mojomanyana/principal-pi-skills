@@ -78,7 +78,7 @@ function observedConsultation(pi, run, item) {
 }
 
 export default function deliveryExtension(pi) {
-  let run, publisher, publisherOwner, sequence = 0, epoch = 0;
+  let run, publisher, publisherOwner, sequence = 0, epoch = 0, dashboardHasDelivery = false;
   const inserted = new WeakSet();
   const read = ctx => deliveryHistory(ctx.sessionManager.getBranch(), identity(ctx));
   const current = ctx => run?.deliveryId ? read(ctx).findLast(item => item.deliveryId === run.deliveryId) : undefined;
@@ -94,6 +94,7 @@ export default function deliveryExtension(pi) {
   });
   const checkpoint = row => ({ sourceSessionId: row.sessionId, deliveryId: row.deliveryId });
   const checkTask = row => row.deliveryId.split(":").at(-1);
+  const knownOwnerUnavailable = peer => dashboardHasDelivery && !peer.peer;
 
   function publish(ctx, row, status, handoff) {
     if (!pi.events) return;
@@ -114,6 +115,7 @@ export default function deliveryExtension(pi) {
         if (receipt?.version !== 1 || !receipt.ok || receipt.capabilities?.taskDelivery !== 1 || typeof receipt.publish !== "function") {
           try { receipt?.close?.(); } catch {} return;
         }
+        dashboardHasDelivery = true;
         publisher = receipt; publisherOwner = ownerKey; sequence = 0; update();
       } }); } catch { /* Work proceeds without a dashboard. */ }
   }
@@ -124,6 +126,7 @@ export default function deliveryExtension(pi) {
     try { publisher?.close(); } catch { /* Lifecycle cleanup is optional. */ }
     publisher = undefined;
     publisherOwner = undefined;
+    dashboardHasDelivery = false;
   }
   for (const event of ["session_start", "session_switch", "session_tree", "session_fork", "session_shutdown"]) pi.on(event, reset);
 
@@ -162,7 +165,7 @@ export default function deliveryExtension(pi) {
     if (!run.intervened && event.toolName === "principal_delivery" && ["status", "finish"].includes(event.input?.action)) return;
     if (!run.intervened && !run.handoffWriteSelected && event.toolName === "write" && toolPath(run.cwd, event.input?.path) === run.recovering) {
       const selectedRun = run, owner = identity(ctx), peer = taskOwner(pi, owner);
-      let allowed = !peer.uncertain && peer.peer === run.peer.peer && peer.taskId === run.peer.taskId;
+      let allowed = !peer.uncertain && !knownOwnerUnavailable(peer) && peer.peer === run.peer.peer && peer.taskId === run.peer.taskId;
       try { if (allowed) await peer.assertMayContinue?.(); } catch { allowed = false; }
       if (allowed && run === selectedRun && owns(ctx) && !run.intervened && !run.handoffWriteSelected) {
         const row = current(ctx);
@@ -357,7 +360,7 @@ export default function deliveryExtension(pi) {
       event.context && !run.recoveryInProgress && !run.intervened && run.scope === "ordinary") {
       run.recoveryInProgress = true;
       const peer = taskOwner(pi, identity(ctx));
-      let allowed = !peer.uncertain && !run.peer.uncertain && peer.peer === run.peer.peer && peer.taskId === row.taskId;
+      let allowed = !peer.uncertain && !run.peer.uncertain && !knownOwnerUnavailable(peer) && peer.peer === run.peer.peer && peer.taskId === row.taskId;
       try { if (allowed) await peer.assertMayContinue?.(); } catch { allowed = false; }
       if (run !== selectedRun || !owns(ctx)) return;
       if (allowed && !run.intervened && current(ctx)?.revision === row.revision && reconcileDelivery(row, run.cwd).pending[0]?.state === "missing" &&
@@ -367,6 +370,7 @@ export default function deliveryExtension(pi) {
         return { continue: true, entries: [...(event.entries ?? []), entry(marked), { type: "custom_message", customType: RECOVERY_MESSAGE, display: false,
           content: `Finish the original request's missing handoff at ${missing.path}. ${missing.requirement} Use existing evidence and current permission. Work only on this handoff. Report a blocker if you cannot finish it.` }] };
       }
+      if (knownOwnerUnavailable(peer)) status.nextAction = "Confirm the active task's continuation state before writing the remaining handoff.";
     }
     const close = closeTurn(ctx, row, status, event.context?.contextMessages);
     if (close) return { entries: [...(event.entries ?? []), ...close.entries] };
