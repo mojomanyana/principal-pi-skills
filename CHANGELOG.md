@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.24.2 — 2026-11-22
+
+- Principal links a matching verification receipt and an independent review to their delivery requirements as the work happens. Recall checks the retained results against the current files.
+- A handoff identifies which evidence was reopened. Conflicting receipts, changed inputs, and duplicate claims about the same file stay visible. The dashboard names the next observation to look for and preserves genuine blockers.
+
 ## 4.24.1 — 2026-11-21
 
 - During recall or resume, delivery status can use the checkpoint already read in that request to recover its original delivery under current workspace and task checks.
