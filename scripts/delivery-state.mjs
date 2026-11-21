@@ -53,9 +53,14 @@ export function userNamedArtifact(prompt, path) {
 export function checkDeliveryTargets(criteria) {
   const artifacts = new Set(criteria.filter(c => c.kind === "artifact").map(c => c.path));
   const titles = new Set();
+  const filePaths = new Set();
   for (const item of criteria) {
     need(item.kind !== "handoff" || !artifacts.has(item.path),
       `File ${item.path} already supplies the product artifact. Use one file criterion for that output, a separate report path, or a checkpoint with its exact Bookie title.`);
+    if (item.kind === "artifact" || item.kind === "handoff") {
+      need(!filePaths.has(item.path), `Use one file requirement for ${item.path}. Use an endpoint for behavior.`);
+      filePaths.add(item.path);
+    }
     if (item.kind === "checkpoint") {
       need(!titles.has(item.title), "checkpoint titles must be distinct");
       titles.add(item.title);
@@ -107,9 +112,9 @@ export function artifactState(root, path, nonempty = false) {
   } catch { return "unavailable"; }
 }
 
-export function criterionEvidence(root, criterion, selector) {
+export function criterionEvidence(root, criterion, selector, inspected) {
   try {
-    const result = inspectVerification(root, selector);
+    const result = inspected ?? inspectVerification(root, selector);
     const { receipt, request, reference, applicability, nextAction } = result;
     const inspection = { task: result.task, step: result.step, attempt: result.attempt };
     if (!receipt) return { state: "unavailable", inspection, nextAction: nextAction.message };
@@ -139,10 +144,57 @@ export function criterionEvidence(root, criterion, selector) {
   } catch { return { state: "unavailable", inspection: selector, nextAction: "The exact verification receipt is unavailable. Report the evidence gap and continue independent authorized work." }; }
 }
 
-export function reviewEvidence(cwd, operationId, verdict, finalHash) {
+export function observedVerification(cwd, row, result, toolFailed) {
+  if (result?.version !== 1 || result.state !== "recorded" || !result.reference?.sha256 ||
+      ![row.taskId, row.deliveryId.split(":").at(-1)].includes(result.task) || !result.task) return [];
+  const selector = { task: result.task, step: result.step, attempt: result.attempt };
+  try {
+    const inspected = inspectVerification(cwd, selector);
+    if (inspected.reference?.sha256 !== result.reference.sha256 || toolFailed && inspected.receipt?.outcome === "passed") return [];
+    const inputScoped = inspected.applicability.scope === "declared-inputs";
+    const paths = inputScoped ? inspected.request.inputs.map(input => relative(cwd, input.path).split(sep).join("/")).sort() : [];
+    return row.criteria.filter(item => item.kind === "endpoint" && (item.scope === "declared-inputs") === inputScoped &&
+      (!inputScoped || digest(item.dependencies) === digest(paths)) && inspected.request.criteria.some(def =>
+      def.id === item.id && Object.is(def.expected, item.expected) && digest(def.journey ?? null) === digest(item.journey ?? null) &&
+      digest(def.counterexample ?? null) === digest(item.counterexample ?? null)))
+      .map(item => [item.id, criterionEvidence(cwd, item, selector, inspected)]);
+  } catch { return []; }
+}
+
+// A later attempt of the same check supersedes its predecessor. Different checks
+// need explicit selection; reading an old result again must not turn a failure green.
+export function mergeObservedEvidence(previous, next) {
+  if (!previous || previous.state === "ambiguous") return previous ?? next;
+  const old = previous.inspection ?? previous.reviewAttempt;
+  const current = next.inspection ?? next.reviewAttempt;
+  if (old && current && old.task === current.task && old.step === current.step) {
+    // Keep the original hash for a previously observed immutable attempt.
+    return old.attempt >= current.attempt ? previous : next;
+  }
+  if (previous.operationId && previous.operationId === next.operationId) return next;
+  const candidates = [previous, next].map(evidence => evidence.inspection ??
+    { operationId: evidence.operationId, finalHash: evidence.finalHash });
+  return { state: "ambiguous", candidates, nextAction: "Select the applicable existing receipt for this requirement using the evidence action." };
+}
+
+export function matchingReview(cwd, row, consultation) {
+  if (consultation?.kind !== "native" || consultation.phase !== "review" ||
+      consultation.deliveryId !== row.deliveryId || !consultation.operationId || !consultation.finalHash) return [];
+  try {
+    const op = inspectRecoveryOperation(cwd, { operationId: consultation.operationId });
+    if (op.phase !== "review" || op.owner?.sessionId !== row.sessionId || op.owner.cwd !== cwd) return [];
+    const matches = row.criteria.filter(c => c.kind === "review" && op.criteria?.some(def =>
+      def.id === c.id && def.requirement === c.requirement));
+    if (matches.length !== 1) return [];
+    const evidence = reviewEvidence(cwd, consultation.operationId, consultation.verdict, consultation.finalHash, op);
+    return [[matches[0].id, { ...evidence, reviewAttempt: { task: op.task, step: op.step, attempt: op.attempt } }]];
+  } catch { return []; }
+}
+
+export function reviewEvidence(cwd, operationId, verdict, finalHash, inspected) {
   const selector = { operationId, verdict, finalHash };
   try {
-    const record = inspectRecoveryOperation(cwd, { operationId });
+    const record = inspected ?? inspectRecoveryOperation(cwd, { operationId });
     if (record.phase !== "review" || !record.resultRetained || !record.report || record.report.sha256 !== finalHash || !record.candidateMatches ||
         !record.inputsMatch || record.issues?.length || record.disposition !== "succeeded" ||
         !["APPROVE", "APPROVE-WITH-NITS"].includes(verdict)) return { ...selector, state: "unverified" };
@@ -150,13 +202,25 @@ export function reviewEvidence(cwd, operationId, verdict, finalHash) {
   } catch { return { ...selector, state: "unavailable" }; }
 }
 
+// Exact placeholders from earlier finish calls. Free-form blocker text is preserved.
+export function deliveryBlocker(value) {
+  const trimmed = value?.trim();
+  return !trimmed || /^(?:none|no blockers?)[.!]?$/iu.test(trimmed) ? undefined : trimmed;
+}
+
 export function reconcileDelivery(record, cwd, { refreshEvidence = true } = {}) {
+  const blocker = deliveryBlocker(record.blocker);
   const criteria = record.criteria.map(criterion => {
     const evidence = record.evidence?.[criterion.id];
     const direct = (record.direct ?? []).filter(item => item.path === criterion.path);
     if (criterion.kind === "artifact" || criterion.kind === "handoff") {
+      if (record.criteria.some(other => other.id !== criterion.id && other.path === criterion.path &&
+          ["artifact", "handoff"].includes(other.kind))) {
+        return { ...criterion, state: "ambiguous", evidence: { nextAction: `Separate the requirements sharing ${criterion.path} and link the corresponding results.` } };
+      }
       return { ...criterion, state: artifactState(cwd, criterion.path, criterion.kind === "handoff"), ...(direct.length ? { direct } : {}) };
     }
+    if (evidence?.state === "ambiguous") return { ...criterion, state: "ambiguous", evidence };
     if (criterion.kind === "checkpoint") return { ...criterion, state: evidence?.readBack && evidence.title === criterion.title ? "supported" : "unobserved", ...(evidence ? { evidence } : {}) };
     if (criterion.kind === "review") {
       const checked = refreshEvidence && evidence ? reviewEvidence(cwd, evidence.operationId, evidence.verdict, evidence.finalHash) : evidence;
@@ -170,21 +234,29 @@ export function reconcileDelivery(record, cwd, { refreshEvidence = true } = {}) 
     }
     return { ...criterion, state: "judgment", ...(evidence ? { evidence } : {}) };
   });
+  for (const item of criteria) {
+    if (item.kind === "artifact" || item.kind === "handoff") item.basis = "file check";
+    else if (item.kind === "checkpoint") item.basis = item.state === "supported" ? "recorded checkpoint read-back" : "no linked checkpoint";
+    else if (item.state === "supported") item.basis = refreshEvidence
+      ? (item.kind === "review" ? "reopened review report" : "reopened verification receipt") : "previously linked result";
+    else if (item.state === "judgment") item.basis = "recorded judgment";
+    else item.basis = item.evidence ? "linked result does not establish requirement" : "no linked result";
+  }
   const confirmed = criteria.filter(row => ["present", "supported"].includes(row.state));
   const pending = criteria.filter(row => row.required && !confirmed.includes(row));
   const design = record.decisions?.find(item => ["pending", "unavailable", "refused"].includes(item.status) ||
     item.role === "review" && !["APPROVE", "APPROVE-WITH-NITS"].includes(item.verdict));
   const check = pending.find(item => item.state === "failed") ?? pending.find(item => item.kind === "endpoint") ?? pending[0];
   const outstanding = design?.uncertainty ?? check?.requirement;
-  const nextAction = record.blocker ? `Pause dependent work. ${record.blocker}` : design ? design.status === "pending" ?
+  const nextAction = blocker ? `Pause dependent work. ${blocker}` : design ? design.status === "pending" ?
     (design.role === "review" ? "Ask the selected reviewer to assess the normal action and its adverse case." :
       "Ask the selected Architect about the named decision before dependent work.") : design.verdict === "CHANGES-REQUESTED" ?
       "Read the retained reviewer finding, repair only the affected work and obtain the required review." :
       "Report the consultation gap and respect any required review gate." :
     check?.evidence?.nextAction ?? (check?.kind === "checkpoint" ? `Save and read back the Bookie checkpoint named ${check.title}.` : check?.kind === "review" ? "Link the independent review receipt from this delivery and verify its current applicability." : ["missing", "empty"].includes(check?.state) ? `Deliver ${check.path} within the current request.` : check?.state === "unavailable" ?
       `Reconcile current access to ${check.path}.` : check?.state === "judgment" ? "Give a source-backed judgment and state its limitations." :
-      check ? "Observe the required endpoint through the normal user action." : "Send the user the supported outcome and its evidence.");
-  return { criteria, confirmed, pending, design, outstanding, nextAction, verified: !record.blocker && !design && !pending.length };
+      check ? `Look for an existing result for ${check.id}. Expected observation: ${check.journey?.observation ?? check.requirement}` : "Send the user the supported outcome and its evidence.");
+  return { criteria, confirmed, pending, design, outstanding, nextAction, verified: !blocker && !design && !pending.length };
 }
 
 // Pi has one writer per active session in normal use. An exclusive mark also prevents two
@@ -251,7 +323,7 @@ export function readPreviousDelivery(sessionDir, owner, sourceSessionId, deliver
 
 export function fallbackHandoff(record, status) {
   const lines = [status.verified ? "Principal delivery checked." : "Principal delivery has gaps.", record.outcome];
-  if (status.confirmed.length) lines.push("Confirmed", ...status.confirmed.map(row => row.path ? `- ${row.path} (${row.kind === "handoff" ? "nonempty file" : "file present"})` : `- ${row.requirement}`));
+  if (status.confirmed.length) lines.push("Confirmed", ...status.confirmed.map(row => row.path ? `- ${row.path} (${row.kind === "handoff" ? "nonempty file" : "file present"})` : `- ${row.requirement} (${row.basis})`));
   if (status.pending.length) lines.push("Open", ...status.pending.map(row => `- ${row.requirement} (${row.state})`));
   if (status.design) lines.push(`Design decision open. ${status.design.uncertainty}`);
   if (!status.verified) lines.push(`Next action. ${status.nextAction}`);
