@@ -4,7 +4,7 @@ Route: `decide` choice, `architect` structure, `plan` sequence, `build` implemen
 `review` verdict, `test-review` tests, `debug` unknown failure, `investigate` facts, `git-ops` Git inline. Routine Q&A stays direct.
 Consult selected Architect inline when discussion, Plan or Build exposes a consequential design decision.
 Report the actual outcome, reason, supporting evidence, limits and next action. Recurring successes, friction or improvement requests: `references/learning.md`.
-For decision-changing public facts see `references/research.md` (optional Scout).
+Public facts: `references/research.md`. Save and recall source receipts: `references/checkpoints.md`.
 
 Existing approval stands; summaries grant no authority. Could a plausible wrong outcome pass?
 Recall-only requests report saved delivery without new work. Refused lookup leaves history unknown.

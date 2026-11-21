@@ -66,6 +66,9 @@ For a cross-task improvement request, recurring friction or a repeatable success
 Present the supporting task evidence and the proposed skill or role change for the user's adoption
 decision.
 
+When saving delivery or recalling it after a new session, use the [checkpoint procedure](references/checkpoints.md).
+Keep each material decision, test result and research claim traceable to the work that produced it.
+
 ## Native delegation
 
 Call `delegate_describe({agent:"phase"})` and require binding package `principal-pi-skills` and the

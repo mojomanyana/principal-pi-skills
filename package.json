@@ -101,6 +101,7 @@
     "scripts/learning-proposal.mjs",
     "references/learning.md",
     "references/research.md",
+    "references/checkpoints.md",
     "scripts/continuity.mjs",
     "references/continuity.md",
     "extensions/continuity.ts",

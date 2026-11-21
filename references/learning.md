@@ -7,7 +7,7 @@ Use this when a prior lesson could change today's work, a task reveals a recurri
 1. Name the observable outcome and the task. Identify the owning check, review, or artifact that shows what failed or improved. Keep a symptom with an unconfirmed cause as a lead.
 2. Use `bookie_search` with distinctive words and a small limit. Omit `vault` to use the selected project. Read relevant hits with `bookie_read` by exact path or UID. Check the product, task, source revision and completeness. `bookie_task_history` can identify the selected task and linked notes when available. Follow owner evidence within current access.
 3. Compare independent tasks. A retry and its later recap count once. Reused folders may contain different products. Look for version changes, counterexamples and other causes. If Bookie is unavailable, use authorized evidence already supplied and state the coverage.
-4. Save a useful observation with `bookie_remember` when routine project memory is authorized. Include the task identifier, component/version when material, symptom, intervention, observed outcome, evidence locator and limits. Use a summary of at most 2,000 characters. Read the returned `readBack` and compare it. If a save is uncertain, find the note before retrying. Keep protected material at its authorized source.
+4. Save a useful observation when routine project memory is authorized. Summarize the task, material version, symptom, intervention, observed outcome and limits in a few sentences. Attach the supporting receipts and read back the exact note as described in [the checkpoint procedure](checkpoints.md).
 
 ## Choose and prepare the change
 

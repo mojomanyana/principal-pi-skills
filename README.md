@@ -26,6 +26,10 @@ Architect, Decide, Plan and Build can ask the coordinator to check a public fact
 change their work. Principal can reuse an authorized source or use optional Scout, then return
 the cited finding and its gaps within the role's permitted context. See [research routing](references/research.md).
 
+When you ask Principal to save progress, it can attach the original decision, check and research
+references in Bookie. After `/new`, it can follow them within the current project's permissions
+and report which results it could verify from the saved records. See [checkpoint recall](references/checkpoints.md).
+
 The set is built for **one principal engineer steering at a high level while skills and
 subagents do the work.** Two properties follow, and every design choice below serves them:
 **delegable trust** — an output carries the evidence needed to verify it without redoing
