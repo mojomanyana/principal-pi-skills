@@ -4,7 +4,7 @@ import { execFileSync } from "node:child_process";
 import { mkdtempSync, mkdirSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { fileURLToPath } from "node:url";
 import { DELIVERY_ENTRY, HANDOFF_MESSAGE, RECOVERY_MESSAGE, criterionEvidence, normalizeDeliveryCriteria, scopeRequest, userNamedArtifact } from "../../scripts/delivery-state.mjs";
 import { runVerification } from "../../scripts/check-runner.mjs";
@@ -191,6 +191,24 @@ test("an observed design recommends an invariant and revisits a changed assumpti
   assert.equal((await h.call("design", { decision: followUp })).decisions[0].invariant, followUp.invariant);
   assert.equal((await h.call("design", { decision: { ...changed, changedBy: "Again" } })).state, "refused");
   assert.ok(h.branch.some(item => item.customType === DELIVERY_ENTRY && item.data.decisions.some(row => row.invariant === answer.invariant)));
+});
+
+test("independent Architect credit requires the exact selected role and the settled child in a mixed result", async t => {
+  const { make } = fixture(t), h = make();
+  h.start("Obtain independent Architect advice for shared editing.");
+  await h.call("set", { outcome: "Keep newer work", criteria: [artifact] });
+  const description = { agent: "architect", definitionId: "a".repeat(64), selectedResources: { selectedSkill: { path: architect,
+    sha256: createHash("sha256").update(readFileSync(architect)).digest("hex") } } };
+  h.fire("tool_result", { toolName: "delegate_describe", toolCallId: "describe", input: { agent: "architect" }, details: description, isError: false });
+  const identity = { executionId: "architecture-execution" };
+  const child = { ok: true, work: "succeeded", final: { state: "complete", text: "Bind Save to the original revision." },
+    definitionBinding: { definitionId: description.definitionId }, cleanup: { state: "settled", identity, receipt: { identity, reapedAll: true } } };
+  h.fire("tool_result", { toolName: "delegate_all", toolCallId: "batch", input: { children: [{ agent: "architect" }, { agent: "scout" }] },
+    details: { outcomes: [child, { ok: false, work: "failed" }] }, isError: true });
+  const decision = { id: "ownership", uncertainty: "Which revision does Save submit?", startingState: "Two editors opened v1", constraint: "Preserve each editor's work",
+    independent: true, status: "consulted", invariant: "Save submits the starting revision", counterexample: "Save twice from v1" };
+  assert.equal((await h.call("design", { decision: { ...decision, toolCallId: "batch/2" } })).state, "refused");
+  assert.equal((await h.call("design", { decision: { ...decision, toolCallId: "batch/1" } })).decisions[0].status, "consulted");
 });
 
 test("endpoint evidence preserves other inputs, rejects process exits and checks the normal action plus adverse case", async t => {
