@@ -74,9 +74,9 @@ docs-only change preserves unrelated evidence unless a changed contract, relevan
 require fresh suite execution. Do not reject matching evidence merely because you did not run it
 yourself. A green suite still does not prove omitted obligations.
 
-Ask what plausible wrong output would pass the check. For example, a response can succeed with an
-empty export. Read the actual output against an independent expectation. For a factual claim, check
-the cited passage or supplied data. Use an existing decisive observation when it covers the claim.
+Choose a plausible adverse case from the user's starting state. Follow the ordinary action through
+to the claimed endpoint. A successful response can deliver an empty export. For a factual claim,
+inspect the cited passage and any contrary supplied data. Reuse a decisive existing observation.
 
 State a specific unresolved doubt before replaying a check, then run the smallest check that settles
 it. Suspected baseline failures need matching evidence or an authorized comparison under the same

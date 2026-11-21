@@ -40,7 +40,7 @@ const count = messages => messages.filter(bootstrap).length;
 
 test("package registers the extension, bootstrap and delegated identity manifest", () => {
   const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-  assert.deepEqual(pkg.pi.extensions, ["./extensions/bootstrap.ts", "./extensions/resume.ts", "./extensions/workflow.ts", "./extensions/codemode.ts", "./extensions/handoff.ts", "./extensions/continuity.ts"]);
+  assert.deepEqual(pkg.pi.extensions, ["./extensions/bootstrap.ts", "./extensions/resume.ts", "./extensions/workflow.ts", "./extensions/codemode.ts", "./extensions/handoff.ts", "./extensions/continuity.ts", "./extensions/delivery.ts"]);
   for (const file of ["extensions/bootstrap.ts", "bootstrap/BOOTSTRAP.md", "principal-agents.json"]) assert.ok(pkg.files.includes(file));
 });
 
@@ -167,8 +167,8 @@ test("the request-local coordinator can consult selected Architect inline withou
     const { messages } = await h.fire("context", { messages: [request] });
     assert.equal(messages.at(-1), request);
     const policy = messages.find(bootstrap).content[0].text;
-    assert.match(policy, /Consult selected Architect inline when discussion, Plan or Build/);
-    assert.match(policy, /actual outcome, reason, supporting evidence, limits and next action/);
+    assert.match(policy, /consult selected Architect on the deciding uncertainty, starting state and constraint/);
+    assert.match(policy, /reconciles evidence and gaps before the visible handoff/);
     assert.ok(policy.includes(join(dirname(dirname(h.skill)), "references", "learning.md")));
     assert.ok(policy.includes(join(dirname(dirname(h.skill)), "references", "research.md")));
     const names = selected.map(command => command.name.slice("skill:".length)).sort().join(", ");

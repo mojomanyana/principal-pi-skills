@@ -40,8 +40,8 @@ const append = text => source => `${source}\n${text}\n`;
 test("the committed tool text is within its ceilings and the README states them", t => {
   const { status, output, budgets } = budgetCheck(t);
   assert.equal(status, 0, output);
-  assert.match(output, /✓ 3 tool text\(s\) within budget: /);
-  assert.deepEqual(Object.keys(budgets), ["principal_workflow", "principal_handoff", "principal_codemode"]);
+  assert.match(output, /✓ 4 tool text\(s\) within budget: /);
+  assert.deepEqual(Object.keys(budgets), ["principal_workflow", "principal_handoff", "principal_codemode", "principal_delivery"]);
   for (const { actual, ceiling } of Object.values(budgets)) assert.ok(actual > 0 && actual <= ceiling);
 });
 

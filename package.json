@@ -1,6 +1,6 @@
 {
   "name": "principal-pi-skills",
-  "version": "4.22.0",
+  "version": "4.23.0",
   "description": "Nine principal engineering skills, a portable artifact-review skill, and optional Pi coordination tools.",
   "license": "MIT",
   "author": "Nemanja Alavanja",
@@ -53,7 +53,8 @@
       "./extensions/workflow.ts",
       "./extensions/codemode.ts",
       "./extensions/handoff.ts",
-      "./extensions/continuity.ts"
+      "./extensions/continuity.ts",
+      "./extensions/delivery.ts"
     ]
   },
   "bin": {
@@ -105,6 +106,8 @@
     "scripts/continuity.mjs",
     "references/continuity.md",
     "extensions/continuity.ts",
+    "extensions/delivery.ts",
+    "scripts/delivery-state.mjs",
     "scripts/review-observation.mjs",
     "scripts/frozen-snapshot.mjs"
   ],

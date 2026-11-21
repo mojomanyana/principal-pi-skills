@@ -19,8 +19,9 @@ assessment or HOLD, never an invented reason to prefer either simple or complex 
 
 Principal's coordinator consults this skill inline. Start with the decision that affects the
 user. Look up the existing decision if available and follow it while its assumptions hold.
-For a planning or Build discovery, return the assumption, the evidence that changed it, and the
-smallest change to the affected plan or check. A design discussion can end with advice alone.
+For a consequential decision, give Build an invariant and a user action that could break it.
+If an assumption changes, cite the new observation and revise the affected decision once.
+An inline assessment and a separately consulted Architect have different provenance.
 When a documented platform constraint would decide the design, ask the coordinator for the source through Scout if available.
 
 ## Process

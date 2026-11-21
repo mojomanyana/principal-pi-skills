@@ -73,6 +73,10 @@ material finding to a requirement/criterion and exact evidence, explain the
 consequence, and give the smallest useful change and acceptance condition.
 Consider interaction failures between individually sound pieces.
 
+For a recommendation from supplied material, trace the decisive claim to the source rows or
+passages. Check the strongest contrary evidence and whether the conclusion applies beyond the
+sample. Record factual support separately from the reviewer's judgment of usefulness.
+
 Accept valid alternatives. A different style, naming choice or equally sound
 implementation is not a defect. Label nonblocking suggestions separately; remove
 recommendations that cannot explain a benefit. Reused exact evidence is valid when
