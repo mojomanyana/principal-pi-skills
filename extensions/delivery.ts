@@ -136,7 +136,7 @@ export default function deliveryExtension(pi) {
     if (typeof prompt !== "string") { run = undefined; return; }
     const owner = identity(ctx), peer = taskOwner(pi, owner), scope = scopeRequest(prompt);
     const previous = scope === "resume" && !peer.uncertain ? read(ctx).findLast(item => item.taskId === peer.taskId) : undefined;
-    run = { ...owner, peer, scope, prompt, requestId: randomUUID(), deliveryId: previous?.deliveryId, consultations: new Map(), described: new Map(), observedReads: new Map() };
+    run = { ...owner, peer, scope, prompt, requestId: randomUUID(), deliveryId: previous?.deliveryId, consultations: new Map(), described: new Map(), observedReads: new Map(), recalledCheckpoints: new Map() };
     if (previous) publish(ctx, previous, reconcileDelivery(previous, owner.cwd, { refreshEvidence: false }));
     else if (scope === "ordinary") publish(ctx);
   });
@@ -179,6 +179,22 @@ export default function deliveryExtension(pi) {
   });
 
   pi.on("tool_result", (event, ctx) => {
+    if (owns(ctx) && ["resume", "recall"].includes(run.scope) && !event.isError &&
+        event.toolName === "bookie_read" && event.input?.selector === "path") {
+      // Use only a successful exact read from this request. The prior-session
+      // reader still enforces the active branch, workspace and task checks.
+      const body = event.content?.length === 1 && event.content[0]?.text;
+      if (typeof body === "string" && body.length <= 256 * 1024) {
+        try {
+          const packet = JSON.parse(body), note = packet.result, hint = note?.deliveryStatus;
+          if (packet.tool === "bookie_read" && note?.ok === true && note.type === "Activity" &&
+              note.source?.path === event.input.value && hint?.action === "status" &&
+              /^[a-z0-9-]{8,80}$/iu.test(hint.sourceSessionId) && /^principal-delivery:[a-f0-9]{32}$/u.test(hint.deliveryId)) {
+            run.recalledCheckpoints.set(hint.deliveryId + "/" + hint.sourceSessionId, hint);
+          }
+        } catch { /* A partial or withheld read supplies no checkpoint. */ }
+      }
+    }
     if (!owns(ctx) || !["ordinary", "resume"].includes(run.scope)) return;
     const { input, toolName, toolCallId, details: output, isError } = event;
     if (typeof toolCallId !== "string" || !input) return;
@@ -254,9 +270,13 @@ export default function deliveryExtension(pi) {
         if (request.action === "status") {
           const peer = taskOwner(pi, owner);
           if (row && row.taskId !== peer.taskId) row = undefined;
-          if (request.sourceSessionId) {
+          const hints = [...(run?.recalledCheckpoints.values() ?? [])].filter(hint =>
+            !request.deliveryId || hint.deliveryId === request.deliveryId);
+          const historical = request.sourceSessionId ? request :
+            (hints.length === 1 && (!row || request.deliveryId && row.deliveryId !== request.deliveryId) ? hints[0] : undefined);
+          if (historical) {
             need(owns(ctx) && ["resume", "recall"].includes(run.scope), "the user must request recall or resume before selecting a prior session");
-            row = readPreviousDelivery(ctx.sessionManager.getSessionDir?.(), owner, request.sourceSessionId, request.deliveryId).record;
+            row = readPreviousDelivery(ctx.sessionManager.getSessionDir?.(), owner, historical.sourceSessionId, historical.deliveryId).record;
             need(!row.taskId || !peer.uncertain && row.taskId === peer.taskId, "the selected prior delivery belongs to a different task");
           } else if (request.deliveryId) row = read(ctx).findLast(item => item.deliveryId === request.deliveryId && item.taskId === peer.taskId);
           else row ||= read(ctx).findLast(item => item.taskId === peer.taskId);
