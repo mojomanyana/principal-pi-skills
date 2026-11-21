@@ -406,7 +406,7 @@ history is unknown. Readiness and candidate diagnostics are explained in
 1. **Skills + prompts** — install the exact npm release:
 
    ```sh
-   pi install npm:principal-pi-skills@4.23.0
+   pi install npm:principal-pi-skills@4.24.0
    ```
 
    Restart Pi after package changes. The `pi` manifest registers ten skills, four
@@ -444,8 +444,8 @@ history is unknown. Readiness and candidate diagnostics are explained in
    Use the same npm package version as the installed skills:
 
    ```sh
-   npx -p principal-pi-skills@4.23.0 principal-pi-agents install
-   npx -p principal-pi-skills@4.23.0 principal-pi-agents check
+   npx -p principal-pi-skills@4.24.0 principal-pi-agents install
+   npx -p principal-pi-skills@4.24.0 principal-pi-agents check
    ```
 
    Alternatively run `scripts/install-agents.mjs` with Node from the actual selected npm
@@ -526,6 +526,8 @@ Routine edits can use Pi tools directly. No child runs automatically.
   and a different `expected` value. `evidence` reads an exact task, step and attempt. A missing
   or failed endpoint, failed checker, or inapplicable source stays open. An input-scoped check
   can survive unrelated edits when the exact declared files still match.
+- **Checkpoint.** Supply the exact Bookie note title. Principal records the observed save and read-back. A later exact read returns the arguments for historical delivery status.
+- **Review.** Link the native reviewer call using `sourceToolCallId`. Principal checks the retained final, verdict and candidate. Keep runtime observations in their own endpoint criteria.
 - **Judgment and design.** Cite supplied sources and the limitation. `design` records one
   consequential decision and the observed inline or independently settled consultation.
   An architect decision carries an invariant into Build and a case that could disprove it.

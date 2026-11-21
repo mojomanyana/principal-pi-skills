@@ -246,3 +246,22 @@ if (mode !== 'process') writeFileSync(path, JSON.stringify({ version: 1, observe
   writeFileSync(join(cwd, "journey.mjs"), "// changed check");
   assert.equal(criterionEvidence(cwd, criterion, selector).state, "stale");
 });
+
+test("a Bookie read-back only satisfies its own delivery criterion", async t => {
+  const { cwd, make } = fixture(t), h = make();
+  h.start("Deliver the app, measure its output, get review and save progress.");
+  const note = { id: "memory", kind: "checkpoint", title: "Progress", requirement: "Save and read progress" };
+  const review = { id: "review", kind: "review", requirement: "Independent source review approves" };
+  const race = { id: "race", kind: "endpoint", requirement: "One borrower wins", startingState: "Available", action: "Borrow twice", observation: "Count winners", expected: 1 };
+  assert.equal((await h.call("set", { outcome: "Borrow safely", criteria: [artifact, { ...note, path: artifact.path }, review, race] })).state, "refused");
+  assert.equal((await h.call("set", { outcome: "Borrow safely", criteria: [artifact, { ...summary, path: artifact.path }, review, race] })).state, "refused");
+  const { checkpoint } = await h.call("set", { outcome: "Borrow safely", criteria: [artifact, note, review, race] });
+  writeFileSync(join(cwd, artifact.path), "delivered");
+  const saved = { status: "saved", readBackVerified: true, readBack: { selector: "path", value: "/projects/workspace/activities/note-" + "a".repeat(32) + ".md" } };
+  const observe = fields => h.fire("tool_result", { toolName: "bookie_remember", toolCallId: "remember", input: { title: "Progress" }, details: { ...saved, ...fields } });
+  observe({ deliveryCheckpoint: { ...checkpoint, sourceSessionId: "wrong-session" } });
+  assert.equal((await h.call("status")).criteria.find(c => c.id === "memory").state, "unobserved");
+  observe({ deliveryCheckpoint: checkpoint });
+  assert.deepEqual(Object.fromEntries((await h.call("status")).criteria.map(c => [c.id, c.state])), { product: "present", memory: "supported", review: "unobserved", race: "unobserved" });
+  assert.equal((await h.call("evidence", { criterionId: "review", source: "APPROVE", limitation: "Source only" })).state, "refused");
+});

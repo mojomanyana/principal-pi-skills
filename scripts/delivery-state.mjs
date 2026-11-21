@@ -2,7 +2,7 @@
 import { createHash } from "node:crypto";
 import { closeSync, constants, fstatSync, fsyncSync, lstatSync, mkdirSync, openSync, readdirSync, readSync, realpathSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
-import { completionCriteria } from "./workflow-state.mjs";
+import { completionCriteria, inspectRecoveryOperation } from "./workflow-state.mjs";
 import { inspectVerification } from "./check-runner.mjs";
 
 export const DELIVERY_ENTRY = "principal-delivery-v1";
@@ -50,27 +50,46 @@ export function userNamedArtifact(prompt, path) {
     .some(verb => tokens(clause.slice(verb.index + verb[0].length)).includes(path)));
 }
 
+export function checkDeliveryTargets(criteria) {
+  const artifacts = new Set(criteria.filter(c => c.kind === "artifact").map(c => c.path));
+  const titles = new Set();
+  for (const item of criteria) {
+    need(item.kind !== "handoff" || !artifacts.has(item.path),
+      `File ${item.path} already supplies the product artifact. Use one file criterion for that output, a separate report path, or a checkpoint with its exact Bookie title.`);
+    if (item.kind === "checkpoint") {
+      need(!titles.has(item.title), "checkpoint titles must be distinct");
+      titles.add(item.title);
+    }
+  }
+  return criteria;
+}
+
 export function normalizeDeliveryCriteria(criteria) {
   need(Array.isArray(criteria) && criteria.length > 0 && criteria.length <= 16, "record one to sixteen criteria");
   const normalized = completionCriteria(criteria);
-  return normalized.map(base => {
+  return checkDeliveryTargets(normalized.map(base => {
     const draft = criteria.find(item => item.id === base.id);
     need(text(base.requirement, 512), "write each criterion as a short, plain requirement");
     const { kind, path, startingState, action, observation } = draft;
-    need(["artifact", "handoff", "endpoint", "judgment"].includes(kind), "choose an artifact, handoff, endpoint or judgment criterion");
+    need(["artifact", "handoff", "endpoint", "judgment", "review", "checkpoint"].includes(kind), "choose a supported criterion kind");
+    need(kind === "checkpoint" || draft.title === undefined, "title belongs to a Bookie checkpoint");
     if (kind === "endpoint") {
       need(path === undefined && Object.hasOwn(base, "expected") && [startingState, action, observation].every(item => text(item, 240)),
-        "an endpoint needs a starting state, normal user action, required observation and expected value");
+        `Endpoint ${base.id} needs startingState, action, observation and expected, without a file path. Correct and resubmit all criteria.`);
       return { ...base, kind, journey: { startingState, action, observation } };
     }
     need([startingState, action, observation, base.expected, base.counterexample].every(item => item === undefined),
       "observations and counterexamples belong to endpoint criteria");
-    if (kind === "judgment") {
+    if (kind === "checkpoint") {
+      need(path === undefined && text(draft.title, 120), "a checkpoint needs its exact Bookie title and no file path");
+      return { ...base, kind, title: draft.title.trim() };
+    }
+    if (kind === "judgment" || kind === "review") {
       need(path === undefined, "record sources separately for a judgment");
       return { ...base, kind };
     }
     return { ...base, kind, path: deliveryPath(path) };
-  });
+  }));
 }
 
 export function artifactState(root, path, nonempty = false) {
@@ -120,12 +139,28 @@ export function criterionEvidence(root, criterion, selector) {
   } catch { return { state: "unavailable", inspection: selector, nextAction: "The exact verification receipt is unavailable. Report the evidence gap and continue independent authorized work." }; }
 }
 
+export function reviewEvidence(cwd, operationId, verdict, finalHash) {
+  const selector = { operationId, verdict, finalHash };
+  try {
+    const record = inspectRecoveryOperation(cwd, { operationId });
+    if (record.phase !== "review" || !record.resultRetained || !record.report || record.report.sha256 !== finalHash || !record.candidateMatches ||
+        !record.inputsMatch || record.issues?.length || record.disposition !== "succeeded" ||
+        !["APPROVE", "APPROVE-WITH-NITS"].includes(verdict)) return { ...selector, state: "unverified" };
+    return { ...selector, state: "supported", reference: record.report };
+  } catch { return { ...selector, state: "unavailable" }; }
+}
+
 export function reconcileDelivery(record, cwd, { refreshEvidence = true } = {}) {
   const criteria = record.criteria.map(criterion => {
     const evidence = record.evidence?.[criterion.id];
     const direct = (record.direct ?? []).filter(item => item.path === criterion.path);
     if (criterion.kind === "artifact" || criterion.kind === "handoff") {
       return { ...criterion, state: artifactState(cwd, criterion.path, criterion.kind === "handoff"), ...(direct.length ? { direct } : {}) };
+    }
+    if (criterion.kind === "checkpoint") return { ...criterion, state: evidence?.readBack && evidence.title === criterion.title ? "supported" : "unobserved", ...(evidence ? { evidence } : {}) };
+    if (criterion.kind === "review") {
+      const checked = refreshEvidence && evidence ? reviewEvidence(cwd, evidence.operationId, evidence.verdict, evidence.finalHash) : evidence;
+      return { ...criterion, state: checked?.state ?? "unobserved", ...(checked ? { evidence: checked } : {}) };
     }
     if (criterion.kind === "endpoint") {
       if (!evidence) return { ...criterion, state: "unobserved" };
@@ -146,7 +181,7 @@ export function reconcileDelivery(record, cwd, { refreshEvidence = true } = {}) 
       "Ask the selected Architect about the named decision before dependent work.") : design.verdict === "CHANGES-REQUESTED" ?
       "Read the retained reviewer finding, repair only the affected work and obtain the required review." :
       "Report the consultation gap and respect any required review gate." :
-    check?.evidence?.nextAction ?? (["missing", "empty"].includes(check?.state) ? `Deliver ${check.path} within the current request.` : check?.state === "unavailable" ?
+    check?.evidence?.nextAction ?? (check?.kind === "checkpoint" ? `Save and read back the Bookie checkpoint named ${check.title}.` : check?.kind === "review" ? "Link the independent review receipt from this delivery and verify its current applicability." : ["missing", "empty"].includes(check?.state) ? `Deliver ${check.path} within the current request.` : check?.state === "unavailable" ?
       `Reconcile current access to ${check.path}.` : check?.state === "judgment" ? "Give a source-backed judgment and state its limitations." :
       check ? "Observe the required endpoint through the normal user action." : "Send the user the supported outcome and its evidence.");
   return { criteria, confirmed, pending, design, outstanding, nextAction, verified: !record.blocker && !design && !pending.length };

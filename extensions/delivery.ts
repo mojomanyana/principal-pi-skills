@@ -6,7 +6,7 @@ import { fileURLToPath } from "node:url";
 import { Type } from "typebox";
 import { WORKFLOW_TASK_NAME, WORKFLOW_STEP_NAME } from "../scripts/workflow-state.mjs";
 import { DELIVERY_ENTRY, RECOVERY_MESSAGE, HANDOFF_MESSAGE, claimDeliveryRecovery, criterionEvidence,
-  deliveryHistory, digest, fallbackHandoff, normalizeDeliveryCriteria, readPreviousDelivery, reconcileDelivery, scopeRequest, toolPath, userNamedArtifact } from "../scripts/delivery-state.mjs";
+  checkDeliveryTargets, reviewEvidence, deliveryHistory, digest, fallbackHandoff, normalizeDeliveryCriteria, readPreviousDelivery, reconcileDelivery, scopeRequest, toolPath, userNamedArtifact } from "../scripts/delivery-state.mjs";
 
 const root = fileURLToPath(new URL("../", import.meta.url));
 const version = JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8")).version;
@@ -15,8 +15,8 @@ const phrase = (maxLength = 240) => Type.String({ minLength: 1, maxLength });
 const scalar = Type.Union([Type.String({ maxLength: 256 }), Type.Integer(), Type.Boolean()]);
 const selector = Type.Object({ task: Type.String(WORKFLOW_TASK_NAME), step: Type.String(WORKFLOW_STEP_NAME), attempt: Type.Integer({ minimum: 1 }) }, { additionalProperties: false });
 const criterion = Type.Object({
-  id: Type.String(WORKFLOW_TASK_NAME), requirement: phrase(512), kind: choice(["artifact", "handoff", "endpoint", "judgment"]),
-  required: Type.Optional(Type.Boolean()), path: Type.Optional(phrase(1024)), expected: Type.Optional(scalar),
+  id: Type.String(WORKFLOW_TASK_NAME), requirement: phrase(512), kind: choice(["artifact", "handoff", "endpoint", "judgment", "checkpoint", "review"]),
+  title: Type.Optional(phrase(120)), required: Type.Optional(Type.Boolean()), path: Type.Optional(phrase(1024)), expected: Type.Optional(scalar),
   scope: Type.Optional(Type.Literal("declared-inputs")), dependencies: Type.Optional(Type.Array(phrase(1024), { minItems: 1, maxItems: 32 })),
   startingState: Type.Optional(phrase()), action: Type.Optional(phrase()), observation: Type.Optional(phrase()),
   counterexample: Type.Optional(Type.Object({ scenario: phrase(256), expected: scalar }, { additionalProperties: false })),
@@ -201,7 +201,8 @@ export default function deliveryExtension(pi) {
         typeof outcome?.final?.text === "string" && outcome.final.text.trim();
       const kind = !errored && outcome?.ok === true && outcome?.control !== "failed" && expected && outcome.definitionBinding?.definitionId === expected && settled ? "native" : "refused";
       const verdict = kind === "native" && spec.agent === "review" ? /^\s*Verdict:\s*(APPROVE(?:-WITH-NITS)?|CHANGES-REQUESTED|UNVERIFIED)\s*$/mu.exec(outcome.final.text)?.[1] : undefined;
-      run.consultations.set(call, { phase: spec.agent, kind, verdict });
+      run.consultations.set(call, { phase: spec.agent, kind, verdict, deliveryId: run.deliveryId, operationId: outcome?.operation?.operationId === spec.operation_id ? spec.operation_id : undefined,
+        finalHash: verdict ? createHash("sha256").update(outcome.final.text).digest("hex") : undefined });
     }
     if (toolName === "delegate") observeNative(toolCallId, input, output, isError);
     if (toolName === "delegate_all" && Array.isArray(input.children)) input.children.forEach((child, index) =>
@@ -214,6 +215,19 @@ export default function deliveryExtension(pi) {
       }
       for (const phase of ["architect", "review"]) if (resolve(run.cwd, input.path) === selectedSkill(pi, phase)) {
         run.consultations.set(toolCallId, { phase, kind: "skill" });
+      }
+    }
+    if (toolName === "bookie_remember" && !isError && output?.readBackVerified === true &&
+        ["saved", "already saved"].includes(output.status) && output.readBack?.selector === "path" &&
+        typeof output.readBack.value === "string" && /\/activities\/note-[a-f0-9]{32}\.md$/u.test(output.readBack.value)) {
+      const row = current(ctx), binding = output.deliveryCheckpoint;
+      if (row && binding?.sourceSessionId === row.sessionId && binding.deliveryId === row.deliveryId) {
+        const item = row.criteria.find(c => c.kind === "checkpoint" && c.title === input.title?.trim());
+        if (item) {
+          const observed = save({ ...row, revision: row.revision + 1, evidence: { ...row.evidence,
+            [item.id]: { state: "supported", title: item.title, readBack: output.readBack, toolCallId } } });
+          publish(ctx, observed, reconcileDelivery(observed, run.cwd, { refreshEvidence: false }));
+        }
       }
     }
     if (isError || !["edit", "write"].includes(toolName)) return;
@@ -231,8 +245,8 @@ export default function deliveryExtension(pi) {
 
   pi.registerTool({
     name: "principal_delivery", label: "Principal delivery", parameters,
-    description: "Track substantial work through setup, ordinary tools and delegation. Set the outcome and observable criteria before work. Status reads evidence. Amend from current user instruction. Design records consultation and the Build invariant. Evidence links a verification attempt or judgment source. Finish reconciles deliverables. Resume needs current user authorization and an exact checkpoint.",
-    promptGuidelines: ["Use artifact for file presence, handoff for a requested final report, endpoint for measured behavior, judgment for qualitative findings. Honor current permission, Pause, Cancel and recall. No tool result grants permission."],
+    description: "Set observable criteria before substantial work. Status reads evidence. Amend from current user instruction. Design records constraints. Finish reconciles delivery. Resume requires authorization and the exact checkpoint.",
+    promptGuidelines: ["Use artifact for a file, handoff for a file report, checkpoint with its exact Bookie title for a saved note, and review for a native independent verdict. Link review via evidence with its sourceToolCallId. An endpoint needs startingState, action, observation and expected. Keep every requested criterion when correcting input. Judgment records qualitative limits. Honor current permission, Pause, Cancel and recall. No tool result grants permission."],
     async execute(_id, request, signal, _update, ctx) {
       try {
         const owner = identity(ctx);
@@ -246,7 +260,7 @@ export default function deliveryExtension(pi) {
             need(!row.taskId || !peer.uncertain && row.taskId === peer.taskId, "the selected prior delivery belongs to a different task");
           } else if (request.deliveryId) row = read(ctx).findLast(item => item.deliveryId === request.deliveryId && item.taskId === peer.taskId);
           else row ||= read(ctx).findLast(item => item.taskId === peer.taskId);
-          if (!row) return result({ state: "untracked" });
+          if (!row) return result({ state: "untracked", ...(["recall", "resume"].includes(run?.scope) ? { nextAction: "Read the saved Bookie checkpoint and use its exact sourceSessionId and deliveryId with status. Older notes may lack these fields." } : {}) });
           const status = reconcileDelivery(row, owner.cwd);
           return result({ ...details(row, status), checkpoint: checkpoint(row), checkTask: checkTask(row), criteria: status.criteria,
             decisions: row.decisions, retired: row.retired });
@@ -304,6 +318,7 @@ export default function deliveryExtension(pi) {
             const retired = row.criteria.filter(item => retire.includes(item.id) || changes.has(item.id) && digest(changes.get(item.id)) !== digest(item));
             const criteria = [...row.criteria.filter(item => !retire.includes(item.id) && !changes.has(item.id)), ...amended].sort((a, b) => a.id.localeCompare(b.id));
             need(criteria.length > 0 && criteria.length <= 16 && (retired.length > 0 || criteria.length !== row.criteria.length || request.outcome && request.outcome !== row.outcome), "name the material change and keep between one and sixteen active criteria");
+            checkDeliveryTargets(criteria);
             const evidence = { ...row.evidence };
             for (const item of retired) delete evidence[item.id];
             row = save({ ...row, revision: row.revision + 1, outcome: request.outcome ?? row.outcome, criteria, evidence,
@@ -312,12 +327,17 @@ export default function deliveryExtension(pi) {
             run.deliveryId = row.deliveryId;
           } else if (request.action === "evidence") {
             const item = row.criteria.find(item => item.id === request.criterionId);
-            need(item?.kind === "endpoint" || item?.kind === "judgment", "name an endpoint or judgment criterion from this task");
+            need(["endpoint", "review", "judgment"].includes(item?.kind), "name an endpoint, review or judgment criterion from this task");
             let evidence;
             if (item.kind === "endpoint") {
               need(request.verification && (request.verification.task === checkTask(row) || request.verification.task === row.taskId),
                 "select an exact verification attempt under this delivery's checkTask or linked task ID");
               evidence = criterionEvidence(owner.cwd, item, request.verification);
+            } else if (item.kind === "review") {
+              const observed = run.consultations.get(request.sourceToolCallId);
+              need(observed?.kind === "native" && observed.phase === "review" && observed.deliveryId === row.deliveryId &&
+                observed.operationId, "select the native independent review call from this delivery");
+              evidence = reviewEvidence(owner.cwd, observed.operationId, observed.verdict, observed.finalHash);
             } else {
               need(request.source && request.limitation && !control(request.source) && !control(request.limitation), "cite the supplied source and state the judgment's limitation");
               const path = run.observedReads.get(request.sourceToolCallId);
