@@ -238,12 +238,14 @@ export default function deliveryExtension(pi) {
         const owner = identity(ctx);
         let row = owns(ctx) && current(ctx);
         if (request.action === "status") {
+          const peer = taskOwner(pi, owner);
+          if (row && row.taskId !== peer.taskId) row = undefined;
           if (request.sourceSessionId) {
             need(owns(ctx) && ["resume", "recall"].includes(run.scope), "the user must request recall or resume before selecting a prior session");
             row = readPreviousDelivery(ctx.sessionManager.getSessionDir?.(), owner, request.sourceSessionId, request.deliveryId).record;
-            need(!row.taskId || row.taskId === run.peer.taskId, "the selected prior delivery belongs to a different task");
-          } else if (request.deliveryId) row = read(ctx).findLast(item => item.deliveryId === request.deliveryId && (!run || item.taskId === run.peer.taskId));
-          else row ||= read(ctx).findLast(item => !run || item.taskId === run.peer.taskId);
+            need(!row.taskId || !peer.uncertain && row.taskId === peer.taskId, "the selected prior delivery belongs to a different task");
+          } else if (request.deliveryId) row = read(ctx).findLast(item => item.deliveryId === request.deliveryId && item.taskId === peer.taskId);
+          else row ||= read(ctx).findLast(item => item.taskId === peer.taskId);
           if (!row) return result({ state: "untracked" });
           const status = reconcileDelivery(row, owner.cwd);
           return result({ ...details(row, status), checkpoint: checkpoint(row), checkTask: checkTask(row), criteria: status.criteria,
@@ -251,9 +253,15 @@ export default function deliveryExtension(pi) {
         }
         need(owns(ctx) && ["ordinary", "resume"].includes(run.scope) && !signal?.aborted, "this request does not have an active, writable delivery context");
         const selectedRun = run, peer = taskOwner(pi, owner);
-        need(!peer.uncertain && !run.peer.uncertain && peer.peer === run.peer.peer && peer.taskId === run.peer.taskId, "active task ownership changed");
+        const matchesSelection = () => peer.taskId === run.peer.taskId;
+        // Bookie can enroll the current turn after our before_agent_start observer. Only a first
+        // delivery may bind that newly selected task. Once bound, later amendments never rebind it.
+        const enrolling = () => request.action === "set" && !run.deliveryId && !run.peer.taskId && peer.taskId !== undefined;
+        need(!peer.uncertain && !run.peer.uncertain && peer.peer === run.peer.peer && (matchesSelection() || enrolling()), "active task ownership changed");
         await peer.assertMayContinue?.();
         need(run === selectedRun && owns(ctx) && !signal?.aborted, "request or permission context changed");
+        need(matchesSelection() || enrolling(), "active task ownership changed");
+        if (enrolling()) run.peer = peer;
         row = current(ctx); // A sibling caller may have saved while the peer checked ownership.
         if (request.action === "resume") {
           need(run.scope === "resume" && request.sourceSessionId && request.sourceSessionId !== owner.sessionId,
