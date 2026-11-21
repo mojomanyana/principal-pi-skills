@@ -36,6 +36,9 @@ An explicitly requested Review, a release gate or consequential changes to data,
 behavior need an independent judgment. The selected feature/bugfix/refactor workflow includes that review.
 Retrieve only a missing fact the next
 action needs: Bookie's selected-project checkpoint may help; without it use supplied/local context.
+When saving progress, attach the existing source receipts in Bookie and read back the saved entry.
+On recall, follow the relevant receipt before attributing a claim to its source. The coordinator's
+checkpoint reference gives the save and read procedure.
 Summaries do not create authority. Ask only for a missing material decision, with a recommendation
 and its consequence in product terms; never make the operator interpret internal receipts.
 

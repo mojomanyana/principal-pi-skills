@@ -92,6 +92,7 @@ test("continuation, recall and current-gate fixtures receive the actual scope po
     assert.equal(inserted.length, 1, scenario.name);
     const policy = inserted[0].content[0].text.replace(/\s+/g, " ");
     assert.match(policy, /Recall-only requests report saved delivery/);
+    assert.ok(policy.includes(join(dirname(dirname(h.skill)), "references", "checkpoints.md")));
     assert.match(policy, /Continuation reconciles historical blockers with the latest authorized scope and amendments/);
     assert.match(policy, /Missing evidence blocks only dependent actions; continue independent authorized work within current permission, native settlement and explicit user gates/);
     assert.match(policy, /settled Build's complete final can describe partial delivery/);

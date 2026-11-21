@@ -66,6 +66,9 @@ For a cross-task improvement request, recurring friction or a repeatable success
 Present the supporting task evidence and the proposed skill or role change for the user's adoption
 decision.
 
+When saving delivery or recalling it after a new session, use the [checkpoint procedure](references/checkpoints.md).
+Keep each material decision, test result and research claim traceable to the work that produced it.
+
 ## Native delegation
 
 Call `delegate_describe({agent:"phase"})` and require binding package `principal-pi-skills` and the
@@ -213,12 +216,12 @@ live here.
 
 ## Setup (pi)
 
-1. Install Principal with `pi install npm:principal-pi-skills@4.21.0` and restart Pi.
+1. Install Principal with `pi install npm:principal-pi-skills@4.22.0` and restart Pi.
    For the tested combination with native delegation, use the [Pi ecosystem quickstart](https://github.com/mojomanyana/pi-daddy#start-here).
    See [README Install](README.md#install-pi) for Pi's `defaultTools` settings for `grep`, `find` and `ls`.
 2. Legacy subagents are optional and usable only when native tools are genuinely absent:
-   `npx -p principal-pi-skills@4.21.0 principal-pi-agents install`, then
-   `npx -p principal-pi-skills@4.21.0 principal-pi-agents check`.
+   `npx -p principal-pi-skills@4.22.0 principal-pi-agents install`, then
+   `npx -p principal-pi-skills@4.22.0 principal-pi-agents check`.
 3. Each skill's `allowed-tools` caps the context a delegated child may receive: `context:summary`
    for `architect`, `decide` and `plan`; `context:files` for `build`, `debug`, `review`,
    `test-review` and `investigate`; none for `git-ops`. The reasons are in each frontmatter and the

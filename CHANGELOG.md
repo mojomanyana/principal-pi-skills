@@ -1,5 +1,10 @@
 # Changelog
 
+## 4.22.0 — 2026-11-21
+
+- Delivery checkpoints can link a design decision, a verification receipt and a Scout brief to the sources that produced them. Principal also guides an agent through saving a lightweight handoff with earlier Bookie versions.
+- A fresh session can follow the saved sources under current permissions, retrieve later pages of a partial brief and report conflicting or inaccessible evidence. Recall-only requests reuse recorded work.
+
 ## 4.21.0 — 2026-11-20
 
 - Principal can use selected task records to propose an improvement to a skill, a new skill, or a separately scoped subagent. The proposal carries its evidence, limitations, outcome check and exact revision for the user's adoption decision.

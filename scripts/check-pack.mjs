@@ -53,6 +53,7 @@ const REQUIRED = [
   "scripts/learning-proposal.mjs",
   "references/learning.md",
   "references/research.md",
+  "references/checkpoints.md",
   "scripts/continuity.mjs",
   "scripts/review-observation.mjs",
   "scripts/frozen-snapshot.mjs",
