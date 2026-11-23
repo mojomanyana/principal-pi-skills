@@ -1,8 +1,21 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import verifyBeforeSettle from "../../extensions/verify-before-settle.ts";
+import { mkdtempSync, readFileSync, rmSync, writeFileSync } from "node:fs";
+import { tmpdir } from "node:os";
+import { join, resolve } from "node:path";
+import { pathToFileURL } from "node:url";
 
-function createHarness() {
+const root = resolve(import.meta.dirname, "../..");
+
+async function loadExtension() {
+  const dir = mkdtempSync(join(tmpdir(), "principal-verify-"));
+  const mjs = join(dir, "verify-before-settle.mjs");
+  writeFileSync(mjs, readFileSync(resolve(root, "extensions/verify-before-settle.ts"), "utf8"));
+  const mod = await import(pathToFileURL(mjs).href);
+  return { fn: mod.default, cleanup: () => rmSync(dir, { recursive: true, force: true }) };
+}
+
+function createHarness(verifyBeforeSettle) {
   const handlers = new Map();
   const pi = {
     on(event, fn) {
@@ -25,39 +38,54 @@ function createHarness() {
 }
 
 test("nudges once when files are edited without subsequent passing verification", async () => {
-  const { fire, runTool } = createHarness();
-  await fire("before_agent_start", {});
-  await runTool("c1", "edit", { path: "src/limiter.mjs" }, false);
+  const { fn, cleanup } = await loadExtension();
+  try {
+    const { fire, runTool } = createHarness(fn);
+    await fire("before_agent_start", {});
+    await runTool("c1", "edit", { path: "src/limiter.mjs" }, false);
 
-  const first = await fire("agent_before_settle", { entries: [] });
-  assert.equal(first?.continue, true);
-  assert.equal(first.entries.length, 1);
-  assert.match(first.entries[0].content, /src\/limiter\.mjs/);
+    const first = await fire("agent_before_settle", { entries: [] });
+    assert.equal(first?.continue, true);
+    assert.equal(first.entries.length, 1);
+    assert.match(first.entries[0].content, /src\/limiter\.mjs/);
 
-  const second = await fire("agent_before_settle", { entries: [] });
-  assert.equal(second, undefined);
+    const second = await fire("agent_before_settle", { entries: [] });
+    assert.equal(second, undefined);
+  } finally {
+    cleanup();
+  }
 });
 
 test("does not treat ls/cat/echo mentioning 'test' as passing verification", async () => {
-  const { fire, runTool } = createHarness();
-  await fire("before_agent_start", {});
-  await runTool("c1", "edit", { path: "src/limiter.mjs" }, false);
-  await new Promise((r) => setTimeout(r, 5));
-  await runTool("c2", "bash", { command: "ls test/" }, false);
-  await runTool("c3", "bash", { command: "cat test/limiter.test.mjs" }, false);
-  await runTool("c4", "bash", { command: "echo check passed" }, false);
+  const { fn, cleanup } = await loadExtension();
+  try {
+    const { fire, runTool } = createHarness(fn);
+    await fire("before_agent_start", {});
+    await runTool("c1", "edit", { path: "src/limiter.mjs" }, false);
+    await new Promise((r) => setTimeout(r, 5));
+    await runTool("c2", "bash", { command: "ls test/" }, false);
+    await runTool("c3", "bash", { command: "cat test/limiter.test.mjs" }, false);
+    await runTool("c4", "bash", { command: "echo check passed" }, false);
 
-  const res = await fire("agent_before_settle", { entries: [] });
-  assert.equal(res?.continue, true);
+    const res = await fire("agent_before_settle", { entries: [] });
+    assert.equal(res?.continue, true);
+  } finally {
+    cleanup();
+  }
 });
 
 test("does not nudge when an actual test runner passes after the last edit", async () => {
-  const { fire, runTool } = createHarness();
-  await fire("before_agent_start", {});
-  await runTool("c1", "write", { path: "src/app.mjs" }, false);
-  await new Promise((r) => setTimeout(r, 5));
-  await runTool("c2", "bash", { command: "npm test" }, false);
+  const { fn, cleanup } = await loadExtension();
+  try {
+    const { fire, runTool } = createHarness(fn);
+    await fire("before_agent_start", {});
+    await runTool("c1", "write", { path: "src/app.mjs" }, false);
+    await new Promise((r) => setTimeout(r, 5));
+    await runTool("c2", "bash", { command: "npm test" }, false);
 
-  const res = await fire("agent_before_settle", { entries: [] });
-  assert.equal(res, undefined);
+    const res = await fire("agent_before_settle", { entries: [] });
+    assert.equal(res, undefined);
+  } finally {
+    cleanup();
+  }
 });
