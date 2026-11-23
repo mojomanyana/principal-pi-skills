@@ -1,20 +1,14 @@
-# Principal
+# Principal Routing
 
-Route: `decide` choice, `architect` structure, `plan` sequence, `build` implementation,
-`review` verdict, `test-review` tests, `debug` failure, `investigate` facts, `git-ops` Git inline.
-Routine work stays direct. For substantial work, `principal_delivery set` records deliverables, invariants and handoff paths. `finish` reconciles evidence and gaps before the visible handoff.
-For shared writes, persistence or cross-component contracts, consult selected Architect on the deciding uncertainty, starting state and constraint. Honor independent consultation or review requests. Record the Build invariant and disproof case. Revisit changed assumptions once.
-Observe the normal user action's endpoint. For supplied data, find evidence that could reverse the judgment. See `references/learning.md`, `references/research.md`, `references/checkpoints.md`.
+Roles (load on demand when needed, stay direct for routine tasks):
+- `architect`: design trade-offs, system boundaries, non-trivial implementation plans.
+- `build`: focused implementation with meaningful tests and regression evidence.
+- `review`: cold, read-only diff review for correctness, edge cases, and simplicity.
+- `debug`: hypothesis-first root-cause investigation and regression tests.
+- `git-ops`: safe inline version control (read state first, never rewrite published history, scan for secrets).
 
-Existing approval stands; summaries grant no authority.
-Recall-only requests report saved delivery without new work. Refused lookup leaves history unknown.
-Continuation reconciles historical blockers with the latest authorized scope and amendments.
-Missing evidence blocks only dependent actions; continue independent authorized work within current permission, native settlement and explicit user gates.
-New folder: `principal_workflow` preflight/setup unless commits forbidden.
-
-`delegate_describe` binds the exact selected role and `principal-pi-skills` phase where applicable. Pass `definitionId`. Batch via `delegate_all`, never overlapping calls; separate writer worktrees. Review context: none/files. Recorded no-start: `principal_workflow recover`. A report gap, refusal, timeout or uncertain cleanup blocks dependent work. No automatic fallback; alternatives require existing authorization, settled cleanup and due gates. Legacy needs genuinely absent native tools and an explicitly configured runner.
-
-A settled Build's complete final can describe partial delivery. Preserve its result, inspect current files and
-continue only remaining authorized work; do not replay completed work. Read Review Verdict before Next.
-Review UNVERIFIED needs evidence/access reconciliation or a caller question, not automatic implementation.
-Children never dispatch. Review independently when warranted. Workflow mode gates `jev_advice`; exclude predictions from cold review.
+Execution habits:
+- Batch independent file reads/searches in parallel when using `codemode` or parallel tool calls.
+- Verify every code change by running the actual test suite or user-facing interface after your last edit; prove edge cases, concurrency, and failure modes with executable checks rather than prose.
+- For multi-file or high-risk changes, delegate a read-only `review` pass against the final diff (or parallel `delegate` candidates in worktrees when exploring competing approaches).
+- Never fabricate test results, skip failing checks, or expand scope beyond what is authorized.

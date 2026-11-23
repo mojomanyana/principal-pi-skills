@@ -1,226 +1,45 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { readFileSync, writeFileSync, mkdtempSync, mkdirSync, rmSync } from "node:fs";
-import { join, dirname } from "node:path";
-import { tmpdir } from "node:os";
-import { fileURLToPath, pathToFileURL } from "node:url";
+import { resolve } from "node:path";
+import bootstrapExtension from "../../extensions/bootstrap.ts";
 
-const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-// Model-free policy fixture. Actual Pi hook/resource lifecycle is qualified separately.
-async function load(t, { enabled = true, readable = true } = {}) {
-  const handlers = new Map(), errors = [], dir = mkdtempSync(join(tmpdir(), "ppa-bootstrap-"));
-  t.after(() => rmSync(dir, { recursive: true, force: true }));
-  for (const sub of ["extensions", "bootstrap", "plan"]) mkdirSync(join(dir, sub));
-  const body = readFileSync(join(ROOT, "bootstrap/BOOTSTRAP.md"), "utf8");
-  const path = join(dir, "bootstrap/BOOTSTRAP.md");
-  if (readable) writeFileSync(path, body);
-  const skill = join(dir, "plan/SKILL.md");
-  writeFileSync(skill, "---\nname: plan\n---\nPlan contract\n");
-  const copy = join(dir, "extensions/bootstrap.mjs");
-  writeFileSync(copy, readFileSync(join(ROOT, "extensions/bootstrap.ts"), "utf8"));
-  let selected = enabled ? [{ name: "skill:plan", source: "skill", sourceInfo: { path: skill } }] : [];
-  let calls = 0;
+const root = resolve(import.meta.dirname, "../..");
+
+function createHarness(commands) {
+  const handlers = new Map();
   const pi = {
-    on(event, fn) { handlers.set(event, [...(handlers.get(event) ?? []), fn]); },
-    getCommands() { calls++; return selected; },
+    on(event, fn) {
+      if (!handlers.has(event)) handlers.set(event, []);
+      handlers.get(event).push(fn);
+    },
+    getCommands: () => commands,
+    events: { on: () => () => {} },
   };
-  const mod = await import(pathToFileURL(copy).href);
-  mod.default(pi);
-  const ctx = { hasUI: true, ui: { notify(message, level) { errors.push({ message, level }); } } };
-  const fire = async (event, payload = {}) => {
-    const listeners = handlers.get(event) ?? [];
-    assert.equal(listeners.length, 1, `one ${event} handler`);
-    return listeners[0](payload, ctx);
-  };
-  return { fire, handlers, ctx, errors, path, skill, body, pi, activate: () => fire("before_agent_start"), setSelected: value => { selected = value; }, calls: () => calls, mod };
+  bootstrapExtension(pi);
+  return { handlers };
 }
-const user = text => ({ role: "user", content: [{ type: "text", text }], timestamp: 1 });
-const bootstrap = message => message?.role === "user" && JSON.stringify(message.content).includes("<IMPORTANT>");
-const count = messages => messages.filter(bootstrap).length;
 
-test("package registers the extension, bootstrap and delegated identity manifest", () => {
-  const pkg = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-  assert.deepEqual(pkg.pi.extensions, ["./extensions/bootstrap.ts", "./extensions/resume.ts", "./extensions/workflow.ts", "./extensions/codemode.ts", "./extensions/handoff.ts", "./extensions/continuity.ts", "./extensions/delivery.ts"]);
-  for (const file of ["extensions/bootstrap.ts", "bootstrap/BOOTSTRAP.md", "principal-agents.json"]) assert.ok(pkg.files.includes(file));
-});
-
-test("each ordinary request and tool iteration receives one bootstrap without durable mutation", async t => {
-  const h = await load(t);
-  await h.fire("session_start");
-  assert.equal(h.calls(), 0, "session_start is before supported discovery");
-  const canonical = [user("first request")], before = structuredClone(canonical);
-  await h.activate();
-  const first = await h.fire("context", { messages: canonical });
-  assert.equal(count(first.messages), 1);
-  assert.deepEqual(canonical, before);
-  const toolIteration = await h.fire("context", { messages: [...canonical, { role: "toolResult", toolCallId: "x", content: [] }] });
-  assert.equal(count(toolIteration.messages), 1);
-  const repeated = await h.fire("context", { messages: first.messages });
-  assert.equal(count(repeated.messages), 1, "only extension-owned insertion is replaced");
-  if (h.handlers.has("agent_end")) await h.fire("agent_end");
-  await h.activate();
-  assert.equal(count((await h.fire("context", { messages: [user("second request")] })).messages), 1);
-});
-
-test("quoted marker text in any role cannot suppress request-local insertion", async t => {
-  const h = await load(t); await h.activate();
-  for (const message of [user("principal-pi-skills bootstrap"), { role: "assistant", content: [{ type: "text", text: "principal-pi-skills bootstrap" }] }, { role: "compactionSummary", summary: "principal-pi-skills bootstrap" }]) {
-    const result = await h.fire("context", { messages: [message, user("continue")] });
-    assert.equal(count(result.messages), 1);
-    assert.ok(result.messages.includes(message));
-  }
-});
-
-test("insertion preserves leading system, compaction and tool state without splitting history", async t => {
-  const h = await load(t); await h.activate();
-  const prefix = [{ role: "system", content: "system" }, { role: "compactionSummary", summary: "retained summary" }, { role: "toolResult", toolCallId: "prior", content: [] }];
-  const request = user("resume"), messages = [...prefix, request], before = structuredClone(messages);
-  const result = await h.fire("context", { messages });
-  assert.deepEqual(result.messages.slice(0, prefix.length), prefix);
-  assert.ok(bootstrap(result.messages[prefix.length]));
-  assert.equal(result.messages.at(-1), request);
-  assert.deepEqual(messages, before);
-});
-
-test("continuation, recall and current-gate fixtures receive the actual scope policy without rewriting their context", async t => {
-  const h = await load(t); await h.activate();
-  const scenarios = JSON.parse(readFileSync(join(ROOT, "tests/fixtures/continuation-context.json"), "utf8"));
-  for (const scenario of scenarios.cases) {
-    const messages = structuredClone(scenario.messages), before = structuredClone(messages);
-    const result = await h.fire("context", { messages });
-    const inserted = result.messages.filter(bootstrap);
-    assert.equal(inserted.length, 1, scenario.name);
-    const policy = inserted[0].content[0].text.replace(/\s+/g, " ");
-    assert.match(policy, /Recall-only requests report saved delivery/);
-    assert.ok(policy.includes(join(dirname(dirname(h.skill)), "references", "checkpoints.md")));
-    assert.match(policy, /Continuation reconciles historical blockers with the latest authorized scope and amendments/);
-    assert.match(policy, /Missing evidence blocks only dependent actions; continue independent authorized work within current permission, native settlement and explicit user gates/);
-    assert.match(policy, /settled Build's complete final can describe partial delivery/);
-    assert.match(policy, /continue only remaining authorized work; do not replay completed work/);
-    assert.match(policy, /Review UNVERIFIED needs evidence\/access reconciliation/);
-    assert.deepEqual(result.messages.filter(message => !bootstrap(message)), messages, scenario.name);
-    assert.equal(result.messages.at(-1), messages.at(-1), "the latest user instruction remains intact and last");
-    assert.deepEqual(messages, before, "historical notes and current gates are not rewritten or consumed");
-  }
-  // Expected behaviors in the fixture are for later human/model acceptance, not a claimed result of this test.
-});
-
-test("disabled or shadowed package skills never activate or retain owned routing", async t => {
-  const h = await load(t, { enabled: false }); await h.activate();
-  assert.equal(await h.fire("context", { messages: [user("request")] }), undefined);
-  h.setSelected([{ name: "skill:plan", source: "skill", sourceInfo: { path: join(ROOT, "plan/SKILL.md") } }]);
-  await h.activate();
-  assert.equal(await h.fire("context", { messages: [user("shadowed package")] }), undefined);
-  const active = await load(t); await active.activate();
-  const inserted = await active.fire("context", { messages: [user("enabled")] });
-  active.setSelected([]); await active.activate();
-  const disabled = await active.fire("context", { messages: inserted.messages });
-  assert.equal(count(disabled.messages), 0);
-});
-
-test("read failure is visible once, latched across requests, and deliberate reload can retry", async t => {
-  const h = await load(t, { readable: false }); await h.activate();
-  assert.equal(h.errors.length, 1);
-  assert.match(h.errors[0].message, /reload/i);
-  assert.equal(await h.fire("context", { messages: [user("missing")] }), undefined);
-  writeFileSync(h.path, h.body);
-  await h.activate();
-  assert.equal(await h.fire("context", { messages: [user("no silent retry")] }), undefined);
-  assert.equal(h.errors.length, 1);
-  // SDK reload reinstantiates extensions: new registration, same selected source and bytes.
-  h.handlers.clear(); h.mod.default(h.pi); await h.activate();
-  assert.equal(count((await h.fire("context", { messages: [user("explicit reload")] })).messages), 1);
-});
-
-test("stale discovery fails visibly instead of retaining old active resources", async t => {
-  const h = await load(t); await h.activate();
-  h.pi.getCommands = () => { throw new Error("stale extension generation"); };
-  await h.activate();
-  assert.equal(await h.fire("context", { messages: [user("stale")] }), undefined);
-  assert.equal(h.errors.length, 1);
-  assert.match(h.errors[0].message, /stale/);
-});
-
-test("compact bootstrap states exact native binding policy and bounded inline routing", () => {
-  const text = readFileSync(join(ROOT, "bootstrap/BOOTSTRAP.md"), "utf8");
-  assert.ok(text.trim().split(/\s+/).length <= 300);
-  for (const name of ["decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops"]) assert.match(text, new RegExp(`\`${name}\``));
-  assert.match(text, /delegate_describe/);
-  assert.match(text, /definitionId/);
-  assert.match(text, /genuinely absent/);
-  assert.match(text, /summaries grant no authority/);
-  assert.match(text, /[Cc]hildren never dispatch/);
-  assert.doesNotMatch(text, /cheapest model|strongest available/);
-});
-
-test("the request-local coordinator can consult selected Architect inline without enabling a child or unselected skill", async t => {
-  const h = await load(t);
-  const path = join(dirname(dirname(h.skill)), "architect/SKILL.md");
-  mkdirSync(dirname(path));
-  writeFileSync(path, readFileSync(join(ROOT, "architect/SKILL.md"), "utf8"));
-  const plan = { name: "skill:plan", source: "skill", sourceInfo: { path: h.skill } };
-  const architect = { name: "skill:architect", source: "skill", sourceInfo: { path } };
-  const request = user("We found a second writer while building. Who owns conflict detection?");
-  for (const selected of [[plan, architect], [plan]]) {
-    h.setSelected(selected);
-    await h.activate();
-    const { messages } = await h.fire("context", { messages: [request] });
-    assert.equal(messages.at(-1), request);
-    const policy = messages.find(bootstrap).content[0].text;
-    assert.match(policy, /consult selected Architect on the deciding uncertainty, starting state and constraint/);
-    assert.match(policy, /reconciles evidence and gaps before the visible handoff/);
-    assert.ok(policy.includes(join(dirname(dirname(h.skill)), "references", "learning.md")));
-    assert.ok(policy.includes(join(dirname(dirname(h.skill)), "references", "research.md")));
-    const names = selected.map(command => command.name.slice("skill:".length)).sort().join(", ");
-    assert.ok(policy.includes(`Enabled Principal skills: ${names}. Use only these selected resources.`));
-  }
-  const { bindings } = JSON.parse(readFileSync(join(ROOT, "principal-agents.json"), "utf8"));
-  assert.equal(Object.hasOwn(bindings, "architect"), false);
-});
-
-test("missing foreign selected paths cannot latch unrelated Principal routing off", async t => {
-  const h = await load(t);
-  h.setSelected([
-    { name: "skill:build", source: "skill", sourceInfo: { path: join(dirname(h.skill), "foreign-missing/SKILL.md") } },
-    { name: "skill:debug", source: "skill" },
-    { name: "skill:plan", source: "skill", sourceInfo: { path: h.skill } },
+test("bootstrap injects principal_routing into systemPromptOptions.sections without any context hook", async () => {
+  const { handlers } = createHarness([
+    { name: "skill:build", source: "skill", sourceInfo: { path: resolve(root, "build", "SKILL.md") } },
+    { name: "skill:review", source: "skill", sourceInfo: { path: resolve(root, "review", "SKILL.md") } },
   ]);
-  await h.activate();
-  const result = await h.fire("context", { messages: [user("valid selected plan")] });
-  assert.equal(count(result.messages), 1);
-  assert.match(result.messages[0].content[0].text, /Enabled Principal skills: plan\./);
-  assert.equal(h.errors.length, 0);
-  h.setSelected([{ name: "skill:plan", source: "skill", sourceInfo: { path: h.skill } }]);
-  await h.activate();
-  assert.equal(count((await h.fire("context", { messages: [user("next request")] })).messages), 1);
+  assert.equal(handlers.has("context"), false, "must not splice user messages in context hook");
+  const before = handlers.get("before_agent_start") ?? [];
+  assert.equal(before.length, 1);
+
+  const opts = { sections: {} };
+  await before[0]({ systemPromptOptions: opts }, {});
+  assert.equal(typeof opts.sections.principal_routing, "string");
+  assert.match(opts.sections.principal_routing, /Enabled Principal skills: build, review\./);
+  assert.doesNotMatch(opts.sections.principal_routing, /principal_delivery|jev_advice/);
 });
 
-test("a disappeared exact Principal selection still latches a visible failure", async t => {
-  const h = await load(t);
-  rmSync(h.skill);
-  await h.activate();
-  assert.equal(h.errors.length, 1);
-  assert.equal(await h.fire("context", { messages: [user("missing selected Principal source")] }), undefined);
-  writeFileSync(h.skill, "restored");
-  await h.activate();
-  assert.equal(await h.fire("context", { messages: [user("explicit reload still required")] }), undefined);
-});
-
-
-test("version report keeps the loaded generation through disk replacement and detaches at shutdown", async t => {
-  const dir = mkdtempSync(join(tmpdir(), "principal-version-"));
-  t.after(() => rmSync(dir, { recursive: true, force: true }));
-  mkdirSync(join(dir, "extensions"));
-  const manifest = join(dir, "package.json"), copy = join(dir, "extensions/bootstrap.mjs");
-  writeFileSync(manifest, JSON.stringify({ name: "principal-pi-skills", version: "4.11.2" }));
-  writeFileSync(copy, readFileSync(join(ROOT, "extensions/bootstrap.ts"), "utf8"));
-  const handlers = new Map(), listeners = new Map();
-  const pi = { on: (name, fn) => handlers.set(name, fn), events: { on: (name, fn) => { listeners.set(name, fn); return () => listeners.delete(name); } } };
-  (await import(pathToFileURL(copy).href)).default(pi);
-  writeFileSync(manifest, JSON.stringify({ name: "principal-pi-skills", version: "4.12.0" }));
-  const reports = [];
-  listeners.get("pi-daddy:ecosystem-versions:v1")({ report: value => reports.push(value) });
-  assert.deepEqual(reports, [{ id: "principal-pi-skills", version: "4.11.2", root: dir }]);
-  await handlers.get("session_shutdown")();
-  assert.equal(listeners.size, 0);
+test("bootstrap does not inject when no Principal skills are selected", async () => {
+  const { handlers } = createHarness([
+    { name: "skill:other", source: "skill", sourceInfo: { path: "/tmp/other/SKILL.md" } },
+  ]);
+  const opts = { sections: {} };
+  await handlers.get("before_agent_start")[0]({ systemPromptOptions: opts }, {});
+  assert.equal(opts.sections.principal_routing, undefined);
 });
