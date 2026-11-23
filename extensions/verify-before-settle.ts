@@ -1,11 +1,13 @@
 // Passive Verify-Before-Settle guard.
 // Zero model-facing tools, zero Turn-1 token overhead, zero schema refusals.
-// Tracks edited workspace files and passing verification commands passively;
-// if code was modified after the last passing check, requests at most one verification pass.
+// Captures args in tool_execution_start (Pi 1.6 omits args from tool_execution_end),
+// tracks edited workspace files and passing verification commands passively, and
+// requests at most one verification pass if code was edited after the last passing check.
 
-const VERIFY_CMD_RE = /\b(test|vitest|jest|mocha|pytest|cargo\s+test|go\s+test|tsc|eslint|lint|check|verify|assert|node\s+[\w./-]+\.(?:c|m)?js|node\s+--test|npm\s+run\s+(?:test|check|build|typecheck|lint))\b/i;
+const VERIFY_CMD_RE = /(?:^|[;&|]\s*)(?:(?:npx|pnpm|yarn|bun)\s+(?:test|vitest|jest|mocha|tsc|eslint|biome|check|run\s+(?:test|check|lint|typecheck|build))\b|npm\s+(?:test|run\s+(?:test|check|lint|typecheck|build))\b|node\s+(?:--test\b|[\w./-]+\.(?:c|m)?js\b)|(?:vitest|jest|mocha|pytest|tsc|eslint|biome)\b|(?:cargo|go)\s+(?:test|check|vet)\b)/i;
 
 export default function verifyBeforeSettleExtension(pi) {
+  let pendingArgs = new Map();
   let editedFiles = new Set();
   let lastEditTs = 0;
   let lastVerifyPassTs = 0;
@@ -14,6 +16,7 @@ export default function verifyBeforeSettleExtension(pi) {
   const MAX_NUDGES = 1;
 
   const resetTurn = () => {
+    pendingArgs = new Map();
     editedFiles = new Set();
     lastEditTs = 0;
     lastVerifyPassTs = 0;
@@ -24,18 +27,26 @@ export default function verifyBeforeSettleExtension(pi) {
   pi.on("session_start", resetTurn);
   pi.on("before_agent_start", resetTurn);
 
+  pi.on("tool_execution_start", (event) => {
+    if (!event?.toolCallId) return;
+    pendingArgs.set(event.toolCallId, event.args ?? {});
+  });
+
   pi.on("tool_execution_end", (event) => {
     if (!event) return;
+    const args = event.toolCallId ? pendingArgs.get(event.toolCallId) : undefined;
+    if (event.toolCallId) pendingArgs.delete(event.toolCallId);
+
     const name = event.toolName;
     if ((name === "edit" || name === "write") && !event.isError) {
-      const path = event.args?.path ?? event.input?.path;
+      const path = args?.path;
       if (typeof path === "string" && path.trim()) editedFiles.add(path.trim());
       else editedFiles.add("(modified file)");
       lastEditTs = Date.now();
       return;
     }
     if (name === "bash") {
-      const cmd = String(event.args?.command ?? event.input?.command ?? "");
+      const cmd = String(args?.command ?? "").trim();
       if (!VERIFY_CMD_RE.test(cmd)) return;
       if (!event.isError) {
         lastVerifyPassTs = Date.now();

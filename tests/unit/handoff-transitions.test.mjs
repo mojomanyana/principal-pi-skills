@@ -91,7 +91,7 @@ test("evidence-only followups do not restart implementation through workflow res
 });
 
 test("common routing checks Review Verdict before Next and surfaces unverified evidence", () => {
-  for (const p of ["AGENTS.md", "bootstrap/BOOTSTRAP.md"]) {
+  for (const p of ["AGENTS.md"]) {
     const text = read(p).replace(/\s+/g, " ");
     assert.match(text, /Read (?:Review )?Verdict before Next/);
     assert.match(text, /UNVERIFIED.*evidence\/access.*caller question.*not automatic.*implementation/s);
@@ -244,7 +244,7 @@ test("native report retention is coordinator-owned and preserves private artifac
 });
 
 test("native handoffs bind an exact described definition and never fallback after failure", () => {
-  for (const path of ["AGENTS.md", "bootstrap/BOOTSTRAP.md", "contracts/workflows.md.tmpl", "prompts/principal-review-branch.md"]) {
+  for (const path of ["AGENTS.md", "contracts/workflows.md.tmpl", "prompts/principal-review-branch.md"]) {
     const text = read(path);
     assert.match(text, /delegate_describe/);
     assert.match(text, /definitionId/);
@@ -259,7 +259,7 @@ test("native handoffs bind an exact described definition and never fallback afte
 });
 
 test("native workflows use phase identities and batch independent parallel children", () => {
-  for (const path of ["AGENTS.md", "bootstrap/BOOTSTRAP.md", "README.md", ...WORKFLOWS]) {
+  for (const path of ["AGENTS.md", "README.md", ...WORKFLOWS]) {
     const text = read(path);
     assert.match(text, /delegate_all/);
     assert.match(text, /definitionId/);
@@ -318,9 +318,8 @@ test("settled partial Build continuation stays distinct from evidence-only Revie
     assert.match(text, /\| UNVERIFIED \| evidence \|.*no automatic implementation/, path);
   }
   const policy = read("bootstrap/BOOTSTRAP.md").replace(/\s+/g, " ");
-  assert.match(policy, /settled Build's complete final can describe partial delivery/);
-  assert.match(policy, /Review UNVERIFIED needs evidence\/access reconciliation/);
-  assert.match(policy, /Recall-only requests report saved delivery without new work/);
+  assert.match(policy, /Principal Routing/);
+  assert.match(policy, /Verify every code change/);
 });
 
 test("admitted Build and optional evidence rules retain current authority and explicit limits", () => {

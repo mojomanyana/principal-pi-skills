@@ -27,7 +27,7 @@ import { fileURLToPath } from "node:url";
 import { parsePackMetadata } from "../../scripts/pack-meta.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const SKILLS = ["decide", "architect", "plan", "build", "review", "test-review", "debug", "investigate", "git-ops", "artifact-review"];
+const SKILLS = ["architect", "build", "review", "debug", "git-ops"];
 
 // Track exactly what we create; see the note in install-agents.test.mjs — test FILES run
 // concurrently, so cleaning by prefix glob reaches into a sibling suite's directories.

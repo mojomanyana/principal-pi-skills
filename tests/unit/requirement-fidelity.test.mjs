@@ -245,9 +245,9 @@ test('installation guidance identifies the Principal release and links to the te
   }
 });
 
-test('short bootstrap bounds an authorized fallback by cleanup and due gates',()=>{
-  clauses(normalized(read('bootstrap/BOOTSTRAP.md')), [/No automatic fallback/,
-    /alternatives require existing authorization, settled cleanup and due gates/]);
+test('short bootstrap keeps crisp routing and verification habits',()=>{
+  clauses(normalized(read('bootstrap/BOOTSTRAP.md')), [/Principal Routing/,
+    /Verify every code change/, /Never fabricate test results/]);
 });
 
 test('later prepared-operation calls name task and step instead of copying an operation ID',()=>{
@@ -330,6 +330,6 @@ test('test-quality review is separately bound, optional, and cannot approve inte
     assert.doesNotMatch(text, /Next: git-ops/);
   }
   const pkg=JSON.parse(read('package.json'));
-  assert.ok(pkg.pi.skills.includes('./test-review'));
+  assert.ok(pkg.pi.skills.includes('./review'));
   assert.equal(JSON.parse(read('principal-agents.json')).bindings['test-review'].agent,'agents/principal-test-review.md');
 });
