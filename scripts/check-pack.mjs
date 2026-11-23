@@ -65,6 +65,7 @@ const REQUIRED = [
   "references/workflow-mechanics.md",
   "review/references/test-quality.md",
   "extensions/bootstrap.ts",
+  "extensions/verify-before-settle.ts",
   "bootstrap/BOOTSTRAP.md",
 ];
 

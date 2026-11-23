@@ -33,28 +33,19 @@
   },
   "pi": {
     "skills": [
-      "./decide",
       "./architect",
-      "./plan",
       "./build",
       "./review",
-      "./test-review",
       "./debug",
-      "./investigate",
-      "./git-ops",
-      "./artifact-review"
+      "./git-ops"
     ],
     "prompts": [
       "./prompts"
     ],
     "extensions": [
       "./extensions/bootstrap.ts",
-      "./extensions/resume.ts",
-      "./extensions/workflow.ts",
-      "./extensions/codemode.ts",
-      "./extensions/handoff.ts",
-      "./extensions/continuity.ts",
-      "./extensions/delivery.ts"
+      "./extensions/verify-before-settle.ts",
+      "./extensions/resume.ts"
     ]
   },
   "bin": {
@@ -83,6 +74,7 @@
     "scripts/snapshot-workspace.mjs",
     "scripts/progress-artifacts.mjs",
     "extensions/bootstrap.ts",
+    "extensions/verify-before-settle.ts",
     "bootstrap/BOOTSTRAP.md",
     "scripts/resume-checkpoint.mjs",
     "extensions/resume.ts",
