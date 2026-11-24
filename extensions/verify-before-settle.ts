@@ -98,8 +98,22 @@ export default function verifyBeforeSettleExtension(pi) {
       } else {
         lastVerifyFailCmd = cmd.slice(0, 120);
         const sig = extractErrorSignature(event.result);
-        if (sig && sig === lastFailSig) sameFailCount++;
-        else {
+        if (sig && sig === lastFailSig) {
+          sameFailCount++;
+          if (sameFailCount >= 2) {
+            try {
+              pi.events?.emit("principal:thrash-detected:v1", {
+                version: 1,
+                signature: sig,
+                count: sameFailCount,
+                command: lastVerifyFailCmd,
+                editedFiles: [...editedFiles],
+              });
+            } catch {
+              /* Escalation listener is optional. */
+            }
+          }
+        } else {
           lastFailSig = sig;
           sameFailCount = sig ? 1 : 0;
         }

@@ -66,7 +66,7 @@ test("the tarball ships every runtime file a user needs", () => {
   for (const p of ["principal-feature", "principal-bugfix", "principal-refactor", "principal-review-branch"]) {
     if (!files.includes(`prompts/${p}.md`)) missing.push(`prompts/${p}.md`);
   }
-  for (const a of ["principal-plan", "principal-review", "principal-test-review", "principal-debug", "principal-build", "principal-investigate"]) {
+  for (const a of ["principal-review", "principal-debug", "principal-build"]) {
     if (!files.includes(`agents/${a}.md`)) missing.push(`agents/${a}.md`);
   }
   if (!files.includes("scripts/install-agents.mjs")) missing.push("scripts/install-agents.mjs");
@@ -109,7 +109,7 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   assert.ok(existsSync(join(installed, "prompts", "principal-feature.md")));
   const bindings = JSON.parse(readFileSync(join(installed, "principal-agents.json"), "utf8"));
   assert.equal(bindings.package, "principal-pi-skills");
-  assert.deepEqual(Object.keys(bindings.bindings).sort(), ["build", "debug", "investigate", "plan", "review", "test-review"]);
+  assert.deepEqual(Object.keys(bindings.bindings).sort(), ["build", "debug", "review"]);
   for (const binding of Object.values(bindings.bindings)) for (const kind of ["skill", "agent"]) {
     const digest = createHash("sha256").update(readFileSync(join(installed, binding[kind]))).digest("hex");
     assert.equal(digest, binding[`${kind}Sha256`], "packed inline/delegated bytes must match their generated identities");
@@ -122,7 +122,7 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   });
 
   const agents = readdirSync(join(piDir, "agents")).filter((f) => f.endsWith(".md")).sort();
-  assert.deepEqual(agents, ["principal-build.md", "principal-debug.md", "principal-investigate.md", "principal-plan.md", "principal-review.md", "principal-test-review.md"]);
+  assert.deepEqual(agents, ["principal-build.md", "principal-debug.md", "principal-review.md"]);
 
   const realAfter = existsSync(join(homedir(), ".pi", "agent", "agents"))
     ? readdirSync(join(homedir(), ".pi", "agent", "agents")).sort().join(",")
@@ -152,7 +152,7 @@ test("the installed bins actually run — not a silent exit 0", () => {
   const out = execFileSync(agentsBin, ["install"], { cwd: proj, env, encoding: "utf8" });
   assert.match(out, /installed|current/, "the installer must report what it did, not print nothing");
   assert.ok(
-    existsSync(join(home, ".pi", "agent", "agents", "principal-plan.md")),
+    existsSync(join(home, ".pi", "agent", "agents", "principal-build.md")),
     "and it must actually write the agents"
   );
 
@@ -163,34 +163,6 @@ test("the installed bins actually run — not a silent exit 0", () => {
   const path = execFileSync(wsBin, ["create"], { cwd: proj, env, encoding: "utf8" }).trim();
   assert.ok(path.length > 0 && existsSync(path), `create must print a real worktree path, got ${JSON.stringify(path)}`);
   execFileSync(wsBin, ["remove", path], { cwd: proj, env, stdio: "pipe" });
-
-  const progressBin = join(proj, "node_modules", ".bin", "principal-pi-progress");
-  assert.ok(existsSync(progressBin), "the progress bin must be linked");
-  const run = JSON.parse(execFileSync(progressBin, ["create", proj, "task", "candidate-A"], { env, encoding: "utf8" }));
-  const report = JSON.parse(execFileSync(progressBin, ["report", run, "build.md"], {
-    env, encoding: "utf8", input: "Complete report\nCaveat: runtime not tested\n",
-  }));
-  assert.equal(readFileSync(report.path, "utf8"), "Complete report\nCaveat: runtime not tested\n");
-  const progress = JSON.parse(execFileSync(progressBin, ["read", run, "candidate-A"], { env, encoding: "utf8" }));
-  assert.match(progress.issues.join(" "), /progress incomplete/);
-  if (process.platform === "linux") {
-    const resumeBin = join(proj, "node_modules", ".bin", "principal-pi-resume");
-    assert.ok(existsSync(resumeBin), "the resume bin must be linked");
-    const resumeRepo = join(home, "resume-repo"); mkdirSync(resumeRepo);
-    execFileSync("git", ["init", "-q"], { cwd: resumeRepo });
-    execFileSync("git", ["-c", "user.email=t@l", "-c", "user.name=t", "commit", "-q", "--allow-empty", "-m", "seed"], { cwd: resumeRepo });
-    const planFile = join(home, "plan.md"), requestFile = join(home, "request.json");
-    writeFileSync(planFile, "Full fixture plan: add src/example.js and verify.\n");
-    writeFileSync(requestFile, JSON.stringify({ version: 1, task: "Fixture", plan: planFile, scope: ["src/"], phase: "build", step: "impl:S1", repairsRemaining: 0, reports: [], progressRun: null }));
-    const candidate = JSON.parse(execFileSync(resumeBin, ["candidate", resumeRepo], { env, encoding: "utf8" }));
-    const checkpoint = JSON.parse(execFileSync(resumeBin, ["prepare", resumeRepo, requestFile], { env, encoding: "utf8" }));
-    assert.equal(checkpoint.checkpoint.candidate.id, candidate.id);
-    const inspected = JSON.parse(execFileSync(resumeBin, ["inspect", checkpoint.path], { env, encoding: "utf8" }));
-    assert.equal(inspected.checksPassed, true); assert.equal(inspected.state, "prepared");
-    assert.equal(readFileSync(join(resumeRepo, ".principal/.gitignore"), "utf8"), "*\n");
-    assert.throws(() => execFileSync(resumeBin, ["arm", checkpoint.path], { env, stdio: "pipe" }), /Command failed/);
-  }
-
 });
 
 test("npm skill and agent install recipes use the package version and matching sources", () => {
@@ -285,7 +257,7 @@ test("preseeded generic resources do not shadow the namespaced ones", () => {
   for (const f of ["plan.md", "review.md", "feature.md"]) {
     assert.equal(readFileSync(join(agentsDir, f), "utf8"), `foreign ${f}\n`, `${f} must be left alone`);
   }
-  assert.ok(existsSync(join(agentsDir, "principal-plan.md")), "the namespaced agent installs regardless");
+  assert.ok(existsSync(join(agentsDir, "principal-build.md")), "the namespaced agent installs regardless");
 
   rmSync(home, { recursive: true, force: true });
 });

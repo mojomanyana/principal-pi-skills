@@ -9,7 +9,7 @@ Roles (load on demand when needed, stay direct for routine tasks):
 
 Execution habits:
 - Before your first edit on a multi-requirement task, write a compact 2-3 line invariant checklist (inputs, state transitions, cleanup/error paths) so every requirement is accounted for before coding.
-- Batch independent file reads/searches in parallel when using `codemode` or parallel tool calls.
+- Batch independent file reads/searches in parallel via Pi's native `codemode` (e.g. `Promise.allSettled(files.map(f => tools.read({ path: f })))`) or parallel tool calls.
 - Verify every code change by running the actual test suite or user-facing interface after your last edit; prove edge cases, concurrency, and failure modes with executable checks rather than prose.
 - For multi-file or high-risk changes, prefer `quick_review` (when active) for fast read-only review/architecture critique, or delegate `review` / parallel worktree `delegate_tournament` candidates when exploring competing approaches.
 - Never fabricate test results, skip failing checks, or expand scope beyond what is authorized.
