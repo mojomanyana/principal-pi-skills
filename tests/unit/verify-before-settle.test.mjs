@@ -74,6 +74,48 @@ test("does not treat ls/cat/echo mentioning 'test' as passing verification", asy
   }
 });
 
+test("treats node -e and python -c verification commands as passing checks", async () => {
+  const { fn, cleanup } = await loadExtension();
+  try {
+    const { fire, runTool } = createHarness(fn);
+    await fire("before_agent_start", {});
+    await runTool("c1", "write", { path: "fib.js" }, false);
+    await new Promise((r) => setTimeout(r, 5));
+    await runTool("c2", "bash", { command: 'node -e "console.log(1)"' }, false);
+    assert.equal(await fire("agent_before_settle", { entries: [] }), undefined);
+  } finally {
+    cleanup();
+  }
+});
+
+test("skips settle nudge when pi-daddy-cold-review already requested continuation", async () => {
+  const { fn, cleanup } = await loadExtension();
+  try {
+    const { fire, runTool } = createHarness(fn);
+    await fire("before_agent_start", {});
+    await runTool("c1", "edit", { path: "src/app.mjs" }, false);
+    const res = await fire("agent_before_settle", {
+      entries: [{ type: "custom_message", customType: "pi-daddy-cold-review", content: "Fix bug" }],
+    });
+    assert.equal(res, undefined);
+  } finally {
+    cleanup();
+  }
+});
+
+test("blocks runaway whole-filesystem find / scans via tool_call", async () => {
+  const { fn, cleanup } = await loadExtension();
+  try {
+    const { fire } = createHarness(fn);
+    const blocked = await fire("tool_call", { toolName: "bash", input: { command: 'find / -name "*test*"' } });
+    assert.equal(blocked?.block, true);
+    const allowed = await fire("tool_call", { toolName: "bash", input: { command: 'find . -name "*test*"' } });
+    assert.equal(allowed, undefined);
+  } finally {
+    cleanup();
+  }
+});
+
 test("does not nudge when an actual test runner passes after the last edit", async () => {
   const { fn, cleanup } = await loadExtension();
   try {

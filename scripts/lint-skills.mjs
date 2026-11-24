@@ -12,7 +12,8 @@ export const SKILLS = ["decide", "architect", "plan", "build", "review", "test-r
 
 export function lintSkill(path, text) {
   const findings = [];
-  const fm = text.match(/^---\n([\s\S]*?)\n---\n/);
+  const normalized = text.replace(/\r\n/g, "\n");
+  const fm = normalized.match(/^---\n([\s\S]*?)\n---\n/);
   if (!fm) return [`${path}: no frontmatter block`];
   const dir = path.split("/")[0];
   const name = fm[1].match(/^name:\s*(\S+)/m)?.[1];

@@ -151,7 +151,7 @@ let written = 0;
 const outputs = [];
 for (const contract of CONTRACTS) {
   const rel = `contracts/${contract}.md.tmpl`;
-  const template = readFileSync(join(ROOT, rel), "utf8");
+  const template = readFileSync(join(ROOT, rel), "utf8").replace(/\r\n/g, "\n");
   for (const mode of Object.values(MODES)) {
     outputs.push({
       source: rel,
@@ -162,7 +162,7 @@ for (const contract of CONTRACTS) {
 }
 
 const workflowSource = "contracts/workflows.md.tmpl";
-const workflowTemplate = readFileSync(join(ROOT, workflowSource), "utf8");
+const workflowTemplate = readFileSync(join(ROOT, workflowSource), "utf8").replace(/\r\n/g, "\n");
 for (const mode of Object.values(WORKFLOW_MODES)) {
   outputs.push({
     source: workflowSource,
@@ -177,7 +177,7 @@ for (const { source, path, rendered } of outputs) {
   if (check) {
     let current;
     try {
-      current = readFileSync(join(ROOT, path), "utf8");
+      current = readFileSync(join(ROOT, path), "utf8").replace(/\r\n/g, "\n");
     } catch {
       drift.push(`${path}: missing — run \`npm run generate\``);
       continue;
