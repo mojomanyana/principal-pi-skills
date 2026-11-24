@@ -1,7 +1,7 @@
 {
   "name": "principal-pi-skills",
-  "version": "5.0.2",
-  "description": "Nine principal engineering skills, a portable artifact-review skill, and optional Pi coordination tools.",
+  "version": "6.0.0",
+  "description": "Five core principal engineering skills (architect, build, review, debug, git-ops) and passive Pi 1.6 verification/routing extensions.",
   "license": "MIT",
   "author": "Nemanja Alavanja",
   "repository": {
@@ -22,14 +22,12 @@
   },
   "scripts": {
     "test": "npm run generate:check && npm run test:unit && npm run test:install && npm run check:pack && npm run lint:skills",
-    "test:unit": "node --test tests/unit/*.test.mjs && node scripts/check-word-budgets.mjs",
+    "test:unit": "node --test tests/unit/*.test.mjs",
     "generate": "node scripts/generate-contracts.mjs",
     "generate:check": "node scripts/generate-contracts.mjs --check",
     "lint:skills": "node scripts/lint-skills.mjs",
     "test:install": "node --test tests/install/*.test.mjs",
-    "check:pack": "node scripts/check-pack.mjs",
-    "check:routing-collisions": "node scripts/check-description-collisions.mjs",
-    "check:routing-triggers": "node scripts/check-skill-triggers.mjs"
+    "check:pack": "node scripts/check-pack.mjs"
   },
   "pi": {
     "skills": [
@@ -44,64 +42,34 @@
     ],
     "extensions": [
       "./extensions/bootstrap.ts",
-      "./extensions/verify-before-settle.ts",
-      "./extensions/resume.ts"
+      "./extensions/verify-before-settle.ts"
     ]
   },
   "bin": {
     "principal-pi-agents": "./scripts/install-agents.mjs",
     "principal-pi-workspace": "./scripts/snapshot-workspace.mjs",
-    "principal-pi-progress": "./scripts/progress-artifacts.mjs",
-    "principal-pi-resume": "./scripts/resume-checkpoint.mjs",
     "principal-pi-check": "./scripts/check-runner.mjs"
   },
   "files": [
     "AGENTS.md",
     "principal-agents.json",
     "CHANGELOG.md",
-    "decide/SKILL.md",
     "architect/SKILL.md",
-    "plan/SKILL.md",
     "build/SKILL.md",
     "review/SKILL.md",
-    "test-review/SKILL.md",
     "debug/SKILL.md",
-    "investigate/SKILL.md",
     "git-ops/SKILL.md",
     "prompts/*.md",
     "agents/*.md",
     "scripts/install-agents.mjs",
     "scripts/snapshot-workspace.mjs",
-    "scripts/progress-artifacts.mjs",
+    "scripts/check-runner.mjs",
     "extensions/bootstrap.ts",
     "extensions/verify-before-settle.ts",
     "bootstrap/BOOTSTRAP.md",
-    "scripts/resume-checkpoint.mjs",
-    "extensions/resume.ts",
-    "scripts/workflow-state.mjs",
-    "scripts/check-runner.mjs",
-    "scripts/project-setup.mjs",
-    "extensions/project-setup.ts",
-    "scripts/runtime-operation-query.mjs",
-    "scripts/prepared-recovery.mjs",
-    "extensions/workflow.ts",
-    "extensions/codemode.ts",
-    "references/workflow-mechanics.md",
-    "review/references/test-quality.md",
-    "artifact-review/SKILL.md",
-    "extensions/handoff.ts",
-    "scripts/compact-handoff.mjs",
-    "scripts/learning-proposal.mjs",
-    "references/learning.md",
     "references/research.md",
     "references/checkpoints.md",
-    "scripts/continuity.mjs",
-    "references/continuity.md",
-    "extensions/continuity.ts",
-    "extensions/delivery.ts",
-    "scripts/delivery-state.mjs",
-    "scripts/review-observation.mjs",
-    "scripts/frozen-snapshot.mjs"
+    "review/references/test-quality.md"
   ],
   "devDependencies": {},
   "peerDependencies": {

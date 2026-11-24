@@ -8,5 +8,5 @@ test("default verification covers current product tests without an archived-evid
   assert.equal(scripts["verify:evidence"], undefined);
   assert.doesNotMatch(scripts.test, /verify:evidence|tests\/evidence/);
   assert.match(scripts.test, /npm run test:unit/);
-  assert.equal(scripts["test:unit"], "node --test tests/unit/*.test.mjs && node scripts/check-word-budgets.mjs");
+  assert.equal(scripts["test:unit"], "node --test tests/unit/*.test.mjs");
 });
