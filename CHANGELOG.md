@@ -1,5 +1,10 @@
 # Changelog
 
+## 6.0.2 - 2026-11-25
+
+- Verify Windows agent installations using the host file attributes and preserve POSIX permission checks.
+- Use the canonical ecosystem guide and resolve standalone install and check from the same package.
+
 ## 6.0.1 — 2026-11-25
 
 - Updated `README.md`, `AGENTS.md`, `contracts/workflows.md.tmpl`, `prompts/principal-*.md`, `references/research.md`, and `scripts/check-word-budgets.mjs` to reflect the exact v6 architecture with zero references to retired skills (`decide`, `plan`, `test-review`, `investigate`, `artifact-review`), retired extensions (`delivery`, `workflow`, `handoff`, `codemode`, `continuity`), or JEV.
