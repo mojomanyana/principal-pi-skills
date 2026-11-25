@@ -165,18 +165,16 @@ test("the installed bins actually run — not a silent exit 0", () => {
   execFileSync(wsBin, ["remove", path], { cwd: proj, env, stdio: "pipe" });
 });
 
-test("npm skill and agent install recipes use the package version and matching sources", () => {
-  const { version } = JSON.parse(readFileSync(join(ROOT, "package.json"), "utf8"));
-  for (const p of ["README.md", "AGENTS.md"]) {
-    const text = readFileSync(join(ROOT, p), "utf8");
-    const skillTags = [...text.matchAll(/pi install npm:principal-pi-skills@([^\s`,]+)/g)];
-    assert.ok(skillTags.length > 0, `${p}: missing pinned npm skill install`);
-    for (const [, tag] of skillTags) assert.equal(tag, version, p);
-    // If npm recipes are documented, both installation and checking must use the
-    // same pinned version. Do not freeze a prepublication fallback or its wording.
-    for (const [, pin] of text.matchAll(/npx -p principal-pi-skills(?:@([^\s`]+))? principal-pi-agents (?:install|check)\b/g)) {
-      assert.equal(pin, version, `${p}: agent command must match npm skills`);
-    }
+test("installation guides share the ecosystem quickstart and standalone install/check resolve together", () => {
+  const readme = readFileSync(join(ROOT, "README.md"), "utf8");
+  const agents = readFileSync(join(ROOT, "AGENTS.md"), "utf8");
+  assert.ok(readme.includes("https://github.com/mojomanyana/pi-daddy#start-here"));
+  assert.ok(agents.includes("https://github.com/mojomanyana/principal-pi-skills#install"));
+  assert.match(readme, /^pi install npm:principal-pi-skills\r?$/m);
+  assert.match(readme, /^npm exec --package=principal-pi-skills@latest --call "principal-pi-agents install && principal-pi-agents check"\r?$/m);
+  for (const doc of [readme, agents]) {
+    assert.doesNotMatch(doc, /(?:principal-pi-skills|pi-daddy)@\d/);
+    assert.doesNotMatch(doc, /^npx\s+pi-daddy\b/m);
   }
 });
 
