@@ -28,11 +28,8 @@
 
 ## Install & Verification
 
-```bash
-pi install npm:principal-pi-skills@6.0.1
-npx -p principal-pi-skills@6.0.1 principal-pi-agents install
-npx -p principal-pi-skills@6.0.1 principal-pi-agents check
-```
+Follow the [installation guide](https://github.com/mojomanyana/principal-pi-skills#install) for
+standalone installation, agent verification, and the tested ecosystem quickstart.
 
 ## Maintainer Rules
 

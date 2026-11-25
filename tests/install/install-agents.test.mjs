@@ -77,6 +77,21 @@ test("install is idempotent", () => {
   assert.equal(readFileSync(join(dir, "principal-build.md"), "utf8"), before);
 });
 
+test("a fresh install checks as current and a Windows read-only target is detected", () => {
+  const { env, dir } = fresh();
+  assert.equal(quiet(() => run(["install"], env)), 0);
+  assert.equal(quiet(() => run(["check"], env)), 0);
+  if (process.platform === "win32") {
+    const target = join(dir, "principal-build.md");
+    fs.chmodSync(target, 0o444);
+    try {
+      assert.equal(quiet(() => run(["check"], env)), 1);
+      assert.equal(quiet(() => run(["install"], env)), 1);
+      assert.equal(fs.statSync(target).mode & 0o200, 0);
+    } finally { fs.chmodSync(target, 0o644); }
+  }
+});
+
 test("refuses to overwrite a file it does not own, and writes nothing at all", () => {
   const { env, dir } = fresh();
   mkdirSync(dir, { recursive: true });
@@ -413,7 +428,7 @@ test("symlinked source ancestors work but dangling destination anchors refuse", 
   assert.ok(!existsSync(join(base, "missing")));
 });
 
-test("installed and repaired agent modes are 0644 while ownership metadata stays 0600", () => {
+test("installed and repaired POSIX agent modes are 0644 while ownership metadata stays 0600", { skip: process.platform === "win32" }, () => {
   const { env, dir } = fresh();
   const mask = process.umask(0o077);
   try {
@@ -438,7 +453,7 @@ test("explicit adopt recovers only a complete current installation with absent m
   assert.equal(quiet(() => run(["adopt"], env)), 0);
   const after = image(dir); delete after[MANIFEST];
   assert.deepEqual(after, before, "adoption changes only absent metadata, not agent bytes or modes");
-  assert.equal(quiet(() => run(["check"], env)), 1, "adopt preserves earlier 0600 modes");
+  assert.equal(quiet(() => run(["check"], env)), process.platform === "win32" ? 0 : 1, "adopt preserves the host's permissions");
   assert.equal(quiet(() => run(["install"], env)), 0, "owned current files can now repair their modes");
   assert.equal(quiet(() => run(["check"], env)), 0);
   assert.equal(quiet(() => run(["uninstall"], env)), 0);

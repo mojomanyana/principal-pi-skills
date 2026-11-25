@@ -198,7 +198,12 @@ export function plan(dir, wanted, root = ROOT) {
     if (!current) actions.push({ file, content, kind: "install" });
     else if (!owned) actions.push({ file, kind: "refuse", why: `exists and was not installed by ${PKG}, even if byte-identical` });
     else if (state.manifest.files[file] !== current.hash) actions.push({ file, kind: "refuse", why: "edited since install; preserve your changes and restore known-good ownership explicitly" });
-    else actions.push({ file, content, kind: current.content.equals(content) && (current.stat.mode & 0o777) === 0o644 ? "current" : "update" });
+    else if (process.platform === "win32" && !(current.stat.mode & 0o200)) actions.push({ file, kind: "refuse", why: "file is read-only; clear its read-only attribute before updating" });
+    else {
+      // Windows exposes only the read-only attribute via mode bits. POSIX records the full mode.
+      const modeMatches = process.platform === "win32" || (current.stat.mode & 0o777) === 0o644;
+      actions.push({ file, content, kind: current.content.equals(content) && modeMatches ? "current" : "update" });
+    }
   }
   return { ...state, actions };
 }
