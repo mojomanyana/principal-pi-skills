@@ -1,6 +1,6 @@
 {
   "name": "principal-pi-skills",
-  "version": "6.0.0",
+  "version": "6.0.1",
   "description": "Five core principal engineering skills (architect, build, review, debug, git-ops) and passive Pi 1.6 verification/routing extensions.",
   "license": "MIT",
   "author": "Nemanja Alavanja",

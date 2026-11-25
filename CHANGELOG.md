@@ -1,5 +1,21 @@
 # Changelog
 
+## 6.0.1 — 2026-11-25
+
+- Updated `README.md`, `AGENTS.md`, `contracts/workflows.md.tmpl`, `prompts/principal-*.md`, `references/research.md`, and `scripts/check-word-budgets.mjs` to reflect the exact v6 architecture with zero references to retired skills (`decide`, `plan`, `test-review`, `investigate`, `artifact-review`), retired extensions (`delivery`, `workflow`, `handoff`, `codemode`, `continuity`), or JEV.
+
+## 6.0.0 — 2026-11-24
+
+- Spring-cleaned retired extensions (`delivery`, `workflow`, `handoff`, `codemode`, `continuity`, `project-setup`, `resume`), duplicate skills/agents (`decide`, `plan`, `test-review`, `investigate`, `artifact-review`), and unused scripts, cutting the published tarball in half (27 files).
+- Added native Pi `codemode` parallel-read guidance to `bootstrap/BOOTSTRAP.md`.
+- Emitted `principal:thrash-detected:v1` on repeated identical check failures in `extensions/verify-before-settle.ts` for `pi-daddy` Smart Auto-Escalation.
+
+## 5.0.2 — 2026-11-24
+
+- Migrated `extensions/bootstrap.ts` to Pi 1.6 `systemPromptOptions.sections` with concise `bootstrap/BOOTSTRAP.md`.
+- Added passive `extensions/verify-before-settle.ts` with workspace boundary guard and deterministic thrash/edit-loop breaker.
+- Normalized line endings (`.gitattributes`) and added OIDC `publish.yml`.
+
 ## 4.24.2 — 2026-11-22
 
 - Principal links a matching verification receipt and an independent review to their delivery requirements as the work happens. Recall checks the retained results against the current files.
