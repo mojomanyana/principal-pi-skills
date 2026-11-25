@@ -15,21 +15,20 @@ extensions (`bootstrap.ts`, `verify-before-settle.ts`) built for fast, low-token
 
 ## Install
 
+For the full ecosystem, follow [Pi DaddyΓÇÖs ecosystem quickstart](https://github.com/mojomanyana/pi-daddy#start-here).
+It lists the package versions tested together and explains how to update an existing installation.
+
+To install Principal on its own:
+
 ```bash
-pi install npm:principal-pi-skills@6.0.1
+pi install npm:principal-pi-skills
 ```
 
-Or install the full 5-package Pi ecosystem with a single command:
+If you use the standalone subagents outside Pi Daddy, install and check the agent definitions
+with one copy of the latest published helper:
 
 ```bash
-npx pi-daddy@1.0.1 setup --preset open-weight
-```
-
-Optional standalone subagent install (if using subagents outside `pi-daddy`):
-
-```bash
-npx -p principal-pi-skills@6.0.1 principal-pi-agents install
-npx -p principal-pi-skills@6.0.1 principal-pi-agents check
+npm exec --package=principal-pi-skills@latest --call "principal-pi-agents install && principal-pi-agents check"
 ```
 
 ---
