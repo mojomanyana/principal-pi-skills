@@ -1,228 +1,47 @@
-# AGENTS.md
+# Principal Pi Skills — Agent & Maintainer Guide
 
-Principal routes by the output the user needs. The bootstrap extension injects a short form of
-this routing (`bootstrap/BOOTSTRAP.md`) into each request; this file is the long-form reference
-and the maintenance rules. Each skill is self-contained; conditional mechanics live in references.
+## Core Architecture (v6.x)
 
-## Own the outcome
+`principal-pi-skills` ships a minimal, zero-bloat engineering layer for Pi 1.6+:
+- **5 skills:** `architect`, `build`, `review`, `debug`, `git-ops`
+- **3 delegated agent twins:** `agents/principal-build.md`, `agents/principal-review.md`, `agents/principal-debug.md` bound by SHA-256 digests in `principal-agents.json`
+- **2 passive extensions (0 custom tools):**
+  - `extensions/bootstrap.ts` — injects `bootstrap/BOOTSTRAP.md` via `systemPromptOptions.sections`
+  - `extensions/verify-before-settle.ts` — workspace boundary guard, thrash/edit-loop breaker (emits `principal:thrash-detected:v1`), and post-edit verification check
+- **4 workflow prompts:** `prompts/principal-{feature,bugfix,refactor,review-branch}.md`
 
-The coordinator is the Principal lead. Keep the user's goal, success conditions, constraints and
-open decisions in view, separate from the proposed method. Before asking or resuming, use the
-outcome, phase, non-goals, accepted verification fallbacks, standing authorization and open
-decisions already in context; retrieve only a missing fact the next action needs. Summaries grant
-no authority. Ask only for a missing material decision, with a recommendation and its consequence
-in product terms.
+## Operating Discipline
 
-Missing evidence blocks the next action that depends on it; continue independent authorized work
-within explicit user gates. When the missing fact changes that next action, offer concrete useful
-choices and their consequences instead of repeating a generic blocker. For continuation, reconcile
-historical blockers with the latest authorized scope and amendments. Missing optional observations
-limit their dependent claims, not supported independent work. Prepare authorized repository-local
-test dependencies without turning a no-global-upgrade/model-restart rule into a no-local-setup ban;
-explicit no-install/network restrictions still apply.
-
-Prefer the simplest adequate use of existing parts and explain consequential tradeoffs. Choose
-checks that can expose plausible wrong behavior; passing checks or a stopped child do not by
-themselves establish the outcome. Accept equivalent sound designs and keep polish separate from
-defects. Finish when the requested outcome is met. None of this adds execution authority or a stage.
-
-Give the user one thread to follow from discussion to delivery. When a discovery changes the
-approach or the next decision, say what changed for them, what led to it and what happens next.
-For example, “Two operators can edit the same ticket. I’ll keep the existing API and check that
-the second edit cannot silently erase the first.” At handoff, say what actually works, which
-check or observation supports it, what remains uncertain and who owns the next action. Distinguish
-proposed, observed and recalled results. A routine answer can be a sentence.
-
-## Choose the useful role
-
-| Input shape | Route | How |
+| Need | Skill | Mode |
 |---|---|---|
-| Choice/rationale, “Postgres or DynamoDB” | `decide` | inline dialogue |
-| System structure, components, boundaries or data | `architect` | inline dialogue |
-| Executable implementation sequence | `plan` | delegate heavy reading; inline deliberately |
-| Known-cause implementation | `build` | inline or delegated; one writer per working tree |
-| Judge a change before landing | `review` | independent cold context when available |
-| Judge a plan, decision, architecture or another role's artifact | `artifact-review` | scoped, read-only resource; no native phase |
-| Judge test assertions, behavioral gaps or redundancy | `test-review` | focused skill or independent child when useful |
-| Unknown failure | `debug` | delegate noisy diagnosis; inline when appropriate |
-| Facts about code, data, runtime or history | `investigate` | read-only; delegate heavy reading |
-| Git/GitHub operation | `git-ops` | inline only; needs current session authority |
+| Structural boundaries, interfaces, migrations | `architect` | inline |
+| Scoped implementation & tests | `build` | inline or delegated (`agents/principal-build.md`) |
+| Cold diff / behavioral code review | `review` | delegated (`agents/principal-review.md`) or inline |
+| Reproduce & isolate root cause of a failure | `debug` | inline or delegated (`agents/principal-debug.md`) |
+| Branching, commits, release prep, git recovery | `git-ops` | inline |
 
-Use only needed phases; everyday Q&A needs no skill. Decide and Architect are not mandatory
-preliminaries, and a plan does not replace a requested choice or design. Subagents cannot
-dialogue or dispatch; their final output is the handoff.
+- Use only the skills needed; everyday Q&A needs no skill.
+- Write a brief 3–5 bullet micro-plan before editing non-trivial code, naming target files and the verification command.
+- Batch 3+ read-only file inspections with Pi's native `codemode`.
+- Verify changes with concrete commands after the final edit; never claim success without observed passing output.
+- When delegating `build`, `review`, or `debug` through `pi-daddy`, pass the verified role (`pi-daddy >= 1.0.1` auto-binds `definitionId` from `principal-agents.json`).
 
-Consult `architect` inline when discussion or planning leaves a consequential structural choice
-open, or Build finds evidence against an accepted design assumption. Examples include who owns a
-shared write, what an existing consumer expects, or how data survives a migration. Use the selected
-Architect skill to answer the specific question from current constraints. In discussion, give the
-recommendation, reason and what would change it. In Plan, carry the decision and its observable
-check into affected steps. In Build, a child returns the discovery and its effect to the coordinator.
-Revisit only the affected work. Reuse an applicable prior decision and take routine edits directly
-to implementation. Consultations grant no authority to widen scope or start a build.
+## Install & Verification
 
-For a cross-task improvement request, recurring friction or a repeatable success, follow
-[learning from tasks](references/learning.md). Keep the current delivery moving independently.
-Present the supporting task evidence and the proposed skill or role change for the user's adoption
-decision.
+```bash
+pi install npm:principal-pi-skills@6.0.1
+npx -p principal-pi-skills@6.0.1 principal-pi-agents install
+npx -p principal-pi-skills@6.0.1 principal-pi-agents check
+```
 
-When saving delivery or recalling it after a new session, use the [checkpoint procedure](references/checkpoints.md).
-Keep each material decision, test result and research claim traceable to the work that produced it.
+## Maintainer Rules
 
-## Native delegation
-
-Call `delegate_describe({agent:"phase"})` and require binding package `principal-pi-skills` and the
-exact phase (plan, build, review, test-review, debug or investigate). Pass its `definitionId` on
-every `delegate`, `delegate_all` child and `delegate_chain` step. Reuse a current binding; describe
-again after a reload or selected-resource change. Pass `selectedResources` from the response
-unchanged when present: its `package.root` locates this package's helpers, never another
-installation. Hand children current authority references, relevant plan sections, accepted
-finding definitions and due gates, not copied history or a full-plan reread. State their already
-admitted role and workspace; historical parent routing warnings are not new child prerequisites.
-
-Use the selected definition's permitted context. Review receives source files and evidence references,
-not a parent-written summary. Correct ordinary argument mistakes within existing authorization;
-for a recorded terminal no-start result, inspect `recover` and follow its verified continuation
-instead of resubmitting changed arguments on the old ID. Never relabel a summary as files, widen a
-ceiling or drop required evidence. Preserve the completed Build while obtaining the missing Review.
-
-Missing, wrong, disabled or stale bindings, an unqualified backend, an unresolved permission or context refusal,
-a timeout, a report gap or uncertain cleanup stops dependent work. Never substitute inline or another
-runner automatically after a failure. An alternative the user already authorized keeps its recorded
-scope and prerequisites; it cannot clear uncertain admission/cleanup or waive a required gate. A
-legacy principal-* runner needs genuinely absent native tools and an explicitly configured runner.
-Follow authored model/effort policy.
-
-After a child returns, check its full native result and the runtime evidence summary's
-`cleanup.state=settled` before dependent work, including consuming Review's verdict. Daddy reports
-settled only after verifying an identity-bound receipt; `complete` rechecks the native execution
-identity. Receipt fields stay outside tool text. Leaves report later
-coordinator gates as pending with their owner and due stage.
-
-Use one `delegate_all` for an approved independent batch, never overlapping single calls. Writers
-need separate precreated registered Git worktrees and declared scopes; shared APIs or resources may
-serialize them. Preserve completed siblings after a failure, review each candidate, integrate
-serially and check the merged whole.
-
-## Workflow bookkeeping
-
-`principal_workflow` snapshot/reference give candidate and exact-file observations for any work,
-inline included. Prepare/complete/retry are native-delegation bookkeeping; inline work needs no
-dummy delegation. Pass the returned `delegationArguments` to delegate alongside its `definitionId`;
-later calls name the task and step. Call complete right after native settlement and before repairs;
-after Build/Debug changes files, complete the original operation instead of preparing again.
-Retention and completion are evidence, never approval. `inputPaths` pins immutable authority/evidence;
-use `contextPaths` to list editable workspace paths, not as permission or required unchanged inputs.
-These hints do not inject file contents: supply needed allowed references in the handoff. With all
-writes forbidden, skip prepare/complete and verify the native final with `result`.
-
-Native prepare requires the selected Pi folder to be the target repository root; `repo` does not
-route the child there. `NATIVE_WORKSPACE_MISMATCH` reports the exact folders before allocation.
-Select the existing target folder for future work; preserve old mismatched operations as history,
-without rewriting identities or rerunning them. Cross-folder snapshot/reference remains read-only.
-
-When host schema validation rejects `prepare` task/step before execution, or `PREPARE_INPUT_INVALID`
-reports `operationAllocated: false`, correct the named field and repeat `prepare` for the same
-authorized work without asking permission again. Reuse established task/step identities; for a new
-task with no internal identity, choose a short valid ID. Keep attempt unchanged and never rename an
-existing operation to evade a refusal. This pre-operation correction is not native execution retry.
-
-After an update or `/new`, follow returned `recoverArguments`: inspection reuses delivered output,
-and `continueArguments` apply only when the producer proves the original never started. Missing
-history is not proof of no start. A recall-only request reports saved delivery, historical checks,
-limitations and open choices without rebuilding, retesting or saving duplicates; a refused lookup
-leaves history unknown. Details: [workflow mechanics](references/workflow-mechanics.md).
-
-In a new folder, `principal_workflow` preflight observes readiness and setup (or `/principal-setup`)
-asks once for an empty Git baseline. Respect no-commit instructions; never initialize as a side
-effect or switch folders to evade a refusal. Planning and recall need no Git.
-
-`principal_handoff` optionally prepares compact exact-reference handoffs; missing, denied, stale or
-truncated required inputs block and never approve. The self-contained `artifact-review` skill judges
-plans, decisions and other artifacts; it is not a native phase or product approval.
-
-## Reports
-
-Before any coordinator artifact write, create an absent `.principal/.gitignore` containing `*`, never
-overwrite existing policy, and verify the destination is ignored. Native report paths come from
-prepare in the actual child's workspace; never overwrite a referenced prior artifact. Native children
-return complete final reports and complete retains them. Plan writes only its plan; Investigate stays
-read-only. Inline Build saves a complete report before cold delegated Review. Do not hide a
-report-completion failure. A different authored report is preserved separately from the exact native
-final; consume the returned `report` reference. Historical `retainArguments` explicitly save producer
-evidence for authorized continuation, never for a recall-only request or as fresh completion.
-
-## Convergence
-
-A settled Build's complete final can report partial delivery. Preserve its result and actual
-disposition, inspect current files, then continue only remaining authorized work without replaying
-completed work or asking again for unchanged scope. Current access, settlement and explicit gates
-still govern the next action; a Build marked unverified is not a Review verdict.
-
-Read Review Verdict before Next. Review UNVERIFIED means evidence/access reconciliation or a caller
-question, not automatic implementation; its `Next: evidence` returns to the coordinator. A concrete
-product/test defect goes to Build, an unknown behavioral cause to Debug. Reuse matching candidate,
-scope and environment evidence; fresh judgment does not need a fresh suite run.
-
-| Phase | Allowed `Next:` values |
-|---|---|
-| plan | `build` |
-| debug | `build` · `plan` · `done` · `blocked` |
-| build | `review` · `debug` · `blocked` |
-| review | `build` · `evidence` · `git-ops` |
-| decide · architect · investigate · test-review · git-ops | *(none — terminate)* |
-
-Review scopes are task, integrated and scoped-repair; only integrated approval with all due gates
-supports finish. Repairs keep the original review, whole-change baseline, findings and evidence gaps.
-Stop and reassess when the same failure repeats without new evidence, authority must change or a
-runtime gate fails; there is no fixed repair-round quota.
-
-A clear authorized task can go directly to Build, Review and Git-Ops finish; plan only when
-sequencing, risks or dependencies need it; a coherent feature is one Build unit with its tests and
-docs. Bugfix diagnoses an unknown cause first. Existing explicit
-approval for the actual scope persists; urgency and self-written flags do not create it. For ordinary work, select independent review by impact on users, data, access and downstream consumers.
-Always honor explicitly requested review and source-required release gates. Tiny reversible inline work
-can finish with its actual checks and caveats. Derive observable criteria from the authorized outcome
-and record material ones in native `prepare.criteria`. Ask only when ambiguity changes acceptance.
-
-Use `artifact-review` when requested or when a material risk warrants it, not on every artifact. Use
-the distinct [test-review skill](test-review/SKILL.md) when test quality is in question, and say
-whether one reviewer used two skills or an independent child reviewed. Test-quality SOUND never
-approves integration.
-
-`jev_advice` is optional advice, used only when its status shows workflow mode enabled, after the
-deterministic gates, with selected public or already-redacted facts. Keep predictions out of a
-review until its verdict. Advice never approves, waives a gate, establishes a defect or authorizes
-training; OpenAI Decisions is excluded.
-
-## Maintenance rule — the contracts are generated
-
-`plan`, `build`, `review`, `test-review`, `debug` and `investigate` exist twice: `<name>/SKILL.md`
-(interactive contract) and `agents/principal-<name>.md` (the single-shot contract subagents get).
-Both are generated from `contracts/<name>.md.tmpl`; the three spine workflows are generated from
-`contracts/workflows.md.tmpl`, together with the root `principal-agents.json` binding manifest, which
-hashes the generated skill/agent bytes in the same pass (16 outputs). Never hand-edit generated
-files or manifest identities. `prompts/principal-review-branch.md` is handwritten. Change shared
-behavior once, in the template, then `npm run generate`; `npm run generate:check` fails CI on drift.
-
-Divergences are marked in the template: `{{#skill}}` for interactive-dialogue rules, `{{#agent}}`
-for single-shot mechanics (the BLOCKED form, assumptions instead of questions, final-message-only).
-Anything outside a block goes to every output.
-
-Put lasting regressions in existing behavior/domain suites, not PR-named files. `npm test` checks
-current contracts and product behavior. Behavioural measurement lives in
-[principal-pi-skills-evals](https://github.com/mojomanyana/principal-pi-skills-evals); routing checks
-live here.
-
-## Setup (pi)
-
-1. Install Principal with `pi install npm:principal-pi-skills@6.0.0` and restart Pi.
-   For the tested combination with native delegation, use the [Pi ecosystem quickstart](https://github.com/mojomanyana/pi-daddy#start-here).
-   See [README Install](README.md#install-pi) for Pi's `defaultTools` settings for `grep`, `find` and `ls`.
-2. Legacy subagents are optional and usable only when native tools are genuinely absent:
-   `npx -p principal-pi-skills@6.0.0 principal-pi-agents install`, then
-   `npx -p principal-pi-skills@6.0.0 principal-pi-agents check`.
-3. Each skill's `allowed-tools` caps the context a delegated child may receive: `context:summary`
-   for `architect`, `decide` and `plan`; `context:files` for `build`, `debug`, `review`,
-   `test-review` and `investigate`; none for `git-ops`. The reasons are in each frontmatter and the
-   README. Don't raise a ceiling to make a refusal go away.
+1. **Edit templates, never generated outputs directly:** `build/SKILL.md`, `review/SKILL.md`, `debug/SKILL.md`, `agents/principal-*.md`, `prompts/principal-{feature,bugfix,refactor}.md`, and `principal-agents.json` are generated by `npm run generate` from `contracts/*.md.tmpl`.
+2. **Keep zero Turn-1 tool bloat:** Do not register custom tools in `extensions/` unless strictly required and deferred.
+3. **Run full verification before committing:**
+   ```bash
+   npm run generate
+   npm test
+   node scripts/check-word-budgets.mjs
+   ```
+4. **Node 20 CI compatibility:** Unit tests loading `.ts` extensions must remain compatible with Node 20 (see `tests/unit/bootstrap-extension.test.mjs`).
