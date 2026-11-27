@@ -136,7 +136,17 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   assert.ok(existsSync(join(installed, "prompts", "principal-feature.md")));
   const bindings = JSON.parse(readFileSync(join(installed, "principal-agents.json"), "utf8"));
   assert.equal(bindings.package, "principal-pi-skills");
-  assert.deepEqual(Object.keys(bindings.bindings).sort(), ["build", "debug", "review"]);
+  assert.deepEqual(
+    Object.keys(bindings.bindings).sort(),
+    AGENTS.map((a) => a.replace(/^principal-/, "")).sort(),
+    "packed bindings must match the exact 11 delegated Principal roles",
+  );
+  assert.equal("git-ops" in bindings.bindings, false, "git-ops stays inline-only with no delegated twin");
+  assert.deepEqual(
+    JSON.parse(readFileSync(join(installed, "package.json"), "utf8")).pi.skills.filter((s) => s.includes("architect")),
+    ["./architect"],
+    "Architect must expose a single picker entry backed by its delegated twin",
+  );
   for (const binding of Object.values(bindings.bindings)) for (const kind of ["skill", "agent"]) {
     const digest = createHash("sha256").update(readFileSync(join(installed, binding[kind]))).digest("hex");
     assert.equal(digest, binding[`${kind}Sha256`], "packed inline/delegated bytes must match their generated identities");
