@@ -8,7 +8,7 @@ description: >
   implementation. Covers both correctness (bugs, edge cases, error handling, test quality,
   security) and simplicity (dead code, needless abstraction, unneeded dependencies).
   For test-only judgments use test-review.
-allowed-tools: read, grep, find, ls, bash, context:files
+allowed-tools: read, grep, find, ls, bash, scout_brief_read, bookie_search, bookie_read, bookie_propose_memory, context:files
 ---
 
 # Review — Correctness and Simplicity

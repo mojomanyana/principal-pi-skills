@@ -12,10 +12,13 @@ const names = new Set([
   "review",
   "debug",
   "git-ops",
-  "decide",
   "plan",
-  "test-review",
   "investigate",
+  "review-security",
+  "review-perf",
+  "test-engineer",
+  "orchestrator",
+  "refactor",
 ]);
 
 export default function bootstrapExtension(pi) {

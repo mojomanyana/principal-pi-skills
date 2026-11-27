@@ -55,7 +55,7 @@ for (const line of readme.split("\n")) {
   }
 }
 
-const EXPECTED_SKILLS = 5;
+const EXPECTED_SKILLS = 12;
 const skillFiles = checked.filter((p) => p.endsWith("/SKILL.md")).length;
 if (skillFiles !== EXPECTED_SKILLS) {
   errors.push(`parsed ${skillFiles} skill row(s) from README table, expected ${EXPECTED_SKILLS}`);

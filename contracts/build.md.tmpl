@@ -6,6 +6,7 @@
 name: {{name}}
 metadata:
   principal-package: principal-pi-skills
+  principal-verify: true
 description: >
 {{#skill}}
   Use when writing code — implement a feature or spec, fix a bug with a known cause,
@@ -18,12 +19,12 @@ description: >
   "implement step 3 of the plan", "make this test pass", "apply this fix". Returns an
   implementation report. Not for diagnosing an unknown failure (debug) or deciding what to
   build (plan).
-tools: read, grep, find, ls, edit, write, bash
+tools: read, grep, find, ls, edit, edit-diff, write, bash, scout_brief_read, bookie_search, bookie_read, bookie_propose_memory
 {{/agent}}
 {{! context: — the pi-daddy handoff ceiling (0.33.0+); `tools:` omits it because it is not a pi tool.
 {{! context:files, not summary — build implements a stated step from a plan FILE; session turns buy
 {{! nothing the step does not say, and a bash child can send anything it receives anywhere.
-allowed-tools: read, grep, find, ls, edit, write, bash, context:files
+allowed-tools: read, grep, find, ls, edit, edit-diff, write, bash, scout_brief_read, bookie_search, bookie_read, bookie_propose_memory, context:files
 ---
 
 # Build — Design and Implementation

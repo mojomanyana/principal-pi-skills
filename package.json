@@ -35,7 +35,14 @@
       "./build",
       "./review",
       "./debug",
-      "./git-ops"
+      "./git-ops",
+      "./plan",
+      "./investigate",
+      "./review-security",
+      "./review-perf",
+      "./test-engineer",
+      "./orchestrator",
+      "./refactor"
     ],
     "prompts": [
       "./prompts"
@@ -59,6 +66,13 @@
     "review/SKILL.md",
     "debug/SKILL.md",
     "git-ops/SKILL.md",
+    "plan/SKILL.md",
+    "investigate/SKILL.md",
+    "review-security/SKILL.md",
+    "review-perf/SKILL.md",
+    "test-engineer/SKILL.md",
+    "orchestrator/SKILL.md",
+    "refactor/SKILL.md",
     "prompts/*.md",
     "agents/*.md",
     "scripts/install-agents.mjs",

@@ -37,9 +37,21 @@ import { fileURLToPath } from "node:url";
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
 const MANIFEST = ".principal-pi-skills.json";
 const PKG = "principal-pi-skills";
-const SOURCE_NAMES = ["principal-build.md", "principal-debug.md", "principal-review.md"];
+const SOURCE_NAMES = [
+  "principal-architect.md",
+  "principal-build.md",
+  "principal-debug.md",
+  "principal-investigate.md",
+  "principal-orchestrator.md",
+  "principal-plan.md",
+  "principal-refactor.md",
+  "principal-review-perf.md",
+  "principal-review-security.md",
+  "principal-review.md",
+  "principal-test-engineer.md",
+];
 // Historical aliases shipped in earlier releases. Read ownership for check/uninstall only.
-const OWNED_NAMES = new Set([...SOURCE_NAMES, "principal-investigate.md", "principal-plan.md", "principal-test-review.md", "debug.md", "plan.md", "review.md"]);
+const OWNED_NAMES = new Set([...SOURCE_NAMES, "principal-test-review.md", "debug.md", "plan.md", "review.md"]);
 const METADATA_LIMIT = 64 * 1024;
 const AGENT_LIMIT = 1024 * 1024;
 const sha = (value) => createHash("sha256").update(value).digest("hex");

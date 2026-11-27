@@ -27,7 +27,34 @@ import { fileURLToPath } from "node:url";
 import { parsePackMetadata } from "../../scripts/pack-meta.mjs";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
-const SKILLS = ["architect", "build", "review", "debug", "git-ops"];
+const SKILLS = [
+  "architect",
+  "build",
+  "review",
+  "debug",
+  "git-ops",
+  "plan",
+  "investigate",
+  "review-security",
+  "review-perf",
+  "test-engineer",
+  "orchestrator",
+  "refactor",
+];
+const AGENTS = [
+  "principal-architect",
+  "principal-build",
+  "principal-debug",
+  "principal-investigate",
+  "principal-orchestrator",
+  "principal-plan",
+  "principal-refactor",
+  "principal-review",
+  "principal-review-perf",
+  "principal-review-security",
+  "principal-test-engineer",
+];
+const AGENT_FILES = AGENTS.map((a) => `${a}.md`).sort();
 
 // Track exactly what we create; see the note in install-agents.test.mjs — test FILES run
 // concurrently, so cleaning by prefix glob reaches into a sibling suite's directories.
@@ -66,7 +93,7 @@ test("the tarball ships every runtime file a user needs", () => {
   for (const p of ["principal-feature", "principal-bugfix", "principal-refactor", "principal-review-branch"]) {
     if (!files.includes(`prompts/${p}.md`)) missing.push(`prompts/${p}.md`);
   }
-  for (const a of ["principal-review", "principal-debug", "principal-build"]) {
+  for (const a of AGENTS) {
     if (!files.includes(`agents/${a}.md`)) missing.push(`agents/${a}.md`);
   }
   if (!files.includes("scripts/install-agents.mjs")) missing.push("scripts/install-agents.mjs");
@@ -122,7 +149,7 @@ test("installing the tarball into a clean HOME sets up the namespaced agents", (
   });
 
   const agents = readdirSync(join(piDir, "agents")).filter((f) => f.endsWith(".md")).sort();
-  assert.deepEqual(agents, ["principal-build.md", "principal-debug.md", "principal-review.md"]);
+  assert.deepEqual(agents, AGENT_FILES);
 
   const realAfter = existsSync(join(homedir(), ".pi", "agent", "agents"))
     ? readdirSync(join(homedir(), ".pi", "agent", "agents")).sort().join(",")

@@ -51,11 +51,25 @@ test("agentsDir honours PI_CODING_AGENT_DIR, falling back to ~/.pi/agent", () =>
   assert.equal(agentsDir({}, "/home/u"), join("/home/u", ".pi", "agent", "agents"));
 });
 
+const EXPECTED_AGENTS = [
+  "principal-architect.md",
+  "principal-build.md",
+  "principal-debug.md",
+  "principal-investigate.md",
+  "principal-orchestrator.md",
+  "principal-plan.md",
+  "principal-refactor.md",
+  "principal-review-perf.md",
+  "principal-review-security.md",
+  "principal-review.md",
+  "principal-test-engineer.md",
+];
+
 test("install writes only principal-* by default", () => {
   const { env, dir } = fresh();
   assert.equal(quiet(() => run(["install"], env)), 0);
   const files = ls(dir);
-  assert.deepEqual(files, ["principal-build.md", "principal-debug.md", "principal-review.md"]);
+  assert.deepEqual(files, EXPECTED_AGENTS);
 });
 
 test("installed agents are real files, not symlinks into the checkout", () => {
@@ -197,7 +211,7 @@ test("unknown flags and commands are usage errors, not silent no-ops", () => {
 });
 
 test("every source agent is namespaced", () => {
-  assert.deepEqual(sources(), ["principal-build.md", "principal-debug.md", "principal-review.md"]);
+  assert.deepEqual(sources(), EXPECTED_AGENTS);
 });
 
 test("the developer's real agents directory was never touched", () => {

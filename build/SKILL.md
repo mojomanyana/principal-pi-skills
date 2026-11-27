@@ -2,12 +2,13 @@
 name: build
 metadata:
   principal-package: principal-pi-skills
+  principal-verify: true
 description: >
   Use when writing code — implement a feature or spec, fix a bug with a known cause,
   refactor — "fix this", "write the function", "implement the spec", "make the test pass",
   "code this up", "build it". Not for diagnosing an unknown failure (debug) or deciding
   what to build (plan).
-allowed-tools: read, grep, find, ls, edit, write, bash, context:files
+allowed-tools: read, grep, find, ls, edit, edit-diff, write, bash, scout_brief_read, bookie_search, bookie_read, bookie_propose_memory, context:files
 ---
 
 # Build — Design and Implementation

@@ -8,8 +8,8 @@ description: >
   non-trivial implementation. Covers both correctness (bugs, edge cases, error handling,
   test quality, security) and simplicity (dead code, needless abstraction, unneeded
   dependencies).
-tools: read, grep, find, ls, bash
-allowed-tools: read, grep, find, ls, bash, context:files
+tools: read, grep, find, ls, bash, scout_brief_read, bookie_search, bookie_read, bookie_propose_memory
+allowed-tools: read, grep, find, ls, bash, scout_brief_read, bookie_search, bookie_read, bookie_propose_memory, context:files
 ---
 
 # Review — Correctness and Simplicity

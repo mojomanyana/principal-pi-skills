@@ -26,7 +26,7 @@ description: >
   a crash, a CI or lint error — "why is this failing", "find the bug", "debug this", "it
   crashes when", "works on my machine". Not for writing new features or fixing a bug
   whose cause is already known (build).
-tools: read, grep, find, ls, bash
+tools: read, grep, find, ls, bash, scout_brief_read, bookie_search, bookie_read, bookie_propose_memory
 {{/agent}}
 {{! One tool ceiling, two spellings — see docs/DECISION-capability-ceilings.md on the v3.2.0 tag. The `tools:` key was
 {{! ABSENT here until this change, and absent means pi's full default toolset — so debug's twin
@@ -37,7 +37,7 @@ tools: read, grep, find, ls, bash
 {{! context: — the pi-daddy handoff ceiling (0.33.0+); `tools:` omits it because it is not a pi tool.
 {{! context:files, not summary — logs and repro output belong verbatim in a named file, not
 {{! paraphrased in a sentence; and a bash child can send anything it receives anywhere.
-allowed-tools: read, grep, find, ls, bash, context:files
+allowed-tools: read, grep, find, ls, bash, scout_brief_read, bookie_search, bookie_read, bookie_propose_memory, context:files
 ---
 
 # Debug — Hypothesis Before Fix

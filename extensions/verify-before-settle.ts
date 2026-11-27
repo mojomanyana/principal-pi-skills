@@ -75,14 +75,14 @@ export default function verifyBeforeSettleExtension(pi) {
     if (event.toolCallId) pendingArgs.delete(event.toolCallId);
 
     const name = event.toolName;
-    if (name === "edit" || name === "write") {
+    if (name === "edit" || name === "edit-diff" || name === "write") {
       if (!event.isError) {
         consecutiveEditFails = 0;
         const path = args?.path;
         if (typeof path === "string" && path.trim()) editedFiles.add(path.trim());
         else editedFiles.add("(modified file)");
         lastEditTs = Date.now();
-      } else if (name === "edit") {
+      } else if (name === "edit" || name === "edit-diff") {
         consecutiveEditFails++;
       }
       return;

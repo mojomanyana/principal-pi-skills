@@ -7,7 +7,7 @@ description: >
   one that began after a Git operation. The output is a diagnosis. Not for a Git command
   failure, acting on Git/GitHub, or answering a repository-state question (git-ops), or
   implementing a known fix (build).
-allowed-tools: read, grep, find, ls, bash, context:files
+allowed-tools: read, grep, find, ls, bash, scout_brief_read, bookie_search, bookie_read, bookie_propose_memory, context:files
 ---
 
 # Debug — Hypothesis Before Fix

@@ -38,13 +38,25 @@
  *   node scripts/generate-contracts.mjs --check    render in memory, diff, exit 1 on drift
  */
 
-import { readFileSync, writeFileSync, realpathSync } from "node:fs";
+import { mkdirSync, readFileSync, writeFileSync, realpathSync } from "node:fs";
 import { createHash } from "node:crypto";
 import { join, dirname } from "node:path";
 import { fileURLToPath } from "node:url";
 
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), "..");
-const CONTRACTS = ["review", "debug", "build"];
+export const CONTRACTS = [
+  "architect",
+  "build",
+  "review",
+  "debug",
+  "plan",
+  "investigate",
+  "review-security",
+  "review-perf",
+  "test-engineer",
+  "orchestrator",
+  "refactor",
+];
 
 /**
  * Two outputs per contract:
@@ -196,6 +208,7 @@ for (const { source, path, rendered } of outputs) {
       );
     }
   } else {
+    mkdirSync(dirname(join(ROOT, path)), { recursive: true });
     writeFileSync(join(ROOT, path), rendered);
     written++;
   }

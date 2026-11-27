@@ -39,10 +39,17 @@ Every word count below is verified by `node scripts/check-word-budgets.mjs`.
 
 | Skill | Purpose | Execution | Words |
 |---|---|---|---|
-| `architect` | Design structure, boundaries, interfaces, and migrations before large changes | inline | 1357 |
-| `build` | Scoped implementation with concrete verification and regression tests | inline or subagent (`agents/principal-build.md`, 1792) | 1739 |
-| `review` | Cold, evidence-backed code review of diffs and behavior | subagent (`agents/principal-review.md`, 1450) or inline | 1398 |
-| `debug` | Reproduce, isolate root cause, apply minimal fix, add regression test | inline or subagent (`agents/principal-debug.md`, 1469) | 1288 |
+| `architect` | Design structure, boundaries, interfaces, and migrations | inline or subagent (`agents/principal-architect.md`, 334) | 301 |
+| `plan` | Invariant-first breakdown, target files, and verification plan | inline or subagent (`agents/principal-plan.md`, 208) | 163 |
+| `investigate` | Read-only codebase tracing with call paths and file references | subagent (`agents/principal-investigate.md`, 198) or inline | 149 |
+| `build` | Scoped implementation with concrete verification and regression tests | inline or subagent (`agents/principal-build.md`, 1804) | 1746 |
+| `refactor` | Behavior-preserving cleanup with characterization checks | inline or subagent (`agents/principal-refactor.md`, 151) | 136 |
+| `test-engineer` | Adversarial edge-case, concurrency, and regression test suites | subagent (`agents/principal-test-engineer.md`, 205) or inline | 169 |
+| `review` | Cold, evidence-backed code review of diffs and behavior | subagent (`agents/principal-review.md`, 1458) or inline | 1402 |
+| `review-security` | Cold read-only security audit (authz, injection, secrets, boundaries) | subagent (`agents/principal-review-security.md`, 192) or inline | 180 |
+| `review-perf` | Cold read-only performance, scaling, and concurrency audit | subagent (`agents/principal-review-perf.md`, 181) or inline | 169 |
+| `debug` | Reproduce, isolate root cause, apply minimal fix, add regression test | inline or subagent (`agents/principal-debug.md`, 1477) | 1292 |
+| `orchestrator` | Multi-specialist coordinator sharing session fanout and depth limits | subagent (`agents/principal-orchestrator.md`, 209) or inline | 197 |
 | `git-ops` | Safe branching, commit hygiene, release prep, and recovery playbooks | inline | 2536 |
 
 ### Workflow Prompts
