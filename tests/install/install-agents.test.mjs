@@ -289,7 +289,10 @@ test("ordinary owned files update, but edits remain protected even with --force"
 });
 
 test("all owned target types and manifest type are validated before uninstall", () => {
-  for (const location of ["principal-review.md", MANIFEST]) for (const kind of ["symlink", "directory", "fifo"]) {
+  // On native Windows, Git Bash `mkfifo` creates an ordinary MSYS2 file rather than a kernel FIFO;
+  // symlink and directory validation still runs on Windows, and FIFO runs on POSIX.
+  const kinds = process.platform === "win32" ? ["symlink", "directory"] : ["symlink", "directory", "fifo"];
+  for (const location of ["principal-review.md", MANIFEST]) for (const kind of kinds) {
     const { env, dir, base } = fresh();
     quiet(() => run(["install"], env));
     const target = join(dir, location);
